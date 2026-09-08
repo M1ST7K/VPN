@@ -42,6 +42,11 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Default packages include `tools`, which pulls Android Emulator.
+          # A corrupt emulator zip has failed the push job while the matching
+          # pull_request job succeeded. This job never launches an emulator.
+          packages: platform-tools
 
       - name: Install native build prerequisites and Android 17 SDK
         shell: bash
