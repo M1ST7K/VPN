@@ -51,8 +51,10 @@ class HotfoxTrafficAccumulator {
         if (tx < lastRawTx || rx < lastRawRx) {
             extraTx += max(0L, lastRawTx - baselineTx)
             extraRx += max(0L, lastRawRx - baselineRx)
-            baselineTx = tx
-            baselineRx = rx
+            // Native counters restarted; the new raw values are already relative
+            // to the new HEV process, so do not treat them as a fresh baseline of zero extra.
+            baselineTx = 0L
+            baselineRx = 0L
         }
         lastRawTx = tx
         lastRawRx = rx
