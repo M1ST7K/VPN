@@ -88,6 +88,17 @@ fi
 log "applying HotFox Proxy 2.1.0 source overlay"
 tar -xJf "$TMP/hotfox_overlay_text_2_1_0.tar.xz" -C "$ROOT/V2rayNG"
 
+# Text overlay cannot carry binary branding bitmaps. Install the vector HotFox
+# mark referenced by nav_header.xml and activity_renewal.xml after the overlay.
+mkdir -p "$ROOT/V2rayNG/app/src/main/res/drawable"
+cp "$ROOT/bootstrap/assets/drawable/hotfox_logo.xml" \
+  "$ROOT/V2rayNG/app/src/main/res/drawable/hotfox_logo.xml"
+[[ -s "$ROOT/V2rayNG/app/src/main/res/drawable/hotfox_logo.xml" ]] || fail "hotfox_logo drawable was not installed"
+
+if [[ ! -f "$ROOT/V2rayNG/local.properties" && -n "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}" ]]; then
+  printf 'sdk.dir=%s\n' "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" > "$ROOT/V2rayNG/local.properties"
+fi
+
 mkdir -p "$ROOT/V2rayNG/app/libs"
 
 if [[ -n "${HOTFOX_PREBUILT_HEV_DIR:-}" ]]; then
