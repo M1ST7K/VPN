@@ -95,6 +95,10 @@ def main() -> int:
             fail("handover is not serialized against startup")
         if "ignoringCoreShutdownCallback" not in manager:
             fail("core shutdown re-entry guard missing")
+        if "private fun awaitCoreStop(): Boolean" not in manager:
+            fail("awaitCoreStop must report a Boolean outcome")
+        if "markStopIncomplete" not in manager:
+            fail("timed-out core stop is not fail-closed")
 
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/ConnectionUiMapper.kt",
@@ -108,6 +112,21 @@ def main() -> int:
         "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
         "probeSocks5",
         "SOCKS5 handshake readiness",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+        "injectThroughVpn",
+        "TUN inject through VPN network",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+        "tun-not-forwarded",
+        "TUN progress fail-closed reason",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt",
+        "isTeardownActive",
+        "teardown start barrier",
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",

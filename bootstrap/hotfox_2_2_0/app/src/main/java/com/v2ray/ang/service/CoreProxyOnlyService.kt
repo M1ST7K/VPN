@@ -44,15 +44,19 @@ class CoreProxyOnlyService : Service(), ServiceControl {
         }
 
         val attempt = VpnSessionCoordinator.beginAttempt()
-        VpnSessionCoordinator.setState(VpnSessionState.STARTING_CORE)
+        if (attempt == 0L) {
+            LogUtil.w(AppConfig.TAG, "StartCore-Proxy: beginAttempt refused")
+            return START_STICKY
+        }
+        VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_CORE)
         if (!CoreServiceManager.startCoreLoop(null, notifyUiWhenReady = false)) {
             LogUtil.e(AppConfig.TAG, "StartCore-Proxy: Failed to start core loop")
-            VpnSessionCoordinator.markError("HF-VPN-003", "Не удалось запустить ядро")
+            VpnSessionCoordinator.markError(attempt, "HF-VPN-003", "Не удалось запустить ядро")
             stopSelf()
             return START_NOT_STICKY
         }
         serviceScope.launch {
-            VpnSessionCoordinator.setState(VpnSessionState.WAITING_SOCKS)
+            if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.WAITING_SOCKS)) return@launch
             val socksPort = SettingsManager.getSocksPort()
             if (!VpnReadiness.waitForLocalSocks(
                     socksPort,
@@ -60,7 +64,9 @@ class CoreProxyOnlyService : Service(), ServiceControl {
                     password = SettingsManager.getSocksPassword(),
                 )
             ) {
-                VpnSessionCoordinator.markError("HF-VPN-004", "Локальный прокси не запустился")
+                if (!VpnSessionCoordinator.markError(attempt, "HF-VPN-004", "Локальный прокси не запустился")) {
+                    return@launch
+                }
                 stopSelf()
                 return@launch
             }
@@ -73,12 +79,9 @@ class CoreProxyOnlyService : Service(), ServiceControl {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         serviceScope.cancel()
         CoreServiceManager.stopCoreLoop()
-        if (VpnSessionCoordinator.currentState() != VpnSessionState.ERROR) {
-            VpnSessionCoordinator.markDisconnected()
-        }
+        super.onDestroy()
     }
 
     override fun getService(): Service {

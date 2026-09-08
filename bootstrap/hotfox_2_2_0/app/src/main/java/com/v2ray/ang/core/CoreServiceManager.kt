@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants
 import androidx.core.content.ContextCompat
@@ -36,6 +37,7 @@ import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.VpnReadiness
 import com.v2ray.ang.vpn.VpnSessionCoordinator
+import com.v2ray.ang.vpn.VpnSessionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,8 +47,10 @@ import libv2ray.ProcessFinder
 import java.lang.ref.SoftReference
 import java.net.InetSocketAddress
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.jvm.Volatile
 
 object CoreServiceManager {
@@ -65,6 +69,10 @@ object CoreServiceManager {
     private var ignoringCoreShutdownCallback = false
 
     private val stopInProgress = AtomicBoolean(false)
+    private val stopWorker = AtomicReference<Thread?>(null)
+    private val stopExecutor = Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "hotfox-core-stop-exec").apply { isDaemon = false }
+    }
 
     @Volatile
     private var hevStatsProvider: (() -> LongArray?)? = null
@@ -235,6 +243,11 @@ object CoreServiceManager {
      * Starts the V2Ray core service.
      */
     fun startCoreLoop(vpnInterface: ParcelFileDescriptor?, notifyUiWhenReady: Boolean = true): Boolean {
+        reconcileTeardownBarrier()
+        if (VpnSessionCoordinator.isTeardownActive() || isCoreStopActive()) {
+            LogUtil.e(AppConfig.TAG, "StartCore-Manager: start refused; previous stop still active")
+            return false
+        }
         VpnSessionCoordinator.beginStart()
         try {
             if (coreController.isRunning) {
@@ -363,23 +376,50 @@ object CoreServiceManager {
      * Unregisters broadcast receivers, stops notifications, and shuts down plugins.
      * @return True if the core was stopped successfully, false otherwise.
      */
-    fun stopCoreLoop(): Boolean {
+    fun stopCoreLoop(preStop: (() -> Unit)? = null): Boolean {
+        if (isMainThread()) {
+            VpnSessionCoordinator.setTeardownActive(true)
+            val attempt = VpnSessionCoordinator.currentAttempt()
+            if (VpnSessionCoordinator.currentState() != VpnSessionState.ERROR) {
+                VpnSessionCoordinator.setState(attempt, VpnSessionState.DISCONNECTING)
+            }
+            stopExecutor.execute {
+                stopCoreLoopBlocking(preStop)
+            }
+            return false
+        }
+        return stopCoreLoopBlocking(preStop)
+    }
+
+    private fun stopCoreLoopBlocking(preStop: (() -> Unit)? = null): Boolean {
         VpnSessionCoordinator.beginStop()
         try {
-            if (!stopInProgress.compareAndSet(false, true)) {
+            VpnSessionCoordinator.setTeardownActive(true)
+            if (!stopInProgress.compareAndSet(false, true) && isCoreStopActive()) {
                 LogUtil.i(AppConfig.TAG, "StartCore-Manager: stop already in progress")
-                return true
+                return false
             }
             val service = getService()
             ignoringCoreShutdownCallback = true
             try {
+                runCatching { preStop?.invoke() }
                 networkMonitor?.unregister()
                 networkMonitor = null
                 currentVpnInterface = null
                 hevStatsProvider = null
 
-                if (coreController.isRunning) {
-                    awaitCoreStop()
+                val stopped = if (coreController.isRunning) awaitCoreStop() else true
+                if (!stopped) {
+                    LogUtil.e(AppConfig.TAG, "StartCore-Manager: core stop did not complete")
+                    VpnSessionCoordinator.markStopIncomplete("Ядро не остановилось")
+                    if (service != null) {
+                        MessageUtil.sendMsg2UI(
+                            service,
+                            AppConfig.MSG_STATE_START_FAILURE,
+                            "Ядро не остановилось",
+                        )
+                    }
+                    return false
                 }
 
                 CoreNativeManager.reconcileBrowserDialer("")
@@ -397,28 +437,68 @@ object CoreServiceManager {
                         LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to unregister receiver", e)
                     }
                 }
+                if (VpnSessionCoordinator.currentState() != VpnSessionState.ERROR) {
+                    VpnSessionCoordinator.markDisconnected()
+                } else {
+                    VpnSessionCoordinator.setTeardownActive(false)
+                }
                 return true
             } finally {
-                ignoringCoreShutdownCallback = false
-                stopInProgress.set(false)
+                ignoringCoreShutdownCallback = isCoreStopActive()
+                if (!isCoreStopActive()) {
+                    stopInProgress.set(false)
+                }
             }
         } finally {
             VpnSessionCoordinator.endStop()
         }
     }
 
-    private fun awaitCoreStop() {
+    fun isCoreStopActive(): Boolean {
+        val worker = stopWorker.get() ?: return false
+        if (worker.isAlive) return true
+        stopWorker.compareAndSet(worker, null)
+        return false
+    }
+
+    private fun reconcileTeardownBarrier() {
+        if (isCoreStopActive()) return
+        if (stopInProgress.get() && stopWorker.get() == null) {
+            stopInProgress.set(false)
+        }
+        if (!isCoreStopActive() && VpnSessionCoordinator.currentState() == VpnSessionState.ERROR) {
+            VpnSessionCoordinator.setTeardownActive(false)
+        }
+    }
+
+    private fun isMainThread(): Boolean =
+        runCatching { Looper.getMainLooper() == Looper.myLooper() }.getOrDefault(false)
+
+    /**
+     * Awaits [CoreController.stopLoop] on a dedicated non-daemon thread.
+     * Returns false on timeout or exception; the worker remains a start barrier until it dies.
+     */
+    private fun awaitCoreStop(): Boolean {
         val done = CountDownLatch(1)
+        val succeeded = AtomicBoolean(false)
         val worker = Thread({
             try {
                 coreController.stopLoop()
+                succeeded.set(true)
             } catch (e: Exception) {
                 LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to stop V2Ray loop", e)
+                succeeded.set(false)
             } finally {
                 done.countDown()
+                stopWorker.compareAndSet(Thread.currentThread(), null)
+                stopInProgress.set(false)
+                if (VpnSessionCoordinator.currentState() == VpnSessionState.ERROR) {
+                    VpnSessionCoordinator.setTeardownActive(false)
+                }
             }
         }, "hotfox-core-stop")
-        worker.isDaemon = true
+        worker.isDaemon = false
+        stopWorker.set(worker)
         worker.start()
         val finished = try {
             done.await(8, TimeUnit.SECONDS)
@@ -428,7 +508,10 @@ object CoreServiceManager {
         }
         if (!finished) {
             LogUtil.e(AppConfig.TAG, "StartCore-Manager: core stop timed out")
+            return false
         }
+        worker.join(1_000)
+        return succeeded.get()
     }
 
     /** Watches the physical uplink and keeps the existing Android VPN alive across handovers. */
@@ -474,21 +557,31 @@ object CoreServiceManager {
             val socksUser = SettingsManager.getSocksUsername()
             val socksPassword = SettingsManager.getSocksPassword()
             if (!VpnReadiness.waitForLocalSocksBlocking(socksPort, username = socksUser, password = socksPassword)) {
-                VpnSessionCoordinator.markError("HF-VPN-004", "Локальный прокси не восстановился")
+                if (!VpnSessionCoordinator.markError(attempt, "HF-VPN-004", "Локальный прокси не восстановился")) {
+                    return false
+                }
                 MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, "Локальный прокси не восстановился")
                 return false
             }
+            if (!VpnSessionCoordinator.isCurrent(attempt)) return false
             val usingHev = SettingsManager.isUsingHevTun()
+            val svc = getService()
             val path = VpnReadiness.verifyConfiguredPathBlocking(
                 socksPort = socksPort,
                 socksUser = socksUser,
                 socksPassword = socksPassword,
                 tunEstablished = tunInterface != null,
                 hevStatsProvider = if (usingHev) hevStatsProvider else null,
+                tunInjector = {
+                    svc?.let { VpnReadiness.injectThroughVpn(it) } ?: false
+                },
+                xrayTunSnapshot = if (!usingHev) ({ snapshotOutboundCounters() }) else null,
             )
-            VpnSessionCoordinator.recordPath(path)
+            if (!VpnSessionCoordinator.recordPath(attempt, path)) return false
             if (!path.verified) {
-                VpnSessionCoordinator.markError("HF-VPN-006", "Путь VPN не подтверждён (${path.reason})")
+                if (!VpnSessionCoordinator.markError(attempt, "HF-VPN-006", "Путь VPN не подтверждён (${path.reason})")) {
+                    return false
+                }
                 MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, "Путь VPN не подтверждён")
                 return false
             }
@@ -500,13 +593,28 @@ object CoreServiceManager {
         } catch (e: Exception) {
             val message = e.message?.takeUnless { it.isBlank() } ?: e.javaClass.simpleName
             LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to reload core: $message", e)
-            VpnSessionCoordinator.markError("HF-VPN-003", "Не удалось переподключить ядро")
+            VpnSessionCoordinator.markError(attempt, "HF-VPN-003", "Не удалось переподключить ядро")
             MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, ErrorMessageMapper.toRussian(message))
             false
         } finally {
             isReloading = false
             VpnSessionCoordinator.endReload()
         }
+    }
+
+    fun snapshotOutboundCounters(): LongArray {
+        var up = 0L
+        var down = 0L
+        queryAllOutboundTrafficStats().forEach { stat ->
+            when (stat.direction.lowercase()) {
+                "uplink", "up", "tx" -> up += stat.value
+                "downlink", "down", "rx" -> down += stat.value
+                else -> {
+                    up += stat.value
+                }
+            }
+        }
+        return longArrayOf(0L, up, 0L, down)
     }
 
     /**

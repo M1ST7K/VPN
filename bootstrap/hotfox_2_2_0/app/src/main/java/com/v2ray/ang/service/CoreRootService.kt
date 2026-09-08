@@ -29,7 +29,8 @@ import java.lang.ref.SoftReference
  *
  * The in-process core is started first (so its listener is up and the foreground
  * notification is posted promptly), then the root routing rules are installed off the
- * main thread. On teardown the rules are removed before the core stops.
+ * main thread. On teardown the rules are removed before the core stops, on the
+ * dedicated stop worker rather than the Android lifecycle thread.
  */
 class CoreRootService : Service(), ServiceControl {
 
@@ -56,10 +57,14 @@ class CoreRootService : Service(), ServiceControl {
         }
 
         val attempt = VpnSessionCoordinator.beginAttempt()
-        VpnSessionCoordinator.setState(VpnSessionState.STARTING_CORE)
+        if (attempt == 0L) {
+            LogUtil.w(AppConfig.TAG, "StartCore-Root: beginAttempt refused")
+            return START_STICKY
+        }
+        VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_CORE)
         if (!CoreServiceManager.startCoreLoop(null, notifyUiWhenReady = false)) {
             LogUtil.e(AppConfig.TAG, "StartCore-Root: core failed to start")
-            VpnSessionCoordinator.markError("HF-VPN-003", "Не удалось запустить ядро")
+            VpnSessionCoordinator.markError(attempt, "HF-VPN-003", "Не удалось запустить ядро")
             stopService()
             return START_NOT_STICKY
         }
@@ -67,7 +72,9 @@ class CoreRootService : Service(), ServiceControl {
         setupJob = CoroutineScope(Dispatchers.IO).launch {
             if (!RootProxyManager.start(this@CoreRootService)) {
                 LogUtil.e(AppConfig.TAG, "StartCore-Root: failed to start root mode, stopping")
-                VpnSessionCoordinator.markError("HF-VPN-007", "Не удалось установить root-маршрутизацию")
+                if (!VpnSessionCoordinator.markError(attempt, "HF-VPN-007", "Не удалось установить root-маршрутизацию")) {
+                    return@launch
+                }
                 stopService()
                 return@launch
             }
@@ -81,20 +88,15 @@ class CoreRootService : Service(), ServiceControl {
     }
 
     override fun onDestroy() {
+        val app = applicationContext
+        val inFlight = setupJob
+        CoreServiceManager.stopCoreLoop(
+            preStop = {
+                runBlocking { inFlight?.cancelAndJoin() }
+                RootProxyManager.stop(app)
+            },
+        )
         super.onDestroy()
-        // Wait for any in-flight async setup to finish before tearing down. The rules are
-        // installed off the main thread and can take seconds (the setup script waits for the
-        // tun to appear); if a stop arrives during that window, teardown would run first and
-        // the setup would then re-install the rules + tun pointing at a now-dead core,
-        // blackholing all traffic until the next start/stop cycle clears it.
-        runBlocking { setupJob?.cancelAndJoin() }
-        // Remove routing rules BEFORE stopping the core so traffic is never redirected
-        // to a dead listener. Synchronous on purpose — leaving rules behind breaks the net.
-        RootProxyManager.stop(this)
-        CoreServiceManager.stopCoreLoop()
-        if (VpnSessionCoordinator.currentState() != VpnSessionState.ERROR) {
-            VpnSessionCoordinator.markDisconnected()
-        }
     }
 
     override fun getService(): Service = this

@@ -26,6 +26,14 @@ grep -q 'VpnSessionCoordinator.markConnected(' "$PROJECT/app/src/main/java/com/v
   || fail "markConnected missing"
 grep -q 'pathVerified' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "pathVerified gate missing"
+grep -q 'injectThroughVpn' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt" \
+  || fail "TUN inject probe missing"
+grep -q 'tun-not-forwarded' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt" \
+  || fail "TUN progress fail-closed reason missing"
+grep -q 'isTeardownActive' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt" \
+  || fail "teardown barrier missing"
+grep -q 'markStopIncomplete' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "stop timeout fail-closed missing"
 grep -q 'fun vpnProtect' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "vpnProtect missing"
 grep -q 'addDisallowedApplication(selfPackageName)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \

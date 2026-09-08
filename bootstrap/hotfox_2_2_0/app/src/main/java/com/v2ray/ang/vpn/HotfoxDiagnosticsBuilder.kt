@@ -35,6 +35,8 @@ object HotfoxDiagnosticsBuilder {
             appendLine("socks=127.0.0.1:$socksPort ready=${formatTriState(socksReady)}")
             appendLine("socks5=${formatTriState(path?.socks5Ready ?: socksReady)}")
             appendLine("hev=${formatTriState(hevRunning)}")
+            appendLine("hevProgressed=${formatTriState(path?.hevProgressed)}")
+            appendLine("tunForwarded=${formatTriState(path?.tunForwarded)}")
             appendLine("xrayEgressMs=${path?.xrayEgressMs ?: "unknown"}")
             appendLine("pathVerified=${path?.verified ?: "unknown"}")
             appendLine("pathBackend=${path?.backend ?: "unknown"}")

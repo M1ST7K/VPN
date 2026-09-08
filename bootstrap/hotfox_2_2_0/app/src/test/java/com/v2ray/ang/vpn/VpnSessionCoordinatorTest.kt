@@ -105,4 +105,56 @@ class VpnSessionCoordinatorTest {
         assertFalse(VpnSessionCoordinator.markConnected(attempt, pathVerified = true))
         assertEquals(VpnSessionState.DISCONNECTED, VpnSessionCoordinator.currentState())
     }
+
+    @Test
+    fun stalePathFailureDoesNotErrorNewerAttempt() {
+        val first = VpnSessionCoordinator.beginAttempt()
+        val second = VpnSessionCoordinator.beginAttempt()
+        assertFalse(VpnSessionCoordinator.markError(first, "HF-VPN-004", "socks timeout"))
+        assertEquals(VpnSessionState.PREPARING, VpnSessionCoordinator.currentState())
+        assertTrue(VpnSessionCoordinator.isCurrent(second))
+        assertTrue(VpnSessionCoordinator.markError(second, "HF-VPN-004", "socks timeout"))
+        assertEquals(VpnSessionState.ERROR, VpnSessionCoordinator.currentState())
+        assertFalse(VpnSessionCoordinator.isCurrent(second))
+    }
+
+    @Test
+    fun staleSetStateAndRecordPathAreIgnored() {
+        val first = VpnSessionCoordinator.beginAttempt()
+        val second = VpnSessionCoordinator.beginAttempt()
+        assertFalse(VpnSessionCoordinator.setState(first, VpnSessionState.WAITING_SOCKS))
+        assertEquals(VpnSessionState.PREPARING, VpnSessionCoordinator.currentState())
+        val path = VpnPathVerification(
+            socks5Ready = true,
+            hevAlive = true,
+            tunForwarded = true,
+            xrayEgressMs = 1L,
+            tunEstablished = true,
+            backend = VpnPathVerification.BACKEND_HEV,
+            verified = true,
+        )
+        assertFalse(VpnSessionCoordinator.recordPath(first, path))
+        assertEquals(null, VpnSessionCoordinator.lastPath())
+        assertTrue(VpnSessionCoordinator.recordPath(second, path))
+        assertEquals(true, VpnSessionCoordinator.lastPath()?.verified)
+    }
+
+    @Test
+    fun shutdownTimeoutRejectsRestartUntilBarrierClears() {
+        VpnSessionCoordinator.markStopIncomplete("Ядро не остановилось")
+        assertEquals(VpnSessionState.ERROR, VpnSessionCoordinator.currentState())
+        assertTrue(VpnSessionCoordinator.isTeardownActive())
+        assertEquals(0L, VpnSessionCoordinator.beginAttempt())
+        assertEquals(
+            DuplicateStartDisposition.IGNORE,
+            VpnSessionCoordinator.duplicateStartDisposition(),
+        )
+        kotlinx.coroutines.runBlocking {
+            assertFalse(VpnSessionCoordinator.awaitIdle(120L))
+        }
+        VpnSessionCoordinator.setTeardownActive(false)
+        val attempt = VpnSessionCoordinator.beginAttempt()
+        assertTrue(attempt > 0L)
+        assertEquals(VpnSessionState.PREPARING, VpnSessionCoordinator.currentState())
+    }
 }

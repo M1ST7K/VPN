@@ -36,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -116,10 +117,21 @@ class CoreVpnService : VpnService(), ServiceControl {
             return START_STICKY
         }
 
-        VpnSessionCoordinator.beginAttempt()
-        VpnSessionCoordinator.setState(VpnSessionState.ESTABLISHING_TUN)
+        if (VpnSessionCoordinator.isTeardownActive()) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: start refused; teardown active")
+            unlockStart()
+            return START_STICKY
+        }
+
+        val attempt = VpnSessionCoordinator.beginAttempt()
+        if (attempt == 0L) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: beginAttempt refused")
+            unlockStart()
+            return START_STICKY
+        }
+        VpnSessionCoordinator.setState(attempt, VpnSessionState.ESTABLISHING_TUN)
         if (!setupVpnService()) {
-            VpnSessionCoordinator.markError("HF-VPN-002", "Не удалось создать VPN-интерфейс")
+            VpnSessionCoordinator.markError(attempt, "HF-VPN-002", "Не удалось создать VPN-интерфейс")
             unlockStart()
             stopSelf()
             return START_NOT_STICKY
@@ -138,59 +150,61 @@ class CoreVpnService : VpnService(), ServiceControl {
             return
         }
         SettingsManager.initAssets(this, assets)
-        pipelineJob?.cancel()
+        val previous = pipelineJob
         pipelineJob = serviceScope.launch {
+            previous?.cancelAndJoin()
             startTunnelPipeline()
         }
     }
 
     private suspend fun startTunnelPipeline() {
         val attempt = VpnSessionCoordinator.currentAttempt()
-        VpnSessionCoordinator.setState(VpnSessionState.STARTING_CORE)
+        if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_CORE)) return
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: STARTING_CORE attempt=$attempt")
         if (!pipelineStillCurrent(attempt)) return
         // Do not report "connected" before the complete TUN path is usable.
         if (!CoreServiceManager.startCoreLoop(mInterface, notifyUiWhenReady = false)) {
             LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to start core loop")
-            VpnSessionCoordinator.markError("HF-VPN-003", "Не удалось запустить ядро")
-            stopAllService()
+            failTunnelStart(attempt, "HF-VPN-003", "Не удалось запустить ядро")
             return
         }
+        if (!pipelineStillCurrent(attempt)) return
 
         val socksPort = SettingsManager.getSocksPort()
         val socksUser = SettingsManager.getSocksUsername()
         val socksPassword = SettingsManager.getSocksPassword()
         val usingHev = SettingsManager.isUsingHevTun()
 
-        VpnSessionCoordinator.setState(VpnSessionState.WAITING_SOCKS)
-        if (!pipelineStillCurrent(attempt)) return
+        if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.WAITING_SOCKS)) return
         if (!VpnReadiness.waitForLocalSocks(socksPort, username = socksUser, password = socksPassword)) {
-            failTunnelStart("HF-VPN-004", "Локальный прокси не запустился")
+            failTunnelStart(attempt, "HF-VPN-004", "Локальный прокси не запустился")
             return
         }
+        if (!pipelineStillCurrent(attempt)) return
 
         if (usingHev) {
-            VpnSessionCoordinator.setState(VpnSessionState.STARTING_HEV)
-            if (!pipelineStillCurrent(attempt)) return
+            if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_HEV)) return
             if (!runTun2socks()) {
-                failTunnelStart("HF-VPN-005", "Не удалось запустить сетевой туннель")
+                failTunnelStart(attempt, "HF-VPN-005", "Не удалось запустить сетевой туннель")
                 return
             }
+            if (!pipelineStillCurrent(attempt)) return
             CoreServiceManager.setHevStatsProvider { tun2SocksService?.getStats() }
         }
 
-        VpnSessionCoordinator.setState(VpnSessionState.VERIFYING_PATH)
-        if (!pipelineStillCurrent(attempt)) return
+        if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.VERIFYING_PATH)) return
         val path = VpnReadiness.verifyConfiguredPath(
             socksPort = socksPort,
             socksUser = socksUser,
             socksPassword = socksPassword,
             tunEstablished = isRunning && ::mInterface.isInitialized,
             hevStatsProvider = if (usingHev) ({ tun2SocksService?.getStats() }) else null,
+            tunInjector = { VpnReadiness.injectThroughVpn(this@CoreVpnService) },
+            xrayTunSnapshot = if (!usingHev) ({ CoreServiceManager.snapshotOutboundCounters() }) else null,
         )
-        VpnSessionCoordinator.recordPath(path)
+        if (!VpnSessionCoordinator.recordPath(attempt, path)) return
         if (!path.verified) {
-            failTunnelStart("HF-VPN-006", "Путь VPN не подтверждён (${path.reason})")
+            failTunnelStart(attempt, "HF-VPN-006", "Путь VPN не подтверждён (${path.reason})")
             return
         }
 
@@ -443,22 +457,23 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
     }
 
-    private fun failTunnelStart(code: String, message: String) {
+    private fun failTunnelStart(attempt: Long, code: String, message: String) {
         LogUtil.e(AppConfig.TAG, "StartCore-VPN: $code $message")
-        VpnSessionCoordinator.markError(code, message)
+        if (!VpnSessionCoordinator.markError(attempt, code, message)) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: stale failTunnelStart ignored attempt=$attempt")
+            return
+        }
         MessageUtil.sendMsg2UI(this, AppConfig.MSG_STATE_START_FAILURE, message)
         stopAllService()
     }
 
     private fun stopAllService(isForced: Boolean = true) {
         unlockStart()
-//        val configName = defaultDPreference.getPrefString(PREF_CURR_CONFIG_GUID, "")
-//        val emptyInfo = VpnNetworkInfo()
-//        val info = loadVpnNetworkInfo(configName, emptyInfo)!! + (lastNetworkInfo ?: emptyInfo)
-//        saveVpnNetworkInfo(configName, info)
         val keepError = VpnSessionCoordinator.currentState() == VpnSessionState.ERROR
+        val stopAttempt = VpnSessionCoordinator.currentAttempt()
         if (!keepError) {
-            VpnSessionCoordinator.setState(VpnSessionState.DISCONNECTING)
+            VpnSessionCoordinator.setState(stopAttempt, VpnSessionState.DISCONNECTING)
+            VpnSessionCoordinator.setTeardownActive(true)
         }
         isRunning = false
         pipelineJob?.cancel()
@@ -471,16 +486,9 @@ class CoreVpnService : VpnService(), ServiceControl {
 
         RootLanSharing.stopClientSharing(this)
 
-        CoreServiceManager.stopCoreLoop()
-
         if (isForced) {
-            //stopSelf has to be called ahead of mInterface.close(). otherwise v2ray core cannot be stooped
-            //It's strage but true.
-            //This can be verified by putting stopself() behind and call stopLoop and startLoop
-            //in a row for several times. You will find that later created v2ray core report port in use
-            //which means the first v2ray core somehow failed to stop and release the port.
+            // stopSelf has to be called ahead of mInterface.close(). otherwise v2ray core cannot be stooped
             stopSelf()
-
             try {
                 if (::mInterface.isInitialized) {
                     mInterface.close()
@@ -490,9 +498,8 @@ class CoreVpnService : VpnService(), ServiceControl {
                 LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to close interface", e)
             }
         }
-        if (!keepError) {
-            VpnSessionCoordinator.markDisconnected()
-        }
+
+        CoreServiceManager.stopCoreLoop()
     }
 
     private fun tryLockStart(): Boolean = isStartingLock.compareAndSet(false, true)
