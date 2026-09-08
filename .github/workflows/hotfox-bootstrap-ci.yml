@@ -190,13 +190,15 @@ jobs:
             --prerelease \
             "${apks[@]}"
 
+  # Emulator smoke is deliberately manual-only. It is useful for occasional UI/install
+  # checks but must not add up to 40 minutes to every Cursor push or checkpoint cycle.
   emulator-ui-smoke:
-    name: Emulator UI smoke (not VPN E2E)
+    name: Emulator UI smoke (manual, not VPN E2E)
     needs: reconstruct-and-build
-    if: success() && github.event_name == 'push'
+    if: success() && github.event_name == 'workflow_dispatch'
     continue-on-error: true
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 15
     env:
       API_LEVEL: 34
     steps:
