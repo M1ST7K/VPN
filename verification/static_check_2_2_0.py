@@ -103,6 +103,8 @@ def main() -> int:
             fail("awaitCoreStop must report a Boolean outcome")
         if "completeStopOutcome" not in manager:
             fail("timed-out core stop is not fail-closed")
+        if "resolveForHandover" not in manager:
+            fail("network handover does not re-resolve AUTO server")
 
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/ConnectionUiMapper.kt",
@@ -166,6 +168,21 @@ def main() -> int:
         "app/src/main/res/layout/activity_main.xml",
         "HotFox",
         "editorial HotFox UI",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt",
+        "fun resolveForHandover",
+        "AUTO handover re-resolution",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt",
+        "HotfoxServerListContract.AUTO_ROW_INDEX",
+        "AUTO row is first in the server list",
+    )
+    must_contain(
+        "app/src/main/res/values-ru/strings.xml",
+        "Авто-выбор сервера",
+        "AUTO row label",
     )
 
     logo = PROJECT / "app/src/main/res/drawable/hotfox_logo.xml"

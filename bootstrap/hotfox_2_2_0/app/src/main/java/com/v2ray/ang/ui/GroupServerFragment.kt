@@ -234,22 +234,23 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
      */
     private fun setSelectServer(guid: String) {
         val selected = MmkvManager.getSelectServer()
-        if (guid != selected) {
-            if (guid == HotfoxServerSelection.AUTO_GUID) {
-                HotfoxServerSelection.selectAuto()
-            } else {
-                HotfoxServerSelection.selectManual(guid)
-            }
-            val fromPosition = mainViewModel.getPosition(selected.orEmpty())
-            val toPosition = mainViewModel.getPosition(
-                if (guid == HotfoxServerSelection.AUTO_GUID) MmkvManager.getSelectServer().orEmpty() else guid,
-            )
-            adapter.setSelectServer(fromPosition, toPosition)
-            ownerActivity.refreshDashboard()
+        if (HotfoxServerSelection.alreadySelected(guid, selected, HotfoxServerSelection.isAutoMode())) {
+            return
+        }
+        if (guid == HotfoxServerSelection.AUTO_GUID) {
+            HotfoxServerSelection.selectAuto()
+        } else {
+            HotfoxServerSelection.selectManual(guid)
+        }
+        val fromPosition = mainViewModel.getPosition(selected.orEmpty())
+        val toPosition = mainViewModel.getPosition(
+            if (guid == HotfoxServerSelection.AUTO_GUID) MmkvManager.getSelectServer().orEmpty() else guid,
+        )
+        adapter.setSelectServer(fromPosition, toPosition)
+        ownerActivity.refreshDashboard()
 
-            if (mainViewModel.isRunning.value == true) {
-                ownerActivity.restartV2Ray()
-            }
+        if (mainViewModel.isRunning.value == true) {
+            ownerActivity.restartV2Ray()
         }
     }
 

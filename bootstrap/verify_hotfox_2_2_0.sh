@@ -48,6 +48,12 @@ grep -q 'outboundTag = AppConfig.TAG_BLOCKED' "$PROJECT/app/src/main/java/com/v2
   || fail "IPv6 fail-closed blackhole missing"
 grep -q 'waitForLocalSocksBlocking' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
   || fail "reload SOCKS wait missing"
+grep -q 'resolveForHandover' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "handover AUTO re-resolution missing"
+grep -q 'HotfoxServerListContract.AUTO_ROW_INDEX' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt" \
+  || fail "AUTO row is not first in the server list"
+grep -q 'Авто-выбор сервера' "$PROJECT/app/src/main/res/values-ru/strings.xml" \
+  || fail "AUTO row label missing"
 grep -q 'disable += "MissingTranslation"' "$PROJECT/app/build.gradle.kts" \
   || fail "MissingTranslation lint disable missing"
 grep -q 'HotFox' "$PROJECT/app/src/main/res/layout/activity_main.xml" || fail "HotFox UI marker missing"

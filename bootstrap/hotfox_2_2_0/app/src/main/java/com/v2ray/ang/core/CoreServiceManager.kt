@@ -557,6 +557,23 @@ object CoreServiceManager {
             val tunInterface = currentVpnInterface
             isReloading = true
             if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
+            when (val resolved = HotfoxServerSelection.resolveForHandover()) {
+                is HotfoxServerSelection.ResolveResult.Failure -> {
+                    LogUtil.e(AppConfig.TAG, "StartCore-Manager: handover server resolve failed: ${resolved.message}")
+                    if (!VpnSessionCoordinator.markError(attempt, "HF-VPN-011", resolved.message)) {
+                        return false
+                    }
+                    MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, resolved.message)
+                    return false
+                }
+                is HotfoxServerSelection.ResolveResult.Success -> {
+                    LogUtil.i(
+                        AppConfig.TAG,
+                        "StartCore-Manager: handover resolved auto=${resolved.resolvedFromAuto} attempt=$attempt",
+                    )
+                }
+            }
+            if (!VpnSessionCoordinator.isCurrent(attempt)) return false
             LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core reload start attempt=$attempt")
             coreController.stopLoop()
             launchCore(

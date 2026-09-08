@@ -19,6 +19,7 @@ import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.helper.ItemTouchHelperAdapter
 import com.v2ray.ang.helper.ItemTouchHelperViewHolder
 import com.v2ray.ang.viewmodel.MainViewModel
+import com.v2ray.ang.vpn.HotfoxServerListContract
 import com.v2ray.ang.vpn.HotfoxServerPresentation
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import java.util.Collections
@@ -27,12 +28,6 @@ class MainRecyclerAdapter(
     private val mainViewModel: MainViewModel,
     private val adapterListener: MainAdapterListener?
 ) : RecyclerView.Adapter<MainRecyclerAdapter.BaseViewHolder>(), ItemTouchHelperAdapter {
-    companion object {
-        private const val VIEW_TYPE_AUTO = 0
-        private const val VIEW_TYPE_ITEM = 1
-        private const val VIEW_TYPE_FOOTER = 2
-    }
-
     private var data: MutableList<ServersCache> = mutableListOf()
 
     @SuppressLint("NotifyDataSetChanged")
@@ -46,12 +41,12 @@ class MainRecyclerAdapter(
         }
     }
 
-    override fun getItemCount() = data.size + 2
+    override fun getItemCount() = HotfoxServerListContract.itemCount(data.size)
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder !is MainViewHolder) return
         val context = holder.itemMainBinding.root.context
-        if (position == 0) {
+        if (position == HotfoxServerListContract.AUTO_ROW_INDEX) {
             bindAutoRow(holder)
             return
         }
@@ -162,7 +157,7 @@ class MainRecyclerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
-            VIEW_TYPE_ITEM, VIEW_TYPE_AUTO ->
+            HotfoxServerListContract.VIEW_TYPE_ITEM, HotfoxServerListContract.VIEW_TYPE_AUTO ->
                 MainViewHolder(ItemRecyclerMainBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             else ->
                 FooterViewHolder(ItemRecyclerFooterBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -170,11 +165,7 @@ class MainRecyclerAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when {
-            position == 0 -> VIEW_TYPE_AUTO
-            position == data.size + 1 -> VIEW_TYPE_FOOTER
-            else -> VIEW_TYPE_ITEM
-        }
+        return HotfoxServerListContract.viewType(position, data.size)
     }
 
     open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

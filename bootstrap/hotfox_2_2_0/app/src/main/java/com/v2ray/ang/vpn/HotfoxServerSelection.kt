@@ -17,17 +17,11 @@ object HotfoxServerSelection {
     }
 
     fun selectManual(guid: String) {
-        if (guid.isBlank() || guid == AUTO_GUID) {
-            selectAuto()
-            return
-        }
-        setAutoMode(false)
-        MmkvManager.setSelectServer(guid)
+        applyPersisted(persistAfterTap(tapGuid = guid, previousGuid = MmkvManager.getSelectServer(), firstUsableGuid = firstUsableGuid()))
     }
 
     fun selectAuto() {
-        setAutoMode(true)
-        firstUsableGuid()?.let { MmkvManager.setSelectServer(it) }
+        applyPersisted(persistAfterTap(tapGuid = AUTO_GUID, previousGuid = MmkvManager.getSelectServer(), firstUsableGuid = firstUsableGuid()))
     }
 
     /**
@@ -35,38 +29,82 @@ object HotfoxServerSelection {
      * AUTO stays AUTO; a missing/invalid manual selection falls back to the first usable server.
      */
     fun ensureValidSelection() {
-        val selected = MmkvManager.getSelectServer()
-        val valid = !selected.isNullOrBlank() &&
-            selected != AUTO_GUID &&
-            MmkvManager.decodeServerConfig(selected) != null
-        if (valid) {
-            if (isAutoMode()) return
-            return
-        }
-        val fallback = firstUsableGuid() ?: return
-        MmkvManager.setSelectServer(fallback)
-    }
-
-    fun firstUsableGuid(): String? =
-        MmkvManager.decodeAllServerList().firstOrNull { guid ->
-            guid != AUTO_GUID && MmkvManager.decodeServerConfig(guid) != null
-        }
-
-    fun resolveForConnect(): ResolveResult {
-        val servers = MmkvManager.decodeAllServerList().mapNotNull { guid ->
-            val profile = MmkvManager.decodeServerConfig(guid) ?: return@mapNotNull null
-            val delay = MmkvManager.decodeServerAffiliationInfo(guid)?.testDelayMillis ?: 0L
-            Candidate(guid, profile.remarks, delay)
-        }
-        val result = pick(
-            servers = servers,
+        val persisted = persistAfterEnsureValid(
             auto = isAutoMode(),
             selectedGuid = MmkvManager.getSelectServer(),
+            inventory = usableGuids(),
         )
-        if (result is ResolveResult.Success) {
-            MmkvManager.setSelectServer(result.guid)
+        persisted.selectedGuid?.let { MmkvManager.setSelectServer(it) }
+    }
+
+    fun firstUsableGuid(): String? = usableGuids().firstOrNull()
+
+    fun alreadySelected(tapGuid: String, selectedGuid: String?, auto: Boolean): Boolean {
+        if (tapGuid.isBlank() || tapGuid == AUTO_GUID) return auto
+        return !auto && tapGuid == selectedGuid
+    }
+
+    fun persistAfterTap(
+        tapGuid: String,
+        previousGuid: String?,
+        firstUsableGuid: String?,
+    ): PersistedSelection {
+        if (tapGuid.isBlank() || tapGuid == AUTO_GUID) {
+            val keep = previousGuid?.takeIf { it.isNotBlank() && it != AUTO_GUID } ?: firstUsableGuid
+            return PersistedSelection(auto = true, selectedGuid = keep)
         }
-        return result
+        return PersistedSelection(auto = false, selectedGuid = tapGuid)
+    }
+
+    fun persistAfterEnsureValid(
+        auto: Boolean,
+        selectedGuid: String?,
+        inventory: List<String>,
+    ): PersistedSelection {
+        val valid = !selectedGuid.isNullOrBlank() &&
+            selectedGuid != AUTO_GUID &&
+            inventory.contains(selectedGuid)
+        if (valid) return PersistedSelection(auto = auto, selectedGuid = selectedGuid)
+        return PersistedSelection(auto = auto, selectedGuid = inventory.firstOrNull())
+    }
+
+    fun resolveForConnect(): ResolveResult {
+        return persistResolution(
+            pick(
+                servers = candidates(),
+                auto = isAutoMode(),
+                selectedGuid = MmkvManager.getSelectServer(),
+            )
+        )
+    }
+
+    /**
+     * Network handover: keep the current AUTO target when it is still healthy
+     * (`delay > 0`). Only re-pick when the current target is missing, untested,
+     * or marked unreachable. Manual selection is never replaced by a faster peer.
+     */
+    fun resolveForHandover(): ResolveResult {
+        return persistResolution(
+            resolveForHandover(
+                servers = candidates(),
+                auto = isAutoMode(),
+                selectedGuid = MmkvManager.getSelectServer(),
+            )
+        )
+    }
+
+    fun resolveForHandover(
+        servers: List<Candidate>,
+        auto: Boolean,
+        selectedGuid: String?,
+    ): ResolveResult {
+        if (auto) {
+            val current = servers.firstOrNull { it.guid == selectedGuid }
+            if (current != null && current.delay > 0L) {
+                return ResolveResult.Success(current.guid, resolvedFromAuto = true)
+            }
+        }
+        return pick(servers, auto, selectedGuid)
     }
 
     fun pick(
@@ -109,10 +147,55 @@ object HotfoxServerSelection {
         return keys.firstOrNull()
     }
 
+    private fun applyPersisted(persisted: PersistedSelection) {
+        setAutoMode(persisted.auto)
+        persisted.selectedGuid?.let { MmkvManager.setSelectServer(it) }
+    }
+
+    private fun persistResolution(result: ResolveResult): ResolveResult {
+        if (result is ResolveResult.Success) {
+            MmkvManager.setSelectServer(result.guid)
+        }
+        return result
+    }
+
+    private fun usableGuids(): List<String> =
+        MmkvManager.decodeAllServerList().filter { guid ->
+            guid != AUTO_GUID && MmkvManager.decodeServerConfig(guid) != null
+        }
+
+    private fun candidates(): List<Candidate> =
+        MmkvManager.decodeAllServerList().mapNotNull { guid ->
+            if (guid == AUTO_GUID) return@mapNotNull null
+            val profile = MmkvManager.decodeServerConfig(guid) ?: return@mapNotNull null
+            val delay = MmkvManager.decodeServerAffiliationInfo(guid)?.testDelayMillis ?: 0L
+            Candidate(guid, profile.remarks, delay)
+        }
+
     data class Candidate(val guid: String, val remarks: String, val delay: Long)
+
+    data class PersistedSelection(val auto: Boolean, val selectedGuid: String?)
 
     sealed class ResolveResult {
         data class Success(val guid: String, val resolvedFromAuto: Boolean) : ResolveResult()
         data class Failure(val message: String) : ResolveResult()
+    }
+}
+
+/** First list row is always AUTO; real servers follow; footer is last. */
+object HotfoxServerListContract {
+    const val AUTO_ROW_INDEX = 0
+    const val VIEW_TYPE_AUTO = 0
+    const val VIEW_TYPE_ITEM = 1
+    const val VIEW_TYPE_FOOTER = 2
+
+    fun itemCount(serverCount: Int): Int = serverCount + 2
+
+    fun viewType(position: Int, serverCount: Int): Int {
+        return when {
+            position == AUTO_ROW_INDEX -> VIEW_TYPE_AUTO
+            position == serverCount + 1 -> VIEW_TYPE_FOOTER
+            else -> VIEW_TYPE_ITEM
+        }
     }
 }
