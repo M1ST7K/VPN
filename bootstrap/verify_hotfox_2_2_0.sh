@@ -34,6 +34,8 @@ grep -q 'isTeardownActive' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnSess
   || fail "teardown barrier missing"
 grep -q 'completeStopOutcome' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
   || fail "stop timeout fail-closed missing"
+grep -q 'completeLateStopSuccess' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "late core-stop success is not finalized"
 grep -q 'fun vpnProtect' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "vpnProtect missing"
 grep -q 'bindProcessToUnderlying' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \

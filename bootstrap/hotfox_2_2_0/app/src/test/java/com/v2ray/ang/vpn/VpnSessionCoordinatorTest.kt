@@ -159,6 +159,35 @@ class VpnSessionCoordinatorTest {
     }
 
     @Test
+    fun staleSuccessfulStopCannotDisconnectNewerAttempt() {
+        val first = VpnSessionCoordinator.beginAttempt()
+        assertTrue(VpnSessionCoordinator.markConnected(first, pathVerified = true))
+        val second = VpnSessionCoordinator.beginAttempt()
+        assertTrue(second > first)
+        assertFalse(VpnSessionCoordinator.completeStopOutcome(0L, first, true))
+        assertEquals(VpnSessionState.PREPARING, VpnSessionCoordinator.currentState())
+        assertTrue(VpnSessionCoordinator.isCurrent(second))
+    }
+
+    @Test
+    fun lateStopSuccessClearsBarrierAfterTimeoutFailure() {
+        VpnSessionCoordinator.beginAttempt()
+        val epoch = VpnSessionCoordinator.beginStop()
+        try {
+            val attempt = VpnSessionCoordinator.currentAttempt()
+            assertTrue(VpnSessionCoordinator.completeStopOutcome(epoch, attempt, false))
+            assertTrue(VpnSessionCoordinator.isTeardownActive())
+            assertEquals(0L, VpnSessionCoordinator.beginAttempt())
+            assertTrue(VpnSessionCoordinator.completeLateStopSuccess(epoch))
+            assertFalse(VpnSessionCoordinator.isTeardownActive())
+            assertEquals(VpnSessionState.DISCONNECTED, VpnSessionCoordinator.currentState())
+            assertTrue(VpnSessionCoordinator.beginAttempt() > 0L)
+        } finally {
+            VpnSessionCoordinator.endStop()
+        }
+    }
+
+    @Test
     fun completeStopOutcomeFalseKeepsRestartBarrier() {
         VpnSessionCoordinator.completeStopOutcome(false)
         assertEquals(VpnSessionState.ERROR, VpnSessionCoordinator.currentState())

@@ -71,29 +71,17 @@ class CoreVpnService : VpnService(), ServiceControl {
 //    }
 
     override fun onDestroy() {
-        super.onDestroy()
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: Service destroyed")
-
-        // Ensure VPN interface is properly closed when the service is destroyed without
-        // going through stopAllService() (e.g. when killed unexpectedly). isRunning is
-        // set to false at the start of stopAllService(), so this guard prevents a double-close.
         if (isRunning) {
-            try {
-                if (::mInterface.isInitialized) {
-                    mInterface.close()
-                    LogUtil.i(AppConfig.TAG, "StartCore-VPN: VPN interface closed in onDestroy")
-                }
-            } catch (e: Exception) {
-                LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to close interface in onDestroy", e)
-            }
+            stopAllService()
         }
-
         unlockStart()
         pipelineJob?.cancel()
         trafficJob?.cancel()
         serviceScope.cancel()
         health.close()
         NotificationManager.cancelNotification()
+        super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

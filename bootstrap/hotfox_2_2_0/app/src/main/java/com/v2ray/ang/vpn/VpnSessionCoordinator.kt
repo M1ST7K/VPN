@@ -27,6 +27,7 @@ object VpnSessionCoordinator {
     private val lastStage = AtomicReference(VpnConnectionStage.IDLE)
     private val teardownActive = AtomicBoolean(false)
     private val lastStopSucceeded = AtomicBoolean(true)
+    private val stopEpoch = AtomicLong(0L)
     private val lifecycleLock = ReentrantLock(true)
     val traffic = HotfoxTrafficAccumulator()
 
@@ -74,13 +75,21 @@ object VpnSessionCoordinator {
     }
 
     /**
-     * Late core-stop result. Barrier clears only after confirmed successful termination.
-     * Failed/exception stops stay fail-closed.
+     * Core-stop result. Barrier clears only after confirmed successful termination
+     * **and** the caller has finished resource cleanup. Failed/exception stops stay
+     * fail-closed. A stale epoch/attempt cannot disconnect a newer session.
      */
-    fun completeStopOutcome(stopLoopSucceeded: Boolean) {
+    fun currentStopEpoch(): Long = stopEpoch.get()
+
+    fun completeStopOutcome(stopLoopSucceeded: Boolean): Boolean =
+        completeStopOutcome(stopEpoch.get(), currentAttempt(), stopLoopSucceeded)
+
+    fun completeStopOutcome(epoch: Long, attempt: Long, stopLoopSucceeded: Boolean): Boolean {
         synchronized(generationLock) {
+            if (stopEpoch.get() != epoch) return false
             lastStopSucceeded.set(stopLoopSucceeded)
             if (stopLoopSucceeded) {
+                if (!matches(attempt)) return false
                 teardownActive.set(false)
                 if (state.get() != VpnSessionState.ERROR) {
                     attemptId.incrementAndGet()
@@ -91,18 +100,39 @@ object VpnSessionCoordinator {
                     traffic.reset()
                     state.set(VpnSessionState.DISCONNECTED)
                 }
-            } else {
-                teardownActive.set(true)
-                lastStage.set(VpnConnectionStage.STOPPING)
-                if (state.get() != VpnSessionState.ERROR) {
-                    lastError.set("HF-VPN-008 Ядро не остановилось")
-                    sessionStartElapsed.set(0L)
-                    traffic.reset()
-                    lastPath.set(null)
-                    state.set(VpnSessionState.ERROR)
-                    attemptId.incrementAndGet()
-                }
+                return true
             }
+            teardownActive.set(true)
+            lastStage.set(VpnConnectionStage.STOPPING)
+            if (state.get() != VpnSessionState.ERROR) {
+                lastError.set("HF-VPN-008 Ядро не остановилось")
+                sessionStartElapsed.set(0L)
+                traffic.reset()
+                lastPath.set(null)
+                state.set(VpnSessionState.ERROR)
+                attemptId.incrementAndGet()
+            }
+            return true
+        }
+    }
+
+    /** Worker finished after the 8s bound: allow restart if this stop epoch is still current. */
+    fun completeLateStopSuccess(epoch: Long): Boolean {
+        synchronized(generationLock) {
+            if (stopEpoch.get() != epoch) return false
+            lastStopSucceeded.set(true)
+            teardownActive.set(false)
+            val current = state.get()
+            if (current == VpnSessionState.ERROR ||
+                current == VpnSessionState.DISCONNECTING
+            ) {
+                lastPath.set(null)
+                lastStage.set(VpnConnectionStage.IDLE)
+                sessionStartElapsed.set(0L)
+                traffic.reset()
+                state.set(VpnSessionState.DISCONNECTED)
+            }
+            return true
         }
     }
 
@@ -257,8 +287,12 @@ object VpnSessionCoordinator {
         unlockIfHeld()
     }
 
-    fun beginStop() {
+    fun beginStop(): Long {
         lifecycleLock.lock()
+        synchronized(generationLock) {
+            teardownActive.set(true)
+            return stopEpoch.incrementAndGet()
+        }
     }
 
     fun endStop() {
@@ -316,6 +350,7 @@ object VpnSessionCoordinator {
             lastStage.set(VpnConnectionStage.IDLE)
             teardownActive.set(false)
             lastStopSucceeded.set(true)
+            stopEpoch.set(0L)
             traffic.reset()
         }
     }

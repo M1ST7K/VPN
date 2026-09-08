@@ -11,7 +11,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: hotfox-ci-${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
+  group: hotfox-ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 # Same-repo PRs from main/cursor/** already have a push job. Keep fork PRs,
@@ -138,6 +138,9 @@ jobs:
     if: success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/cursor/'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: hotfox-dev-latest
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
@@ -151,13 +154,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          git fetch origin "${GITHUB_REF_NAME}" --depth 1
+          head="$(git rev-parse "origin/${GITHUB_REF_NAME}")"
+          if [[ "$head" != "$GITHUB_SHA" ]]; then
+            echo "Skip stale publisher: $GITHUB_SHA is not origin/${GITHUB_REF_NAME} ($head)"
+            exit 0
+          fi
           shopt -s nullglob
           apks=(dist/*.apk)
           [[ ${#apks[@]} -gt 0 ]] || { echo "no APKs to publish"; exit 1; }
           notes="$(printf 'Debug APK from %s (%s).\nUI/install artifact only. Not physical-device VPN E2E.\n' \
             "${GITHUB_SHA}" "${GITHUB_REF_NAME}")"
-          gh release view hotfox-dev-latest >/dev/null 2>&1 && gh release delete hotfox-dev-latest --yes
+          gh release view hotfox-dev-latest >/dev/null 2>&1 && \
+            gh release delete hotfox-dev-latest --cleanup-tag --yes
           gh release create hotfox-dev-latest \
+            --target "${GITHUB_SHA}" \
             --title "HotFox Dev Latest" \
             --notes "$notes" \
             --prerelease \

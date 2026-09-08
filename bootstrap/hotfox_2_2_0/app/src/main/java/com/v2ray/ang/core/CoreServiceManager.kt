@@ -36,6 +36,7 @@ import com.v2ray.ang.util.ErrorMessageMapper
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxServerSelection
+import com.v2ray.ang.vpn.VpnLoopPrevention
 import com.v2ray.ang.vpn.VpnReadiness
 import com.v2ray.ang.vpn.VpnSessionCoordinator
 import com.v2ray.ang.vpn.VpnSessionState
@@ -405,9 +406,9 @@ object CoreServiceManager {
     }
 
     private fun stopCoreLoopBlocking(preStop: (() -> Unit)? = null): Boolean {
-        VpnSessionCoordinator.beginStop()
+        val epoch = VpnSessionCoordinator.beginStop()
+        val attempt = VpnSessionCoordinator.currentAttempt()
         try {
-            VpnSessionCoordinator.setTeardownActive(true)
             if (!stopInProgress.compareAndSet(false, true) && isCoreStopActive()) {
                 LogUtil.i(AppConfig.TAG, "StartCore-Manager: stop already in progress")
                 return false
@@ -421,10 +422,10 @@ object CoreServiceManager {
                 currentVpnInterface = null
                 hevStatsProvider = null
 
-                val stopped = if (coreController.isRunning) awaitCoreStop() else true
-                VpnSessionCoordinator.completeStopOutcome(stopped)
+                val stopped = if (coreController.isRunning) awaitCoreStop(epoch) else true
                 if (!stopped) {
                     LogUtil.e(AppConfig.TAG, "StartCore-Manager: core stop did not complete")
+                    VpnSessionCoordinator.completeStopOutcome(epoch, attempt, false)
                     if (service != null) {
                         MessageUtil.sendMsg2UI(
                             service,
@@ -450,10 +451,8 @@ object CoreServiceManager {
                         LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to unregister receiver", e)
                     }
                 }
-                if (VpnSessionCoordinator.currentState() != VpnSessionState.ERROR) {
-                    VpnSessionCoordinator.markDisconnected()
-                } else {
-                    VpnSessionCoordinator.setTeardownActive(false)
+                if (!VpnSessionCoordinator.completeStopOutcome(epoch, attempt, true)) {
+                    LogUtil.w(AppConfig.TAG, "StartCore-Manager: stop finalizer ignored; newer attempt owns the session")
                 }
                 return true
             } finally {
@@ -488,7 +487,7 @@ object CoreServiceManager {
      * Awaits [CoreController.stopLoop] on a dedicated non-daemon thread.
      * Returns false on timeout or exception; the worker remains a start barrier until it dies.
      */
-    private fun awaitCoreStop(): Boolean {
+    private fun awaitCoreStop(epoch: Long): Boolean {
         val done = CountDownLatch(1)
         val succeeded = AtomicBoolean(false)
         val worker = Thread({
@@ -503,10 +502,10 @@ object CoreServiceManager {
                 val ok = succeeded.get()
                 stopWorker.compareAndSet(Thread.currentThread(), null)
                 if (ok) {
+                    VpnSessionCoordinator.completeLateStopSuccess(epoch)
                     stopInProgress.set(false)
                     ignoringCoreShutdownCallback = false
                 }
-                // Failed/timed-out stop stays fail-closed: barrier + ignore-callbacks remain.
             }
         }, "hotfox-core-stop")
         worker.isDaemon = false
@@ -556,6 +555,7 @@ object CoreServiceManager {
         return try {
             val tunInterface = currentVpnInterface
             isReloading = true
+            ignoringCoreShutdownCallback = true
             if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
             when (val resolved = HotfoxServerSelection.resolveForHandover()) {
                 is HotfoxServerSelection.ResolveResult.Failure -> {
@@ -564,6 +564,7 @@ object CoreServiceManager {
                         return false
                     }
                     MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, resolved.message)
+                    runCatching { serviceControl?.get()?.stopService() }
                     return false
                 }
                 is HotfoxServerSelection.ResolveResult.Success -> {
@@ -575,6 +576,8 @@ object CoreServiceManager {
             }
             if (!VpnSessionCoordinator.isCurrent(attempt)) return false
             LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core reload start attempt=$attempt")
+            val ctx = service.applicationContext
+            VpnLoopPrevention.bindProcessToUnderlying(ctx)
             coreController.stopLoop()
             launchCore(
                 service = service,
@@ -590,6 +593,7 @@ object CoreServiceManager {
                     return false
                 }
                 MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, "Локальный прокси не восстановился")
+                runCatching { serviceControl?.get()?.stopService() }
                 return false
             }
             if (!VpnSessionCoordinator.isCurrent(attempt)) return false
@@ -612,6 +616,7 @@ object CoreServiceManager {
                     return false
                 }
                 MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, "Путь VPN не подтверждён")
+                runCatching { serviceControl?.get()?.stopService() }
                 return false
             }
             if (!VpnSessionCoordinator.markConnected(attempt, pathVerified = true)) {
@@ -624,9 +629,13 @@ object CoreServiceManager {
             LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to reload core: $message", e)
             VpnSessionCoordinator.markError(attempt, "HF-VPN-003", "Не удалось переподключить ядро")
             MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, ErrorMessageMapper.toRussian(message))
+            runCatching { serviceControl?.get()?.stopService() }
             false
         } finally {
             isReloading = false
+            if (!stopInProgress.get() && !isCoreStopActive()) {
+                ignoringCoreShutdownCallback = false
+            }
             VpnSessionCoordinator.endReload()
         }
     }
@@ -747,7 +756,7 @@ object CoreServiceManager {
          * @return 0 for success, any other value for failure.
          */
         override fun shutdown(): Long {
-            if (ignoringCoreShutdownCallback || stopInProgress.get()) {
+            if (ignoringCoreShutdownCallback || stopInProgress.get() || isReloading) {
                 return 0
             }
             val serviceControl = serviceControl?.get() ?: return -1

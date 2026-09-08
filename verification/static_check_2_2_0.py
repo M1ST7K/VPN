@@ -99,10 +99,12 @@ def main() -> int:
             fail("handover is not serialized against startup")
         if "ignoringCoreShutdownCallback" not in manager:
             fail("core shutdown re-entry guard missing")
-        if "private fun awaitCoreStop(): Boolean" not in manager:
+        if "private fun awaitCoreStop(epoch: Long): Boolean" not in manager:
             fail("awaitCoreStop must report a Boolean outcome")
         if "completeStopOutcome" not in manager:
             fail("timed-out core stop is not fail-closed")
+        if "completeLateStopSuccess" not in manager:
+            fail("late core-stop success is not finalized")
         if "resolveForHandover" not in manager:
             fail("network handover does not re-resolve AUTO server")
 
@@ -151,8 +153,13 @@ def main() -> int:
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt",
-        "completeStopOutcome",
-        "core stop outcome",
+        "completeLateStopSuccess",
+        "late stop success",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
+        "stopAllService()",
+        "onDestroy full teardown",
     )
     must_contain(
         "app/src/main/res/layout/activity_main.xml",
