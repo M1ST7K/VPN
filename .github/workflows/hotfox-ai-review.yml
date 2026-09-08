@@ -1,12 +1,14 @@
-name: HotFox AI Reviewer
+name: HotFox AI Checkpoint Reviewer
 
 on:
+  # Ordinary pushes still trigger this tiny trusted job, but the script exits
+  # before any OpenAI call unless the PR head commit contains [hotfox-review].
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       pr_number:
-        description: "Pull request number to review"
+        description: "Pull request number to review now"
         required: true
         type: string
 
@@ -21,7 +23,7 @@ concurrency:
 
 jobs:
   review:
-    name: OpenAI senior review → Cursor fix loop
+    name: GPT-5.6 Sol checkpoint review → Cursor only for P0/P1
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
@@ -32,8 +34,7 @@ jobs:
 
     steps:
       # pull_request_target intentionally checks out ONLY trusted main.
-      # Never checkout or execute code from the PR head in this workflow because
-      # OPENAI_API_KEY is available to the job.
+      # Never checkout or execute PR-head code in a job that can access OPENAI_API_KEY.
       - name: Checkout trusted reviewer code
         uses: actions/checkout@v4
         with:
@@ -49,13 +50,15 @@ jobs:
             exit 2
           fi
 
-      - name: Review current HotFox changes and hand P0/P1 fixes to Cursor
+      - name: Check checkpoint and review only when requested
         env:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_REVIEW_MODEL: gpt-5.6-sol
+          HOTFOX_REVIEW_TRIGGER: "[hotfox-review]"
           MAX_REVIEW_ROUNDS: "10"
-          MAX_REVIEW_DIFF_CHARS: "360000"
+          MAX_REVIEW_DIFF_CHARS: "280000"
+          OPENAI_REVIEW_MAX_OUTPUT_TOKENS: "30000"
         run: python3 .github/scripts/hotfox_ai_review.py
