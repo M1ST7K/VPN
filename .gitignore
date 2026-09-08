@@ -1,0 +1,46 @@
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+**/local.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Signing / private material
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+signing.properties
+*signing_key*
+*signing-key*
+*keystore*
+
+# Secrets
+.env
+.env.*
+secrets.properties
+credentials.properties
+
+# Generated / release artifacts
+*.apk
+*.aab
+*.aar
+*.log
+captures/
+V2rayNG/app/release/output.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Bootstrap reconstructed sources are generated from the versioned payload
+# and are intentionally not committed in this setup branch.
