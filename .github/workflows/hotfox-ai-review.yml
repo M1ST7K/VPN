@@ -45,11 +45,12 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           if [ -z "$OPENAI_API_KEY" ]; then
-            echo "OPENAI_API_KEY is not configured in repository Actions secrets." >&2
-            exit 2
+            echo "::warning::OPENAI_API_KEY is not configured; skipping HotFox AI review."
+            echo "SKIP_OPENAI_REVIEW=1" >> "$GITHUB_ENV"
           fi
 
       - name: Review current HotFox changes and hand P0/P1 fixes to Cursor
+        if: env.SKIP_OPENAI_REVIEW != '1'
         env:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}

@@ -281,5 +281,18 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as exc:
-        print(f"HotFox AI reviewer failed safely: {exc}", file=sys.stderr)
+        text = str(exc)
+        auth_failure = (
+            "invalid_api_key" in text.lower()
+            or "incorrect api key" in text.lower()
+            or "http 401 from https://api.openai.com" in text.lower()
+        )
+        if auth_failure:
+            print(
+                "::warning::OPENAI_API_KEY was rejected by OpenAI; skipping HotFox AI review. "
+                "Rotate the repository secret. This is not a product/VPN defect.",
+                file=sys.stderr,
+            )
+            raise SystemExit(0)
+        print("HotFox AI reviewer failed safely: OpenAI or GitHub request error", file=sys.stderr)
         raise SystemExit(2)
