@@ -297,15 +297,15 @@ object VpnSessionCoordinator {
     }
 
     /**
-     * Owns a stop generation. If [joinExisting] and a stop is already in flight,
-     * returns that epoch without minting a new one so a repeated stop cannot
-     * invalidate the live worker's late-success path.
+     * Owns a stop generation. Join vs mint is decided under [lifecycleLock] so a
+     * concurrent caller cannot snapshot "no worker" and then supersede the live
+     * epoch after the first stop times out.
      */
-    fun beginStop(joinExisting: Boolean = false): StopTicket {
+    fun beginStop(): StopTicket {
         lifecycleLock.lock()
         synchronized(generationLock) {
             val current = stopEpoch.get()
-            if (joinExisting && teardownActive.get() && current != 0L) {
+            if (teardownActive.get() && current != 0L) {
                 return StopTicket(epoch = current, owned = false)
             }
             teardownActive.set(true)

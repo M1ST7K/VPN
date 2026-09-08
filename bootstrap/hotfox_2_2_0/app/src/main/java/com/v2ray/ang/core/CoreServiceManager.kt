@@ -36,6 +36,7 @@ import com.v2ray.ang.util.ErrorMessageMapper
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxServerSelection
+import com.v2ray.ang.vpn.VpnRestartGate
 import com.v2ray.ang.vpn.VpnLoopPrevention
 import com.v2ray.ang.vpn.VpnReadiness
 import com.v2ray.ang.vpn.VpnSessionCoordinator
@@ -43,6 +44,8 @@ import com.v2ray.ang.vpn.VpnSessionState
 import com.v2ray.ang.vpn.XrayShutdownGate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import libv2ray.CoreCallbackHandler
 import libv2ray.CoreController
@@ -69,6 +72,8 @@ object CoreServiceManager {
     private var isReloading = false
 
     internal val xrayShutdownGate = XrayShutdownGate()
+    private val restartSupervisor = SupervisorJob()
+    private val restartScope = CoroutineScope(restartSupervisor + Dispatchers.IO)
 
     private val stopInProgress = AtomicBoolean(false)
     private val stopWorker = AtomicReference<Thread?>(null)
@@ -123,6 +128,7 @@ object CoreServiceManager {
      * @param guid The GUID of the server configuration to use (optional).
      */
     fun startVService(context: Context, guid: String? = null) {
+        VpnRestartGate.invalidate()
         LogUtil.i(AppConfig.TAG, "StartCore-Manager: startVService from ${context::class.java.simpleName}")
 
         if (guid != null) {
@@ -151,6 +157,8 @@ object CoreServiceManager {
      * @param context The context from which the service is stopped.
      */
     fun stopVService(context: Context) {
+        VpnRestartGate.invalidate()
+        restartSupervisor.cancelChildren()
         //context.toast(R.string.toast_services_stop)
         MessageUtil.sendMsg2Service(context, AppConfig.MSG_STATE_STOP, "")
     }
@@ -277,6 +285,14 @@ object CoreServiceManager {
             }
 
             try {
+                if (vpnInterface != null &&
+                    !VpnLoopPrevention.requireBindSuccess(
+                        VpnLoopPrevention.bindProcessToUnderlying(service),
+                    )
+                ) {
+                    LogUtil.e(AppConfig.TAG, "StartCore-Manager: refusing Xray start; loop bind failed")
+                    return false
+                }
                 doStartCoreLoop(service, vpnInterface, notifyUiWhenReady)
                 return true
             } catch (e: Exception) {
@@ -408,7 +424,7 @@ object CoreServiceManager {
     }
 
     private fun stopCoreLoopBlocking(preStop: (() -> Unit)? = null): Boolean {
-        val ticket = VpnSessionCoordinator.beginStop(joinExisting = isCoreStopActive())
+        val ticket = VpnSessionCoordinator.beginStop()
         val epoch = ticket.epoch
         val attempt = VpnSessionCoordinator.currentAttempt()
         try {
@@ -602,13 +618,36 @@ object CoreServiceManager {
             if (!VpnSessionCoordinator.isCurrent(attempt)) return false
             LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core reload start attempt=$attempt")
             val ctx = service.applicationContext
-            VpnLoopPrevention.bindProcessToUnderlying(ctx)
+            if (!VpnLoopPrevention.requireBindSuccess(VpnLoopPrevention.bindProcessToUnderlying(ctx))) {
+                return failHandover(service, attempt, "HF-VPN-012", "Не удалось привязать процесс к внешней сети")
+            }
             val oldGen = xrayShutdownGate.currentGeneration()
             if (oldGen != 0L) {
                 xrayShutdownGate.expectShutdownOf(oldGen)
+                coreController.stopLoop()
+                if (!xrayShutdownGate.drain(3_000)) {
+                    LogUtil.e(
+                        AppConfig.TAG,
+                        "StartCore-Manager: old-core shutdown did not drain; refusing replacement gen=$oldGen",
+                    )
+                    return failHandover(
+                        service,
+                        attempt,
+                        "HF-VPN-013",
+                        "Не удалось безопасно остановить предыдущее ядро",
+                    )
+                }
+            } else {
+                coreController.stopLoop()
             }
-            coreController.stopLoop()
-            xrayShutdownGate.drain(3_000)
+            if (!xrayShutdownGate.mayLaunchReplacement()) {
+                return failHandover(
+                    service,
+                    attempt,
+                    "HF-VPN-013",
+                    "Не удалось безопасно остановить предыдущее ядро",
+                )
+            }
             launchCore(
                 service = service,
                 vpnInterface = tunInterface,
@@ -665,6 +704,15 @@ object CoreServiceManager {
             isReloading = false
             VpnSessionCoordinator.endReload()
         }
+    }
+
+    private fun failHandover(service: Service, attempt: Long, code: String, message: String): Boolean {
+        if (!VpnSessionCoordinator.markError(attempt, code, message)) {
+            return false
+        }
+        MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, message)
+        runCatching { serviceControl?.get()?.stopService() }
+        return false
     }
 
     fun snapshotOutboundCounters(): LongArray {
@@ -783,7 +831,8 @@ object CoreServiceManager {
          * @return 0 for success, any other value for failure.
          */
         override fun shutdown(): Long {
-            if (xrayShutdownGate.onCoreShutdown() == XrayShutdownGate.Disposition.EXPECTED) {
+            val generation = xrayShutdownGate.currentGeneration()
+            if (xrayShutdownGate.onCoreShutdown(generation) == XrayShutdownGate.Disposition.EXPECTED) {
                 return 0
             }
             if (stopInProgress.get()) {
@@ -880,15 +929,26 @@ object CoreServiceManager {
 
                 AppConfig.MSG_STATE_STOP -> {
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Stop service")
+                    VpnRestartGate.invalidate()
+                    restartSupervisor.cancelChildren()
                     serviceControl.stopService()
                 }
 
                 AppConfig.MSG_STATE_RESTART -> {
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Restart service")
+                    val request = VpnRestartGate.nextRequest()
                     val app = serviceControl.getService().applicationContext
                     serviceControl.stopService()
-                    CoroutineScope(Dispatchers.IO).launch {
+                    restartScope.launch {
                         VpnSessionCoordinator.awaitIdle()
+                        if (!VpnRestartGate.isCurrent(request)) {
+                            LogUtil.i(AppConfig.TAG, "StartCore-Manager: restart cancelled request=$request")
+                            return@launch
+                        }
+                        if (VpnSessionCoordinator.isTeardownActive()) {
+                            LogUtil.w(AppConfig.TAG, "StartCore-Manager: restart skipped; teardown still active")
+                            return@launch
+                        }
                         startVService(app)
                     }
                 }

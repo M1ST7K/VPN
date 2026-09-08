@@ -65,6 +65,8 @@ def main() -> int:
             fail("self-disallow without process bind would block TUN inject")
         if "bindProcessToUnderlying" not in vpn:
             fail("process must bind to underlying network so Xray does not loop into TUN")
+        if "HF-VPN-012" not in vpn:
+            fail("loop-prevention bind failure is not fail-closed")
         if "injectThroughVpn" not in vpn:
             fail("TUN inject is not invoked from CoreVpnService")
 
@@ -99,6 +101,14 @@ def main() -> int:
             fail("handover is not serialized against startup")
         if "XrayShutdownGate" not in manager:
             fail("core shutdown re-entry guard missing")
+        if "joinExisting = isCoreStopActive()" in manager:
+            fail("stop join is still sampled from the worker before the coordinator lock")
+        if "!xrayShutdownGate.drain" not in manager:
+            fail("handover must fail closed when old-core shutdown drain times out")
+        if "VpnRestartGate" not in manager:
+            fail("restart work is not generation-scoped")
+        if "HF-VPN-012" not in manager:
+            fail("handover loop-prevention bind failure is not fail-closed")
         if "private fun awaitCoreStop(epoch: Long, attempt: Long): Boolean" not in manager:
             fail("awaitCoreStop must report a Boolean outcome")
         if "completeStopOutcome" not in manager:

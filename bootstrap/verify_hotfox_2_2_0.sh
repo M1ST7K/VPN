@@ -40,6 +40,12 @@ grep -q 'fun vpnProtect' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreV
   || fail "vpnProtect missing"
 grep -q 'bindProcessToUnderlying' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "process bind to underlying network missing"
+grep -q 'HF-VPN-012' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "loop-prevention bind failure is not fail-closed"
+grep -q 'VpnRestartGate' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "restart work is not generation-scoped"
+grep -q '!xrayShutdownGate.drain' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "handover drain timeout is not fail-closed"
 grep -q 'builder.addRoute("::", 0)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "IPv6 capture route missing"
 grep -q 'hotfox_hev_stability_migrated_2_0_2' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/SettingsManager.kt" \

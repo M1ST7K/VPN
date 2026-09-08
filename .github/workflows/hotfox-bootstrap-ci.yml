@@ -232,12 +232,10 @@ jobs:
           target: google_apis
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            set -euo pipefail
-            apk="$(ls dist/HotFox_Proxy_2.2.0_universal.apk dist/*universal*.apk 2>/dev/null | head -n 1)"
-            test -n "$apk"
-            chmod +x verification/emulator_ui_smoke.sh
-            bash verification/emulator_ui_smoke.sh "$apk"
+          # android-emulator-runner runs `script` line-by-line via /usr/bin/sh (dash).
+          # Keep this a single bash command: dash rejects `set -o pipefail` and
+          # multiline scriptlets do not share state across lines.
+          script: bash verification/ci_run_emulator_ui_smoke.sh
       - name: Upload smoke diagnostics
         if: failure()
         uses: actions/upload-artifact@v4

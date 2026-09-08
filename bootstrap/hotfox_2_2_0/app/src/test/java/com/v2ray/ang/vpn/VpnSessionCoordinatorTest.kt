@@ -235,10 +235,10 @@ class VpnSessionCoordinatorTest {
     @Test
     fun repeatedStopDoesNotSupersedeLiveEpoch() {
         VpnSessionCoordinator.beginAttempt()
-        val first = VpnSessionCoordinator.beginStop(joinExisting = false)
+        val first = VpnSessionCoordinator.beginStop()
         assertTrue(first.owned)
         VpnSessionCoordinator.endStop()
-        val second = VpnSessionCoordinator.beginStop(joinExisting = true)
+        val second = VpnSessionCoordinator.beginStop()
         try {
             assertFalse(second.owned)
             assertEquals(first.epoch, second.epoch)
@@ -255,15 +255,38 @@ class VpnSessionCoordinatorTest {
     }
 
     @Test
+    fun secondStopJoinsEvenIfItSampledBeforeAWorkerExists() {
+        val attempt = VpnSessionCoordinator.beginAttempt()
+        assertTrue(VpnSessionCoordinator.markConnected(attempt, pathVerified = true))
+        val sampledNoWorker = true
+        val first = VpnSessionCoordinator.beginStop()
+        assertTrue(first.owned)
+        VpnSessionCoordinator.endStop()
+        val second = VpnSessionCoordinator.beginStop()
+        try {
+            assertTrue(sampledNoWorker)
+            assertFalse(second.owned)
+            assertEquals(first.epoch, second.epoch)
+            assertTrue(VpnSessionCoordinator.completeStopOutcome(first.epoch, attempt, false))
+            assertTrue(VpnSessionCoordinator.isTeardownActive())
+            assertTrue(VpnSessionCoordinator.completeLateStopSuccess(first.epoch))
+            assertFalse(VpnSessionCoordinator.isTeardownActive())
+            assertTrue(VpnSessionCoordinator.beginAttempt() > 0L)
+        } finally {
+            VpnSessionCoordinator.endStop()
+        }
+    }
+
+    @Test
     fun staleStopEpochCannotMutateAfterNewerOwnedStop() {
         val firstAttempt = VpnSessionCoordinator.beginAttempt()
         assertTrue(VpnSessionCoordinator.markConnected(firstAttempt, pathVerified = true))
-        val stale = VpnSessionCoordinator.beginStop(joinExisting = false)
+        val stale = VpnSessionCoordinator.beginStop()
         VpnSessionCoordinator.endStop()
         assertTrue(VpnSessionCoordinator.completeLateStopSuccess(stale.epoch))
         val nextAttempt = VpnSessionCoordinator.beginAttempt()
         assertTrue(VpnSessionCoordinator.markConnected(nextAttempt, pathVerified = true))
-        val owned = VpnSessionCoordinator.beginStop(joinExisting = false)
+        val owned = VpnSessionCoordinator.beginStop()
         try {
             assertTrue(owned.owned)
             assertTrue(owned.epoch > stale.epoch)

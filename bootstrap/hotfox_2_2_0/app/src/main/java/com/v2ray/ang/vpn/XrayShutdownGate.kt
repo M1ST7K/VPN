@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicReference
  * Generation-aware Xray shutdown ownership. A temporal global Boolean cannot
  * distinguish an expected old-core stop from a replacement-core death.
  *
- * Call [onCoreLaunched] after a successful startLoop. Before stopLoop of that
- * generation, [expectShutdownOf] that generation, then [drain] before publishing
- * a replacement. A delayed callback for the expected generation is consumed and
- * does not tear down the replacement.
+ * Native shutdown callbacks do not carry a generation. Overlapping cores are
+ * therefore forbidden: [mayLaunchReplacement] is true only after the expected
+ * callback has been consumed. A drain timeout must fail the handover closed
+ * instead of launching under an unresolved expectation.
  */
 class XrayShutdownGate {
     enum class Disposition { EXPECTED, UNEXPECTED }
@@ -32,14 +32,22 @@ class XrayShutdownGate {
         return latch
     }
 
+    fun hasUnresolvedExpectation(): Boolean = expectedShutdownGeneration.get() != NONE
+
+    fun mayLaunchReplacement(): Boolean = !hasUnresolvedExpectation()
+
     fun drain(timeoutMs: Long): Boolean {
-        val latch = drainLatch.get() ?: return true
-        return latch.await(timeoutMs, TimeUnit.MILLISECONDS)
+        val latch = drainLatch.get() ?: return !hasUnresolvedExpectation()
+        val drained = latch.await(timeoutMs, TimeUnit.MILLISECONDS)
+        return drained && mayLaunchReplacement()
     }
 
-    fun onCoreShutdown(): Disposition {
+    fun onCoreShutdown(generation: Long = currentGeneration()): Disposition {
         val expected = expectedShutdownGeneration.get()
-        if (expected != NONE && expectedShutdownGeneration.compareAndSet(expected, NONE)) {
+        if (expected != NONE &&
+            expected == generation &&
+            expectedShutdownGeneration.compareAndSet(expected, NONE)
+        ) {
             drainLatch.get()?.countDown()
             return Disposition.EXPECTED
         }

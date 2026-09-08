@@ -31,6 +31,17 @@ object VpnLoopPrevention {
         }
     }
 
+    /**
+     * Binding failure is fail-closed. This libv2ray build has no protect()
+     * callback and HotFox stays inside TUN, so launching Xray unbound can
+     * route outbounds back into TUN → HEV → SOCKS → Xray.
+     */
+    fun requireBindSuccess(bound: Boolean): Boolean {
+        if (bound) return true
+        LogUtil.e(AppConfig.TAG, "VpnLoopPrevention: bind required; refusing Xray start")
+        return false
+    }
+
     fun unbindProcess(context: Context) {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return

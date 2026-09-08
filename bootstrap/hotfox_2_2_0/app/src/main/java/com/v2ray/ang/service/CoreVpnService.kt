@@ -129,8 +129,9 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.TUN_ESTABLISH)
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.LOOP_BIND)
-        if (!VpnLoopPrevention.bindProcessToUnderlying(this)) {
-            LogUtil.w(AppConfig.TAG, "StartCore-VPN: underlying bind failed; Xray may loop if TUN captures this process")
+        if (!VpnLoopPrevention.requireBindSuccess(VpnLoopPrevention.bindProcessToUnderlying(this))) {
+            failTunnelStart(attempt, "HF-VPN-012", "Не удалось привязать процесс к внешней сети")
+            return START_NOT_STICKY
         }
         startService()
         return START_STICKY
