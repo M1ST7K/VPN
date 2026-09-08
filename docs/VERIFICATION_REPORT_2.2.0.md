@@ -17,6 +17,7 @@ versionCode: 22000
 | Release APK (unsigned) | `./gradlew --no-daemon --stacktrace :app:assemblePlaystoreRelease` | PASS |
 | Overlay | `bash bootstrap/verify_hotfox_2_2_0.sh` | PASS |
 | Static | `python3 verification/static_check_2_2_0.py` | PASS |
+| GitHub Actions (`384682f`) | `HotFox bootstrap and Android CI` | PASS (Payload integrity + Reconstruct and build Android app) |
 
 ## Debug APK artifacts
 
