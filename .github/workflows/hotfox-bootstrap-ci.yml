@@ -237,7 +237,7 @@ jobs:
           # multiline scriptlets do not share state across lines.
           script: bash verification/ci_run_emulator_ui_smoke.sh
       - name: Upload smoke diagnostics
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: hotfox-emulator-smoke-diagnostics-${{ github.run_id }}
