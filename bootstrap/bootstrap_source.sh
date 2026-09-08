@@ -151,6 +151,15 @@ sha_check "$AAR" "$AAR_SHA256" "libv2ray.aar"
 log "running reconstruction verification"
 bash "$ROOT/bootstrap/verify_reconstruction.sh"
 
+if [[ -d "$ROOT/bootstrap/hotfox_2_2_0" ]]; then
+  log "applying HotFox Proxy 2.2.0 overlay"
+  rsync -a "$ROOT/bootstrap/hotfox_2_2_0/" "$ROOT/V2rayNG/"
+  [[ -f "$ROOT/V2rayNG/app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt" ]] \
+    || fail "2.2.0 overlay did not install VpnSessionCoordinator"
+  grep -q 'versionName = "2.2.0"' "$ROOT/V2rayNG/app/build.gradle.kts" \
+    || fail "2.2.0 overlay did not bump versionName"
+fi
+
 cat <<'MSG'
 
 HotFox bootstrap completed successfully.

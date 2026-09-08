@@ -60,11 +60,14 @@ jobs:
           test -x "${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}/ndk-build"
           echo "NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
 
-      - name: Reconstruct HotFox 2.1.0 baseline
+      - name: Reconstruct HotFox 2.1.0 baseline and apply 2.2.0 overlay
         run: bash bootstrap/bootstrap_source.sh
 
-      - name: Verify reconstructed source and native libraries
-        run: bash bootstrap/verify_reconstruction.sh
+      - name: Verify HotFox 2.2.0 source overlay
+        run: bash bootstrap/verify_hotfox_2_2_0.sh
+
+      - name: Static check 2.2.0
+        run: python3 verification/static_check_2_2_0.py
 
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
