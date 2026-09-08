@@ -543,6 +543,8 @@
     <string name="hotfox_settings_content_description">Настройки HotFox</string>
     <string name="hotfox_copy_diagnostics">Копировать диагностику</string>
     <string name="hotfox_headline_disconnecting">Отключение</string>
+    <string name="hotfox_headline_proxy_only">Прокси</string>
+    <string name="hotfox_headline_root">Root</string>
     <string name="hotfox_favorites_empty">Здесь появятся избранные серверы</string>
     <string name="hotfox_all_countries">Все страны</string>
     <string name="hotfox_countries_unknown">Страна не определена по именам серверов</string>

@@ -45,6 +45,7 @@ import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SubscriptionUpdater
+import com.v2ray.ang.root.RootManager
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
@@ -54,7 +55,6 @@ import com.v2ray.ang.vpn.HotfoxSubscriptionPresentation
 import com.v2ray.ang.vpn.HotfoxTrafficFormatter
 import com.v2ray.ang.vpn.SubscriptionPresentation
 import com.v2ray.ang.vpn.VpnSessionCoordinator
-import com.v2ray.ang.vpn.VpnSessionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
@@ -269,15 +269,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             val ipv6 = MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED)
             val routing = MmkvManager.decodeSettingsString(AppConfig.PREF_SMART_ROUTING_MODE).orEmpty()
             val traffic = mainViewModel.tunnelTraffic.value
+            val path = VpnSessionCoordinator.lastPath()
             val report = com.v2ray.ang.vpn.HotfoxDiagnosticsBuilder.build(
                 androidRelease = Build.VERSION.RELEASE,
                 api = Build.VERSION.SDK_INT,
                 abi = Build.SUPPORTED_ABIS.firstOrNull().orEmpty(),
                 socksPort = socksPort,
                 socksReady = socksReady,
-                hevRunning = VpnSessionCoordinator.currentState().isProtected(),
-                ipv4Captured = VpnSessionCoordinator.currentState().isProtected(),
-                ipv6Captured = true,
+                hevRunning = path?.hevAlive,
+                ipv4Captured = null,
+                ipv6Captured = null,
                 ipv6Policy = if (ipv6) "proxy" else "fail-closed-blackhole",
                 routingMode = routing.ifBlank { "smart" },
                 serverRemark = selected?.remarks,
@@ -285,6 +286,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 downloaded = traffic?.second,
                 lastError = VpnSessionCoordinator.lastError(),
                 serverCount = MmkvManager.decodeServerList(selected?.subscriptionId.orEmpty()).size,
+                path = path,
             )
             val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
             clipboard.setPrimaryClip(android.content.ClipData.newPlainText("HotFox diagnostics", report))
@@ -489,15 +491,29 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             checkAndRequestPermission(PermissionType.ACCESS_LOCAL_NETWORK) {}
         }
 
+        if (SettingsManager.isRootMode()) {
+            lifecycleScope.launch {
+                val hasRoot = RootManager.refresh()
+                if (!hasRoot) {
+                    toast(R.string.toast_root_required)
+                    applyRunningState(false, false)
+                    return@launch
+                }
+                CoreServiceManager.startVService(this@MainActivity)
+            }
+            return
+        }
+
         CoreServiceManager.startVService(this)
     }
 
     fun restartV2Ray() {
-        if (mainViewModel.isRunning.value == true) {
-            CoreServiceManager.stopVService(this)
-        }
         lifecycleScope.launch {
-            delay(500)
+            val session = VpnSessionCoordinator.currentState()
+            if (mainViewModel.isRunning.value == true || session.isServiceActive() || session.isBusy()) {
+                CoreServiceManager.stopVService(this@MainActivity)
+                VpnSessionCoordinator.awaitIdle()
+            }
             startV2Ray()
         }
     }
@@ -506,24 +522,18 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.tvTestState.text = content
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun applyRunningState(isLoading: Boolean, isRunning: Boolean) {
         val session = VpnSessionCoordinator.currentState()
-        val headline = when {
-            isLoading && (isRunning || session.isProtected() || session == VpnSessionState.RECONNECTING) ->
-                ConnectionUiMapper.Headline.DISCONNECTING
-            session == VpnSessionState.ERROR -> ConnectionUiMapper.Headline.ERROR
-            session == VpnSessionState.RECONNECTING -> ConnectionUiMapper.Headline.RECONNECTING
-            session.isProtected() -> ConnectionUiMapper.Headline.CONNECTED
-            isLoading || session.isBusy() -> ConnectionUiMapper.Headline.CONNECTING
-            isRunning && !session.isBusy() -> ConnectionUiMapper.Headline.CONNECTED
-            else -> ConnectionUiMapper.Headline.DISCONNECTED
-        }
+        val headline = ConnectionUiMapper.resolveHeadline(session, isLoading)
         val headlineRes = when (headline) {
             ConnectionUiMapper.Headline.CONNECTED -> R.string.hotfox_headline_connected
             ConnectionUiMapper.Headline.CONNECTING -> R.string.hotfox_headline_connecting
             ConnectionUiMapper.Headline.RECONNECTING -> R.string.hotfox_headline_reconnecting
             ConnectionUiMapper.Headline.ERROR -> R.string.hotfox_headline_error
             ConnectionUiMapper.Headline.DISCONNECTING -> R.string.hotfox_headline_disconnecting
+            ConnectionUiMapper.Headline.PROXY_ONLY -> R.string.hotfox_headline_proxy_only
+            ConnectionUiMapper.Headline.ROOT_RUNNING -> R.string.hotfox_headline_root
             ConnectionUiMapper.Headline.DISCONNECTED -> R.string.hotfox_headline_disconnected
         }
         val visual = when (headline) {
@@ -542,7 +552,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             )
         )
         binding.connectAction.text = when (headline) {
-            ConnectionUiMapper.Headline.CONNECTED, ConnectionUiMapper.Headline.RECONNECTING -> getString(R.string.hotfox_disconnect)
+            ConnectionUiMapper.Headline.CONNECTED,
+            ConnectionUiMapper.Headline.RECONNECTING,
+            ConnectionUiMapper.Headline.PROXY_ONLY,
+            ConnectionUiMapper.Headline.ROOT_RUNNING,
+            -> getString(R.string.hotfox_disconnect)
             ConnectionUiMapper.Headline.DISCONNECTING -> getString(R.string.hotfox_headline_disconnecting)
             ConnectionUiMapper.Headline.ERROR -> getString(R.string.hotfox_connect)
             ConnectionUiMapper.Headline.CONNECTING -> getString(R.string.hotfox_headline_connecting)
@@ -550,7 +564,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
         binding.fab.contentDescription = binding.connectAction.text
         updateStatusText(headlineRes, R.color.hotfox_editorial_text)
-        if (ConnectionUiMapper.timerShouldRun(session) || headline == ConnectionUiMapper.Headline.CONNECTED) {
+        if (ConnectionUiMapper.timerShouldRun(session) && headline == ConnectionUiMapper.Headline.CONNECTED) {
             startConnectionClock()
             setTestState(getString(R.string.connection_connected))
             binding.layoutTest.isFocusable = true
@@ -558,6 +572,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             stopConnectionClock(reset = headline == ConnectionUiMapper.Headline.DISCONNECTED || headline == ConnectionUiMapper.Headline.ERROR)
             if (headline == ConnectionUiMapper.Headline.ERROR) {
                 setTestState(VpnSessionCoordinator.lastError() ?: getString(R.string.hotfox_headline_error))
+            } else if (headline == ConnectionUiMapper.Headline.PROXY_ONLY) {
+                setTestState(getString(R.string.hotfox_headline_proxy_only))
+            } else if (headline == ConnectionUiMapper.Headline.ROOT_RUNNING) {
+                setTestState(getString(R.string.hotfox_headline_root))
             } else if (headline != ConnectionUiMapper.Headline.CONNECTING && headline != ConnectionUiMapper.Headline.DISCONNECTING) {
                 setTestState(getString(R.string.connection_not_connected))
             }

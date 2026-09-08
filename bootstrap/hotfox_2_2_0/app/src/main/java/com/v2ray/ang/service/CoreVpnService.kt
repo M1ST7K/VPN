@@ -10,7 +10,6 @@ import android.net.ProxyInfo
 import android.net.VpnService
 import android.os.Build
 import android.os.ParcelFileDescriptor
-import android.os.StrictMode
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.AppConfig.LOOPBACK
 import com.v2ray.ang.BuildConfig
@@ -26,6 +25,7 @@ import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.MyContextWrapper
 import com.v2ray.ang.util.Utils
+import com.v2ray.ang.vpn.DuplicateStartDisposition
 import com.v2ray.ang.vpn.VpnReadiness
 import com.v2ray.ang.vpn.VpnSessionCoordinator
 import com.v2ray.ang.vpn.VpnSessionState
@@ -54,8 +54,6 @@ class CoreVpnService : VpnService(), ServiceControl {
     override fun onCreate() {
         super.onCreate()
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: Service created")
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
         CoreServiceManager.serviceControl = SoftReference(this)
     }
 
@@ -99,15 +97,23 @@ class CoreVpnService : VpnService(), ServiceControl {
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: Service command received")
         NotificationManager.showNotification(null)
 
-        if (isRunning && CoreServiceManager.isRunning()) {
-            VpnSessionCoordinator.setState(VpnSessionState.CONNECTED)
-            CoreServiceManager.notifyTunnelReady(this)
-            return START_STICKY
+        when (VpnSessionCoordinator.duplicateStartDisposition()) {
+            DuplicateStartDisposition.REPUBLISH -> {
+                if (VpnSessionCoordinator.currentState().isProtected()) {
+                    CoreServiceManager.notifyTunnelReady(this)
+                }
+                return START_STICKY
+            }
+            DuplicateStartDisposition.IGNORE -> {
+                LogUtil.i(AppConfig.TAG, "StartCore-VPN: start already in progress, leaving in-flight attempt")
+                return START_STICKY
+            }
+            DuplicateStartDisposition.START -> Unit
         }
 
         if (!tryLockStart()) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: Start already in progress")
-            return START_NOT_STICKY
+            return START_STICKY
         }
 
         VpnSessionCoordinator.beginAttempt()
@@ -151,36 +157,54 @@ class CoreVpnService : VpnService(), ServiceControl {
             return
         }
 
-        if (SettingsManager.isUsingHevTun()) {
-            VpnSessionCoordinator.setState(VpnSessionState.WAITING_SOCKS)
-            if (!pipelineStillCurrent(attempt)) return
-            if (!VpnReadiness.waitForLocalSocks(SettingsManager.getSocksPort())) {
-                failTunnelStart("HF-VPN-004", "Локальный прокси не запустился")
-                return
-            }
+        val socksPort = SettingsManager.getSocksPort()
+        val socksUser = SettingsManager.getSocksUsername()
+        val socksPassword = SettingsManager.getSocksPassword()
+        val usingHev = SettingsManager.isUsingHevTun()
+
+        VpnSessionCoordinator.setState(VpnSessionState.WAITING_SOCKS)
+        if (!pipelineStillCurrent(attempt)) return
+        if (!VpnReadiness.waitForLocalSocks(socksPort, username = socksUser, password = socksPassword)) {
+            failTunnelStart("HF-VPN-004", "Локальный прокси не запустился")
+            return
+        }
+
+        if (usingHev) {
             VpnSessionCoordinator.setState(VpnSessionState.STARTING_HEV)
             if (!pipelineStillCurrent(attempt)) return
             if (!runTun2socks()) {
                 failTunnelStart("HF-VPN-005", "Не удалось запустить сетевой туннель")
                 return
             }
-            VpnSessionCoordinator.setState(VpnSessionState.VERIFYING_PATH)
-            if (!pipelineStillCurrent(attempt)) return
-            if (!VpnReadiness.waitForLocalSocks(SettingsManager.getSocksPort(), 2_000L) ||
-                tun2SocksService?.getStats()?.size != 4
-            ) {
-                failTunnelStart("HF-VPN-005", "Туннель не подтвердил готовность")
-                return
-            }
+            CoreServiceManager.setHevStatsProvider { tun2SocksService?.getStats() }
+        }
+
+        VpnSessionCoordinator.setState(VpnSessionState.VERIFYING_PATH)
+        if (!pipelineStillCurrent(attempt)) return
+        val path = VpnReadiness.verifyConfiguredPath(
+            socksPort = socksPort,
+            socksUser = socksUser,
+            socksPassword = socksPassword,
+            tunEstablished = isRunning && ::mInterface.isInitialized,
+            hevStatsProvider = if (usingHev) ({ tun2SocksService?.getStats() }) else null,
+        )
+        VpnSessionCoordinator.recordPath(path)
+        if (!path.verified) {
+            failTunnelStart("HF-VPN-006", "Путь VPN не подтверждён (${path.reason})")
+            return
         }
 
         if (!pipelineStillCurrent(attempt)) return
+        if (!VpnSessionCoordinator.markConnected(attempt, pathVerified = true)) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: markConnected rejected attempt=$attempt")
+            return
+        }
         RootLanSharing.startClientSharing(this)
-        VpnSessionCoordinator.markConnected()
         CoreServiceManager.notifyTunnelReady(this)
+        CoreServiceManager.startNetworkMonitorIfNeeded()
         startTrafficReporting()
         health.start()
-        LogUtil.i(AppConfig.TAG, "StartCore-VPN: CONNECTED attempt=$attempt")
+        LogUtil.i(AppConfig.TAG, "StartCore-VPN: CONNECTED attempt=$attempt backend=${path.backend}")
     }
 
     private fun pipelineStillCurrent(attempt: Long): Boolean {
@@ -399,7 +423,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             var baselineTaken = false
             while (isActive && isRunning) {
                 val stats = tun2SocksService?.getStats()
-                if (stats != null && stats.size == 4) {
+                if (stats != null && VpnReadiness.hevStatsAlive(stats)) {
                     // HEV order: txPackets, txBytes, rxPackets, rxBytes.
                     val rawTx = stats[1]
                     val rawRx = stats[3]
@@ -456,15 +480,6 @@ class CoreVpnService : VpnService(), ServiceControl {
             //in a row for several times. You will find that later created v2ray core report port in use
             //which means the first v2ray core somehow failed to stop and release the port.
             stopSelf()
-
-            // Add a small delay to allow the async core stop operation to complete
-            // before closing the VPN interface, preventing a race condition that can
-            // leave the VPN icon in the status bar after stopping the service.
-            try {
-                Thread.sleep(100)
-            } catch (e: InterruptedException) {
-                LogUtil.w(AppConfig.TAG, "StartCore-VPN: Sleep interrupted", e)
-            }
 
             try {
                 if (::mInterface.isInitialized) {

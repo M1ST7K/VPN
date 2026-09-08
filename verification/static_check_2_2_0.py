@@ -49,8 +49,14 @@ def main() -> int:
             fail("STARTING_HEV is missing")
         if "VERIFYING_PATH" not in vpn:
             fail("VERIFYING_PATH is missing")
-        if "markConnected()" not in vpn:
+        if "markConnected(" not in vpn:
             fail("CONNECTED is not published via coordinator")
+        if "pathVerified" not in vpn:
+            fail("CONNECTED is not gated on pathVerified")
+        if "permitAll" in vpn:
+            fail("CoreVpnService must not use StrictMode.permitAll")
+        if "Thread.sleep(100)" in vpn:
+            fail("CoreVpnService still uses Thread.sleep as stop synchronization")
         if "protect(" not in vpn and "vpnProtect" not in vpn:
             fail("VpnService.protect path missing")
         if 'addRoute("::", 0)' not in vpn:
@@ -78,10 +84,30 @@ def main() -> int:
         "waitForLocalSocksBlocking",
         "reload SOCKS wait",
     )
+    manager = read("app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt")
+    if manager:
+        if "Thread.sleep(500L)" in manager:
+            fail("CoreServiceManager still uses Thread.sleep as restart synchronization")
+        if "CoroutineScope(Dispatchers.IO).launch" in manager and "stopLoop()" in manager:
+            if "awaitCoreStop" not in manager:
+                fail("core stop is still fire-and-forget")
+        if "tryBeginReload" not in manager:
+            fail("handover is not serialized against startup")
+        if "ignoringCoreShutdownCallback" not in manager:
+            fail("core shutdown re-entry guard missing")
+
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/ConnectionUiMapper.kt",
         "WAITING_SOCKS",
         "UI mapper startup states",
+    )
+    main = read("app/src/main/java/com/v2ray/ang/ui/MainActivity.kt")
+    if main and "isRunning && !session.isBusy()" in main:
+        fail("MainActivity still promotes isRunning to Защищено")
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+        "probeSocks5",
+        "SOCKS5 handshake readiness",
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",

@@ -531,4 +531,6 @@
     <string name="hotfox_proxy_ok">Прокси · %1$d мс</string>
     <string name="hotfox_proxy_failed">Сервер недоступен</string>
     <string name="hotfox_add_subscription">Добавить подписку</string>
+    <string name="hotfox_headline_proxy_only">Прокси</string>
+    <string name="hotfox_headline_root">Root</string>
 </resources>

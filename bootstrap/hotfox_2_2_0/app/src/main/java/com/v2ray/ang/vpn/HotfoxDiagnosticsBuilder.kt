@@ -11,8 +11,8 @@ object HotfoxDiagnosticsBuilder {
         socksPort: Int,
         socksReady: Boolean?,
         hevRunning: Boolean?,
-        ipv4Captured: Boolean,
-        ipv6Captured: Boolean,
+        ipv4Captured: Boolean?,
+        ipv6Captured: Boolean?,
         ipv6Policy: String,
         routingMode: String,
         serverRemark: String?,
@@ -20,6 +20,7 @@ object HotfoxDiagnosticsBuilder {
         downloaded: Long?,
         lastError: String?,
         serverCount: Int,
+        path: VpnPathVerification? = VpnSessionCoordinator.lastPath(),
     ): String {
         val state = VpnSessionCoordinator.currentState()
         val raw = buildString {
@@ -31,14 +32,28 @@ object HotfoxDiagnosticsBuilder {
             appendLine("protected=${state.isProtected()}")
             appendLine("routing=$routingMode")
             appendLine("server=${serverRemark ?: "—"}")
-            appendLine("socks=127.0.0.1:$socksPort ready=${socksReady ?: "unknown"}")
-            appendLine("hev=${hevRunning ?: "unknown"}")
-            appendLine("ipv4Captured=$ipv4Captured ipv6Captured=$ipv6Captured ipv6Policy=$ipv6Policy")
+            appendLine("socks=127.0.0.1:$socksPort ready=${formatTriState(socksReady)}")
+            appendLine("socks5=${formatTriState(path?.socks5Ready ?: socksReady)}")
+            appendLine("hev=${formatTriState(hevRunning)}")
+            appendLine("xrayEgressMs=${path?.xrayEgressMs ?: "unknown"}")
+            appendLine("pathVerified=${path?.verified ?: "unknown"}")
+            appendLine("pathBackend=${path?.backend ?: "unknown"}")
+            appendLine("pathReason=${path?.reason ?: "none"}")
+            appendLine("ipv4Captured=${formatTriState(ipv4Captured)}")
+            appendLine("ipv6Captured=${formatTriState(ipv6Captured)}")
+            appendLine("ipv6Policy $ipv6Policy")
+            appendLine("e2e=${VpnPathVerification.PHYSICAL_E2E_NOT_EXECUTED}")
             appendLine("uploaded=${uploaded ?: "—"} downloaded=${downloaded ?: "—"}")
             appendLine("servers=$serverCount")
             appendLine("lastError=${lastError ?: "none"}")
             appendLine("attempt=${VpnSessionCoordinator.currentAttempt()}")
         }
         return SecretRedactor.redact(raw)
+    }
+
+    private fun formatTriState(value: Boolean?): String = when (value) {
+        true -> "true"
+        false -> "false"
+        null -> "unknown"
     }
 }

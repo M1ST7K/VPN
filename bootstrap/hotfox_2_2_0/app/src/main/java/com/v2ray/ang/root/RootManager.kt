@@ -1,10 +1,8 @@
 package com.v2ray.ang.root
 
 import com.v2ray.ang.AppConfig
-import com.v2ray.ang.root.RootManager.isRootAvailable
-import com.v2ray.ang.root.RootManager.refresh
+import com.v2ray.ang.util.BoundedProcess
 import com.v2ray.ang.util.LogUtil
-import com.v2ray.ang.util.ProcessWaitCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -14,7 +12,7 @@ import java.util.concurrent.TimeUnit
  *
  * The result is cached after the first successful probe. Probing spawns `su` and
  * blocks, so [refresh] (a suspending call on [Dispatchers.IO]) should be used from UI
- * code; [isRootAvailable] may block and must not be called on the main thread the first time.
+ * code. [isRootAvailable] may block and must not be called on the main thread.
  */
 object RootManager {
 
@@ -26,7 +24,7 @@ object RootManager {
 
     /**
      * Returns whether root is available, probing once if unknown.
-     * May block while `su` is spawned; avoid calling on the main thread before a probe.
+     * May block while `su` is spawned; never call from the main thread.
      */
     fun isRootAvailable(forceRefresh: Boolean = false): Boolean {
         if (!forceRefresh) cached?.let { return it }
@@ -42,19 +40,18 @@ object RootManager {
         result
     }
 
-    private fun probe(): Boolean {
+    internal fun probe(): Boolean {
         return try {
             val process = ProcessBuilder("su", "-c", "id -u")
                 .redirectErrorStream(true)
                 .start()
-            val output = process.inputStream.bufferedReader().use { it.readText() }.trim()
-            val finished = ProcessWaitCompat.waitFor(process, 10, TimeUnit.SECONDS)
-            if (!finished) {
-                process.destroy()
+            val collected = BoundedProcess.collect(process, 10, TimeUnit.SECONDS)
+            if (!collected.finished) {
                 LogUtil.w(AppConfig.TAG, "RootManager: su probe timed out")
                 return false
             }
-            val isRoot = process.exitValue() == 0 && output.lineSequence().lastOrNull()?.trim() == "0"
+            val output = collected.output.trim()
+            val isRoot = collected.exitCode == 0 && output.lineSequence().lastOrNull()?.trim() == "0"
             LogUtil.i(AppConfig.TAG, "RootManager: root available = $isRoot")
             isRoot
         } catch (e: Exception) {

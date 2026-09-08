@@ -2,8 +2,8 @@ package com.v2ray.ang.root
 
 import android.content.Context
 import com.v2ray.ang.AppConfig
+import com.v2ray.ang.util.BoundedProcess
 import com.v2ray.ang.util.LogUtil
-import com.v2ray.ang.util.ProcessWaitCompat
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -35,16 +35,14 @@ object RootShell {
             val process = ProcessBuilder("su", "-c", command)
                 .redirectErrorStream(true)
                 .start()
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            val finished = ProcessWaitCompat.waitFor(process, timeoutSeconds, TimeUnit.SECONDS)
-            if (!finished) {
-                process.destroy()
+            val collected = BoundedProcess.collect(process, timeoutSeconds, TimeUnit.SECONDS)
+            if (!collected.finished) {
                 LogUtil.e(AppConfig.TAG, "RootShell: timed out: $command")
-                return Result(-1, output)
+                return Result(-1, collected.output)
             }
-            val result = Result(process.exitValue(), output)
+            val result = Result(collected.exitCode ?: -1, collected.output)
             if (!result.success) {
-                LogUtil.w(AppConfig.TAG, "RootShell: '$command' exited ${result.code}: ${output.trim()}")
+                LogUtil.w(AppConfig.TAG, "RootShell: '$command' exited ${result.code}: ${collected.output.trim()}")
             }
             result
         } catch (e: Exception) {

@@ -29,6 +29,29 @@ class ConnectionUiMapperTest {
         assertFalse(ConnectionUiMapper.isProtectedHeadline(VpnSessionState.RECONNECTING))
         assertFalse(ConnectionUiMapper.isProtectedHeadline(VpnSessionState.ERROR))
         assertFalse(ConnectionUiMapper.isProtectedHeadline(VpnSessionState.DISCONNECTED))
+        assertFalse(ConnectionUiMapper.isProtectedHeadline(VpnSessionState.PROXY_ONLY))
+        assertFalse(ConnectionUiMapper.isProtectedHeadline(VpnSessionState.ROOT_RUNNING))
+        assertFalse(VpnSessionState.PROXY_ONLY.isProtected())
+        assertFalse(VpnSessionState.ROOT_RUNNING.isProtected())
+        assertEquals(ConnectionUiMapper.Headline.PROXY_ONLY, ConnectionUiMapper.headline(VpnSessionState.PROXY_ONLY))
+        assertEquals(ConnectionUiMapper.Headline.ROOT_RUNNING, ConnectionUiMapper.headline(VpnSessionState.ROOT_RUNNING))
+    }
+
+    @Test
+    fun resolveHeadlineNeverPromotesBusyOrProxyToProtected() {
+        assertEquals(
+            ConnectionUiMapper.Headline.CONNECTING,
+            ConnectionUiMapper.resolveHeadline(VpnSessionState.WAITING_SOCKS, isLoading = false),
+        )
+        assertEquals(
+            ConnectionUiMapper.Headline.PROXY_ONLY,
+            ConnectionUiMapper.resolveHeadline(VpnSessionState.PROXY_ONLY, isLoading = false),
+        )
+        assertEquals(
+            ConnectionUiMapper.Headline.CONNECTED,
+            ConnectionUiMapper.resolveHeadline(VpnSessionState.CONNECTED, isLoading = false),
+        )
+        assertFalse(ConnectionUiMapper.isProtectedHeadline(VpnSessionState.PROXY_ONLY))
     }
 
     @Test

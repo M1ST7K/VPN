@@ -22,8 +22,10 @@ grep -q 'VpnReadiness.waitForLocalSocks' "$PROJECT/app/src/main/java/com/v2ray/a
   || fail "SOCKS readiness wait missing from CoreVpnService"
 grep -q 'VpnSessionState.STARTING_HEV' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "STARTING_HEV state missing"
-grep -q 'VpnSessionCoordinator.markConnected()' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+grep -q 'VpnSessionCoordinator.markConnected(' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "markConnected missing"
+grep -q 'pathVerified' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "pathVerified gate missing"
 grep -q 'fun vpnProtect' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "vpnProtect missing"
 grep -q 'addDisallowedApplication(selfPackageName)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
