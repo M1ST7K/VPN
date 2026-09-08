@@ -160,6 +160,22 @@ jobs:
             echo "Skip stale publisher: $GITHUB_SHA is not origin/${GITHUB_REF_NAME} ($head)"
             exit 0
           fi
+          mine_ts="$(git show -s --format=%ct "$GITHUB_SHA")"
+          if gh release view hotfox-dev-latest --json targetCommitish >/dev/null 2>&1; then
+            existing_sha="$(gh release view hotfox-dev-latest --json targetCommitish --jq .targetCommitish)"
+            existing_iso="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${existing_sha}" --jq .commit.committer.date 2>/dev/null || true)"
+            if [[ -n "$existing_iso" ]]; then
+              existing_ts="$(date -u -d "$existing_iso" +%s 2>/dev/null || echo 0)"
+              if [[ "$mine_ts" -lt "$existing_ts" ]]; then
+                echo "Skip older commit $GITHUB_SHA ($mine_ts) overwriting $existing_sha ($existing_ts)"
+                exit 0
+              fi
+              if [[ "$mine_ts" -eq "$existing_ts" && "$GITHUB_SHA" != "$existing_sha" ]]; then
+                echo "Skip equal-timestamp overwrite of $existing_sha by $GITHUB_SHA"
+                exit 0
+              fi
+            fi
+          fi
           shopt -s nullglob
           apks=(dist/*.apk)
           [[ ${#apks[@]} -gt 0 ]] || { echo "no APKs to publish"; exit 1; }

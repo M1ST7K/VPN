@@ -44,7 +44,7 @@ plus real browser/app traffic and acceptable DNS/IPv6 behavior.
 
 ## AUTO server contract
 
-`Авто-выбор сервера` is a first-class persisted mode and must remain the **first server-list row**.
+`Авто-выбор сервера` is a first-class persisted mode and must remain the **first server-list row** (`HotfoxServerListContract.AUTO_ROW_INDEX = 0`).
 
 - AUTO is not a fake server GUID.
 - Manual selection must remain manual until the user changes it.
@@ -54,7 +54,7 @@ plus real browser/app traffic and acceptable DNS/IPv6 behavior.
 
 ## Phone UI contract
 
-Primary phone navigation is exactly the three editorial bottom destinations:
+Primary phone navigation is exactly the three editorial bottom destinations (bottom bar):
 
 `Соединение / Серверы / Подписка`
 

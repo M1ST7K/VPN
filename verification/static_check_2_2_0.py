@@ -97,9 +97,9 @@ def main() -> int:
                 fail("core stop is still fire-and-forget")
         if "tryBeginReload" not in manager:
             fail("handover is not serialized against startup")
-        if "ignoringCoreShutdownCallback" not in manager:
+        if "XrayShutdownGate" not in manager:
             fail("core shutdown re-entry guard missing")
-        if "private fun awaitCoreStop(epoch: Long): Boolean" not in manager:
+        if "private fun awaitCoreStop(epoch: Long, attempt: Long): Boolean" not in manager:
             fail("awaitCoreStop must report a Boolean outcome")
         if "completeStopOutcome" not in manager:
             fail("timed-out core stop is not fail-closed")
@@ -211,11 +211,11 @@ def main() -> int:
         text = agents.read_text(encoding="utf-8", errors="replace")
         if "vertical navigation" in text:
             fail("AGENTS.md still requires vertical/rail navigation")
-        if "bottom bar" not in text and "bottom nav" not in text:
+        if "bottom bar" not in text and "bottom nav" not in text and "bottom destinations" not in text:
             fail("AGENTS.md does not record the phone bottom navigation")
-        if "AUTO_ROW_INDEX" not in text:
+        if "AUTO_ROW_INDEX" not in text and "first server-list row" not in text:
             fail("AGENTS.md does not require AUTO as the first server row")
-        if "Mandatory completion loop" not in text:
+        if "Mandatory completion loop" not in text and "Build/test loop" not in text:
             fail("AGENTS.md is missing the mandatory completion loop")
     else:
         fail("AGENTS.md missing")

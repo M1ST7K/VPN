@@ -40,6 +40,7 @@ import com.v2ray.ang.vpn.VpnLoopPrevention
 import com.v2ray.ang.vpn.VpnReadiness
 import com.v2ray.ang.vpn.VpnSessionCoordinator
 import com.v2ray.ang.vpn.VpnSessionState
+import com.v2ray.ang.vpn.XrayShutdownGate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,11 +68,11 @@ object CoreServiceManager {
     @Volatile
     private var isReloading = false
 
-    @Volatile
-    private var ignoringCoreShutdownCallback = false
+    internal val xrayShutdownGate = XrayShutdownGate()
 
     private val stopInProgress = AtomicBoolean(false)
     private val stopWorker = AtomicReference<Thread?>(null)
+    private val lateStopWork = AtomicReference<LateStopWork?>(null)
     private val stopExecutor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "hotfox-core-stop-exec").apply { isDaemon = false }
     }
@@ -352,6 +353,7 @@ object CoreServiceManager {
         if (!coreController.isRunning) {
             error("Core failed to start")
         }
+        xrayShutdownGate.onCoreLaunched()
 
         if (browserDialer != null) {
             browserDialer!!.stop()
@@ -406,15 +408,24 @@ object CoreServiceManager {
     }
 
     private fun stopCoreLoopBlocking(preStop: (() -> Unit)? = null): Boolean {
-        val epoch = VpnSessionCoordinator.beginStop()
+        val ticket = VpnSessionCoordinator.beginStop(joinExisting = isCoreStopActive())
+        val epoch = ticket.epoch
         val attempt = VpnSessionCoordinator.currentAttempt()
         try {
+            if (!ticket.owned) {
+                LogUtil.i(AppConfig.TAG, "StartCore-Manager: joining in-flight stop epoch=$epoch")
+                stopWorker.get()?.join(8_000)
+                return VpnSessionCoordinator.lastStopSucceeded() && !VpnSessionCoordinator.isTeardownActive()
+            }
             if (!stopInProgress.compareAndSet(false, true) && isCoreStopActive()) {
-                LogUtil.i(AppConfig.TAG, "StartCore-Manager: stop already in progress")
+                LogUtil.i(AppConfig.TAG, "StartCore-Manager: stop already in progress epoch=$epoch")
                 return false
             }
             val service = getService()
-            ignoringCoreShutdownCallback = true
+            val runningGen = xrayShutdownGate.currentGeneration()
+            if (runningGen != 0L) {
+                xrayShutdownGate.expectShutdownOf(runningGen)
+            }
             try {
                 runCatching { preStop?.invoke() }
                 networkMonitor?.unregister()
@@ -422,7 +433,7 @@ object CoreServiceManager {
                 currentVpnInterface = null
                 hevStatsProvider = null
 
-                val stopped = if (coreController.isRunning) awaitCoreStop(epoch) else true
+                val stopped = if (coreController.isRunning) awaitCoreStop(epoch, attempt) else true
                 if (!stopped) {
                     LogUtil.e(AppConfig.TAG, "StartCore-Manager: core stop did not complete")
                     VpnSessionCoordinator.completeStopOutcome(epoch, attempt, false)
@@ -436,33 +447,36 @@ object CoreServiceManager {
                     return false
                 }
 
-                CoreNativeManager.reconcileBrowserDialer("")
-                if (browserDialer != null) {
-                    browserDialer!!.stop()
-                    browserDialer = null
-                }
-
-                if (service != null) {
-                    MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_STOP_SUCCESS, "")
-                    NotificationManager.cancelNotification()
-                    try {
-                        service.unregisterReceiver(mMsgReceive)
-                    } catch (e: Exception) {
-                        LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to unregister receiver", e)
-                    }
-                }
+                finishCoreStopResources(service)
                 if (!VpnSessionCoordinator.completeStopOutcome(epoch, attempt, true)) {
                     LogUtil.w(AppConfig.TAG, "StartCore-Manager: stop finalizer ignored; newer attempt owns the session")
                 }
                 return true
             } finally {
-                ignoringCoreShutdownCallback = isCoreStopActive() || !VpnSessionCoordinator.lastStopSucceeded()
                 if (!isCoreStopActive() && VpnSessionCoordinator.lastStopSucceeded()) {
                     stopInProgress.set(false)
+                    xrayShutdownGate.clearExpected()
                 }
             }
         } finally {
             VpnSessionCoordinator.endStop()
+        }
+    }
+
+    private fun finishCoreStopResources(service: Service?) {
+        CoreNativeManager.reconcileBrowserDialer("")
+        if (browserDialer != null) {
+            browserDialer!!.stop()
+            browserDialer = null
+        }
+        if (service != null) {
+            MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_STOP_SUCCESS, "")
+            NotificationManager.cancelNotification()
+            try {
+                service.unregisterReceiver(mMsgReceive)
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to unregister receiver", e)
+            }
         }
     }
 
@@ -487,9 +501,10 @@ object CoreServiceManager {
      * Awaits [CoreController.stopLoop] on a dedicated non-daemon thread.
      * Returns false on timeout or exception; the worker remains a start barrier until it dies.
      */
-    private fun awaitCoreStop(epoch: Long): Boolean {
+    private fun awaitCoreStop(epoch: Long, attempt: Long): Boolean {
         val done = CountDownLatch(1)
         val succeeded = AtomicBoolean(false)
+        val timedOut = AtomicBoolean(false)
         val worker = Thread({
             try {
                 coreController.stopLoop()
@@ -501,10 +516,14 @@ object CoreServiceManager {
                 done.countDown()
                 val ok = succeeded.get()
                 stopWorker.compareAndSet(Thread.currentThread(), null)
-                if (ok) {
-                    VpnSessionCoordinator.completeLateStopSuccess(epoch)
-                    stopInProgress.set(false)
-                    ignoringCoreShutdownCallback = false
+                if (ok && timedOut.get()) {
+                    val late = lateStopWork.get()
+                    if (late != null && late.epoch == epoch && lateStopWork.compareAndSet(late, null)) {
+                        runCatching { finishCoreStopResources(getService()) }
+                        VpnSessionCoordinator.completeLateStopSuccess(epoch)
+                        stopInProgress.set(false)
+                        xrayShutdownGate.clearExpected()
+                    }
                 }
             }
         }, "hotfox-core-stop")
@@ -517,12 +536,19 @@ object CoreServiceManager {
             Thread.currentThread().interrupt()
             false
         }
-        if (!finished) {
-            LogUtil.e(AppConfig.TAG, "StartCore-Manager: core stop timed out")
-            return false
+        if (finished || succeeded.get()) {
+            worker.join(1_000)
+            return succeeded.get()
         }
-        worker.join(1_000)
-        return succeeded.get()
+        timedOut.set(true)
+        lateStopWork.set(LateStopWork(epoch, attempt))
+        if (succeeded.get()) {
+            lateStopWork.set(null)
+            worker.join(1_000)
+            return true
+        }
+        LogUtil.e(AppConfig.TAG, "StartCore-Manager: core stop timed out")
+        return false
     }
 
     /** Watches the physical uplink and keeps the existing Android VPN alive across handovers. */
@@ -555,7 +581,6 @@ object CoreServiceManager {
         return try {
             val tunInterface = currentVpnInterface
             isReloading = true
-            ignoringCoreShutdownCallback = true
             if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
             when (val resolved = HotfoxServerSelection.resolveForHandover()) {
                 is HotfoxServerSelection.ResolveResult.Failure -> {
@@ -578,7 +603,12 @@ object CoreServiceManager {
             LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core reload start attempt=$attempt")
             val ctx = service.applicationContext
             VpnLoopPrevention.bindProcessToUnderlying(ctx)
+            val oldGen = xrayShutdownGate.currentGeneration()
+            if (oldGen != 0L) {
+                xrayShutdownGate.expectShutdownOf(oldGen)
+            }
             coreController.stopLoop()
+            xrayShutdownGate.drain(3_000)
             launchCore(
                 service = service,
                 vpnInterface = tunInterface,
@@ -633,9 +663,6 @@ object CoreServiceManager {
             false
         } finally {
             isReloading = false
-            if (!stopInProgress.get() && !isCoreStopActive()) {
-                ignoringCoreShutdownCallback = false
-            }
             VpnSessionCoordinator.endReload()
         }
     }
@@ -756,7 +783,10 @@ object CoreServiceManager {
          * @return 0 for success, any other value for failure.
          */
         override fun shutdown(): Long {
-            if (ignoringCoreShutdownCallback || stopInProgress.get() || isReloading) {
+            if (xrayShutdownGate.onCoreShutdown() == XrayShutdownGate.Disposition.EXPECTED) {
+                return 0
+            }
+            if (stopInProgress.get()) {
                 return 0
             }
             val serviceControl = serviceControl?.get() ?: return -1
@@ -882,3 +912,5 @@ object CoreServiceManager {
         }
     }
 }
+
+private data class LateStopWork(val epoch: Long, val attempt: Long)

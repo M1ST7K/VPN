@@ -9,6 +9,11 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlinx.coroutines.delay
 
+data class StopTicket(
+    val epoch: Long,
+    val owned: Boolean,
+)
+
 /**
  * Process-scoped session coordinator. Survives Activity recreation while the
  * VPN process remains alive. CONNECTED is never inferred from a Boolean flag and
@@ -116,7 +121,11 @@ object VpnSessionCoordinator {
         }
     }
 
-    /** Worker finished after the 8s bound: allow restart if this stop epoch is still current. */
+    /**
+     * Late worker success after the owner's timeout. Clears the barrier only for
+     * the still-current stop epoch, after the caller has finished leftover cleanup.
+     * Does not disconnect a newer start attempt (epoch mismatch).
+     */
     fun completeLateStopSuccess(epoch: Long): Boolean {
         synchronized(generationLock) {
             if (stopEpoch.get() != epoch) return false
@@ -287,11 +296,21 @@ object VpnSessionCoordinator {
         unlockIfHeld()
     }
 
-    fun beginStop(): Long {
+    /**
+     * Owns a stop generation. If [joinExisting] and a stop is already in flight,
+     * returns that epoch without minting a new one so a repeated stop cannot
+     * invalidate the live worker's late-success path.
+     */
+    fun beginStop(joinExisting: Boolean = false): StopTicket {
         lifecycleLock.lock()
         synchronized(generationLock) {
+            val current = stopEpoch.get()
+            if (joinExisting && teardownActive.get() && current != 0L) {
+                return StopTicket(epoch = current, owned = false)
+            }
             teardownActive.set(true)
-            return stopEpoch.incrementAndGet()
+            lastStage.set(VpnConnectionStage.STOPPING)
+            return StopTicket(epoch = stopEpoch.incrementAndGet(), owned = true)
         }
     }
 
