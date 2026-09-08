@@ -1,1 +1,12 @@
-Setup branch active: cursor/hotfox-2.2.0-setup
+HotFox Proxy repository bootstrap status
+
+Payload integrity target: PASS
+Expected payload SHA-256: c9dd4656985b73084e3ff9bf16459c93d55e0a2cfb0ce8dd083ac1d1dea85260
+Baseline: HotFox Proxy 2.1.0
+Cursor target: HotFox Proxy 2.2.0
+Upstream: v2rayNG 2.2.6 @ 15b4fff8e45da9bc0acaa5cc1d80a1d3531e8712
+NDK: 29.0.14206865
+Android library: AndroidLibXrayLite v26.6.27
+
+GitHub Actions is the authoritative cloud build gate for reconstruction, Android compile, unit tests, and lint.
+Physical-device VPN E2E remains a separate release gate and must never be reported as executed unless it actually ran on Android hardware/emulator with VPN-capable networking.
