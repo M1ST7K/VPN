@@ -1,8 +1,9 @@
 name: HotFox AI Checkpoint Reviewer
 
 on:
-  # Ordinary pushes still trigger this tiny trusted job, but the script exits
-  # before any OpenAI call unless the PR head commit contains [hotfox-review].
+  # Ordinary PR pushes run only the tiny checkpoint gate. OpenAI is not called,
+  # and OPENAI_API_KEY is not exposed to a job, unless the final head commit
+  # explicitly contains [hotfox-review].
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
@@ -22,13 +23,65 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  review:
-    name: GPT-5.6 Sol checkpoint review → Cursor only for P0/P1
+  checkpoint-gate:
+    name: Check whether this head requests AI review
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        github.event.pull_request.user.login == github.repository_owner &&
        startsWith(github.event.pull_request.head.ref, 'cursor/hotfox-'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      requested: ${{ steps.gate.outputs.requested }}
+    steps:
+      - id: gate
+        name: Detect explicit checkpoint token
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "requested=true" >> "$GITHUB_OUTPUT"
+            echo "Manual workflow_dispatch requests a checkpoint review."
+            exit 0
+          fi
+
+          message="$(python3 - <<'PY'
+          import json, os, urllib.request
+          repo = os.environ['REPO']
+          sha = os.environ['HEAD_SHA']
+          token = os.environ['GH_TOKEN']
+          req = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/commits/{sha}',
+              headers={
+                  'Accept': 'application/vnd.github+json',
+                  'Authorization': f'Bearer {token}',
+                  'User-Agent': 'hotfox-ai-checkpoint-gate/1.0',
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as response:
+              data = json.load(response)
+          print(((data.get('commit') or {}).get('message') or '').strip())
+          PY
+          )"
+
+          if grep -Fqi '[hotfox-review]' <<< "$message"; then
+            echo "requested=true" >> "$GITHUB_OUTPUT"
+            echo "Checkpoint token found; senior AI review will run."
+          else
+            echo "requested=false" >> "$GITHUB_OUTPUT"
+            echo "Ordinary push; OpenAI review skipped."
+          fi
+
+  review:
+    name: GPT-5.6 Sol checkpoint review → Cursor only for P0/P1
+    needs: checkpoint-gate
+    if: needs.checkpoint-gate.outputs.requested == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -50,7 +103,7 @@ jobs:
             exit 2
           fi
 
-      - name: Check checkpoint and review only when requested
+      - name: Run trusted checkpoint review
         env:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
