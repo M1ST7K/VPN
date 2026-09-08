@@ -1,0 +1,61 @@
+name: HotFox AI Reviewer
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull request number to review"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: hotfox-ai-review-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: OpenAI senior review → Cursor fix loop
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.user.login == github.repository_owner &&
+       startsWith(github.event.pull_request.head.ref, 'cursor/hotfox-'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # pull_request_target intentionally checks out ONLY trusted main.
+      # Never checkout or execute code from the PR head in this workflow because
+      # OPENAI_API_KEY is available to the job.
+      - name: Checkout trusted reviewer code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Validate OpenAI secret is configured
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY is not configured in repository Actions secrets." >&2
+            exit 2
+          fi
+
+      - name: Review current HotFox changes and hand P0/P1 fixes to Cursor
+        env:
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_REVIEW_MODEL: gpt-5.6-sol
+          MAX_REVIEW_ROUNDS: "10"
+          MAX_REVIEW_DIFF_CHARS: "360000"
+        run: python3 .github/scripts/hotfox_ai_review.py
