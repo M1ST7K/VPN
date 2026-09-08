@@ -16,7 +16,7 @@ Review only evidence present in the current diff/current PR context. Do not inve
 3. UI may show `CONNECTED` / `Защищено` only after the production pipeline is operational according to the project's bounded readiness checks.
 4. Startup ordering must avoid races: Xray starts first, local SOCKS readiness is verified, then HEV/tun2socks starts, then the session may become connected.
 5. Failure of Xray, HEV, TUN, required DNS path, VPN permission or network must not leave a false protected state.
-6. Prevent routing feedback loops. Preserve correct `VpnService.protect()` integration for outbound sockets where required by the architecture.
+6. Prevent routing feedback loops. Preserve correct socket/process loop-prevention behavior for the exact embedded libv2ray/Xray architecture. Do not assume a `protect()` callback exists when the embedded library does not expose one.
 7. DNS must not silently bypass the intended VPN route while the app claims protection.
 8. IPv6 must be explicitly routed or fail closed. Silent IPv6 bypass is release-blocking.
 9. Disconnect/reconnect must clean up obsolete Xray sessions, HEV sessions, file descriptors, callbacks, jobs and TUN resources.
@@ -37,15 +37,17 @@ Review only evidence present in the current diff/current PR context. Do not inve
 7. Preserve required native HEV libraries/ABIs and production Xray integration in packaging.
 8. Subscription import must stay runtime-driven; private user subscription data must not be embedded in the APK.
 9. Server selection shown in UI must correspond to the backend configuration actually used.
-10. Ping/health/traffic values must be real or explicitly unavailable.
-11. Smart routing UI must map to real Android/Xray routing rules, not decorative toggles.
-12. Domain/app routing priority must be deterministic and testable.
-13. VLESS/Reality/XHTTP parsing/config generation must use fields supported by the exact embedded Xray version; never silently change transport semantics.
-14. Avoid blocking networking/file IO on the Android main thread.
-15. Prefer structured concurrency; avoid `GlobalScope`, unbounded coroutines, busy waits and arbitrary sleeps used as synchronization.
-16. Invalid subscription/server entries should fail gracefully rather than crash the app or poison all valid entries.
-17. Important pure logic should have unit coverage where practical: state transitions, routing priority, failover/scoring, parsing, redaction and config generation.
-18. CI/build fixes must repair the actual defect rather than disable VPN functionality or broadly suppress meaningful checks.
+10. `Авто-выбор сервера` is a first-class persisted mode and must remain the first row in the server list. AUTO may resolve to a concrete healthy server for the active session, but manual selection must not be silently overwritten by AUTO. The connection screen should make the resolved AUTO target truthful and visible.
+11. Ping/health/traffic values must be real or explicitly unavailable.
+12. Smart routing UI must map to real Android/Xray routing rules, not decorative toggles.
+13. Domain/app routing priority must be deterministic and testable.
+14. VLESS/Reality/XHTTP parsing/config generation must use fields supported by the exact embedded Xray version; never silently change transport semantics.
+15. Avoid blocking networking/file IO on the Android main thread.
+16. Prefer structured concurrency; avoid `GlobalScope`, unbounded coroutines, busy waits and arbitrary sleeps used as synchronization.
+17. Invalid subscription/server entries should fail gracefully rather than crash the app or poison all valid entries.
+18. Important pure logic should have unit coverage where practical: state transitions, routing priority, failover/scoring, parsing, redaction and config generation.
+19. CI/build fixes must repair the actual defect rather than disable VPN functionality or broadly suppress meaningful checks.
+20. Every Cursor change intended for retest must be buildable automatically. Green source claims without debug APK build, tests/lint/static verification, and an installable artifact are incomplete.
 
 ## P2 — polish/non-blocking
 
@@ -56,8 +58,13 @@ Do not trigger Cursor automatically for P2-only findings.
 ## HotFox product/UI constraints
 
 - Do not regress to stock v2rayNG UI or generic Material-card-heavy styling.
-- Preserve the premium editorial HotFox visual direction: charcoal/purple-black surfaces, warm off-white typography, restrained orange accent, green success state, thin separators and generous negative space.
-- Connection timer, server, routing mode, subscription status and traffic shown to the user must derive from real application state.
+- Preserve the premium editorial HotFox visual direction: charcoal/purple-black surfaces, warm off-white typography, restrained orange accent, green success state, thin separators and deliberate negative space.
+- The owner's latest navigation requirement supersedes the older vertical-rail wording in the original master spec: primary phone navigation is the three-destination bottom/editorial navigation for `Соединение`, `Серверы`, `Подписка`. Do not restore the inconvenient side/vertical rail unless the owner explicitly requests it again.
+- The connection screen must include the route/connection-bars visualization and must not regress to an excessively empty screen.
+- Server rows must remain clean, contemporary, single-column editorial rows; no legacy card-heavy/2010-style presentation.
+- Avoid boxed placeholder-looking surfaces and black-on-black icons. Important icons must have explicit readable tint/fill in the dark theme.
+- Subscription expiry/status must be derived from actual subscription metadata. Show the real expiry when supplied; show unknown only when the source genuinely provides no usable expiry data.
+- Connection timer, resolved server/AUTO target, routing mode, subscription status and traffic shown to the user must derive from real application state.
 - Do not trade P0 networking correctness for visual polish.
 
 ## Review output contract
