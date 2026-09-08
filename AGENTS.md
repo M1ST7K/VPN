@@ -75,6 +75,25 @@ A successful source edit without a successful build is not completion. Before st
 
 Trusted OpenAI reviewer P0/P1 findings remain blockers. Do not suppress meaningful checks to get green.
 
+## Android emulator harness — one-time capability proof
+
+Set up a reusable Android emulator smoke-test harness for Cursor/CI when the environment permits it. Prefer repository-controlled scripts/configuration (for example `.cursor/environment.json` plus a deterministic emulator/ADB smoke script) rather than manual GUI setup.
+
+The emulator capability itself must be **proved only once** for this project/environment. On the first successful setup, capture enough evidence to show the harness is genuinely usable:
+
+- `adb devices` shows a booted emulator;
+- the current HotFox debug APK installs successfully;
+- `com.hotfox.vpn` launches successfully;
+- the smoke flow can visit Соединение / Серверы / Подписка and confirm AUTO is the first server row;
+- capture at least one screenshot and relevant crash-free `logcat` evidence;
+- record the successful one-time proof in a durable text report or PR comment and, where practical, expose screenshot/logcat as an artifact.
+
+**Do not repeat this capability-proof bundle on every future commit.** Once a successful proof exists and the emulator harness/environment has not materially changed, future agents should simply reuse the harness. Run ordinary smoke checks when relevant to UI/runtime changes and report only PASS/FAIL plus actionable failures; do not regenerate the full proof package and do not ask the owner to reconfirm emulator capability each time.
+
+Repeat the full capability proof only if the emulator harness, Android image, Cursor environment, or execution architecture materially changes, or if the previously working harness stops functioning.
+
+Emulator success is never a substitute for physical-device VPN E2E. Do not claim external-IP/DNS/IPv6 acceptance from emulator-only evidence.
+
 ## Release discipline
 
 Before declaring the task complete, run an appropriate clean build, applicable unit tests, lint/static analysis, the project verifier, secret scans and a final diff review. If the environment does not permit real-device testing, explicitly mark device-level checks as NOT EXECUTED. Never report a device test as PASS unless it actually ran successfully.
