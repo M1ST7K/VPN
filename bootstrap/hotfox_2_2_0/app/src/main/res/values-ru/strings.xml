@@ -533,4 +533,10 @@
     <string name="hotfox_add_subscription">Добавить подписку</string>
     <string name="hotfox_headline_proxy_only">Прокси</string>
     <string name="hotfox_headline_root">Root</string>
+    <string name="hotfox_nav_connection">Соединение</string>
+    <string name="hotfox_nav_servers">Серверы</string>
+    <string name="hotfox_nav_subscription">Подписка</string>
+    <string name="hotfox_auto_server">Авто-выбор сервера</string>
+    <string name="hotfox_auto_server_hint">Самый быстрый измеренный сервер</string>
+    <string name="hotfox_auto_prefix">Авто · %1$s</string>
 </resources>

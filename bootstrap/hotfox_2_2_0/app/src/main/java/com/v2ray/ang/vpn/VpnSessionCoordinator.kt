@@ -13,28 +13,47 @@ import kotlinx.coroutines.delay
  * Process-scoped session coordinator. Survives Activity recreation while the
  * VPN process remains alive. CONNECTED is never inferred from a Boolean flag and
  * cannot be published without a generation-scoped, path-verified completion.
+ *
+ * Generation checks and mutations share [generationLock] so a newer [beginAttempt]
+ * cannot be overwritten by a stale path/error write.
  */
 object VpnSessionCoordinator {
+    private val generationLock = Any()
     private val attemptId = AtomicLong(0L)
     private val state = AtomicReference(VpnSessionState.DISCONNECTED)
     private val sessionStartElapsed = AtomicLong(0L)
     private val lastError = AtomicReference<String?>(null)
     private val lastPath = AtomicReference<VpnPathVerification?>(null)
+    private val lastStage = AtomicReference(VpnConnectionStage.IDLE)
     private val teardownActive = AtomicBoolean(false)
+    private val lastStopSucceeded = AtomicBoolean(true)
     private val lifecycleLock = ReentrantLock(true)
     val traffic = HotfoxTrafficAccumulator()
 
     fun beginAttempt(): Long {
-        if (teardownActive.get()) {
-            LogUtil.w(AppConfig.TAG, "VpnSession: beginAttempt refused; teardown active")
-            return 0L
+        synchronized(generationLock) {
+            if (teardownActive.get()) {
+                LogUtil.w(AppConfig.TAG, "VpnSession: beginAttempt refused; teardown active")
+                return 0L
+            }
+            val id = attemptId.incrementAndGet()
+            lastPath.set(null)
+            lastError.set(null)
+            lastStage.set(VpnConnectionStage.RESOLVE_SERVER)
+            state.set(VpnSessionState.PREPARING)
+            return id
         }
-        val id = attemptId.incrementAndGet()
-        lastPath.set(null)
-        lastError.set(null)
-        state.set(VpnSessionState.PREPARING)
-        return id
     }
+
+    fun recordStage(attempt: Long, stage: VpnConnectionStage): Boolean {
+        synchronized(generationLock) {
+            if (!matches(attempt)) return false
+            lastStage.set(stage)
+            return true
+        }
+    }
+
+    fun lastStage(): VpnConnectionStage = lastStage.get()
 
     fun isCurrent(id: Long): Boolean = id != 0L && id == attemptId.get()
 
@@ -46,127 +65,164 @@ object VpnSessionCoordinator {
 
     fun isTeardownActive(): Boolean = teardownActive.get()
 
+    fun lastStopSucceeded(): Boolean = lastStopSucceeded.get()
+
     fun setTeardownActive(active: Boolean) {
-        teardownActive.set(active)
+        synchronized(generationLock) {
+            teardownActive.set(active)
+        }
+    }
+
+    /**
+     * Late core-stop result. Barrier clears only after confirmed successful termination.
+     * Failed/exception stops stay fail-closed.
+     */
+    fun completeStopOutcome(stopLoopSucceeded: Boolean) {
+        synchronized(generationLock) {
+            lastStopSucceeded.set(stopLoopSucceeded)
+            if (stopLoopSucceeded) {
+                teardownActive.set(false)
+                if (state.get() != VpnSessionState.ERROR) {
+                    attemptId.incrementAndGet()
+                    lastPath.set(null)
+                    lastError.set(null)
+                    lastStage.set(VpnConnectionStage.IDLE)
+                    sessionStartElapsed.set(0L)
+                    traffic.reset()
+                    state.set(VpnSessionState.DISCONNECTED)
+                }
+            } else {
+                teardownActive.set(true)
+                lastStage.set(VpnConnectionStage.STOPPING)
+                if (state.get() != VpnSessionState.ERROR) {
+                    lastError.set("HF-VPN-008 Ядро не остановилось")
+                    sessionStartElapsed.set(0L)
+                    traffic.reset()
+                    lastPath.set(null)
+                    state.set(VpnSessionState.ERROR)
+                    attemptId.incrementAndGet()
+                }
+            }
+        }
     }
 
     fun recordPath(verification: VpnPathVerification): Boolean =
         recordPath(currentAttempt(), verification)
 
     fun recordPath(attempt: Long, verification: VpnPathVerification): Boolean {
-        if (!isCurrent(attempt)) {
-            LogUtil.w(
-                AppConfig.TAG,
-                "VpnSession: stale recordPath attempt=$attempt current=${attemptId.get()}",
-            )
-            return false
+        synchronized(generationLock) {
+            if (!matches(attempt)) return false
+            lastPath.set(verification)
+            return true
         }
-        lastPath.set(verification)
-        return true
     }
 
-    /**
-     * Intermediate states only. [VpnSessionState.CONNECTED] must go through
-     * [markConnected] with a current attempt and a verified path.
-     */
     fun setState(next: VpnSessionState): Boolean = setState(currentAttempt(), next)
 
     fun setState(attempt: Long, next: VpnSessionState): Boolean {
-        if (next == VpnSessionState.CONNECTED) {
-            LogUtil.w(AppConfig.TAG, "VpnSession: setState(CONNECTED) ignored; use markConnected")
-            return false
+        synchronized(generationLock) {
+            if (next == VpnSessionState.CONNECTED) {
+                LogUtil.w(AppConfig.TAG, "VpnSession: setState(CONNECTED) ignored; use markConnected")
+                return false
+            }
+            if (!matches(attempt)) return false
+            if (next == VpnSessionState.DISCONNECTED) {
+                sessionStartElapsed.set(0L)
+                traffic.reset()
+            }
+            state.set(next)
+            return true
         }
-        if (!isCurrent(attempt)) {
-            LogUtil.w(
-                AppConfig.TAG,
-                "VpnSession: stale setState ${next.name} attempt=$attempt current=${attemptId.get()}",
-            )
-            return false
-        }
-        if (next == VpnSessionState.DISCONNECTED) {
-            sessionStartElapsed.set(0L)
-            traffic.reset()
-        }
-        state.set(next)
-        return true
     }
 
     fun markConnected(attempt: Long, pathVerified: Boolean): Boolean {
-        if (!isCurrent(attempt)) {
-            LogUtil.w(AppConfig.TAG, "VpnSession: stale markConnected attempt=$attempt current=${attemptId.get()}")
-            return false
+        synchronized(generationLock) {
+            if (!matches(attempt)) {
+                LogUtil.w(AppConfig.TAG, "VpnSession: stale markConnected attempt=$attempt current=${attemptId.get()}")
+                return false
+            }
+            if (teardownActive.get()) {
+                LogUtil.w(AppConfig.TAG, "VpnSession: markConnected refused; teardown active")
+                return false
+            }
+            if (!pathVerified) {
+                LogUtil.w(AppConfig.TAG, "VpnSession: markConnected refused without path verification")
+                return false
+            }
+            if (sessionStartElapsed.get() == 0L) {
+                sessionStartElapsed.set(elapsedRealtimeMs())
+            }
+            lastStage.set(VpnConnectionStage.VERIFIED)
+            state.set(VpnSessionState.CONNECTED)
+            return true
         }
-        if (teardownActive.get()) {
-            LogUtil.w(AppConfig.TAG, "VpnSession: markConnected refused; teardown active")
-            return false
-        }
-        if (!pathVerified) {
-            LogUtil.w(AppConfig.TAG, "VpnSession: markConnected refused without path verification")
-            return false
-        }
-        if (sessionStartElapsed.get() == 0L) {
-            sessionStartElapsed.set(elapsedRealtimeMs())
-        }
-        state.set(VpnSessionState.CONNECTED)
-        return true
     }
 
     fun markProxyOnly(attempt: Long): Boolean {
-        if (!isCurrent(attempt) || teardownActive.get()) return false
-        state.set(VpnSessionState.PROXY_ONLY)
-        return true
+        synchronized(generationLock) {
+            if (!matches(attempt) || teardownActive.get()) return false
+            state.set(VpnSessionState.PROXY_ONLY)
+            return true
+        }
     }
 
     fun markRootRunning(attempt: Long): Boolean {
-        if (!isCurrent(attempt) || teardownActive.get()) return false
-        state.set(VpnSessionState.ROOT_RUNNING)
-        return true
+        synchronized(generationLock) {
+            if (!matches(attempt) || teardownActive.get()) return false
+            state.set(VpnSessionState.ROOT_RUNNING)
+            return true
+        }
     }
 
     fun markReconnecting(attempt: Long): Boolean {
-        if (!isCurrent(attempt) || teardownActive.get()) return false
-        state.set(VpnSessionState.RECONNECTING)
-        return true
+        synchronized(generationLock) {
+            if (!matches(attempt) || teardownActive.get()) return false
+            state.set(VpnSessionState.RECONNECTING)
+            return true
+        }
     }
 
     fun markDisconnected() {
-        attemptId.incrementAndGet()
-        lastPath.set(null)
-        state.set(VpnSessionState.DISCONNECTED)
-        sessionStartElapsed.set(0L)
-        traffic.reset()
-        lastError.set(null)
-        teardownActive.set(false)
+        synchronized(generationLock) {
+            attemptId.incrementAndGet()
+            lastPath.set(null)
+            lastStage.set(VpnConnectionStage.IDLE)
+            state.set(VpnSessionState.DISCONNECTED)
+            sessionStartElapsed.set(0L)
+            traffic.reset()
+            lastError.set(null)
+            teardownActive.set(false)
+            lastStopSucceeded.set(true)
+        }
     }
 
     fun markError(code: String, message: String): Boolean =
         markError(currentAttempt(), code, message)
 
     fun markError(attempt: Long, code: String, message: String): Boolean {
-        if (!isCurrent(attempt)) {
-            LogUtil.w(
-                AppConfig.TAG,
-                "VpnSession: stale markError $code attempt=$attempt current=${attemptId.get()}",
-            )
-            return false
+        synchronized(generationLock) {
+            if (!matches(attempt)) {
+                LogUtil.w(
+                    AppConfig.TAG,
+                    "VpnSession: stale markError $code attempt=$attempt current=${attemptId.get()}",
+                )
+                return false
+            }
+            lastPath.set(null)
+            lastError.set("$code $message".trim())
+            sessionStartElapsed.set(0L)
+            traffic.reset()
+            state.set(VpnSessionState.ERROR)
+            attemptId.incrementAndGet()
+            return true
         }
-        lastPath.set(null)
-        lastError.set("$code $message".trim())
-        sessionStartElapsed.set(0L)
-        traffic.reset()
-        state.set(VpnSessionState.ERROR)
-        attemptId.incrementAndGet()
-        return true
     }
 
     fun markStopIncomplete(message: String) {
-        teardownActive.set(true)
-        lastError.set("HF-VPN-008 $message".trim())
-        sessionStartElapsed.set(0L)
-        traffic.reset()
-        lastPath.set(null)
-        state.set(VpnSessionState.ERROR)
-        attemptId.incrementAndGet()
+        completeStopOutcome(false)
+        synchronized(generationLock) {
+            lastError.set("HF-VPN-008 $message".trim())
+        }
     }
 
     fun duplicateStartDisposition(): DuplicateStartDisposition {
@@ -222,6 +278,8 @@ object VpnSessionCoordinator {
         }
     }
 
+    private fun matches(attempt: Long): Boolean = attempt != 0L && attempt == attemptId.get()
+
     fun sessionStartedAtElapsed(): Long? {
         val started = sessionStartElapsed.get()
         return started.takeIf { it > 0L }
@@ -241,20 +299,25 @@ object VpnSessionCoordinator {
     private fun isIdle(): Boolean {
         if (teardownActive.get()) return false
         val current = state.get()
-        return current == VpnSessionState.DISCONNECTED || current == VpnSessionState.ERROR
+        return current == VpnSessionState.DISCONNECTED ||
+            (current == VpnSessionState.ERROR && lastStopSucceeded.get())
     }
 
     fun resetForTests() {
         while (lifecycleLock.isHeldByCurrentThread) {
             lifecycleLock.unlock()
         }
-        attemptId.set(0L)
-        state.set(VpnSessionState.DISCONNECTED)
-        sessionStartElapsed.set(0L)
-        lastError.set(null)
-        lastPath.set(null)
-        teardownActive.set(false)
-        traffic.reset()
+        synchronized(generationLock) {
+            attemptId.set(0L)
+            state.set(VpnSessionState.DISCONNECTED)
+            sessionStartElapsed.set(0L)
+            lastError.set(null)
+            lastPath.set(null)
+            lastStage.set(VpnConnectionStage.IDLE)
+            teardownActive.set(false)
+            lastStopSucceeded.set(true)
+            traffic.reset()
+        }
     }
 
     internal fun elapsedRealtimeMs(): Long =

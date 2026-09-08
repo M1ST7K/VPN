@@ -26,6 +26,8 @@ import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.MyContextWrapper
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.DuplicateStartDisposition
+import com.v2ray.ang.vpn.VpnConnectionStage
+import com.v2ray.ang.vpn.VpnLoopPrevention
 import com.v2ray.ang.vpn.VpnReadiness
 import com.v2ray.ang.vpn.VpnSessionCoordinator
 import com.v2ray.ang.vpn.VpnSessionState
@@ -130,11 +132,17 @@ class CoreVpnService : VpnService(), ServiceControl {
             return START_STICKY
         }
         VpnSessionCoordinator.setState(attempt, VpnSessionState.ESTABLISHING_TUN)
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.VPN_PREPARE)
         if (!setupVpnService()) {
             VpnSessionCoordinator.markError(attempt, "HF-VPN-002", "Не удалось создать VPN-интерфейс")
             unlockStart()
             stopSelf()
             return START_NOT_STICKY
+        }
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.TUN_ESTABLISH)
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.LOOP_BIND)
+        if (!VpnLoopPrevention.bindProcessToUnderlying(this)) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: underlying bind failed; Xray may loop if TUN captures this process")
         }
         startService()
         return START_STICKY
@@ -160,6 +168,7 @@ class CoreVpnService : VpnService(), ServiceControl {
     private suspend fun startTunnelPipeline() {
         val attempt = VpnSessionCoordinator.currentAttempt()
         if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_CORE)) return
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.XRAY_START)
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: STARTING_CORE attempt=$attempt")
         if (!pipelineStillCurrent(attempt)) return
         // Do not report "connected" before the complete TUN path is usable.
@@ -176,6 +185,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         val usingHev = SettingsManager.isUsingHevTun()
 
         if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.WAITING_SOCKS)) return
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.SOCKS)
         if (!VpnReadiness.waitForLocalSocks(socksPort, username = socksUser, password = socksPassword)) {
             failTunnelStart(attempt, "HF-VPN-004", "Локальный прокси не запустился")
             return
@@ -184,6 +194,7 @@ class CoreVpnService : VpnService(), ServiceControl {
 
         if (usingHev) {
             if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_HEV)) return
+            VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.HEV)
             if (!runTun2socks()) {
                 failTunnelStart(attempt, "HF-VPN-005", "Не удалось запустить сетевой туннель")
                 return
@@ -193,6 +204,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
 
         if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.VERIFYING_PATH)) return
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.TUN_INJECT)
         val path = VpnReadiness.verifyConfiguredPath(
             socksPort = socksPort,
             socksUser = socksUser,
@@ -204,11 +216,21 @@ class CoreVpnService : VpnService(), ServiceControl {
         )
         if (!VpnSessionCoordinator.recordPath(attempt, path)) return
         if (!path.verified) {
+            val stage = when (path.reason) {
+                "hev-no-progress" -> VpnConnectionStage.HEV_PROGRESS
+                "xray-egress-failed" -> VpnConnectionStage.XRAY_EGRESS
+                "socks5-handshake-failed" -> VpnConnectionStage.SOCKS
+                "hev-not-alive" -> VpnConnectionStage.HEV
+                "tun-not-established" -> VpnConnectionStage.TUN_ESTABLISH
+                else -> VpnConnectionStage.TUN_INJECT
+            }
+            VpnSessionCoordinator.recordStage(attempt, stage)
             failTunnelStart(attempt, "HF-VPN-006", "Путь VPN не подтверждён (${path.reason})")
             return
         }
 
         if (!pipelineStillCurrent(attempt)) return
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.VERIFIED)
         if (!VpnSessionCoordinator.markConnected(attempt, pathVerified = true)) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: markConnected rejected attempt=$attempt")
             return
@@ -382,22 +404,20 @@ class CoreVpnService : VpnService(), ServiceControl {
     private fun configurePerAppProxy(builder: Builder) {
         val selfPackageName = BuildConfig.APPLICATION_ID
 
-        // If per-app proxy is not enabled, disallow the VPN service's own package and return
+        // Per-app off: do not exclude HotFox. Loop prevention is bindProcessToUnderlying
+        // (this libv2ray has no protect() callback). Remaining on TUN lets injectThroughVpn
+        // actually traverse TUN → HEV → SOCKS → Xray.
         if (MmkvManager.decodeSettingsBool(AppConfig.PREF_PER_APP_PROXY) == false) {
-            builder.addDisallowedApplication(selfPackageName)
             return
         }
 
-        // If no apps are selected, disallow the VPN service's own package and return
         val apps = MmkvManager.decodeSettingsStringSet(AppConfig.PREF_PER_APP_PROXY_SET)
         if (apps.isNullOrEmpty()) {
-            builder.addDisallowedApplication(selfPackageName)
             return
         }
 
         val bypassApps = MmkvManager.decodeSettingsBool(AppConfig.PREF_BYPASS_APPS)
-        // Handle the VPN service's own package according to the mode
-        if (bypassApps) apps.add(selfPackageName) else apps.remove(selfPackageName)
+        if (bypassApps) apps.remove(selfPackageName) else apps.add(selfPackageName)
 
         apps.forEach {
             try {
@@ -485,6 +505,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         tun2SocksService = null
 
         RootLanSharing.stopClientSharing(this)
+        VpnLoopPrevention.unbindProcess(this)
 
         if (isForced) {
             // stopSelf has to be called ahead of mInterface.close(). otherwise v2ray core cannot be stooped

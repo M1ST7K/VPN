@@ -32,12 +32,12 @@ grep -q 'tun-not-forwarded' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnRea
   || fail "TUN progress fail-closed reason missing"
 grep -q 'isTeardownActive' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt" \
   || fail "teardown barrier missing"
-grep -q 'markStopIncomplete' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+grep -q 'completeStopOutcome' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
   || fail "stop timeout fail-closed missing"
 grep -q 'fun vpnProtect' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "vpnProtect missing"
-grep -q 'addDisallowedApplication(selfPackageName)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
-  || fail "self VPN exclusion missing"
+grep -q 'bindProcessToUnderlying' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "process bind to underlying network missing"
 grep -q 'builder.addRoute("::", 0)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "IPv6 capture route missing"
 grep -q 'hotfox_hev_stability_migrated_2_0_2' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/SettingsManager.kt" \

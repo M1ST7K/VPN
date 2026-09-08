@@ -61,8 +61,12 @@ def main() -> int:
             fail("VpnService.protect path missing")
         if 'addRoute("::", 0)' not in vpn:
             fail("IPv6 ::/0 capture missing")
-        if "addDisallowedApplication(selfPackageName)" not in vpn:
-            fail("self package is not excluded from TUN")
+        if "addDisallowedApplication(selfPackageName)" in vpn and "bindProcessToUnderlying" not in vpn:
+            fail("self-disallow without process bind would block TUN inject")
+        if "bindProcessToUnderlying" not in vpn:
+            fail("process must bind to underlying network so Xray does not loop into TUN")
+        if "injectThroughVpn" not in vpn:
+            fail("TUN inject is not invoked from CoreVpnService")
 
     must_contain(
         "app/src/main/java/com/v2ray/ang/core/CoreConfigManager.kt",
@@ -97,7 +101,7 @@ def main() -> int:
             fail("core shutdown re-entry guard missing")
         if "private fun awaitCoreStop(): Boolean" not in manager:
             fail("awaitCoreStop must report a Boolean outcome")
-        if "markStopIncomplete" not in manager:
+        if "completeStopOutcome" not in manager:
             fail("timed-out core stop is not fail-closed")
 
     must_contain(
@@ -129,9 +133,34 @@ def main() -> int:
         "teardown start barrier",
     )
     must_contain(
-        "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",
-        "hotfox_headline_connected",
-        "Защищено string resource",
+        "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+        "isValidDnsReply",
+        "validated DNS reply through TUN",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+        "probeHttpThroughVpn",
+        "HTTP through VPN network",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt",
+        "generationLock",
+        "atomic generation-scoped mutations",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt",
+        "completeStopOutcome",
+        "core stop outcome",
+    )
+    must_contain(
+        "app/src/main/res/layout/activity_main.xml",
+        "HotfoxRouteBarsView",
+        "connection route visualization",
+    )
+    must_contain(
+        "app/src/main/res/layout/activity_main.xml",
+        "nav_connection",
+        "mobile-first connection nav",
     )
     must_contain(
         "app/src/main/res/layout/activity_main.xml",

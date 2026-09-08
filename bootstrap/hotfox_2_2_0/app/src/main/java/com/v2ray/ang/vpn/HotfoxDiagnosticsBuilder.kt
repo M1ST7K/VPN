@@ -48,6 +48,7 @@ object HotfoxDiagnosticsBuilder {
             appendLine("uploaded=${uploaded ?: "—"} downloaded=${downloaded ?: "—"}")
             appendLine("servers=$serverCount")
             appendLine("lastError=${lastError ?: "none"}")
+            appendLine("stage=${VpnSessionCoordinator.lastStage().code}")
             appendLine("attempt=${VpnSessionCoordinator.currentAttempt()}")
         }
         return SecretRedactor.redact(raw)

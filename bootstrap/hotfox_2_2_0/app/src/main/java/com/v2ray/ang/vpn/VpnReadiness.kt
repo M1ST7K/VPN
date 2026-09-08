@@ -181,8 +181,8 @@ object VpnReadiness {
     }
 
     /**
-     * Sends UDP DNS and TCP through the Android VPN network so packets enter TUN.
-     * Does not use the local HTTP inbound. Fail-closed if no VPN network can be bound.
+     * Requires a validated DNS or HTTP response on a socket bound to TRANSPORT_VPN.
+     * Send-only or local HTTP inbound success is not TUN proof.
      */
     fun injectThroughVpn(context: Context): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
@@ -191,13 +191,17 @@ object VpnReadiness {
             LogUtil.w(AppConfig.TAG, "VpnReadiness: no TRANSPORT_VPN network to bind")
             return false
         }
-        val udp = injectUdpDns(vpn)
-        val tcp = injectTcp(vpn)
-        if (!udp && !tcp) {
-            LogUtil.w(AppConfig.TAG, "VpnReadiness: TUN inject bind/send failed")
-            return false
-        }
-        return true
+        if (probeDnsThroughVpn(vpn)) return true
+        if (probeHttpThroughVpn(vpn)) return true
+        LogUtil.w(AppConfig.TAG, "VpnReadiness: no DNS/HTTP response through VPN network")
+        return false
+    }
+
+    fun isValidDnsReply(query: ByteArray, reply: ByteArray): Boolean {
+        if (query.size < 12 || reply.size < 12) return false
+        if (query[0] != reply[0] || query[1] != reply[1]) return false
+        val flags = ((reply[2].toInt() and 0xff) shl 8) or (reply[3].toInt() and 0xff)
+        return flags and 0x8000 != 0
     }
 
     fun findVpnNetwork(cm: ConnectivityManager): Network? {
@@ -224,7 +228,7 @@ object VpnReadiness {
         xrayTunSnapshot: (() -> LongArray?)? = null,
     ): VpnPathVerification {
         val hevAlive = if (hevStatsProvider != null) waitHevAlive(hevStatsProvider) else null
-        val progressed = measureTunProgress(
+        val progress = measureTunProgress(
             hevRequired = hevStatsProvider != null,
             hevStatsProvider = hevStatsProvider,
             tunInjector = tunInjector,
@@ -237,8 +241,8 @@ object VpnReadiness {
             tunEstablished = tunEstablished,
             hevAlive = hevAlive,
             hevRequired = hevStatsProvider != null,
-            hevProgressed = progressed,
-            tunForwarded = progressed,
+            hevProgressed = progress.hevProgressed,
+            tunForwarded = progress.tunForwarded,
             xrayEgressMs = xrayEgressMs(),
         )
     }
@@ -256,7 +260,7 @@ object VpnReadiness {
         xrayTunSnapshot: (() -> LongArray?)? = null,
     ): VpnPathVerification {
         val hevAlive = if (hevStatsProvider != null) waitHevAliveBlocking(hevStatsProvider) else null
-        val progressed = measureTunProgress(
+        val progress = measureTunProgress(
             hevRequired = hevStatsProvider != null,
             hevStatsProvider = hevStatsProvider,
             tunInjector = tunInjector,
@@ -269,28 +273,48 @@ object VpnReadiness {
             tunEstablished = tunEstablished,
             hevAlive = hevAlive,
             hevRequired = hevStatsProvider != null,
-            hevProgressed = progressed,
-            tunForwarded = progressed,
+            hevProgressed = progress.hevProgressed,
+            tunForwarded = progress.tunForwarded,
             xrayEgressMs = xrayEgressMs(),
         )
     }
+
+    private data class TunProgress(val tunForwarded: Boolean, val hevProgressed: Boolean?)
 
     private fun measureTunProgress(
         hevRequired: Boolean,
         hevStatsProvider: (() -> LongArray?)?,
         tunInjector: (() -> Boolean)?,
         xrayTunSnapshot: (() -> LongArray?)?,
-    ): Boolean? {
+    ): TunProgress {
         val snapshot: (() -> LongArray?)? = when {
             hevRequired -> hevStatsProvider
             xrayTunSnapshot != null -> xrayTunSnapshot
             else -> null
         }
-        if (snapshot == null || tunInjector == null) return false
+        if (tunInjector == null) return TunProgress(tunForwarded = false, hevProgressed = false)
+        if (snapshot == null) return TunProgress(tunForwarded = false, hevProgressed = if (hevRequired) false else null)
         if (!hevRequired) {
             runCatching { snapshot.invoke() }
         }
-        return waitBackendProgressBlocking(snapshot, tunInjector)
+        val before = snapshot()?.copyOf()
+        val forwarded = tunInjector.invoke()
+        if (!forwarded) return TunProgress(tunForwarded = false, hevProgressed = false)
+        val deadline = nowMs() + 4_000L
+        var progressed = false
+        while (nowMs() < deadline) {
+            if (countersAdvanced(before, snapshot())) {
+                progressed = true
+                break
+            }
+            try {
+                Thread.sleep(80L)
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                break
+            }
+        }
+        return TunProgress(tunForwarded = true, hevProgressed = progressed)
     }
 
     private fun assemblePath(
@@ -308,12 +332,14 @@ object VpnReadiness {
         val backend = if (hevRequired) VpnPathVerification.BACKEND_HEV else VpnPathVerification.BACKEND_XRAY_TUN
         val hevOk = if (hevRequired) hevAlive == true else true
         val tunOk = tunForwarded == true
-        val verified = socks5 && tunEstablished && hevOk && tunOk && xrayEgressMs != null
+        val hevMoved = if (hevRequired) hevProgressed == true else true
+        val verified = socks5 && tunEstablished && hevOk && tunOk && hevMoved && xrayEgressMs != null
         val reason = when {
             !tunEstablished -> "tun-not-established"
             !socks5 -> "socks5-handshake-failed"
             hevRequired && hevAlive != true -> "hev-not-alive"
             !tunOk -> "tun-not-forwarded"
+            hevRequired && hevProgressed != true -> "hev-no-progress"
             xrayEgressMs == null -> "xray-egress-failed"
             else -> null
         }
@@ -375,11 +401,11 @@ object VpnReadiness {
         return null
     }
 
-    private fun injectUdpDns(vpn: Network): Boolean {
+    private fun probeDnsThroughVpn(vpn: Network): Boolean {
         return try {
             DatagramSocket().use { socket ->
                 vpn.bindSocket(socket)
-                socket.soTimeout = 400
+                socket.soTimeout = 2_000
                 val payload = dnsQuery("one.one.one.one")
                 val packet = DatagramPacket(
                     payload,
@@ -388,31 +414,47 @@ object VpnReadiness {
                     53,
                 )
                 socket.send(packet)
-                runCatching {
-                    val buf = ByteArray(512)
-                    socket.receive(DatagramPacket(buf, buf.size))
-                }
-                true
+                val buf = ByteArray(512)
+                val incoming = DatagramPacket(buf, buf.size)
+                socket.receive(incoming)
+                val reply = buf.copyOf(incoming.length)
+                isValidDnsReply(payload, reply)
             }
         } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "VpnReadiness: UDP TUN inject failed: ${e.javaClass.simpleName}")
+            LogUtil.w(AppConfig.TAG, "VpnReadiness: DNS through TUN failed: ${e.javaClass.simpleName}")
             false
         }
     }
 
-    private fun injectTcp(vpn: Network): Boolean {
-        return try {
-            Socket().use { socket ->
-                vpn.bindSocket(socket)
-                socket.soTimeout = 800
-                socket.connect(InetSocketAddress("1.1.1.1", 443), 1_200)
-                runCatching { socket.getOutputStream().write(0x16) }
-                true
+    private fun probeHttpThroughVpn(vpn: Network): Boolean {
+        val client = OkHttpClient.Builder()
+            .socketFactory(vpn.socketFactory)
+            .proxy(Proxy.NO_PROXY)
+            .connectTimeout(4, TimeUnit.SECONDS)
+            .readTimeout(4, TimeUnit.SECONDS)
+            .callTimeout(5, TimeUnit.SECONDS)
+            .followRedirects(false)
+            .retryOnConnectionFailure(false)
+            .build()
+        for (url in egressUrls) {
+            try {
+                client.newCall(
+                    Request.Builder()
+                        .url(url)
+                        .header("Cache-Control", "no-cache")
+                        .build(),
+                ).execute().use { response ->
+                    if (response.code == HttpURLConnection.HTTP_NO_CONTENT ||
+                        response.code == HttpURLConnection.HTTP_OK
+                    ) {
+                        return true
+                    }
+                }
+            } catch (e: Exception) {
+                LogUtil.w(AppConfig.TAG, "VpnReadiness: HTTP through TUN failed: ${e.javaClass.simpleName}")
             }
-        } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "VpnReadiness: TCP TUN inject failed: ${e.javaClass.simpleName}")
-            false
         }
+        return false
     }
 
     private fun dnsQuery(host: String): ByteArray {

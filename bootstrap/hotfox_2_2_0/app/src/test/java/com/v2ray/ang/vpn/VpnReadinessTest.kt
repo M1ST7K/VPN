@@ -111,7 +111,7 @@ class VpnReadinessTest {
                 tunEstablished = true,
                 hevStatsProvider = { longArrayOf(0, 0, 0, 0) },
                 xrayEgressMs = { null },
-                tunInjector = { true },
+                tunInjector = { false },
             )
             assertTrue(path.socks5Ready)
             assertTrue(path.hevAlive == true)
@@ -186,9 +186,9 @@ class VpnReadinessTest {
             )
             assertTrue(path.socks5Ready)
             assertEquals(12L, path.xrayEgressMs)
-            assertEquals(false, path.tunForwarded)
+            assertEquals(true, path.tunForwarded)
             assertFalse(path.verified)
-            assertEquals("tun-not-forwarded", path.reason)
+            assertEquals("hev-no-progress", path.reason)
         }
     }
 
@@ -234,6 +234,38 @@ class VpnReadinessTest {
         assertFalse(VpnReadiness.countersAdvanced(longArrayOf(1, 2, 3, 4), longArrayOf(1, 2, 3, 4)))
         assertTrue(VpnReadiness.countersAdvanced(longArrayOf(0, 0, 0, 0), longArrayOf(0, 1, 0, 0)))
         assertTrue(VpnReadiness.countersAdvanced(longArrayOf(10, 100, 10, 100), longArrayOf(0, 4, 0, 8)))
+    }
+
+    @Test
+    fun dnsReplyRequiresQrBitAndMatchingId() {
+        val query = byteArrayOf(
+            0x12, 0x34, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+        )
+        val ok = query.copyOf().also {
+            it[2] = 0x81.toByte()
+            it[3] = 0x80.toByte()
+        }
+        val noQr = query.copyOf()
+        val wrongId = ok.copyOf().also { it[0] = 0x00 }
+        assertTrue(VpnReadiness.isValidDnsReply(query, ok))
+        assertFalse(VpnReadiness.isValidDnsReply(query, noQr))
+        assertFalse(VpnReadiness.isValidDnsReply(query, wrongId))
+        assertFalse(VpnReadiness.isValidDnsReply(query, byteArrayOf(0x12)))
+    }
+
+    @Test
+    fun sendOnlyInjectorWithoutValidatedPathIsNotVerified() {
+        withSocks5 { port ->
+            val path = VpnReadiness.verifyConfiguredPathBlocking(
+                socksPort = port,
+                tunEstablished = true,
+                hevStatsProvider = { longArrayOf(0, 0, 0, 0) },
+                xrayEgressMs = { 12L },
+                tunInjector = { false },
+            )
+            assertFalse(path.verified)
+            assertEquals("tun-not-forwarded", path.reason)
+        }
     }
 
     private fun withSocks5(block: (Int) -> Unit) {

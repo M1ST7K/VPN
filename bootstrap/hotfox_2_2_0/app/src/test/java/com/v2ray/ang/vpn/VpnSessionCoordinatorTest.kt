@@ -157,4 +157,49 @@ class VpnSessionCoordinatorTest {
         assertTrue(attempt > 0L)
         assertEquals(VpnSessionState.PREPARING, VpnSessionCoordinator.currentState())
     }
+
+    @Test
+    fun completeStopOutcomeFalseKeepsRestartBarrier() {
+        VpnSessionCoordinator.completeStopOutcome(false)
+        assertEquals(VpnSessionState.ERROR, VpnSessionCoordinator.currentState())
+        assertTrue(VpnSessionCoordinator.isTeardownActive())
+        assertFalse(VpnSessionCoordinator.lastStopSucceeded())
+        assertEquals(0L, VpnSessionCoordinator.beginAttempt())
+        kotlinx.coroutines.runBlocking {
+            assertFalse(VpnSessionCoordinator.awaitIdle(80L))
+        }
+    }
+
+    @Test
+    fun staleWriterCannotOverwriteNewerGeneration() {
+        val first = VpnSessionCoordinator.beginAttempt()
+        val second = VpnSessionCoordinator.beginAttempt()
+        val path = VpnPathVerification(
+            socks5Ready = true,
+            hevAlive = true,
+            tunForwarded = true,
+            xrayEgressMs = 1L,
+            tunEstablished = true,
+            backend = VpnPathVerification.BACKEND_HEV,
+            verified = true,
+        )
+        val started = java.util.concurrent.CountDownLatch(1)
+        val done = java.util.concurrent.CountDownLatch(2)
+        Thread({
+            started.countDown()
+            VpnSessionCoordinator.recordPath(first, path)
+            VpnSessionCoordinator.markError(first, "HF-VPN-004", "stale")
+            done.countDown()
+        }, "stale-writer").start()
+        Thread({
+            started.await()
+            VpnSessionCoordinator.recordPath(second, path)
+            VpnSessionCoordinator.markConnected(second, pathVerified = true)
+            done.countDown()
+        }, "current-writer").start()
+        assertTrue(done.await(2, java.util.concurrent.TimeUnit.SECONDS))
+        assertEquals(VpnSessionState.CONNECTED, VpnSessionCoordinator.currentState())
+        assertTrue(VpnSessionCoordinator.isCurrent(second))
+        assertFalse(VpnSessionCoordinator.lastError()?.contains("HF-VPN-004") == true)
+    }
 }

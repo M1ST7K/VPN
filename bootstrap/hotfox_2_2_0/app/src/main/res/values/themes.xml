@@ -85,6 +85,9 @@
         <item name="colorSecondary">@color/hotfox_orange</item>
         <item name="colorSurface">@color/hotfox_editorial_bg</item>
         <item name="colorOnSurface">@color/hotfox_editorial_text</item>
+        <item name="colorControlNormal">@color/hotfox_editorial_text</item>
+        <item name="android:textColorPrimary">@color/hotfox_editorial_text</item>
+        <item name="android:textColorSecondary">@color/hotfox_editorial_text_secondary</item>
         <item name="colorSurfaceVariant">@color/hotfox_editorial_surface</item>
         <item name="colorOnSurfaceVariant">@color/hotfox_editorial_text_secondary</item>
         <item name="colorOutline">@color/hotfox_editorial_line</item>

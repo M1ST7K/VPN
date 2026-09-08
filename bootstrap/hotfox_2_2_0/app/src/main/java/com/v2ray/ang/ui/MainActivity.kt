@@ -51,8 +51,10 @@ import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
 import com.v2ray.ang.vpn.ConnectionUiMapper
 import com.v2ray.ang.vpn.HotfoxServerPresentation
+import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.HotfoxSubscriptionPresentation
 import com.v2ray.ang.vpn.HotfoxTrafficFormatter
+import com.v2ray.ang.vpn.HotfoxRouteBarsView
 import com.v2ray.ang.vpn.SubscriptionPresentation
 import com.v2ray.ang.vpn.VpnSessionCoordinator
 import kotlinx.coroutines.Dispatchers
@@ -89,6 +91,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         DISCONNECTED,
         CONNECTING,
         CONNECTED,
+        ERROR,
     }
 
     private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -118,6 +121,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         // setup navigation drawer
         setupNavigationDrawer()
         binding.toolbar.setNavigationIcon(R.drawable.ic_settings_24dp)
+        binding.toolbar.navigationIcon?.mutate()?.setTint(
+            ContextCompat.getColor(this, R.color.hotfox_editorial_text)
+        )
         binding.toolbar.navigationContentDescription = getString(R.string.hotfox_settings_content_description)
         binding.toolbar.setNavigationOnClickListener {
             MaterialAlertDialogBuilder(this).setTitle("Настройки HotFox")
@@ -141,7 +147,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                     }
                 }.show()
         }
-        setupBottomNavigation()
         setupEditorialNavigation()
 
         binding.fab.setOnClickListener { handleFabAction() }
@@ -167,9 +172,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun setupEditorialNavigation() {
-        binding.railConnection.setOnClickListener { showSection(UiSection.CONNECTION) }
-        binding.railServers.setOnClickListener { showSection(UiSection.SERVERS) }
-        binding.railSubscription.setOnClickListener { showSection(UiSection.SUBSCRIPTION) }
+        binding.navConnection.setOnClickListener { showSection(UiSection.CONNECTION) }
+        binding.navServers.setOnClickListener { showSection(UiSection.SERVERS) }
+        binding.navSubscription.setOnClickListener { showSection(UiSection.SUBSCRIPTION) }
 
         binding.filterAll.setOnClickListener {
             mainViewModel.setFavoriteOnly(false)
@@ -202,10 +207,17 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenConnection.isVisible = section == UiSection.CONNECTION
         binding.screenServers.isVisible = section == UiSection.SERVERS
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
-        binding.dotConnection.setBackgroundResource(if (section == UiSection.CONNECTION) R.drawable.hotfox_dot_orange else R.drawable.hotfox_dot_muted)
-        binding.dotServers.setBackgroundResource(if (section == UiSection.SERVERS) R.drawable.hotfox_dot_orange else R.drawable.hotfox_dot_muted)
-        binding.dotSubscription.setBackgroundResource(if (section == UiSection.SUBSCRIPTION) R.drawable.hotfox_dot_orange else R.drawable.hotfox_dot_muted)
-        if (section == UiSection.SUBSCRIPTION) refreshDashboard()
+        val active = ContextCompat.getColor(this, R.color.hotfox_editorial_text)
+        val muted = ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim)
+        binding.navConnection.setTextColor(if (section == UiSection.CONNECTION) active else muted)
+        binding.navServers.setTextColor(if (section == UiSection.SERVERS) active else muted)
+        binding.navSubscription.setTextColor(if (section == UiSection.SUBSCRIPTION) active else muted)
+        binding.tvHeaderMicrocopy.text = when (section) {
+            UiSection.CONNECTION -> "Proxy for\na freer internet"
+            UiSection.SERVERS -> "Серверы\nпо всему миру"
+            UiSection.SUBSCRIPTION -> "Доступ\nбез ограничений"
+        }
+        if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
     }
 
     private fun showCountryFilterDialog() {
@@ -244,6 +256,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.actionSubscriptionUpdate.text = "Обновить"
             mainViewModel.reloadServerList()
             setupGroupTab()
+            HotfoxServerSelection.ensureValidSelection()
             refreshDashboard()
             val message = if (result.failureCount == 0) {
                 "Обновлено серверов: ${result.configCount}"
@@ -285,7 +298,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 uploaded = traffic?.first,
                 downloaded = traffic?.second,
                 lastError = VpnSessionCoordinator.lastError(),
-                serverCount = MmkvManager.decodeServerList(selected?.subscriptionId.orEmpty()).size,
+                serverCount = MmkvManager.decodeAllServerList().size,
                 path = path,
             )
             val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
@@ -323,25 +336,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun setupBottomNavigation() {
-        binding.bottomNav.selectedItemId = R.id.nav_home
-        binding.bottomNav.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> true
-                R.id.nav_subscriptions -> {
-                    requestActivityLauncher.launch(Intent(this, SubSettingActivity::class.java))
-                    true
-                }
-                R.id.nav_renewal -> {
-                    startActivity(Intent(this, RenewalActivity::class.java))
-                    true
-                }
-                R.id.nav_settings -> {
-                    requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java))
-                    true
-                }
-                else -> false
-            }
-        }
+        // Primary navigation is the 3-item editorial bar (Соединение / Серверы / Подписка).
+        // The legacy Material BottomNavigationView stays gone and is not wired.
     }
 
     private fun setupNavigationDrawer() {
@@ -360,6 +356,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
+                } else if (currentSection != UiSection.CONNECTION) {
+                    showSection(UiSection.CONNECTION)
                 } else {
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
@@ -444,7 +442,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val now = SystemClock.elapsedRealtime()
         if (now - lastFabTapElapsed < 700L) return
         lastFabTapElapsed = now
-        if (mainViewModel.isRunning.value != true && MmkvManager.getSelectServer().isNullOrEmpty()) {
+        if (mainViewModel.isRunning.value != true && HotfoxServerSelection.firstUsableGuid() == null) {
             showAddDialog(); return
         }
         applyRunningState(isLoading = true, isRunning = false)
@@ -482,9 +480,15 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun startV2Ray() {
-        if (MmkvManager.getSelectServer().isNullOrEmpty()) {
-            toast(R.string.title_file_chooser)
-            return
+        when (val resolved = HotfoxServerSelection.resolveForConnect()) {
+            is HotfoxServerSelection.ResolveResult.Failure -> {
+                toast(resolved.message)
+                applyRunningState(false, false)
+                return
+            }
+            is HotfoxServerSelection.ResolveResult.Success -> {
+                refreshDashboard()
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN && MmkvManager.decodeSettingsBool(AppConfig.PREF_PROXY_SHARING)) {
@@ -538,7 +542,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
         val visual = when (headline) {
             ConnectionUiMapper.Headline.CONNECTED -> ConnectionVisualState.CONNECTED
-            ConnectionUiMapper.Headline.DISCONNECTED, ConnectionUiMapper.Headline.ERROR -> ConnectionVisualState.DISCONNECTED
+            ConnectionUiMapper.Headline.ERROR -> ConnectionVisualState.ERROR
+            ConnectionUiMapper.Headline.DISCONNECTED -> ConnectionVisualState.DISCONNECTED
             else -> ConnectionVisualState.CONNECTING
         }
 
@@ -582,6 +587,25 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.layoutTest.isFocusable = false
         }
         startConnectionAnimation(visual)
+        binding.routeBars.setVisual(
+            when (visual) {
+                ConnectionVisualState.CONNECTED -> HotfoxRouteBarsView.Visual.CONNECTED
+                ConnectionVisualState.CONNECTING -> HotfoxRouteBarsView.Visual.CONNECTING
+                ConnectionVisualState.ERROR -> HotfoxRouteBarsView.Visual.ERROR
+                ConnectionVisualState.DISCONNECTED -> HotfoxRouteBarsView.Visual.IDLE
+            }
+        )
+        val stage = VpnSessionCoordinator.lastStage()
+        val error = VpnSessionCoordinator.lastError()
+        if (headline == ConnectionUiMapper.Headline.ERROR && !error.isNullOrBlank()) {
+            binding.tvConnectionStage.visibility = View.VISIBLE
+            binding.tvConnectionStage.text = error
+        } else if (headline == ConnectionUiMapper.Headline.CONNECTING) {
+            binding.tvConnectionStage.visibility = View.VISIBLE
+            binding.tvConnectionStage.text = stage.code
+        } else {
+            binding.tvConnectionStage.visibility = View.GONE
+        }
     }
 
     private fun updateStatusText(textRes: Int, colorRes: Int) {
@@ -640,7 +664,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             .setInterpolator(OvershootInterpolator(1.15f))
             .start()
 
-        if (state == ConnectionVisualState.DISCONNECTED) return
+        if (state == ConnectionVisualState.DISCONNECTED || state == ConnectionVisualState.ERROR) return
 
         // The approved UI is deliberately calm: only the thin action underline breathes.
         val endScale = if (state == ConnectionVisualState.CONNECTING) 1.025f else 1.012f
@@ -761,7 +785,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
     override fun onResume() {
         super.onResume()
-        binding.bottomNav.selectedItemId = R.id.nav_home
+        HotfoxServerSelection.ensureValidSelection()
         refreshDashboard()
         refreshSmartRouting()
         startLogoAnimation()
@@ -769,14 +793,22 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     fun refreshDashboard() {
-        val selected = MmkvManager.getSelectServer()
-            ?.let(MmkvManager::decodeServerConfig)
+        val selectedGuid = MmkvManager.getSelectServer()
+        val selected = selectedGuid?.let(MmkvManager::decodeServerConfig)
         val presentation = HotfoxServerPresentation.fromRemark(selected?.remarks)
-        val selectedLabel = presentation.title
-            .takeIf { it.isNotBlank() && it != "—" }
-            ?: getString(R.string.hotfox_server_not_selected)
+        val city = presentation.title.takeIf { it.isNotBlank() && it != "—" }
+        val selectedLabel = if (HotfoxServerSelection.isAutoMode() && city != null) {
+            getString(R.string.hotfox_auto_prefix, city)
+        } else {
+            city ?: getString(R.string.hotfox_server_not_selected)
+        }
+        binding.tvAutoMode.text = if (HotfoxServerSelection.isAutoMode()) {
+            getString(R.string.hotfox_auto_server)
+        } else {
+            getString(R.string.hotfox_selected_server_label)
+        }
         binding.tvSelectedServer.text = selectedLabel
-        val affiliation = MmkvManager.getSelectServer()?.let(MmkvManager::decodeServerAffiliationInfo)
+        val affiliation = selectedGuid?.let(MmkvManager::decodeServerAffiliationInfo)
         val delayMs = affiliation?.testDelayMillis
         val delayLabel = when {
             delayMs == null || delayMs <= 0L -> getString(R.string.hotfox_ms_unknown)
@@ -792,28 +824,34 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
         lastServerLabel = selectedLabel
 
-        val subscription = selected?.subscriptionId
-            ?.takeIf { it.isNotBlank() }
-            ?.let(MmkvManager::decodeSubscription)
+        val subscriptionId = selected?.subscriptionId?.takeIf { it.isNotBlank() }
+            ?: MmkvManager.decodeSubscriptions().firstOrNull { it.subscription.url.isNotBlank() }?.guid
+        val subscription = subscriptionId?.let(MmkvManager::decodeSubscription)
+        val serverCount = if (subscriptionId != null) {
+            MmkvManager.decodeServerList(subscriptionId).size
+        } else {
+            MmkvManager.decodeAllServerList().size
+        }
         if (subscription == null) {
             subscriptionUrlForCopy = null
             binding.tvSubscriptionTraffic.setText(R.string.hotfox_traffic_unknown)
             binding.tvSubscriptionExpire.text = "—"
             binding.tvSubscriptionRemaining.text = getString(R.string.hotfox_expiry_unknown)
             binding.tvSubscriptionUrl.text = "—"
-            binding.tvSubscriptionServers.text = "0"
+            binding.tvSubscriptionServers.text = serverCount.toString()
             binding.tvSubscriptionState.text = "○ Не синхронизирована"
             binding.tvSubscriptionState.setTextColor(ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim))
+            binding.tvSubscriptionSnapshot.text = ""
             return
         }
 
         val used = (subscription.uploadBytes + subscription.downloadBytes).coerceAtLeast(0L)
         subscriptionUrlForCopy = subscription.url
         binding.tvSubscriptionUrl.text = HotfoxTrafficFormatter.maskSubscriptionUrl(subscription.url)
-        binding.tvSubscriptionServers.text = MmkvManager.decodeServerList(selected?.subscriptionId.orEmpty()).size.toString()
+        binding.tvSubscriptionServers.text = serverCount.toString()
         val shown = HotfoxSubscriptionPresentation.fromExpiryEpochSeconds(
             expireAtEpochSeconds = subscription.expireAtEpochSeconds,
-            serverCount = MmkvManager.decodeServerList(selected?.subscriptionId.orEmpty()).size,
+            serverCount = serverCount,
         )
         binding.tvSubscriptionState.text = when (shown.status) {
             SubscriptionPresentation.Status.ACTIVE -> "● Активна"
@@ -847,6 +885,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             shown.remainingDays == 0 -> getString(R.string.hotfox_days_left, 0)
             else -> getString(R.string.hotfox_days_left, shown.remainingDays)
         }
+        binding.tvSubscriptionSnapshot.text = listOfNotNull(
+            shown.expiryLabel?.let { "до $it" },
+            shown.remainingDays?.let { getString(R.string.hotfox_days_left, it) },
+        ).joinToString(" · ")
     }
 
     override fun onPause() {
@@ -1055,8 +1097,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                     when {
                         count > 0 -> {
                             toast(getString(R.string.title_import_config_count, count))
+                            HotfoxServerSelection.ensureValidSelection()
                             mainViewModel.reloadServerList()
                             refreshGroupTabTitles()
+                            refreshDashboard()
                         }
 
                         countSub > 0 -> { setupGroupTab(); importConfigViaSub() }
@@ -1111,6 +1155,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                     )
                 }
                 if (result.configCount > 0) {
+                    HotfoxServerSelection.ensureValidSelection()
                     mainViewModel.reloadServerList()
                     refreshGroupTabTitles()
                     refreshDashboard()

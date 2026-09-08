@@ -35,6 +35,7 @@ import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.ErrorMessageMapper
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
+import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.VpnReadiness
 import com.v2ray.ang.vpn.VpnSessionCoordinator
 import com.v2ray.ang.vpn.VpnSessionState
@@ -97,9 +98,12 @@ object CoreServiceManager {
      * @return True if the service was started successfully, false otherwise.
      */
     fun startVServiceFromToggle(context: Context): Boolean {
-        if (MmkvManager.getSelectServer().isNullOrEmpty()) {
-            context.toast(R.string.app_tile_first_use)
-            return false
+        when (val resolved = HotfoxServerSelection.resolveForConnect()) {
+            is HotfoxServerSelection.ResolveResult.Failure -> {
+                context.toast(resolved.message)
+                return false
+            }
+            is HotfoxServerSelection.ResolveResult.Success -> Unit
         }
         try {
             startContextService(context)
@@ -120,7 +124,16 @@ object CoreServiceManager {
         LogUtil.i(AppConfig.TAG, "StartCore-Manager: startVService from ${context::class.java.simpleName}")
 
         if (guid != null) {
-            MmkvManager.setSelectServer(guid)
+            HotfoxServerSelection.selectManual(guid)
+        } else {
+            when (val resolved = HotfoxServerSelection.resolveForConnect()) {
+                is HotfoxServerSelection.ResolveResult.Failure -> {
+                    LogUtil.e(AppConfig.TAG, "StartCore-Manager: ${resolved.message}")
+                    context.toast(resolved.message)
+                    return
+                }
+                is HotfoxServerSelection.ResolveResult.Success -> Unit
+            }
         }
 
         try {
@@ -409,9 +422,9 @@ object CoreServiceManager {
                 hevStatsProvider = null
 
                 val stopped = if (coreController.isRunning) awaitCoreStop() else true
+                VpnSessionCoordinator.completeStopOutcome(stopped)
                 if (!stopped) {
                     LogUtil.e(AppConfig.TAG, "StartCore-Manager: core stop did not complete")
-                    VpnSessionCoordinator.markStopIncomplete("Ядро не остановилось")
                     if (service != null) {
                         MessageUtil.sendMsg2UI(
                             service,
@@ -444,8 +457,8 @@ object CoreServiceManager {
                 }
                 return true
             } finally {
-                ignoringCoreShutdownCallback = isCoreStopActive()
-                if (!isCoreStopActive()) {
+                ignoringCoreShutdownCallback = isCoreStopActive() || !VpnSessionCoordinator.lastStopSucceeded()
+                if (!isCoreStopActive() && VpnSessionCoordinator.lastStopSucceeded()) {
                     stopInProgress.set(false)
                 }
             }
@@ -463,11 +476,8 @@ object CoreServiceManager {
 
     private fun reconcileTeardownBarrier() {
         if (isCoreStopActive()) return
-        if (stopInProgress.get() && stopWorker.get() == null) {
+        if (stopInProgress.get() && stopWorker.get() == null && VpnSessionCoordinator.lastStopSucceeded()) {
             stopInProgress.set(false)
-        }
-        if (!isCoreStopActive() && VpnSessionCoordinator.currentState() == VpnSessionState.ERROR) {
-            VpnSessionCoordinator.setTeardownActive(false)
         }
     }
 
@@ -490,11 +500,13 @@ object CoreServiceManager {
                 succeeded.set(false)
             } finally {
                 done.countDown()
+                val ok = succeeded.get()
                 stopWorker.compareAndSet(Thread.currentThread(), null)
-                stopInProgress.set(false)
-                if (VpnSessionCoordinator.currentState() == VpnSessionState.ERROR) {
-                    VpnSessionCoordinator.setTeardownActive(false)
+                if (ok) {
+                    stopInProgress.set(false)
+                    ignoringCoreShutdownCallback = false
                 }
+                // Failed/timed-out stop stays fail-closed: barrier + ignore-callbacks remain.
             }
         }, "hotfox-core-stop")
         worker.isDaemon = false
