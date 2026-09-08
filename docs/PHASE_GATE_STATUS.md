@@ -13,31 +13,36 @@ A later phase may begin after the previous phase reaches **ENGINEERING COMPLETE*
 
 ## Phase 2.2 — Truthful Core
 
-Candidate implementation SHA before checkpoint round 8: `f6565291af7aff6c5bad543c7b7837de9f0c0fb7`.
-Checkpoint request SHA: `62aaa9c5b6763ae7d1fded5d81d0cd2e7e8f7ac1`.
+Round-8 implementation SHA: `2bd2b9eacbfbb513207d4c165dbc529ede62e9ab`.
+Green GitHub reconstruct SHA including later CI-only follow-ups: `b32622683a6908b5faf48221ac8181c86eedef60`.
 
-Engineering evidence available for the implementation block:
+Round-8 P0/P1 were addressed in `2bd2b9e`:
+
+1. Loop-prevention bind failure is fail-closed on startup and handover (`HF-VPN-012`).
+2. Repeated-stop join vs mint is decided under `lifecycleLock` (no pre-lock worker snapshot).
+3. Handover does not launch a replacement until the old-core shutdown is drained (`HF-VPN-013` on timeout).
+4. `MSG_STATE_RESTART` is generation-owned (`VpnRestartGate`) and invalidated by a later stop/start.
+
+Local engineering evidence for `2bd2b9e`:
 
 - debug APK build: PASS;
-- unit tests: PASS (108 tests reported by the implementation task);
+- unit tests: PASS (117);
 - Android lint: PASS;
 - unsigned release compile: PASS;
-- HotFox static/overlay verifiers: PASS;
-- GitHub CI build/test/lint/release artifact pipeline: PASS;
-- exact-SHA debug APK artifact published.
+- HotFox static/overlay verifiers: PASS.
+
+GitHub on `b326226`:
+
+- Payload integrity: PASS;
+- Reconstruct and build Android app: PASS;
+- Publish HotFox Dev Latest: PASS;
+- Emulator UI smoke: skipped on push (manual `workflow_dispatch` only; not VPN E2E).
 
 ### Engineering gate status
 
-**BLOCKED — CHECKPOINT ROUND 8: CHANGES_REQUIRED**
+**CHECKPOINT REVIEW REQUESTED** after the round-8 fix block.
 
-Trusted GPT-5.6 Sol checkpoint round 8 found one P0 and three P1 blockers that must be fixed before 2.2 can be marked Engineering Complete:
-
-1. **P0 — loop prevention must fail closed.** Initial startup/reload must not launch Xray when `VpnLoopPrevention.bindProcessToUnderlying()` fails; otherwise Xray outbound can loop back through the TUN.
-2. **P1 — repeated-stop ownership race.** Join/new-stop ownership must be decided atomically under authoritative lifecycle/stop ownership so a concurrent caller cannot supersede the live stop epoch and reject late success.
-3. **P1 — handover shutdown drain.** A replacement core must not launch while the old expected shutdown callback is unresolved; drain timeout must fail the handover closed.
-4. **P1 — detached restart race.** Restart work must be lifecycle/generation-owned and invalidated by a later explicit disconnect/start/server-selection intent.
-
-Phase 2.2 therefore remains the current engineering phase. Do not start 2.3 implementation until a later checkpoint returns `APPROVED` with no substantiated P0/P1 blockers.
+Do not mark 2.2 Engineering Complete until this checkpoint returns `APPROVED` with no substantiated P0/P1. Do not start 2.3 until that happens. Physical-device E2E remains a separate release gate.
 
 ### Release gate status
 
