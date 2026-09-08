@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: hotfox-ci-${{ github.ref }}
@@ -94,7 +95,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: hotfox-playstore-debug-apks
+          name: hotfox-playstore-debug-apks-${{ github.event_name }}-${{ github.run_id }}
           path: V2rayNG/app/build/outputs/apk/playstore/debug/*.apk
           if-no-files-found: error
           retention-days: 14
@@ -103,7 +104,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: hotfox-lint-reports
+          name: hotfox-lint-reports-${{ github.event_name }}-${{ github.run_id }}
           path: |
             V2rayNG/app/build/reports/lint-results-*.html
             V2rayNG/app/build/reports/lint-results-*.xml
