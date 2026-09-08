@@ -52,6 +52,8 @@ grep -q 'resolveForHandover' "$PROJECT/app/src/main/java/com/v2ray/ang/core/Core
   || fail "handover AUTO re-resolution missing"
 grep -q 'HotfoxServerListContract.AUTO_ROW_INDEX' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt" \
   || fail "AUTO row is not first in the server list"
+grep -q 'adapterPositionForSelection' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/GroupServerFragment.kt" \
+  || fail "server list scroll does not account for AUTO row"
 grep -q 'Авто-выбор сервера' "$PROJECT/app/src/main/res/values-ru/strings.xml" \
   || fail "AUTO row label missing"
 grep -q 'disable += "MissingTranslation"' "$PROJECT/app/build.gradle.kts" \

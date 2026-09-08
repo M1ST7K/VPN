@@ -41,7 +41,13 @@ and the post-connect IP must correspond to the selected VPN egress. Traffic must
 
 ## UI requirement
 
-The supplied HotFox UI reference is the visual source of truth. Do not redesign it into generic Material VPN UI. Preserve editorial minimalism, charcoal background, warm cream typography, restrained orange accent, thin separators, vertical navigation, generous negative space, precision alignment, connection visualization, real traffic counters, the server-list treatment and the Premium screen treatment.
+The supplied HotFox UI reference is the visual source of truth. Do not redesign it into generic Material VPN UI. Preserve editorial minimalism, charcoal background, warm cream typography, restrained orange accent, thin separators, generous negative space, precision alignment, connection visualization, real traffic counters, the server-list treatment and the Premium screen treatment.
+
+**Phone navigation (owner requirement, do not regress):** the three primary destinations — Соединение / Серверы / Подписка — use a compact editorial **bottom bar** (`hotfox_bottom_nav`). Do not restore a side rail, drawer, or a second competing navigation system as the phone IA. The leftover Material `BottomNavigationView` and `NavigationView` stay gone and unwired. The settings gear on the toolbar is not a fourth destination.
+
+**Авто-выбор сервера** must remain the **first row** of the server list (`HotfoxServerListContract.AUTO_ROW_INDEX = 0`), above every real server. AUTO is a persisted mode distinct from a manual GUID. Adapter positions for real servers are `dataIndex + 1`. Do not drop, hide, or sort AUTO below imported servers.
+
+Do not regress the real-device UI fixes: no accidental square placeholder/boxed surfaces, no black-on-black icons, cream icon contrast on charcoal, visible state-aware route bars, a useful (not empty, not fake) connection screen, editorial server rows rather than legacy v2rayNG cards, and subscription expiry rendered when the source actually supplies it.
 
 Every important interaction must have truthful idle, pressed, loading, connecting, connected, disconnecting, reconnecting, degraded, error and disabled states where applicable.
 
@@ -52,6 +58,22 @@ Never fake ping, bandwidth, connection success, traffic counters, server availab
 ## Security
 
 Never commit or expose signing private keys, keystore passwords, API secrets, private tokens, personal subscription URLs, user credentials or production secrets. Never log complete VLESS URLs, UUIDs, tokens or credentials. Redact sensitive values in diagnostics. Do not weaken TLS, Reality or certificate validation merely to make tests pass.
+
+## Mandatory completion loop
+
+A successful source edit without a successful build is not completion. Before stopping:
+
+1. Reconstruct with `bash bootstrap/bootstrap_source.sh` if `V2rayNG/` is missing, then `rsync -a bootstrap/hotfox_2_2_0/ V2rayNG/` after overlay edits.
+2. Run, from `V2rayNG/` with `ANDROID_HOME` set:
+   - `./gradlew --no-daemon --stacktrace :app:assemblePlaystoreDebug`
+   - `./gradlew --no-daemon --stacktrace :app:testPlaystoreDebugUnitTest`
+   - `./gradlew --no-daemon --stacktrace :app:lintPlaystoreDebug`
+   - `./gradlew --no-daemon --stacktrace :app:assemblePlaystoreRelease`
+3. Run `python3 verification/static_check_2_2_0.py` and `bash bootstrap/verify_hotfox_2_2_0.sh`.
+4. Inspect GitHub CI yourself (`gh run list` / failed logs). Do not wait for the owner to click Actions. If CI is red, fix, push, and repeat.
+5. Emulator UI smoke (if present) is install/navigation only. It is **not** VPN E2E. Physical-device E2E remains **NOT EXECUTED** until a real device proves external IP change and DNS/IPv6 leak behavior.
+
+Trusted OpenAI reviewer P0/P1 findings remain blockers. Do not suppress meaningful checks to get green.
 
 ## Release discipline
 

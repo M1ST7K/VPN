@@ -35,6 +35,25 @@ class HotfoxServerSelectionTest {
     }
 
     @Test
+    fun autoModeScrollsToFirstRowEvenWhenAServerIsResolved() {
+        assertEquals(
+            HotfoxServerListContract.AUTO_ROW_INDEX,
+            HotfoxServerListContract.adapterPositionForSelection(auto = true, dataIndex = 4),
+        )
+        assertEquals(
+            HotfoxServerListContract.AUTO_ROW_INDEX,
+            HotfoxServerListContract.adapterPositionForSelection(auto = true, dataIndex = -1),
+        )
+    }
+
+    @Test
+    fun manualServerScrollAccountsForAutoRowOffset() {
+        assertEquals(1, HotfoxServerListContract.adapterPositionForSelection(auto = false, dataIndex = 0))
+        assertEquals(5, HotfoxServerListContract.adapterPositionForSelection(auto = false, dataIndex = 4))
+        assertEquals(-1, HotfoxServerListContract.adapterPositionForSelection(auto = false, dataIndex = -1))
+    }
+
+    @Test
     fun autoPersistenceIsDistinctFromManualGuid() {
         val auto = HotfoxServerSelection.persistAfterTap(
             tapGuid = HotfoxServerSelection.AUTO_GUID,

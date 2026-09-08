@@ -20,7 +20,6 @@ import android.view.animation.OvershootInterpolator
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
@@ -118,8 +117,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.viewPager.adapter = groupPagerAdapter
         binding.viewPager.isUserInputEnabled = true
 
-        // setup navigation drawer
-        setupNavigationDrawer()
+        setupPrimaryNavigation()
         binding.toolbar.setNavigationIcon(R.drawable.ic_settings_24dp)
         binding.toolbar.navigationIcon?.mutate()?.setTint(
             ContextCompat.getColor(this, R.color.hotfox_editorial_text)
@@ -340,23 +338,14 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         // The legacy Material BottomNavigationView stays gone and is not wired.
     }
 
-    private fun setupNavigationDrawer() {
-        val toggle = ActionBarDrawerToggle(
-            this,
-            binding.drawerLayout,
-            binding.toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        binding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-        binding.navView.setNavigationItemSelectedListener(this)
+    private fun setupPrimaryNavigation() {
+        // Phone navigation is the 3-item editorial bottom bar only.
+        // The leftover DrawerLayout/NavigationView stay locked and unwired.
+        binding.drawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
-                } else if (currentSection != UiSection.CONNECTION) {
+                if (currentSection != UiSection.CONNECTION) {
                     showSection(UiSection.CONNECTION)
                 } else {
                     isEnabled = false

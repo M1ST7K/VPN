@@ -29,6 +29,7 @@ import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.helper.SimpleItemTouchHelperCallback
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.viewmodel.MainViewModel
+import com.v2ray.ang.vpn.HotfoxServerListContract
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -301,32 +302,24 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
      */
     fun scrollToSelectedServer() {
         val selectedGuid = MmkvManager.getSelectServer()
-        if (selectedGuid.isNullOrEmpty()) {
-            ownerActivity.toast(R.string.title_file_chooser)
+        val dataIndex = mainViewModel.serversCache.indexOfFirst { it.guid == selectedGuid }
+        val adapterPosition = HotfoxServerListContract.adapterPositionForSelection(
+            auto = HotfoxServerSelection.isAutoMode(),
+            dataIndex = dataIndex,
+        )
+        if (adapterPosition < 0) {
+            ownerActivity.toast(R.string.toast_server_not_found_in_group)
             return
         }
 
-        // Find the position of the selected server
-        val serversCache = mainViewModel.serversCache
-        val position = serversCache.indexOfFirst { it.guid == selectedGuid }
         val recyclerView = binding.recyclerView
-
-        if (position >= 0) {
-            // Get the layout manager
-            val layoutManager = recyclerView.layoutManager as? GridLayoutManager
-
+        val layoutManager = recyclerView.layoutManager as? GridLayoutManager
+        recyclerView.post {
             if (layoutManager != null) {
-                // Scroll to position with offset to center it on screen
-                // First scroll to position, then adjust to center
-                recyclerView.post {
-                    layoutManager.scrollToPositionWithOffset(position, recyclerView.height / 3)
-                }
+                layoutManager.scrollToPositionWithOffset(adapterPosition, recyclerView.height / 3)
             } else {
-                // Fallback to smooth scroll if layout manager is not GridLayoutManager
-                recyclerView.smoothScrollToPosition(position)
+                recyclerView.smoothScrollToPosition(adapterPosition)
             }
-        } else {
-            ownerActivity.toast(R.string.toast_server_not_found_in_group)
         }
     }
 }

@@ -198,4 +198,15 @@ object HotfoxServerListContract {
             else -> VIEW_TYPE_ITEM
         }
     }
+
+    /**
+     * Maps a `serversCache` index to the RecyclerView adapter position.
+     * AUTO occupies row 0; real servers are offset by +1.
+     * @return adapter position, or -1 when a manual selection is not in this list.
+     */
+    fun adapterPositionForSelection(auto: Boolean, dataIndex: Int): Int {
+        if (auto) return AUTO_ROW_INDEX
+        if (dataIndex < 0) return -1
+        return AUTO_ROW_INDEX + 1 + dataIndex
+    }
 }

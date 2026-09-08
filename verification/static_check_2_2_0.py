@@ -180,6 +180,16 @@ def main() -> int:
         "AUTO row is first in the server list",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt",
+        "fun adapterPositionForSelection",
+        "AUTO adapter offset",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/GroupServerFragment.kt",
+        "adapterPositionForSelection",
+        "scroll accounts for AUTO row",
+    )
+    must_contain(
         "app/src/main/res/values-ru/strings.xml",
         "Авто-выбор сервера",
         "AUTO row label",
@@ -188,6 +198,20 @@ def main() -> int:
     logo = PROJECT / "app/src/main/res/drawable/hotfox_logo.xml"
     if not logo.is_file() or logo.stat().st_size == 0:
         fail("drawable/hotfox_logo.xml missing")
+
+    agents = ROOT / "AGENTS.md"
+    if agents.is_file():
+        text = agents.read_text(encoding="utf-8", errors="replace")
+        if "vertical navigation" in text:
+            fail("AGENTS.md still requires vertical/rail navigation")
+        if "bottom bar" not in text and "bottom nav" not in text:
+            fail("AGENTS.md does not record the phone bottom navigation")
+        if "AUTO_ROW_INDEX" not in text:
+            fail("AGENTS.md does not require AUTO as the first server row")
+        if "Mandatory completion loop" not in text:
+            fail("AGENTS.md is missing the mandatory completion loop")
+    else:
+        fail("AGENTS.md missing")
 
     secret_re = re.compile(r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}")
     skip_dirs = {"build", "test", "androidTest"}
