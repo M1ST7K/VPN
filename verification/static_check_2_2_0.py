@@ -107,6 +107,10 @@ def main() -> int:
             fail("handover must fail closed when old-core shutdown drain times out")
         if "VpnRestartGate" not in manager:
             fail("restart work is not generation-scoped")
+        if "tryDispatchStart" not in manager:
+            fail("restart start is not serialized with stop invalidation")
+        if "startVService(app)" in manager:
+            fail("MSG_STATE_RESTART still calls startVService after a TOCTOU isCurrent check")
         if "HF-VPN-012" not in manager:
             fail("handover loop-prevention bind failure is not fail-closed")
         if "private fun awaitCoreStop(epoch: Long, attempt: Long): Boolean" not in manager:

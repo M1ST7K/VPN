@@ -129,6 +129,18 @@ object CoreServiceManager {
      */
     fun startVService(context: Context, guid: String? = null) {
         VpnRestartGate.invalidate()
+        startVServiceBody(context, guid)
+    }
+
+    /**
+     * Restart path only. Must be invoked from [VpnRestartGate.tryDispatchStart]
+     * so a newer stop cannot race a start after a stale isCurrent check.
+     */
+    private fun startVServiceAfterAuthorizedRestart(context: Context) {
+        startVServiceBody(context, guid = null)
+    }
+
+    private fun startVServiceBody(context: Context, guid: String? = null) {
         LogUtil.i(AppConfig.TAG, "StartCore-Manager: startVService from ${context::class.java.simpleName}")
 
         if (guid != null) {
@@ -941,15 +953,12 @@ object CoreServiceManager {
                     serviceControl.stopService()
                     restartScope.launch {
                         VpnSessionCoordinator.awaitIdle()
-                        if (!VpnRestartGate.isCurrent(request)) {
+                        val started = VpnRestartGate.tryDispatchStart(request) {
+                            startVServiceAfterAuthorizedRestart(app)
+                        }
+                        if (!started) {
                             LogUtil.i(AppConfig.TAG, "StartCore-Manager: restart cancelled request=$request")
-                            return@launch
                         }
-                        if (VpnSessionCoordinator.isTeardownActive()) {
-                            LogUtil.w(AppConfig.TAG, "StartCore-Manager: restart skipped; teardown still active")
-                            return@launch
-                        }
-                        startVService(app)
                     }
                 }
 

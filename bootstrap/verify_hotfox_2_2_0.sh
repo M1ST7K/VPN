@@ -44,6 +44,8 @@ grep -q 'HF-VPN-012' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnSe
   || fail "loop-prevention bind failure is not fail-closed"
 grep -q 'VpnRestartGate' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
   || fail "restart work is not generation-scoped"
+grep -q 'tryDispatchStart' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "restart start is not serialized with stop invalidation"
 grep -q '!xrayShutdownGate.drain' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
   || fail "handover drain timeout is not fail-closed"
 grep -q 'builder.addRoute("::", 0)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
