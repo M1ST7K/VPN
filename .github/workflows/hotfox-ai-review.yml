@@ -13,6 +13,10 @@ on:
         description: "Pull request number to review now"
         required: true
         type: string
+      expected_sha:
+        description: "Exact PR head SHA that passed green CI (required for phase_exit)"
+        required: false
+        type: string
       review_mode:
         description: "manual checkpoint or automatic engineering phase exit"
         required: false
@@ -28,7 +32,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: hotfox-ai-review-${{ github.event.pull_request.number || inputs.pr_number }}
+  group: hotfox-ai-review-${{ github.event.pull_request.number || inputs.pr_number }}-${{ inputs.expected_sha || github.event.pull_request.head.sha || 'none' }}
   cancel-in-progress: true
 
 jobs:
@@ -51,10 +55,66 @@ jobs:
           REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          REVIEW_MODE: ${{ inputs.review_mode }}
         shell: bash
         run: |
           set -euo pipefail
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "${REVIEW_MODE:-manual}" == "phase_exit" ]]; then
+              if [[ -z "${EXPECTED_SHA:-}" ]]; then
+                echo "requested=false" >> "$GITHUB_OUTPUT"
+                echo "phase_exit dispatch missing expected_sha; refusing review."
+                exit 0
+              fi
+              actual="$(python3 - <<'PY'
+          import json, os, urllib.request
+          repo = os.environ['REPO']
+          pr = os.environ['PR_NUMBER']
+          token = os.environ['GH_TOKEN']
+          req = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/pulls/{pr}',
+              headers={
+                  'Accept': 'application/vnd.github+json',
+                  'Authorization': f'Bearer {token}',
+                  'User-Agent': 'hotfox-ai-checkpoint-gate/1.0',
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as response:
+              data = json.load(response)
+          print(((data.get('head') or {}).get('sha') or '').strip())
+          PY
+          )"
+              if [[ "$actual" != "$EXPECTED_SHA" ]]; then
+                echo "requested=false" >> "$GITHUB_OUTPUT"
+                echo "PR head ${actual} != expected ${EXPECTED_SHA}; refusing review."
+                exit 0
+              fi
+              message="$(python3 - <<'PY'
+          import json, os, urllib.request
+          repo = os.environ['REPO']
+          sha = os.environ['EXPECTED_SHA']
+          token = os.environ['GH_TOKEN']
+          req = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/commits/{sha}',
+              headers={
+                  'Accept': 'application/vnd.github+json',
+                  'Authorization': f'Bearer {token}',
+                  'User-Agent': 'hotfox-ai-checkpoint-gate/1.0',
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as response:
+              data = json.load(response)
+          print(((data.get('commit') or {}).get('message') or '').strip())
+          PY
+          )"
+              if ! grep -Fqi '[hotfox-phase-exit]' <<< "$message"; then
+                echo "requested=false" >> "$GITHUB_OUTPUT"
+                echo "expected SHA lacks [hotfox-phase-exit]; refusing review."
+                exit 0
+              fi
+            fi
             echo "requested=true" >> "$GITHUB_OUTPUT"
             echo "workflow_dispatch requests a checkpoint review."
             exit 0
@@ -93,6 +153,10 @@ jobs:
     if: needs.checkpoint-gate.outputs.requested == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      approved: ${{ steps.run.outputs.approved }}
+      reviewed_sha: ${{ steps.run.outputs.reviewed_sha }}
+      verdict: ${{ steps.run.outputs.verdict }}
 
     steps:
       # pull_request_target/workflow_dispatch intentionally checks out ONLY trusted main.
@@ -112,12 +176,15 @@ jobs:
             exit 2
           fi
 
-      - name: Run trusted checkpoint review
+      - id: run
+        name: Run trusted checkpoint review
         env:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          HOTFOX_REVIEW_MODE: ${{ inputs.review_mode }}
           # Cost-balanced default. Reserve Sol/manual deep review for exceptional
           # security/release cases instead of every normal checkpoint.
           OPENAI_REVIEW_MODEL: gpt-5.6-terra
@@ -135,14 +202,27 @@ jobs:
           OPENAI_REVIEW_MAX_OUTPUT_TOKENS: "12000"
         run: python3 .github/scripts/hotfox_ai_review.py
 
-      - name: Wake Cursor and continue roadmap after approved phase exit
-        if: ${{ success() && github.event_name == 'workflow_dispatch' && inputs.review_mode == 'phase_exit' }}
+  continue-roadmap:
+    name: Wake Cursor only after APPROVED phase exit
+    needs: review
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.review_mode == 'phase_exit' &&
+      needs.review.result == 'success' &&
+      needs.review.outputs.approved == 'true' &&
+      needs.review.outputs.verdict == 'APPROVED' &&
+      needs.review.outputs.reviewed_sha == inputs.expected_sha
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Post engineering-complete handoff
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ inputs.pr_number }}
+          REVIEWED_SHA: ${{ needs.review.outputs.reviewed_sha }}
         shell: bash
         run: |
           set -euo pipefail
-          body='@cursor Финальный phase-exit review APPROVED: подтверждённых P0/P1 нет. Следуй `.cursor/rules/20-hotfox-roadmap-progression.mdc` и `docs/HOTFOX_ROADMAP.md`: зафиксируй текущий этап как `ENGINEERING COMPLETE — physical release validation deferred`, обнови trusted current-phase context на следующий этап и сразу продолжай следующий roadmap phase. Не запрашивай physical Android test до `FINAL RELEASE DEVICE GATE`. Для следующего этапа используй обычные commits без AI review; только финальный green-CI candidate пометь `[hotfox-phase-exit]`.'
+          body="@cursor Финальный phase-exit review APPROVED (head ${REVIEWED_SHA}): подтверждённых P0/P1 нет. Следуй \`.cursor/rules/20-hotfox-roadmap-progression.mdc\` и \`docs/HOTFOX_ROADMAP.md\`: зафиксируй текущий этап как \`ENGINEERING COMPLETE — physical release validation deferred\`, обнови trusted current-phase context на следующий этап и сразу продолжай следующий roadmap phase. Не запрашивай physical Android test до \`FINAL RELEASE DEVICE GATE\`. Для следующего этапа используй обычные commits без AI review; только финальный green-CI candidate пометь \`[hotfox-phase-exit]\`."
           gh api -X POST "repos/${REPO}/issues/${PR_NUMBER}/comments" -f body="$body" >/dev/null

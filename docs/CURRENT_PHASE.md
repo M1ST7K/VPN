@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.4 «Smart Connection»
 
-Status: **ENGINEERING-EXIT CANDIDATE** (2.3 gate closed: round 16 `APPROVED`; 2.4 P1 checkpoint fixes in `917a0e9`, GitHub CI run `34361778626` PASS; this head requests automatic phase-exit review)
+Status: **IN PROGRESS** (round-2 P1s: bind phase-exit review to green SHA and gate continuation on `APPROVED`; 2.4 AUTO P1s remain in `917a0e9`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 

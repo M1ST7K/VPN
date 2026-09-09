@@ -299,3 +299,9 @@ GitHub CI for exact SHA `917a0e98d6b61a4d673bdb4b1b36cf6c77e0c286` (run `3436177
 - Emulator UI smoke: skipped (not VPN E2E)
 
 This head is a 2.4 `[hotfox-phase-exit]` candidate. Do not record `2.4 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+
+Round-2 trusted checkpoint on `4c6f2a7` returned **CHANGES_REQUIRED** (three P1, automation/gate integrity). Fixes land in ordinary commits:
+
+1. `workflow_run` orchestrator already lives on default `main`; dispatch now re-checks the open PR head SHA, passes `expected_sha`, and does not fail closed on a comment 403 after a successful dispatch.
+2. Trusted reviewer requires `expected_sha` in `phase_exit` mode and refuses SHA mismatch / missing `[hotfox-phase-exit]` marker.
+3. Roadmap continuation job runs only when `approved == true`, `verdict == APPROVED`, and `reviewed_sha == expected_sha`. `CHANGES_REQUIRED` does not post an engineering-complete handoff.
