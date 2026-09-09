@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.6 «HotFox Shadow / Stealth & Resilience»
 
-Status: **ENGINEERING-EXIT CANDIDATE** (implementation `c9bca6b` after Round 8 P1; this head requests `[hotfox-phase-exit]`)
+Status: **ENGINEERING-EXIT CANDIDATE** (implementation `d6fa8b6` after Round 9 P1; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
