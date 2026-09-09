@@ -2,7 +2,7 @@
 
 Status: **CANONICAL**
 
-Current engineering phase: **2.7 — Operations / Release Infrastructure**
+Current engineering phase: **2.8 — HotFox Autopilot / Adaptive Protection**
 
 This document defines the sequential HotFox engineering roadmap from the already completed truthful core and commercial foundation through the mature 3.0 platform.
 
@@ -25,9 +25,12 @@ The engineering order is:
 → `2.6 HotFox Shadow / Stealth & Resilience`
 → `2.7 Operations / Release Infrastructure`
 → `2.8 HotFox Autopilot / Adaptive Protection`
-→ `2.9 Premium Android Experience`
-→ `3.0 Mature HotFox Platform`
+→ `2.9 VPN Core Recovery / Real Connection Fix`
+→ `3.0 Premium Android Experience`
+→ `3.1 Mature HotFox Platform / Pre-release Engineering`
 → `FINAL RELEASE DEVICE GATE`
+
+Owner override: `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc` and `docs/HOTFOX_2_9_VPN_RECOVERY.md` win for numbering from 2.9 onward. Legacy headings «2.9 Premium» / «3.0 Mature» in later sections of this file are the 3.0 / 3.1 scopes.
 
 Do not reorder these phases unless the owner explicitly changes the roadmap.
 
@@ -830,7 +833,7 @@ No physical Android test is required between 2.6 and 2.7.
 
 # 2.7 — OPERATIONS / RELEASE INFRASTRUCTURE
 
-Status: **IN PROGRESS**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -1010,7 +1013,7 @@ Do not run or request the final physical Android release acceptance yet solely b
 
 # 2.8 — HOTFOX AUTOPILOT / ADAPTIVE PROTECTION
 
-Status: **PLANNED**
+Status: **IN PROGRESS**
 
 ## Purpose
 
@@ -1227,7 +1230,7 @@ No physical Android test is required between 2.8 and 2.9.
 
 # 2.9 — PREMIUM ANDROID EXPERIENCE
 
-Status: **PLANNED**
+Status: **PLANNED (renumbered to 3.0 after owner override; do not start until 2.9 VPN recovery ENGINEERING COMPLETE)**
 
 ## Purpose
 
@@ -1501,7 +1504,7 @@ Do not request a physical Android test merely to enter 3.0.
 
 # 3.0 — MATURE HOTFOX PLATFORM
 
-Status: **PLANNED**
+Status: **PLANNED (renumbered to 3.1 after owner override)**
 
 ## Purpose
 

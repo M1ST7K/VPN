@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.7. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.8. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -406,9 +406,7 @@ Included in this block:
 
 ## Phase 2.7 — Operations / Release Infrastructure
 
-**ENGINEERING-EXIT CANDIDATE.** 2.6 engineering gate is closed (round 10 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.7 engineering or progression to 2.8.
-
-Implementation candidate `9665716ecfc85faa4203015365a96d9d46b13193` (`073889a` operations + named-arg/`gitSha` CI fixes). GitHub CI for exact SHA `9665716ecfc85faa4203015365a96d9d46b13193` (run `34396015668`):
+**ENGINEERING COMPLETE — physical release validation deferred.** 2.7 engineering gate is closed (round 11 `APPROVED`, P0 = 0, P1 = 0) on SHA `2d37690dcb037f9c43af5eb8e79565ae9f531ac9` / implementation `9665716ecfc85faa4203015365a96d9d46b13193`. GitHub CI for exact SHA `2d37690dcb037f9c43af5eb8e79565ae9f531ac9` (run `34397358061`):
 
 - Payload integrity: PASS
 - Reconstruct and overlay verification: PASS
@@ -418,9 +416,9 @@ Implementation candidate `9665716ecfc85faa4203015365a96d9d46b13193` (`073889a` o
 - Record APK SHA-256: PASS
 - Publish HotFox Dev Latest: PASS
 
-This head is a 2.7 `[hotfox-phase-exit]` candidate. Do not record `2.7 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+Physical-device VPN E2E remains **NOT EXECUTED** and does **not** block 2.8.
 
-Implementation in this candidate:
+Implementation included:
 
 1. Channels `dev`/`beta`/`stable`; stable cannot enable sandbox commerce; required release signing with incomplete keystore env fails honestly.
 2. Artifact identity: `versionName`/`versionCode`/git SHA/channel in BuildConfig and diagnostics (`artifact=` label).
@@ -430,5 +428,9 @@ Implementation in this candidate:
 6. Service health/incident banner is display-only (no VPN state mutation); titles are plain text.
 7. Remote flags are signed, allowlisted, and cannot set TLS/REALITY/checkout-weakening keys.
 8. Diagnostics redaction includes signing passwords; no keystore files in overlay.
+
+## Phase 2.8 — HotFox Autopilot / Adaptive Protection
+
+**IN PROGRESS.** 2.7 engineering gate is closed (round 11 `APPROVED`, P0 = 0, P1 = 0). Owner roadmap after 2.8 is `2.9 VPN Core Recovery`, then `3.0 Premium Android Experience`, then `3.1 Mature HotFox Platform`. Physical-device VPN E2E remains the later `FINAL RELEASE DEVICE GATE` and does **not** block 2.8 engineering. Do not record `2.8 ENGINEERING COMPLETE` until implementation, green full CI, and phase-exit `APPROVED` (P0=0, P1=0).
 
 

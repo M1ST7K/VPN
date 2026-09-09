@@ -13,7 +13,7 @@ Canonical roadmap:
 
 Current phase:
 
-`2.7 Operations / Release Infrastructure`
+`2.8 HotFox Autopilot / Adaptive Protection`
 
 ## 1. Read the roadmap before phase work
 
@@ -31,10 +31,10 @@ Preserve earlier code paths and reviewer evidence unless the current phase uncov
 
 Canonical sequence:
 
-`2.7 Operations / Release Infrastructure`
-→ `2.8 HotFox Autopilot / Adaptive Protection`
-→ `2.9 Premium Android Experience`
-→ `3.0 Mature HotFox Platform`
+`2.8 HotFox Autopilot / Adaptive Protection`
+→ `2.9 VPN Core Recovery / Real Connection Fix`
+→ `3.0 Premium Android Experience`
+→ `3.1 Mature HotFox Platform / Pre-release Engineering`
 
 Do not skip directly to a later phase.
 

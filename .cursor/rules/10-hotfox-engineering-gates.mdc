@@ -24,8 +24,9 @@ The active sequence is:
 → `2.6 HotFox Shadow / Stealth & Resilience`
 → `2.7 Operations / Release Infrastructure`
 → `2.8 HotFox Autopilot / Adaptive Protection`
-→ `2.9 Premium Android Experience`
-→ `3.0 Mature HotFox Platform`
+→ `2.9 VPN Core Recovery / Real Connection Fix`
+→ `3.0 Premium Android Experience`
+→ `3.1 Mature HotFox Platform / Pre-release Engineering`
 → `FINAL RELEASE DEVICE GATE`
 
 Do not reorder or skip phases unless the owner explicitly changes the roadmap.
@@ -49,11 +50,11 @@ Revisit an earlier phase only if:
 
 Current engineering phase is:
 
-`2.7 Operations / Release Infrastructure`
+`2.8 HotFox Autopilot / Adaptive Protection`
 
-2.6 is **ENGINEERING COMPLETE — physical release validation deferred**.
+2.7 is **ENGINEERING COMPLETE — physical release validation deferred**.
 
-Do not restart 2.6 work unless one of the legitimate regression conditions above applies.
+Do not restart 2.7 work unless one of the legitimate regression conditions above applies.
 
 ## 4. Standard engineering exit gate for 2.4 through 3.0
 
@@ -125,7 +126,7 @@ Examples:
 
 `2.7 ENGINEERING COMPLETE` → start 2.8.
 
-`2.8 ENGINEERING COMPLETE` → start 2.9.
+`2.8 ENGINEERING COMPLETE` → start 2.9 VPN Core Recovery.
 
 `2.9 ENGINEERING COMPLETE` → start 3.0.
 

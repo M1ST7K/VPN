@@ -1,6 +1,6 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **2.7 — Operations / Release Infrastructure**.
+Current milestone: **2.8 — HotFox Autopilot / Adaptive Protection**.
 
 This file is trusted reviewer context from `main`. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md` and is not sent in full to every checkpoint.
 
@@ -66,41 +66,52 @@ Preserve its guarantees:
 - fallback never downgrades TLS/REALITY;
 - self-heal uses threshold + cooldown and is cancelled by disconnect/`VpnRestartGate`.
 
-## Current goal — 2.7 Operations / Release Infrastructure
+### 2.7 — Operations / Release Infrastructure
 
-Make HotFox buildable, diagnosable, updateable and safely releasable.
+Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE — physical release validation deferred** after checkpoint round 11 (`APPROVED`, no substantiated P0/P1) on SHA `2d37690` / implementation `9665716`.
 
-2.7 should answer:
+Preserve its guarantees:
 
-> Can we identify, update and operate HotFox without mixing channels, leaking secrets, or trusting unsigned remote config?
+- channels `dev`/`beta`/`stable` do not mix sandbox into stable;
+- sideload updates require hash/channel/expiry and ECDSA when required; no silent install;
+- AUTO drain is signed; manual selection stays sticky;
+- diagnostics redaction; health/incident cannot mutate VPN protection state;
+- remote flags cannot weaken TLS/REALITY or checkout honesty.
 
-Do not prematurely expand 2.7 into Autopilot/premium UX reserved for 2.8+.
+## Current goal — 2.8 HotFox Autopilot / Adaptive Protection
 
-## Highest-priority review targets for 2.7
+Make protection zero-touch without a second session controller.
 
-1. **Channels** — `dev`/`beta`/`stable`; stable cannot mix sandbox commerce.
-2. **Provenance** — versionCode/versionName/git SHA/channel on the artifact and in diagnostics.
-3. **Signing honesty** — missing required keystore fails the build; no silent unsigned-as-signed.
-4. **Update manifest** — HTTPS URL, SHA-256, channel match, expiry, ECDSA when required, reject downgrade/known-bad/hash mismatch.
-5. **No silent install** — AVAILABLE is a user-visible state, not an auto-install.
-6. **Node drain** — signed metadata only; AUTO excludes drained nodes; manual stays sticky.
-7. **Redaction** — diagnostics/logs never emit subscription URLs, tokens, UUIDs, signing passwords.
-8. **Incident banner** — cannot change canonical VPN protection state.
-9. **Remote flags** — allowlisted keys; cannot disable TLS/REALITY or trust checkout `success=true`.
-10. **No 2.2–2.6 regression**.
+2.8 should answer:
+
+> Given network, user policy and VPN state, what should HotFox do automatically?
+
+Do not expand 2.8 into 2.9 VPN datapath recovery or 3.0 Premium UI.
+
+## Highest-priority review targets for 2.8
+
+1. **Single controller** — Autopilot start/stop goes through `VpnRestartGate` / `CoreServiceManager`.
+2. **Pure intent engine** — stale `eventGeneration` cannot override a newer decision.
+3. **Trusted vs unknown vs cellular** — policy is explicit; manual server is not rewritten to AUTO.
+4. **Pause** — temporary, distinct from permanent disable; until-network-change clears on generation bump.
+5. **Captive portal** — wait/release with `Сеть требует авторизации`; do not claim generic VPN failure.
+6. **No reconnect storm** — busy session keeps current; connect gap is bounded.
+7. **Boot/process start** — recover policy; do not resurrect a stale session id.
+8. **Entitlement/permission** — block connect truthfully.
+9. **No 2.2–2.7 regression**.
 
 ## Scope discipline
 
-Do **not** turn unimplemented 2.8/2.9/3.0 roadmap items into P0/P1 during 2.7 review.
+Do **not** turn unimplemented 2.9 VPN recovery or 3.0 Premium UI items into P0/P1 during 2.8 review.
 
-## Exit gate for 2.7 engineering
+## Exit gate for 2.8 engineering
 
 Then run one final `[hotfox-phase-exit]`. If P0=0 and P1=0:
 
-`2.7 ENGINEERING COMPLETE — physical release validation deferred.`
+`2.8 ENGINEERING COMPLETE — physical release validation deferred.`
 
-Then immediately move to `2.8 HotFox Autopilot / Adaptive Protection`.
+Then immediately move to `2.9 VPN Core Recovery / Real Connection Fix` (`docs/HOTFOX_2_9_VPN_RECOVERY.md`).
 
 ## Physical-device policy
 
-Physical Android validation is **NOT** a blocker for closing 2.7 or later engineering phases. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.
+Physical Android validation is **NOT** a blocker for closing 2.8. Phase 2.9 requires engineering-runtime VPN E2E. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.

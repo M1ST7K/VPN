@@ -1,11 +1,12 @@
-# CURRENT PHASE — HotFox 2.7 «Operations / Release Infrastructure»
+# CURRENT PHASE — HotFox 2.8 «HotFox Autopilot / Adaptive Protection»
 
-Status: **ENGINEERING-EXIT CANDIDATE** (implementation `9665716ecfc85faa4203015365a96d9d46b13193`; this head requests `[hotfox-phase-exit]`)
+Status: **IN PROGRESS** (2.7 is ENGINEERING COMPLETE — physical release validation deferred)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
-Linked detailed phase spec: `docs/phases/2.7-operations.md`
-Previous phase: `docs/phases/2.6-shadow.md`
+Linked detailed phase spec: `docs/phases/2.8-autopilot.md`
+Previous phase: `docs/phases/2.7-operations.md`
+Owner 2.9 override: `docs/HOTFOX_2_9_VPN_RECOVERY.md`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
 Canonical roadmap: `docs/HOTFOX_ROADMAP.md`
 Review policy: `docs/AI_REVIEW_POLICY.md`
@@ -13,15 +14,17 @@ Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
 ## Goal
 
-Make HotFox operable as a real service: buildable, diagnosable, updateable and safely releasable without depending on manual ad-hoc developer actions.
+Make protection zero-touch for ordinary users without a second VPN session controller.
 
-2.7 answers:
+2.8 answers:
 
-> Can we build, identify, update and operate HotFox without mixing channels, leaking secrets, or trusting unsigned remote config?
+> Given the current network, user policy and VPN state, what should HotFox do automatically to keep the intended protection level?
 
-This phase builds release infrastructure. It does **not** perform the final physical release device gate.
+All automatic start/stop goes through `VpnRestartGate` / `CoreServiceManager`.
 
-Do **not** claim `RELEASE READY`. Phases 2.2–2.6 are **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is consolidated into the single `FINAL RELEASE DEVICE GATE` after 3.0 — it does **not** block 2.7 engineering or the 2.7 → 2.8 transition.
+Do **not** claim `RELEASE READY`. Phases 2.2–2.7 are **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is consolidated into the single `FINAL RELEASE DEVICE GATE` after 3.1 — it does **not** block 2.8 engineering or the 2.8 → 2.9 transition.
+
+Owner order after 2.8: **2.9 VPN Core Recovery / Real Connection Fix** (not Premium UI). Premium Android Experience is **3.0**. Mature platform is **3.1**.
 
 ## Inherited guarantees (still binding)
 
@@ -33,24 +36,23 @@ Do **not** claim `RELEASE READY`. Phases 2.2–2.6 are **engineering-complete**.
 - backend-authoritative entitlement; checkout `success=true` is not payment proof;
 - no secrets in APK/logs;
 - 2.5 routing policy and TUN/Xray honesty;
-- 2.6 Shadow fallback never weakens TLS/REALITY.
+- 2.6 Shadow fallback never weakens TLS/REALITY;
+- 2.7 channels, signed updates, drain, redaction, signing honesty.
 
 ## Work allowed now
 
-- Release channels `dev` / `beta` / `stable` with sandbox isolation.
-- Traceable `versionCode` / `versionName` / git SHA / artifact label.
-- CI artifact SHA-256 and unsigned-release compile remaining a gate.
-- Honest failure when release signing is required but keystore env is missing.
-- Signed sideload update manifest: hash, channel, downgrade, known-bad, expiry, ECDSA.
-- Node drain for new AUTO picks from signed metadata; manual stays sticky.
-- Privacy-safe diagnostics with channel/SHA; redaction of signing secrets.
-- Service health / incident banner that cannot change VPN protection state.
-- Allowlisted remote flags that cannot weaken TLS/REALITY/checkout honesty.
+- `ConnectionIntentEngine` combining network, policy, entitlement, pause and session.
+- Trusted home/office vs unknown Wi-Fi vs cellular policies.
+- Pause 5/15/60 minutes or until network change.
+- Captive portal wait (`Сеть требует авторизации`) without trapping the user.
+- Boot/process-start recovery of policy without resurrecting a stale session id.
+- Protection profiles `Скорость` / `Баланс` / `Максимальная защита` mapped to real routing.
+- Event-driven network callbacks; no Autopilot polling loop.
 
 ## Not now
 
-- Autopilot (phase 2.8);
-- premium Android UX polish as a phase (2.9);
+- 2.9 VPN core recovery / real connection E2E (starts only after 2.8 ENGINEERING COMPLETE);
+- Premium Android UX polish (now 3.0);
 - claiming `RELEASE READY` / production VPN release.
 
 ## Checkpoint protocol
@@ -59,12 +61,12 @@ Ordinary commits while implementing and while CI is red.
 
 Do **not** put `[hotfox-review]` or `[hotfox-phase-exit]` on intermediate fix commits.
 
-When a coherent 2.7 engineering-exit candidate is ready, make one final commit whose message contains:
+When a coherent 2.8 engineering-exit candidate is ready, make one final commit whose message contains:
 
 `[hotfox-phase-exit]`
 
 After green full CI, the GitHub phase-exit orchestrator dispatches exactly one AI checkpoint review.
 
-## Phase 2.7 exit definition
+## Phase 2.8 exit definition
 
-HotFox can identify the running artifact, verify a sideload update manifest, isolate channels, redact operational secrets, drain AUTO nodes from signed metadata, and produce CI checksums — without regressing 2.2–2.6 guarantees.
+Autopilot derives a single serialized connection intent from network/policy/entitlement/pause, starts and stops only through the existing session controller, preserves AUTO/manual intent, and does not create reconnect storms — without regressing 2.2–2.7 guarantees.
