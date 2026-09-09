@@ -115,8 +115,12 @@ grep -q 'object HotfoxRoutingPolicy' "$PROJECT/app/src/main/java/com/v2ray/ang/v
   || fail "HotFox 2.5 routing policy missing"
 grep -q 'fun bypassLanOnTun' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt" \
   || fail "explicit LAN TUN policy missing"
-grep -q 'HotfoxRoutingStore.load().perAppPlan' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
-  || fail "VpnService per-app plan is not bound to HotFox routing"
+grep -q 'object HotfoxRoutingDataPlane' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingDataPlane.kt" \
+  || fail "HotFox routing data-plane projection missing"
+grep -q 'HotfoxRoutingDataPlane.tunEnforcement' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "VpnService TUN plan is not bound to HotFox routing data plane"
+grep -q 'RoutingRuleKind.APP, RoutingRuleKind.LAN -> null' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt" \
+  || fail "unsupported APP/LAN custom rules are not rejected at sanitize"
 grep -q 'HotfoxXrayConfigInjector.apply' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
   || fail "Xray config is not injected from HotFox routing policy"
 grep -q 'fun tryApply' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingApply.kt" \

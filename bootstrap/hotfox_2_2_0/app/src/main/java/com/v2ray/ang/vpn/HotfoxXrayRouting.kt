@@ -13,9 +13,9 @@ data class XrayFieldRule(
 /**
  * Deterministic Xray field rules derived from the HotFox routing snapshot.
  *
- * App-split and LAN are applied at the Android VpnService/TUN layer, not here.
- * These rules apply only to captured traffic. EXCLUDE selected / INCLUDE miss
- * never reach Xray, so BLOCK/ads cannot apply to them.
+ * App-split and LAN are applied at the Android VpnService/TUN layer
+ * (`selectedApps`, `lanAccess`), not as Xray field rules. Custom APP/LAN
+ * routing rules are rejected at parse/sanitize.
  *
  * First-match buckets match [HotfoxRoutingPolicy.decide] for captured traffic:
  * `BLOCK, exact-domain, suffix-domain, CIDR`. User order is kept only inside

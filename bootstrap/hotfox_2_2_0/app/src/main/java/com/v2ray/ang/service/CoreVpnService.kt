@@ -31,7 +31,9 @@ import com.v2ray.ang.vpn.HotfoxAutoFailover
 import com.v2ray.ang.vpn.HotfoxShadowFailover
 import com.v2ray.ang.vpn.HotfoxShadowStore
 import com.v2ray.ang.vpn.HotfoxSelfHeal
+import com.v2ray.ang.vpn.HotfoxRoutingDataPlane
 import com.v2ray.ang.vpn.HotfoxRoutingStore
+import com.v2ray.ang.vpn.PerAppVpnPlan
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.VpnConnectionStage
 import com.v2ray.ang.vpn.VpnLoopPrevention
@@ -296,12 +298,19 @@ class CoreVpnService : VpnService(), ServiceControl {
      */
     private fun configureVpnService(): Boolean {
         val builder = Builder()
+        val routing = HotfoxRoutingStore.load()
+        val ipv6Enabled = MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED)
+        val tun = HotfoxRoutingDataPlane.tunEnforcement(
+            routing,
+            ipv6Enabled,
+            BuildConfig.APPLICATION_ID,
+        )
 
         // Configure network settings (addresses, routing and DNS)
-        configureNetworkSettings(builder)
+        configureNetworkSettings(builder, tun)
 
         // Configure app-specific settings (session name and per-app proxy)
-        configurePerAppProxy(builder)
+        configurePerAppProxy(builder, tun.perApp)
 
         // Close the old interface since the parameters have been changed
         try {
@@ -333,10 +342,11 @@ class CoreVpnService : VpnService(), ServiceControl {
      *
      * @param builder The VPN Builder to configure
      */
-    private fun configureNetworkSettings(builder: Builder) {
+    private fun configureNetworkSettings(
+        builder: Builder,
+        tun: HotfoxRoutingDataPlane.TunEnforcement,
+    ) {
         val vpnConfig = SettingsManager.getCurrentVpnInterfaceAddressConfig()
-        val routing = HotfoxRoutingStore.load()
-        val bypassLan = routing.bypassLanOnTun()
 
         // Configure IPv4 settings
         builder.setMtu(SettingsManager.getVpnMtu())
@@ -344,7 +354,8 @@ class CoreVpnService : VpnService(), ServiceControl {
 
         // Configure routing rules. GLOBAL never bypasses LAN; other modes honor
         // the explicit LAN preference only — never SettingsManager geosite inference.
-        if (bypassLan) {
+        // Custom APP/LAN *rules* are not consulted: they are rejected at parse.
+        if (!tun.captureIpv4Default) {
             AppConfig.ROUTED_IP_LIST.forEach {
                 val addr = it.split('/')
                 builder.addRoute(addr[0], addr[1].toInt())
@@ -356,9 +367,8 @@ class CoreVpnService : VpnService(), ServiceControl {
         // Always capture IPv6 as well. When IPv6 proxying is disabled, CoreConfigManager
         // installs a fail-closed ::/0 -> blackhole rule so the device cannot silently leak
         // IPv6 outside the Android VPN. Enabled mode forwards IPv6 normally.
-        val ipv6Enabled = MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED)
         builder.addAddress(vpnConfig.ipv6Client, 126)
-        if (ipv6Enabled && bypassLan) {
+        if (!tun.captureIpv6Default) {
             builder.addRoute("2000::", 3)
             builder.addRoute("fc00::", 18)
         } else {
@@ -401,9 +411,8 @@ class CoreVpnService : VpnService(), ServiceControl {
      *
      * @param builder The VPN Builder to configure.
      */
-    private fun configurePerAppProxy(builder: Builder) {
+    private fun configurePerAppProxy(builder: Builder, plan: PerAppVpnPlan) {
         val selfPackageName = BuildConfig.APPLICATION_ID
-        val plan = HotfoxRoutingStore.load().perAppPlan(selfPackageName)
 
         // Per-app off (or empty include/exclude): do not exclude HotFox.
         // Loop prevention is bindProcessToUnderlying (this libv2ray has no protect()

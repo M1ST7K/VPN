@@ -310,12 +310,6 @@ object HotfoxRoutingPolicy {
             return RoutingDecision(RouteAction.BLOCK, "block:${blocked.kind}:${blocked.id}")
         }
         if (!query.packageName.isNullOrBlank()) {
-            val app = snapshot.rules.firstOrNull {
-                it.kind == RoutingRuleKind.APP && it.value == query.packageName
-            }
-            if (app != null) {
-                return RoutingDecision(app.action, "app:${app.id}")
-            }
             when (snapshot.mode) {
                 HotfoxRoutingMode.INCLUDE_APPS ->
                     return RoutingDecision(RouteAction.VPN, "include_apps")
@@ -363,7 +357,9 @@ object HotfoxRoutingPolicy {
                 if (rule.action == RouteAction.DIRECT && parsed.prefix == 0) return null
                 rule.copy(value = rule.value.trim())
             }
-            RoutingRuleKind.LAN -> rule.copy(value = "lan")
+            // APP/LAN are VpnService-layer via selectedApps + lanAccess.
+            // Xray cannot match Android packages; a LAN rule would fight lanAccess.
+            RoutingRuleKind.APP, RoutingRuleKind.LAN -> null
         }
     }
 
@@ -374,7 +370,7 @@ object HotfoxRoutingPolicy {
     ): RoutingRule? {
         rules.filter { it.action == action }.forEach { rule ->
             when (rule.kind) {
-                RoutingRuleKind.APP -> if (rule.value == query.packageName) return rule
+                RoutingRuleKind.APP, RoutingRuleKind.LAN -> return@forEach
                 RoutingRuleKind.DOMAIN_EXACT, RoutingRuleKind.DOMAIN_SUFFIX -> {
                     val host = query.domain?.let(DomainRouting::normalize) ?: return@forEach
                     val hit = if (rule.kind == RoutingRuleKind.DOMAIN_EXACT) {
@@ -389,7 +385,6 @@ object HotfoxRoutingPolicy {
                     val ip = query.ip ?: return@forEach
                     if (CidrRouting.contains(parsed, ip)) return rule
                 }
-                RoutingRuleKind.LAN -> if (query.lan) return rule
             }
         }
         return null

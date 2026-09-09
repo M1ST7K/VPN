@@ -388,9 +388,19 @@ def main() -> int:
         "2.5 explicit LAN TUN policy",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingDataPlane.kt",
+        "object HotfoxRoutingDataPlane",
+        "2.5 routing data-plane projection",
+    )
+    must_contain(
         "app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
-        "HotfoxRoutingStore.load().perAppPlan",
-        "VpnService per-app plan uses HotFox routing snapshot",
+        "HotfoxRoutingDataPlane.tunEnforcement",
+        "VpnService TUN plan uses HotFox routing data plane",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt",
+        "RoutingRuleKind.APP, RoutingRuleKind.LAN -> null",
+        "unsupported APP/LAN custom rules are rejected at sanitize",
     )
     vpn_routing = read("app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt")
     if vpn_routing and "SettingsManager.routingRulesetsBypassLan()" in vpn_routing:

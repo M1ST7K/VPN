@@ -68,11 +68,10 @@ class HotfoxRoutingTest {
     }
 
     @Test
-    fun blockBeatsAppAndDomainAndDefault() {
+    fun blockBeatsDomainAndDefault() {
         val snap = smart.copy(
             rules = listOf(
                 RoutingRule("b1", RoutingRuleKind.DOMAIN_SUFFIX, "ads.example", RouteAction.BLOCK),
-                RoutingRule("a1", RoutingRuleKind.APP, "org.mozilla.firefox", RouteAction.VPN),
             ),
         )
         val blocked = HotfoxRoutingPolicy.decide(
@@ -288,9 +287,8 @@ class HotfoxRoutingTest {
         )
         val encoded = HotfoxRoutingPolicy.encodeRules(rules)
         val parsed = HotfoxRoutingPolicy.parseRules(encoded)
-        assertEquals(2, parsed.size)
+        assertEquals(1, parsed.size)
         assertEquals("ads.example", parsed[0].value)
-        assertEquals("org.telegram.messenger", parsed[1].value)
         assertTrue(HotfoxRoutingPolicy.parseRules("{not-json}").isEmpty())
         assertTrue(HotfoxRoutingPolicy.parseRules(null).isEmpty())
     }
@@ -314,5 +312,107 @@ class HotfoxRoutingTest {
     fun emptyIncludeDoesNotEnableSplitTunnel() {
         val snap = smart.copy(mode = HotfoxRoutingMode.INCLUDE_APPS, selectedApps = emptySet())
         assertFalse(snap.perAppPlan("com.hotfox.vpn").enabled)
+    }
+
+    @Test
+    fun appAndLanRulesAreRejectedFromParseAndSanitize() {
+        assertNull(
+            HotfoxRoutingPolicy.sanitizeRule(
+                RoutingRule("app", RoutingRuleKind.APP, "org.telegram.messenger", RouteAction.BLOCK),
+            ),
+        )
+        assertNull(
+            HotfoxRoutingPolicy.sanitizeRule(
+                RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.DIRECT),
+            ),
+        )
+        val parsed = HotfoxRoutingPolicy.parseRules(
+            HotfoxRoutingPolicy.encodeRules(
+                listOf(
+                    RoutingRule("app", RoutingRuleKind.APP, "org.telegram.messenger", RouteAction.DIRECT),
+                    RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.BLOCK),
+                    RoutingRule("ok", RoutingRuleKind.DOMAIN_SUFFIX, "ads.example", RouteAction.BLOCK),
+                ),
+            ),
+        )
+        assertEquals(1, parsed.size)
+        assertEquals(RoutingRuleKind.DOMAIN_SUFFIX, parsed[0].kind)
+    }
+
+    @Test
+    fun decideIgnoresInjectedAppAndLanRulesAndFollowsTunControls() {
+        val snap = smart.copy(
+            lanAccess = true,
+            rules = listOf(
+                RoutingRule("app", RoutingRuleKind.APP, "org.mozilla.firefox", RouteAction.BLOCK),
+                RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.BLOCK),
+            ),
+        )
+        assertEquals(
+            RouteAction.DIRECT,
+            HotfoxRoutingPolicy.decide(snap, RoutingQuery(ip = "192.168.0.4", lan = true)).action,
+        )
+        assertEquals(
+            RouteAction.VPN,
+            HotfoxRoutingPolicy.decide(snap, RoutingQuery(packageName = "org.mozilla.firefox")).action,
+        )
+        val include = snap.copy(
+            mode = HotfoxRoutingMode.INCLUDE_APPS,
+            selectedApps = setOf("org.telegram.messenger"),
+        )
+        assertEquals(
+            RouteAction.DIRECT,
+            HotfoxRoutingPolicy.decide(include, RoutingQuery(packageName = "org.mozilla.firefox")).action,
+        )
+        assertEquals(
+            RouteAction.VPN,
+            HotfoxRoutingPolicy.decide(include, RoutingQuery(packageName = "org.telegram.messenger")).action,
+        )
+    }
+
+    @Test
+    fun tunEnforcementFollowsLanAccessAndSelectedAppsNotCustomAppLanRules() {
+        val self = "com.hotfox.vpn"
+        val lanOn = smart.copy(
+            lanAccess = true,
+            rules = listOf(RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.BLOCK)),
+        )
+        val lanTun = HotfoxRoutingDataPlane.tunEnforcement(lanOn, ipv6ProxyEnabled = false, self)
+        assertFalse(lanTun.captureIpv4Default)
+        assertTrue(lanTun.captureIpv6Default)
+        assertFalse(lanTun.perApp.enabled)
+        assertTrue(HotfoxRoutingDataPlane.xrayRules(lanOn).isEmpty())
+
+        val globalLan = smart.copy(
+            mode = HotfoxRoutingMode.GLOBAL,
+            lanAccess = true,
+            rules = listOf(RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.DIRECT)),
+        )
+        val globalTun = HotfoxRoutingDataPlane.tunEnforcement(globalLan, ipv6ProxyEnabled = true, self)
+        assertTrue(globalTun.captureIpv4Default)
+        assertTrue(globalTun.captureIpv6Default)
+
+        val split = smart.copy(
+            mode = HotfoxRoutingMode.EXCLUDE_APPS,
+            selectedApps = setOf("com.bank.app"),
+            rules = listOf(
+                RoutingRule("app", RoutingRuleKind.APP, "org.mozilla.firefox", RouteAction.DIRECT),
+            ),
+        )
+        val splitTun = HotfoxRoutingDataPlane.tunEnforcement(split, ipv6ProxyEnabled = false, self)
+        assertTrue(splitTun.perApp.enabled)
+        assertTrue(splitTun.perApp.bypassSelected)
+        assertEquals(setOf("com.bank.app"), splitTun.perApp.packages)
+        assertFalse(HotfoxRoutingDataPlane.capturedOnTun(split, "com.bank.app", self))
+        assertTrue(HotfoxRoutingDataPlane.capturedOnTun(split, "org.mozilla.firefox", self))
+        assertTrue(HotfoxRoutingDataPlane.xrayRules(split).isEmpty())
+        assertEquals(
+            RouteAction.DIRECT,
+            HotfoxRoutingPolicy.decide(split, RoutingQuery(packageName = "com.bank.app")).action,
+        )
+        assertEquals(
+            RouteAction.VPN,
+            HotfoxRoutingPolicy.decide(split, RoutingQuery(packageName = "org.mozilla.firefox")).action,
+        )
     }
 }

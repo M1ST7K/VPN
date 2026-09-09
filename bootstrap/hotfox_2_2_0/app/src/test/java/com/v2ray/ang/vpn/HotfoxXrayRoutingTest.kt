@@ -69,6 +69,7 @@ class HotfoxXrayRoutingTest {
             ),
         )
         assertTrue(HotfoxXrayRouting.rules(snap).isEmpty())
+        assertTrue(HotfoxRoutingDataPlane.xrayRules(snap).isEmpty())
     }
 
     @Test
