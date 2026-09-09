@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.4. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.5. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -252,7 +252,7 @@ Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXE
 
 ## Phase 2.4 — Smart Connection
 
-**IN PROGRESS.** 2.3 engineering gate is closed (round 16 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.4 engineering or progression to 2.5.
+**ENGINEERING COMPLETE — physical release validation deferred.** 2.3 engineering gate is closed (round 16 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.5.
 
 Implementation SHA for the 2.4 completion block: `206990ea0cd3e7f291e2c568ee6c3669ffd1df74`.
 
@@ -315,8 +315,27 @@ GitHub CI for exact SHA `47fbaad0d829f141f08f8d4b8c309f57a87a011e` (run `3436600
 
 This head is the next 2.4 `[hotfox-phase-exit]` candidate. Do not record `2.4 ENGINEERING COMPLETE` until APPROVED (P0=0, P1=0).
 
-Round-3 trusted checkpoint on `47fbaad` returned **CHANGES_REQUIRED** (one P1). Fix SHA: `f9c9ed2`.
+Round-3 trusted checkpoint on `47fbaad` returned **CHANGES_REQUIRED** (one P1). Fix SHA: `f9c9ed21fb4f3c7f35caa1d38053b4a7ab8d3d92`.
 
 Phase-exit validation now uses the distinct marker `[hotfox-phase-exit]`. Ordinary `[hotfox-review]` is not required in `phase_exit` mode, so a correctly marked candidate is not refused as `NOT_REQUESTED`.
 
-GitHub CI for exact SHA `f9c9ed2` (run `34367604694`): reconstruct/unit/lint/release/Publish PASS. Emulator skipped.
+GitHub CI for exact SHA `f9c9ed21fb4f3c7f35caa1d38053b4a7ab8d3d92` (run `34367604694`): reconstruct/unit/lint/release/Publish PASS. Emulator skipped.
+
+Round-4 trusted checkpoint on `f9c9ed21fb4f3c7f35caa1d38053b4a7ab8d3d92` returned **APPROVED** with no substantiated P0/P1. Comment: https://github.com/M1ST7K/VPN/pull/4#issuecomment-5604059835
+
+AUTO implementation SHA remains `917a0e98d6b61a4d673bdb4b1b36cf6c77e0c286`. Phase-exit SHA-binding / `[hotfox-phase-exit]` marker validation SHA is `f9c9ed2`. Docs-only follow-up `e8a27dd` does not change the reviewed implementation.
+
+### Engineering gate status
+
+**ENGINEERING COMPLETE — physical release validation deferred.**
+
+Trusted checkpoint **round 4** returned `APPROVED` (P0 = 0, P1 = 0) on head `f9c9ed2`. Physical-device VPN E2E remains **NOT EXECUTED** and is not a 2.4→2.5 blocker.
+
+### Release gate status
+
+**DEFERRED / NOT VERIFIED** — consolidated into `FINAL RELEASE DEVICE GATE` after 3.0.
+
+## Phase 2.5 — Privacy Controls / Smart Routing
+
+**IN PROGRESS.** 2.4 engineering gate is closed (round 4 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.5 engineering or progression to 2.6.
+

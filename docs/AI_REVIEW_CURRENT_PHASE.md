@@ -1,6 +1,6 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **2.4 — Smart Connection**.
+Current milestone: **2.5 — Privacy Controls / Smart Routing**.
 
 This file is trusted reviewer context from `main`. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md` and is not sent in full to every checkpoint.
 
@@ -27,55 +27,64 @@ Preserve its guarantees:
 
 Do not reopen 2.3 solely because physical-device validation is deferred.
 
-## Current goal — 2.4 Smart Connection
+### 2.4 — Smart Connection
 
-Turn `Авто-выбор сервера` into a real first-class intelligent server-selection mode while preserving manual server intent and the truthful 2.2 VPN path.
+Phase 2.4 Smart Connection is **ENGINEERING COMPLETE — physical release validation deferred** after checkpoint round 4 (`APPROVED`, no substantiated P0/P1) on SHA `f9c9ed2` / AUTO implementation `917a0e9`.
 
-2.4 should answer:
+Preserve its guarantees:
 
-> Which eligible server is the best server to use right now?
+- AUTO remains a persisted mode;
+- manual selection remains manual;
+- real health only (no fake ping);
+- eligibility before ranking;
+- hysteresis/stickiness and bounded failover;
+- stale/old-network health cannot overwrite a newer generation.
 
-Do not prematurely expand 2.4 into the full transport/path/stealth work reserved for 2.6 HotFox Shadow.
+## Current goal — 2.5 Privacy Controls / Smart Routing
 
-AUTO health work already in this branch: health repository, bounded probes, deterministic scoring, hysteresis, bounded failover, truthful latency. Do not invent ping. Manual selection must not silently fail over.
+Give the user real control over which traffic uses the VPN while preserving truthful routing, DNS and IPv6 guarantees.
 
-## Highest-priority review targets for 2.4
+2.5 should answer:
 
-1. **AUTO remains a persisted mode** — the concrete server resolved for one session must not overwrite the user's persisted AUTO choice.
-2. **Manual selection remains manual** — AUTO must not silently replace an explicitly selected server.
-3. **Real health only** — ping/health values must be measured or explicitly unavailable; no fake production pings/health. Unmeasured servers show `—`, never `0 ms`.
-4. **Eligibility before ranking** — entitlement, manifest/config validity and supported server data must filter candidates before AUTO selection.
-5. **Deterministic scoring** — health/latency/failure/freshness policy should be explicit and testable, not UI magic.
-6. **Hysteresis/stickiness** — a healthy active server must not flap because another server is only trivially faster.
-7. **Bounded probing/failover** — concurrency, retries and failover must be bounded, serialized and cancellable.
-8. **Stale async protection** — obsolete probes/selection work must not overwrite a newer network/session decision. Stale/old-network results cannot overwrite a newer generation.
-9. **Network-change handling** — Wi-Fi/cellular/loss/restore must not blindly reuse invalid stale health state or create duplicate sessions.
-10. **Truthful resolved target** — UI should be able to show the concrete AUTO target, but only the canonical VPN session may emit `CONNECTED` / `Защищено`.
-11. **No 2.2 regression** — DNS, IPv6, startup ordering, TUN/HEV/Xray cleanup and canonical session truth remain release-critical.
-12. **No 2.3 regression** — Smart Connection must not bypass entitlement, expose secrets or break the manual subscription path.
+> Which traffic should go through HotFox, which traffic may go direct, and which traffic should be blocked?
+
+Do not prematurely expand 2.5 into HotFox Shadow / multi-transport work reserved for 2.6.
+
+## Highest-priority review targets for 2.5
+
+1. **Truthful modes** — Smart / Global / include-apps / exclude-apps / Custom map to deterministic Android/Xray policy, not decorative toggles.
+2. **Split tunneling** — include/exclude use `VpnService` app policy; missing/uninstalled packages must not break the session or poison remaining rules.
+3. **Empty include fails closed** — empty selected-app include does not create an empty allow-list that leaks all apps off-VPN; per-app stays disabled until a usable set exists.
+4. **Deterministic precedence** — `BLOCK > APP > DOMAIN > CIDR > GLOBAL MODE`; never hash-map / race order.
+5. **No silent DIRECT bypass** — SMART/GLOBAL must not keep preset `geosite:cn` / private DIRECT rules that contradict the UI.
+6. **LAN is explicit** — GLOBAL never bypasses LAN; other modes bypass RFC1918 only when the user enabled LAN access.
+7. **DNS through VPN** — no silent system-DNS / ISP fallback while protection is claimed.
+8. **IPv6** — capture remains fail-closed (`::/0` + Xray blackhole) unless IPv6 proxying is enabled; Smart routing must not create an IPv6 leak.
+9. **Malformed CIDR** — never becomes `0.0.0.0/0` or `::/0` DIRECT.
+10. **Reconfiguration** — routing changes while connected are generation-scoped; a stale restart must not overwrite a newer policy.
+11. **Optional ads BLOCK** — geosite ads failure must not corrupt core VPN routing.
+12. **No 2.2/2.3/2.4 regression** — TUN/HEV/Xray path, canonical session truth, entitlement, AUTO mode.
 
 ## Scope discipline
 
-Do **not** turn unimplemented 2.5/2.6/2.7/2.8/2.9/3.0 roadmap items into P0/P1 during 2.4 review.
+Do **not** turn unimplemented 2.6/2.7/2.8/2.9/3.0 roadmap items into P0/P1 during 2.5 review.
 
-Review regressions in completed guarantees and concrete defects in implemented 2.4 Smart Connection code.
+Review regressions in completed guarantees and concrete defects in implemented 2.5 routing code.
 
 The detailed roadmap for later phases is in `docs/HOTFOX_ROADMAP.md`.
 
-## Exit gate for 2.4 engineering
+## Exit gate for 2.5 engineering
 
 Required engineering evidence should include, as applicable:
 
-- candidate filtering;
-- real bounded health/probe logic;
-- deterministic server scoring;
-- cold-start fallback;
-- hysteresis/stickiness;
-- manual/AUTO separation;
-- bounded server failover;
-- network-context handling;
-- safe diagnostics;
-- automated/unit/integration coverage for important pure/race-prone logic;
+- app include/exclude;
+- missing package handling;
+- domain VPN/DIRECT/BLOCK and conflicting rules;
+- DNS policy;
+- IPv4/IPv6 policy logic;
+- LAN allow/deny;
+- persistence/migration;
+- generation-scoped reconfiguration;
 - build/CI checks required by the repository.
 
 Then run one final `[hotfox-phase-exit]` (orchestrator dispatches the AI review after green CI).
@@ -87,15 +96,15 @@ If:
 
 record:
 
-`2.4 ENGINEERING COMPLETE — physical release validation deferred.`
+`2.5 ENGINEERING COMPLETE — physical release validation deferred.`
 
 Then immediately move to:
 
-`2.5 Privacy Controls / Smart Routing`
+`2.6 HotFox Shadow / Stealth & Resilience`
 
 ## Physical-device policy
 
-Physical Android validation is **NOT** a blocker for closing 2.4 or for progressing through 2.5, 2.6, 2.7, 2.8, 2.9 and 3.0 engineering phases.
+Physical Android validation is **NOT** a blocker for closing 2.5 or for progressing through 2.6, 2.7, 2.8, 2.9 and 3.0 engineering phases.
 
 Do not request a physical device test merely to advance the roadmap.
 

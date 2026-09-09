@@ -13,7 +13,7 @@ Canonical roadmap:
 
 Current phase:
 
-`2.4 Smart Connection`
+`2.5 Privacy Controls / Smart Routing`
 
 ## 1. Read the roadmap before phase work
 
@@ -31,8 +31,7 @@ Preserve earlier code paths and reviewer evidence unless the current phase uncov
 
 Canonical sequence:
 
-`2.4 Smart Connection`
-→ `2.5 Privacy Controls / Smart Routing`
+`2.5 Privacy Controls / Smart Routing`
 → `2.6 HotFox Shadow / Stealth & Resilience`
 → `2.7 Operations / Release Infrastructure`
 → `2.8 HotFox Autopilot / Adaptive Protection`
