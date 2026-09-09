@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.5 «Privacy Controls / Smart Routing»
 
-Status: **IN PROGRESS** (2.4 ENGINEERING COMPLETE — physical release validation deferred)
+Status: **ENGINEERING-EXIT CANDIDATE** (implementation `9a09798`, full CI PASS; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
