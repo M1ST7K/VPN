@@ -143,7 +143,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.toolbar.navigationContentDescription = getString(R.string.hotfox_settings_content_description)
         binding.toolbar.setNavigationOnClickListener {
             MaterialAlertDialogBuilder(this).setTitle("Настройки HotFox")
-                .setItems(arrayOf("Подключение и DNS", "Приложения через VPN", "Правила маршрутизации", "Подписки", "Блокировка рекламы", "Диагностика", "О приложении")) { _, i ->
+                .setItems(arrayOf(
+                    "Подключение и DNS",
+                    "Приложения через VPN",
+                    "Правила маршрутизации",
+                    "Подписки",
+                    "Блокировка рекламы",
+                    getString(R.string.hotfox_always_on_title),
+                    "Диагностика",
+                    "О приложении",
+                )) { _, i ->
                     when (i) {
                         0 -> requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java))
                         1 -> requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java))
@@ -158,8 +167,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                                     if (mainViewModel.isRunning.value == true) restartV2RayForRouting()
                                 }.setNegativeButton(android.R.string.cancel, null).show()
                         }
-                        5 -> copyDiagnostics()
-                        6 -> startActivity(Intent(this, AboutActivity::class.java))
+                        5 -> showAlwaysOnGuidance()
+                        6 -> copyDiagnostics()
+                        7 -> startActivity(Intent(this, AboutActivity::class.java))
                     }
                 }.show()
         }
@@ -555,6 +565,21 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.setPrimaryClip(android.content.ClipData.newPlainText("HotFox subscription", url))
         toast("URL подписки скопирован")
+    }
+
+    private fun showAlwaysOnGuidance() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.hotfox_always_on_title)
+            .setMessage(R.string.hotfox_always_on_message)
+            .setPositiveButton(R.string.hotfox_always_on_open) { _, _ ->
+                val opened = runCatching {
+                    startActivity(Intent(android.provider.Settings.ACTION_VPN_SETTINGS))
+                    true
+                }.getOrDefault(false)
+                if (!opened) toast(R.string.hotfox_always_on_unavailable)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun copyDiagnostics() {

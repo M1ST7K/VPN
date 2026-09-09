@@ -74,7 +74,11 @@ object DomainRouting {
         }
         if (value.isBlank() || value.contains(' ') || value.contains('/')) return null
         if (value.any { it.code < 32 }) return null
-        return value
+        val ascii = runCatching {
+            java.net.IDN.toASCII(value, java.net.IDN.ALLOW_UNASSIGNED)
+        }.getOrNull()?.lowercase()?.trim('.') ?: return null
+        if (ascii.isBlank() || ascii.contains(' ') || ascii.contains('/')) return null
+        return ascii
     }
 
     fun matchesExact(rule: String, host: String): Boolean = rule == host
@@ -95,7 +99,7 @@ object CidrRouting {
         val addr = trimmed.substring(0, slash)
         val prefix = trimmed.substring(slash + 1).toIntOrNull() ?: return null
         val ipv6 = addr.contains(':')
-        val bytes = if (ipv6) ipv6Bytes(addr) else ipv4Bytes(addr) ?: return null
+        val bytes = (if (ipv6) ipv6Bytes(addr) else ipv4Bytes(addr)) ?: return null
         val max = if (ipv6) 128 else 32
         if (prefix < 0 || prefix > max) return null
         if (!ipv6 && prefix == 0) return null
@@ -104,7 +108,7 @@ object CidrRouting {
     }
 
     fun contains(parsed: Parsed, ip: String): Boolean {
-        val target = if (parsed.ipv6) ipv6Bytes(ip) else ipv4Bytes(ip) ?: return false
+        val target = (if (parsed.ipv6) ipv6Bytes(ip) else ipv4Bytes(ip)) ?: return false
         if (target.size != parsed.network.size) return false
         var remaining = parsed.prefix
         var i = 0

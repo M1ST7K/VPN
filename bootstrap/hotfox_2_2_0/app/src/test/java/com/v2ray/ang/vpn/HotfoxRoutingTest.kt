@@ -219,6 +219,21 @@ class HotfoxRoutingTest {
     }
 
     @Test
+    fun idnDomainsNormalizeToPunycodeAndMatchSuffixRules() {
+        val rule = HotfoxRoutingPolicy.sanitizeRule(
+            RoutingRule("idn", RoutingRuleKind.DOMAIN_SUFFIX, "пример.рф", RouteAction.BLOCK),
+        )
+        requireNotNull(rule)
+        assertTrue(rule.value.startsWith("xn--"))
+        assertEquals("xn--e1afmkfd.xn--p1ai", DomainRouting.normalize("Пример.РФ"))
+        val snap = smart.copy(rules = listOf(rule))
+        assertEquals(
+            RouteAction.BLOCK,
+            HotfoxRoutingPolicy.decide(snap, RoutingQuery(domain = "tracker.пример.рф")).action,
+        )
+    }
+
+    @Test
     fun emptyIncludeDoesNotEnableSplitTunnel() {
         val snap = smart.copy(mode = HotfoxRoutingMode.INCLUDE_APPS, selectedApps = emptySet())
         assertFalse(snap.perAppPlan("com.hotfox.vpn").enabled)

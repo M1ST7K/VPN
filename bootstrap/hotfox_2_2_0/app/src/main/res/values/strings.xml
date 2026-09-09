@@ -43,6 +43,10 @@
     <string name="hotfox_route_rules">Правила</string>
     <string name="hotfox_route_lan_on">LAN вкл</string>
     <string name="hotfox_route_lan_off">LAN выкл</string>
+    <string name="hotfox_always_on_title">Always-on VPN</string>
+    <string name="hotfox_always_on_message">HotFox не включает Always-on и «Блокировать соединения без VPN» сам: это системные настройки Android. Откройте системный экран VPN и включите их для HotFox, если нужен kill switch. Пока сессия не прошла path verification, приложение не показывает «Защищено».</string>
+    <string name="hotfox_always_on_open">Открыть настройки VPN</string>
+    <string name="hotfox_always_on_unavailable">Системный экран VPN недоступен на этом устройстве</string>
     <string name="hotfox_nav_home">Главная</string>
     <string name="hotfox_nav_subscriptions">Подписки</string>
     <string name="hotfox_nav_renewal">Продлить</string>
