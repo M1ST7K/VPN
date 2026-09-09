@@ -12,6 +12,7 @@ enum class VpnConnectionStage(val code: String) {
     LOOP_BIND("process-bind-underlying"),
     XRAY_START("xray-start"),
     SOCKS("socks-handshake"),
+    SOCKS_OUTBOUND("socks-outbound-https"),
     HEV("hev-start"),
     TUN_INJECT("tun-datapath"),
     HEV_PROGRESS("hev-progress"),

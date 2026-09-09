@@ -5,7 +5,7 @@ package com.v2ray.ang.vpn
  * rewritten. TUN/bind/lifecycle failures are not treated as a peer to switch to.
  */
 object HotfoxAutoFailover {
-    val SERVER_TARGET_CODES = setOf("HF-VPN-003", "HF-VPN-004", "HF-VPN-006")
+    val SERVER_TARGET_CODES = setOf("HF-VPN-003", "HF-VPN-004", "HF-VPN-006", "HF-VPN-014")
 
     @Volatile
     var attempts: Int = 0

@@ -16,18 +16,35 @@ import com.v2ray.ang.util.LogUtil
 object VpnLoopPrevention {
     fun bindProcessToUnderlying(context: Context): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            ?: return false
+            ?: run {
+                VpnProtectEvidence.recordBind(false, "none")
+                return false
+            }
         val underlying = findUnderlying(cm) ?: run {
             LogUtil.w(AppConfig.TAG, "VpnLoopPrevention: no underlying internet network")
+            VpnProtectEvidence.recordBind(false, "none")
             return false
         }
+        val transport = transportLabel(cm, underlying)
         return runCatching {
             cm.bindProcessToNetwork(underlying)
-            LogUtil.i(AppConfig.TAG, "VpnLoopPrevention: process bound to underlying network")
+            LogUtil.i(AppConfig.TAG, "VpnLoopPrevention: process bound to underlying transport=$transport")
+            VpnProtectEvidence.recordBind(true, transport)
             true
         }.getOrElse { error ->
             LogUtil.w(AppConfig.TAG, "VpnLoopPrevention: bindProcessToNetwork failed: ${error.javaClass.simpleName}")
+            VpnProtectEvidence.recordBind(false, transport)
             false
+        }
+    }
+
+    fun transportLabel(cm: ConnectivityManager, network: Network): String {
+        val caps = cm.getNetworkCapabilities(network) ?: return "OTHER"
+        return when {
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "WIFI"
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "CELLULAR"
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "ETHERNET"
+            else -> "OTHER"
         }
     }
 

@@ -71,6 +71,25 @@ class CoreProxyOnlyService : Service(), ServiceControl {
                 return@launch
             }
             if (!VpnSessionCoordinator.isCurrent(attempt)) return@launch
+            val isolation = com.v2ray.ang.vpn.HotfoxSocksIsolation.probe(
+                socksPort = socksPort,
+                socksUser = SettingsManager.getSocksUsername(),
+                socksPassword = SettingsManager.getSocksPassword(),
+                tunPresent = false,
+                hevPresent = false,
+            )
+            if (!isolation.socksHttps) {
+                if (!VpnSessionCoordinator.markError(
+                        attempt,
+                        "HF-VPN-014",
+                        "Xray SOCKS outbound не дал HTTPS без TUN/HEV",
+                    )
+                ) {
+                    return@launch
+                }
+                stopSelf()
+                return@launch
+            }
             if (!VpnSessionCoordinator.markProxyOnly(attempt)) return@launch
             CoreServiceManager.notifyTunnelReady(this@CoreProxyOnlyService)
             LogUtil.i(AppConfig.TAG, "StartCore-Proxy: PROXY_ONLY attempt=$attempt")

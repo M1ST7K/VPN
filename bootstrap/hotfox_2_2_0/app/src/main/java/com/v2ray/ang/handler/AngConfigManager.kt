@@ -570,21 +570,21 @@ object AngConfigManager {
             val userAgent = it.subscription.userAgent
             val proxyUsername = SettingsManager.getSocksUsername()
             val proxyPassword = SettingsManager.getSocksPassword()
+            val httpPort = com.v2ray.ang.vpn.HotfoxLocalHttpProxyPolicy.httpPortIfReady()
 
             var response = try {
-                val httpPort = SettingsManager.getHttpPort()
                 HttpUtil.getSubscriptionResponse(
                     UrlContentRequest(
                         url = url,
                         userAgent = userAgent,
                         timeout = 15000,
                         httpPort = httpPort,
-                        proxyUsername = proxyUsername,
-                        proxyPassword = proxyPassword
+                        proxyUsername = if (httpPort != 0) proxyUsername else null,
+                        proxyPassword = if (httpPort != 0) proxyPassword else null
                     )
                 )
             } catch (e: Exception) {
-                LogUtil.e(AppConfig.ANG_PACKAGE, "Update subscription: proxy not ready or other error", e)
+                LogUtil.e(AppConfig.ANG_PACKAGE, "Update subscription: request failed", e)
                 null
             }
             if (response?.content.isNullOrEmpty()) {

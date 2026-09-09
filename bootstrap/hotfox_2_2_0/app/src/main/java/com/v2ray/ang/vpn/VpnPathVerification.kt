@@ -7,8 +7,9 @@ package com.v2ray.ang.vpn
  * app's external IP changed; that proof stays [PHYSICAL_E2E_NOT_EXECUTED] until a
  * real Android device measures it.
  *
- * [tunForwarded] is the TUN-backend progress gate. SOCKS5 and Xray HTTP-204 are
- * component checks and are not sufficient on their own.
+ * [tunForwarded] is the TUN-backend progress gate. SOCKS5 handshake and SOCKS
+ * HTTPS through 10808 are Xray-outbound checks; HTTP inbound 10809 is independent
+ * and is not sufficient (or required) to prove the HEV path.
  */
 data class VpnPathVerification(
     val socks5Ready: Boolean,

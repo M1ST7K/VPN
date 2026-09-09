@@ -61,6 +61,8 @@ object HotfoxDiagnosticsBuilder {
             appendLine("autopilot=${autopilot?.intent?.name ?: "none"}")
             appendLine("autopilotReason=${autopilot?.reason ?: "none"}")
             appendLine(VpnProtectEvidence.summary())
+            appendLine(HotfoxSocksIsolation.last?.summary() ?: "socksHttps=none httpInbound=none")
+            appendLine(HotfoxOutboundCompare.last?.summary() ?: "generatedPresent=false mismatches=0 blocking=false")
             appendLine("socksPort=${HotfoxInboundIsolation.SOCKS_PORT}")
             appendLine("httpPort=${HotfoxInboundIsolation.HTTP_PORT}")
             appendLine("e2e=${VpnPathVerification.PHYSICAL_E2E_NOT_EXECUTED}")

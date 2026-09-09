@@ -183,6 +183,14 @@ grep -q 'fun probeHttpProxy' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnRe
   || fail "HTTP inbound probe must be independent of SOCKS"
 grep -q 'object VpnProtectEvidence' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnProtectEvidence.kt" \
   || fail "2.9 protect runtime evidence missing"
+grep -q 'fun probeSocksHttps204' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt" \
+  || fail "2.9 SOCKS HTTPS isolation probe missing"
+grep -q 'object HotfoxLocalHttpProxyPolicy' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxLocalHttpProxyPolicy.kt" \
+  || fail "2.9 subscription must not use a dead HTTP proxy"
+grep -q 'fun fromGeneratedJson' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt" \
+  || fail "2.9 generated outbound snapshot missing"
+grep -q 'HF-VPN-014' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "SOCKS outbound isolation failure is not fail-closed"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then

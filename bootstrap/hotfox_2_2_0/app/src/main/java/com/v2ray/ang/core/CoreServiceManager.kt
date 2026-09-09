@@ -401,6 +401,10 @@ object CoreServiceManager {
         }
         val routingSnapshot = HotfoxRoutingStore.load()
         val coreConfigJson = HotfoxXrayConfigInjector.apply(result.content, routingSnapshot)
+        val outboundCompare = com.v2ray.ang.vpn.HotfoxOutboundCompare.record(config, coreConfigJson)
+        if (outboundCompare.blockingMismatch) {
+            error("Generated Xray outbound drifted from selected profile")
+        }
 
         currentConfig = config
         var tunFd = vpnInterface?.fd ?: 0
@@ -778,6 +782,21 @@ object CoreServiceManager {
                 return false
             }
             if (!VpnSessionCoordinator.isCurrent(attempt)) return false
+            val isolation = com.v2ray.ang.vpn.HotfoxSocksIsolation.probe(
+                socksPort = socksPort,
+                socksUser = socksUser,
+                socksPassword = socksPassword,
+                tunPresent = tunInterface != null,
+                hevPresent = SettingsManager.isUsingHevTun(),
+            )
+            if (!isolation.socksHttps) {
+                return failHandover(
+                    service,
+                    attempt,
+                    "HF-VPN-014",
+                    "Xray SOCKS outbound не дал HTTPS",
+                )
+            }
             val usingHev = SettingsManager.isUsingHevTun()
             val svc = getService()
             val path = VpnReadiness.verifyConfiguredPathBlocking(

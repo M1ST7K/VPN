@@ -190,6 +190,20 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
         if (!pipelineStillCurrent(attempt)) return
 
+        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.SOCKS_OUTBOUND)
+        val isolation = com.v2ray.ang.vpn.HotfoxSocksIsolation.probe(
+            socksPort = socksPort,
+            socksUser = socksUser,
+            socksPassword = socksPassword,
+            tunPresent = true,
+            hevPresent = false,
+        )
+        if (!isolation.socksHttps) {
+            failTunnelStart(attempt, "HF-VPN-014", "Xray SOCKS outbound не дал HTTPS без HEV")
+            return
+        }
+        if (!pipelineStillCurrent(attempt)) return
+
         if (usingHev) {
             if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_HEV)) return
             VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.HEV)

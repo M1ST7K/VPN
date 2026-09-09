@@ -103,5 +103,6 @@ class HotfoxAutoFailoverTest {
         assertEquals(0, HotfoxAutoFailover.attempts)
         assertFalse(HotfoxAutoFailover.isServerTargetFailure("HF-VPN-013"))
         assertTrue(HotfoxAutoFailover.isServerTargetFailure("HF-VPN-003"))
+        assertTrue(HotfoxAutoFailover.isServerTargetFailure("HF-VPN-014"))
     }
 }

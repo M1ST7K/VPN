@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import com.v2ray.ang.AppConfig
-import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.util.LogUtil
 import java.io.ByteArrayOutputStream
 import java.net.DatagramPacket
@@ -15,7 +14,11 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.Socket
+import java.net.URI
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLSocket
+import javax.net.ssl.SSLSocketFactory
 import kotlinx.coroutines.delay
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
@@ -35,6 +38,11 @@ object VpnReadiness {
     private val egressUrls = listOf(
         "https://www.gstatic.com/generate_204",
         "https://cp.cloudflare.com/generate_204",
+    )
+    private val socksIsolationUrls = listOf(
+        "https://api.ipify.org",
+        "https://example.com",
+        "https://www.gstatic.com/generate_204",
     )
 
     suspend fun waitForLocalSocks(
@@ -79,26 +87,7 @@ object VpnReadiness {
             Socket().use { socket ->
                 socket.soTimeout = 400
                 socket.connect(InetSocketAddress(AppConfig.LOOPBACK, port), 250)
-                val out = socket.getOutputStream()
-                val input = socket.getInputStream()
-                val methods = if (!username.isNullOrEmpty() && !password.isNullOrEmpty()) {
-                    byteArrayOf(0x05, 0x02, 0x00, 0x02)
-                } else {
-                    byteArrayOf(0x05, 0x01, 0x00)
-                }
-                out.write(methods)
-                out.flush()
-                val header = ByteArray(2)
-                if (!readFully(input, header)) return false
-                if (header[0] != 0x05.toByte()) return false
-                when (header[1]) {
-                    0x00.toByte() -> true
-                    0x02.toByte() -> {
-                        if (username.isNullOrEmpty() || password.isNullOrEmpty()) return false
-                        authenticateUserPass(socket, username, password)
-                    }
-                    else -> false
-                }
+                socksHandshake(socket, username, password)
             }
         } catch (_: Exception) {
             false
@@ -246,7 +235,7 @@ object VpnReadiness {
         tunEstablished: Boolean,
         hevStatsProvider: (() -> LongArray?)?,
         xrayEgressMs: () -> Long? = {
-            probeXrayHttp204(SettingsManager.getHttpPort(), socksUser, socksPassword)
+            probeSocksHttps204(socksPort, socksUser, socksPassword)
         },
         tunInjector: (() -> Boolean)? = null,
         xrayTunSnapshot: (() -> LongArray?)? = null,
@@ -278,7 +267,7 @@ object VpnReadiness {
         tunEstablished: Boolean,
         hevStatsProvider: (() -> LongArray?)?,
         xrayEgressMs: () -> Long? = {
-            probeXrayHttp204(SettingsManager.getHttpPort(), socksUser, socksPassword)
+            probeSocksHttps204(socksPort, socksUser, socksPassword)
         },
         tunInjector: (() -> Boolean)? = null,
         xrayTunSnapshot: (() -> LongArray?)? = null,
@@ -381,8 +370,34 @@ object VpnReadiness {
     }
 
     /**
-     * One-shot Xray health check through the local HTTP inbound.
-     * Does not prove TUN capture of other apps.
+     * HTTPS through local SOCKS 10808 (HEV production inbound). Independent of HTTP 10809.
+     * TLS validation stays on; this is not TUN proof.
+     */
+    fun probeSocksHttps204(
+        socksPort: Int,
+        username: String? = null,
+        password: String? = null,
+    ): Long? {
+        if (socksPort <= 0) return null
+        for (url in socksIsolationUrls) {
+            val uri = runCatching { URI(url) }.getOrNull() ?: continue
+            val host = uri.host ?: continue
+            val targetPort = if (uri.port > 0) uri.port else 443
+            val path = buildString {
+                append(uri.rawPath?.takeIf { it.isNotBlank() } ?: "/")
+                uri.rawQuery?.takeIf { it.isNotBlank() }?.let { append('?').append(it) }
+            }
+            val started = nowMs()
+            if (socksHttpsGet(socksPort, host, targetPort, path, username, password)) {
+                return nowMs() - started
+            }
+        }
+        return null
+    }
+
+    /**
+     * One-shot Xray health check through the local HTTP inbound (10809).
+     * Independent of SOCKS 10808. Does not prove TUN capture of other apps.
      */
     fun probeXrayHttp204(httpPort: Int, username: String? = null, password: String? = null): Long? {
         if (httpPort <= 0) return null
@@ -479,6 +494,127 @@ object VpnReadiness {
             }
         }
         return false
+    }
+
+    private fun socksHttpsGet(
+        socksPort: Int,
+        host: String,
+        targetPort: Int,
+        path: String,
+        username: String?,
+        password: String?,
+    ): Boolean {
+        val raw = openSocksConnection(socksPort, host, targetPort, username, password) ?: return false
+        return try {
+            raw.soTimeout = 5_000
+            val factory = SSLSocketFactory.getDefault() as SSLSocketFactory
+            (factory.createSocket(raw, host, targetPort, true) as SSLSocket).use { ssl ->
+                ssl.startHandshake()
+                if (!HttpsURLConnection.getDefaultHostnameVerifier().verify(host, ssl.session)) {
+                    LogUtil.w(AppConfig.TAG, "VpnReadiness: SOCKS HTTPS hostname mismatch")
+                    return false
+                }
+                val request = "GET $path HTTP/1.1\r\nHost: $host\r\nConnection: close\r\n\r\n"
+                ssl.outputStream.write(request.toByteArray(Charsets.US_ASCII))
+                ssl.outputStream.flush()
+                val buf = ByteArray(80)
+                val n = ssl.inputStream.read(buf)
+                if (n < 12) return false
+                val head = buf.decodeToString(0, n)
+                head.startsWith("HTTP/1.1 204") ||
+                    head.startsWith("HTTP/1.0 204") ||
+                    head.startsWith("HTTP/1.1 200") ||
+                    head.startsWith("HTTP/1.0 200")
+            }
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "VpnReadiness: SOCKS HTTPS probe failed: ${e.javaClass.simpleName}")
+            runCatching { raw.close() }
+            false
+        }
+    }
+
+    private fun openSocksConnection(
+        socksPort: Int,
+        host: String,
+        targetPort: Int,
+        username: String?,
+        password: String?,
+    ): Socket? {
+        val socket = Socket()
+        return try {
+            socket.soTimeout = 5_000
+            socket.connect(InetSocketAddress(AppConfig.LOOPBACK, socksPort), 1_500)
+            if (!socksHandshake(socket, username, password)) {
+                socket.close()
+                return null
+            }
+            if (!socksConnect(socket, host, targetPort)) {
+                socket.close()
+                return null
+            }
+            socket
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "VpnReadiness: SOCKS CONNECT failed: ${e.javaClass.simpleName}")
+            runCatching { socket.close() }
+            null
+        }
+    }
+
+    private fun socksHandshake(socket: Socket, username: String?, password: String?): Boolean {
+        val out = socket.getOutputStream()
+        val input = socket.getInputStream()
+        val methods = if (!username.isNullOrEmpty() && !password.isNullOrEmpty()) {
+            byteArrayOf(0x05, 0x02, 0x00, 0x02)
+        } else {
+            byteArrayOf(0x05, 0x01, 0x00)
+        }
+        out.write(methods)
+        out.flush()
+        val header = ByteArray(2)
+        if (!readFully(input, header)) return false
+        if (header[0] != 0x05.toByte()) return false
+        return when (header[1]) {
+            0x00.toByte() -> true
+            0x02.toByte() -> {
+                if (username.isNullOrEmpty() || password.isNullOrEmpty()) false
+                else authenticateUserPass(socket, username, password)
+            }
+            else -> false
+        }
+    }
+
+    private fun socksConnect(socket: Socket, host: String, port: Int): Boolean {
+        val hostBytes = host.toByteArray(Charsets.US_ASCII)
+        if (hostBytes.isEmpty() || hostBytes.size > 255) return false
+        val req = ByteArray(7 + hostBytes.size)
+        req[0] = 0x05
+        req[1] = 0x01
+        req[2] = 0x00
+        req[3] = 0x03
+        req[4] = hostBytes.size.toByte()
+        System.arraycopy(hostBytes, 0, req, 5, hostBytes.size)
+        req[5 + hostBytes.size] = (port shr 8).toByte()
+        req[6 + hostBytes.size] = (port and 0xff).toByte()
+        val out = socket.getOutputStream()
+        out.write(req)
+        out.flush()
+        val input = socket.getInputStream()
+        val head = ByteArray(4)
+        if (!readFully(input, head)) return false
+        if (head[0] != 0x05.toByte() || head[1] != 0x00.toByte()) return false
+        val atyp = head[3].toInt() and 0xff
+        val addrLen = when (atyp) {
+            0x01 -> 4
+            0x04 -> 16
+            0x03 -> {
+                val len = ByteArray(1)
+                if (!readFully(input, len)) return false
+                len[0].toInt() and 0xff
+            }
+            else -> return false
+        }
+        val rest = ByteArray(addrLen + 2)
+        return readFully(input, rest)
     }
 
     private fun dnsQuery(host: String): ByteArray {

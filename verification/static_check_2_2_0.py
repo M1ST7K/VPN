@@ -540,6 +540,26 @@ def main() -> int:
         "object VpnProtectEvidence",
         "2.9 protect runtime evidence",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+        "fun probeSocksHttps204",
+        "2.9 SOCKS HTTPS probed independently of HTTP inbound",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxLocalHttpProxyPolicy.kt",
+        "object HotfoxLocalHttpProxyPolicy",
+        "2.9 dead HTTP proxy is not a subscription readiness mechanism",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt",
+        "fun fromGeneratedJson",
+        "2.9 generated Xray outbound snapshot",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
+        "HF-VPN-014",
+        "SOCKS outbound isolation is fail-closed before HEV",
+    )
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")
