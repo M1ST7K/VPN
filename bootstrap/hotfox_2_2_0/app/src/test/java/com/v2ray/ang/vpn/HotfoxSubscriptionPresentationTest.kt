@@ -45,6 +45,52 @@ class HotfoxSubscriptionPresentationTest {
     }
 
     @Test
+    fun pastExpiryEarlierTodayIsExpiredNotPremium() {
+        val expiry = LocalDate.of(2026, 9, 9).atTime(10, 0).atZone(moscow).toInstant()
+        val now = LocalDate.of(2026, 9, 9).atTime(11, 0).atZone(moscow).toInstant()
+        val shown = HotfoxSubscriptionPresentation.fromExpiryEpochSeconds(
+            expireAtEpochSeconds = expiry.epochSecond,
+            serverCount = 3,
+            zoneId = moscow,
+            now = now,
+        )
+        assertEquals(SubscriptionPresentation.Status.EXPIRED, shown.status)
+        assertEquals(false, shown.titleIsPremium)
+        assertEquals(0, shown.remainingDays)
+        assertEquals("09.09.2026", shown.expiryLabel)
+    }
+
+    @Test
+    fun exactExpiryInstantIsExpired() {
+        val expiry = LocalDate.of(2026, 9, 9).atTime(12, 0).atZone(moscow).toInstant()
+        val shown = HotfoxSubscriptionPresentation.fromExpiryEpochSeconds(
+            expireAtEpochSeconds = expiry.epochSecond,
+            serverCount = 3,
+            zoneId = moscow,
+            now = expiry,
+        )
+        assertEquals(SubscriptionPresentation.Status.EXPIRED, shown.status)
+        assertEquals(false, shown.titleIsPremium)
+        assertEquals(0, shown.remainingDays)
+    }
+
+    @Test
+    fun futureExpiryLaterTodayStaysActiveWithZeroRemainingDays() {
+        val expiry = LocalDate.of(2026, 9, 9).atTime(23, 0).atZone(moscow).toInstant()
+        val now = LocalDate.of(2026, 9, 9).atTime(11, 0).atZone(moscow).toInstant()
+        val shown = HotfoxSubscriptionPresentation.fromExpiryEpochSeconds(
+            expireAtEpochSeconds = expiry.epochSecond,
+            serverCount = 3,
+            zoneId = moscow,
+            now = now,
+        )
+        assertEquals(SubscriptionPresentation.Status.ACTIVE, shown.status)
+        assertEquals(true, shown.titleIsPremium)
+        assertEquals(0, shown.remainingDays)
+        assertEquals("09.09.2026", shown.expiryLabel)
+    }
+
+    @Test
     fun unknownExpiryDoesNotInventPremium() {
         val shown = HotfoxSubscriptionPresentation.fromExpiryEpochSeconds(0L, serverCount = 8)
         assertEquals(SubscriptionPresentation.Status.UNKNOWN, shown.status)
