@@ -585,6 +585,11 @@ def main() -> int:
         "object TunFdEvidence",
         "2.9 TUN fd lifetime evidence",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxTunLayerEvidence.kt",
+        "object HotfoxTunLayerEvidence",
+        "2.9 TUN HTTP and DNS layers are recorded separately",
+    )
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")

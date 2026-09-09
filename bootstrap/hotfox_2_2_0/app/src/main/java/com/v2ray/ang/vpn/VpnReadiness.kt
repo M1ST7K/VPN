@@ -194,19 +194,23 @@ object VpnReadiness {
     }
 
     /**
-     * Requires a validated DNS or HTTP response on a socket bound to TRANSPORT_VPN.
-     * Send-only or local HTTP inbound success is not TUN proof.
+     * Requires a validated HTTP or DNS response on a socket bound to TRANSPORT_VPN.
+     * TCP HTTPS is probed first so a UDP DNS timeout cannot be mistaken for the
+     * whole TUN path. Send-only or local HTTP inbound success is not TUN proof.
      */
     fun injectThroughVpn(context: Context): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return false
         val vpn = findVpnNetwork(cm) ?: run {
             LogUtil.w(AppConfig.TAG, "VpnReadiness: no TRANSPORT_VPN network to bind")
+            HotfoxTunLayerEvidence.record(http = false, dns = false)
             return false
         }
-        if (probeDnsThroughVpn(vpn)) return true
-        if (probeHttpThroughVpn(vpn)) return true
-        LogUtil.w(AppConfig.TAG, "VpnReadiness: no DNS/HTTP response through VPN network")
+        val http = probeHttpThroughVpn(vpn)
+        val dns = if (http) null else probeDnsThroughVpn(vpn)
+        HotfoxTunLayerEvidence.record(http = http, dns = dns)
+        if (HotfoxTunLayerEvidence.injectSucceeded(http, dns)) return true
+        LogUtil.w(AppConfig.TAG, "VpnReadiness: no HTTP/DNS response through VPN network")
         return false
     }
 

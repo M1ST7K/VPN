@@ -201,6 +201,8 @@ grep -q 'object HotfoxSubscriptionTitle' "$PROJECT/app/src/main/java/com/v2ray/a
   || fail "2.9 subscription title must not use the secret URL"
 grep -q 'object TunFdEvidence' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/TunFdEvidence.kt" \
   || fail "2.9 TUN fd lifetime evidence missing"
+grep -q 'object HotfoxTunLayerEvidence' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxTunLayerEvidence.kt" \
+  || fail "2.9 TUN HTTP vs DNS layers are not isolated"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then

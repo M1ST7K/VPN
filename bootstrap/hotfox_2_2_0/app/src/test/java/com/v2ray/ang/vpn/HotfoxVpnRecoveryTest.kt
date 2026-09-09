@@ -16,6 +16,7 @@ class HotfoxVpnRecoveryTest {
         HotfoxSocksIsolation.resetForTests()
         HotfoxOutboundCompare.resetForTests()
         TunFdEvidence.resetForTests()
+        HotfoxTunLayerEvidence.resetForTests()
     }
 
     @Test
@@ -325,5 +326,16 @@ class HotfoxVpnRecoveryTest {
         TunFdEvidence.recordClosed()
         assertTrue(TunFdEvidence.closed)
         assertTrue(TunFdEvidence.summary().contains("hevReceivedFd=true"))
+    }
+
+    @Test
+    fun tunHttpPassWithDnsFailStillCountsAsTunInject() {
+        assertTrue(HotfoxTunLayerEvidence.injectSucceeded(http = true, dns = false))
+        assertTrue(HotfoxTunLayerEvidence.injectSucceeded(http = false, dns = true))
+        assertFalse(HotfoxTunLayerEvidence.injectSucceeded(http = false, dns = false))
+        assertFalse(HotfoxTunLayerEvidence.injectSucceeded(http = null, dns = null))
+        HotfoxTunLayerEvidence.record(http = true, dns = false)
+        assertTrue(HotfoxTunLayerEvidence.summary().contains("tunHttp=true"))
+        assertTrue(HotfoxTunLayerEvidence.summary().contains("tunDns=false"))
     }
 }

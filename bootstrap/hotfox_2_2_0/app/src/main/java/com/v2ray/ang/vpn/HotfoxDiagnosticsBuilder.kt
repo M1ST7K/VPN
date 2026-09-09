@@ -63,6 +63,7 @@ object HotfoxDiagnosticsBuilder {
             appendLine("autopilotReason=${autopilot?.reason ?: "none"}")
             appendLine(VpnProtectEvidence.summary())
             appendLine(TunFdEvidence.summary())
+            appendLine(HotfoxTunLayerEvidence.summary())
             appendLine(HotfoxSocksIsolation.last?.summary() ?: "socksHttps=none httpInbound=none")
             appendLine(HotfoxOutboundCompare.last?.summary() ?: "generatedPresent=false mismatches=0 blocking=false")
             appendLine("socksPort=$socksPort")
