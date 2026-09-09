@@ -50,11 +50,11 @@ Revisit an earlier phase only if:
 
 Current engineering phase is:
 
-`2.8 HotFox Autopilot / Adaptive Protection`
+`2.9 VPN Core Recovery / Real Connection Fix`
 
-2.7 is **ENGINEERING COMPLETE — physical release validation deferred**.
+2.8 is **ENGINEERING COMPLETE — physical release validation deferred**.
 
-Do not restart 2.7 work unless one of the legitimate regression conditions above applies.
+Do not restart 2.8 work unless one of the legitimate regression conditions above applies.
 
 ## 4. Standard engineering exit gate for 2.4 through 3.0
 
@@ -102,7 +102,7 @@ Physical Android validation is consolidated into the single final:
 
 `FINAL RELEASE DEVICE GATE`
 
-This gate occurs after `3.0 ENGINEERING COMPLETE`, or after an explicit owner-approved release-candidate cut if the owner chooses to ship before all planned 3.0 platform work.
+This gate occurs after `3.1 ENGINEERING COMPLETE`, or after an explicit owner-approved release-candidate cut if the owner chooses to ship before all planned 3.1 platform work.
 
 Only this final release gate may block the claim:
 

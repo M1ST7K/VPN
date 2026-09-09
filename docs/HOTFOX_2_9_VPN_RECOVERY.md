@@ -1,6 +1,6 @@
 # HotFox Proxy 2.9 — VPN Core Recovery / Real Connection Fix
 
-Status: **PLANNED — starts only after 2.8 ENGINEERING COMPLETE**
+Status: **IN PROGRESS** (2.8 is ENGINEERING COMPLETE — physical release validation deferred)
 
 Owner decision: this phase is inserted before Premium UI because real E2E testing exposed a production-path failure that must be fixed before visual pre-release work continues.
 

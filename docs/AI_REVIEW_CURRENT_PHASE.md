@@ -1,6 +1,6 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **2.8 — HotFox Autopilot / Adaptive Protection**.
+Current milestone: **2.9 — VPN Core Recovery / Real Connection Fix**.
 
 This file is trusted reviewer context from `main`. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md` and is not sent in full to every checkpoint.
 
@@ -78,40 +78,52 @@ Preserve its guarantees:
 - diagnostics redaction; health/incident cannot mutate VPN protection state;
 - remote flags cannot weaken TLS/REALITY or checkout honesty.
 
-## Current goal — 2.8 HotFox Autopilot / Adaptive Protection
+### 2.8 — HotFox Autopilot / Adaptive Protection
 
-Make protection zero-touch without a second session controller.
+Phase 2.8 Autopilot is **ENGINEERING COMPLETE — physical release validation deferred** after checkpoint round 13 (`APPROVED`, no substantiated P0/P1) on SHA `33beed7` / implementation `ed23ee2`.
 
-2.8 should answer:
+Preserve its guarantees:
 
-> Given network, user policy and VPN state, what should HotFox do automatically?
+- Autopilot start/stop goes through `VpnRestartGate` / `CoreServiceManager`;
+- stale `eventGeneration` cannot override a newer decision;
+- trusted vs unknown vs cellular policy is explicit; manual server is not rewritten to AUTO;
+- pause is temporary and distinct from disable;
+- captive portal wait/release with `Сеть требует авторизации`;
+- reconnect gap is bounded; no second session controller.
 
-Do not expand 2.8 into 2.9 VPN datapath recovery or 3.0 Premium UI.
+## Current goal — 2.9 VPN Core Recovery / Real Connection Fix
 
-## Highest-priority review targets for 2.8
+Prove real Internet through the HotFox client path. Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`.
 
-1. **Single controller** — Autopilot start/stop goes through `VpnRestartGate` / `CoreServiceManager`.
-2. **Pure intent engine** — stale `eventGeneration` cannot override a newer decision.
-3. **Trusted vs unknown vs cellular** — policy is explicit; manual server is not rewritten to AUTO.
-4. **Pause** — temporary, distinct from permanent disable; until-network-change clears on generation bump.
-5. **Captive portal** — wait/release with `Сеть требует авторизации`; do not claim generic VPN failure.
-6. **No reconnect storm** — busy session keeps current; connect gap is bounded.
-7. **Boot/process start** — recover policy; do not resurrect a stale session id.
-8. **Entitlement/permission** — block connect truthfully.
-9. **No 2.2–2.7 regression**.
+2.9 should answer:
+
+> Can a normal user import a known-working subscription, connect, and use Android Internet through that VPN?
+
+Do not expand 2.9 into 3.0 Premium UI.
+
+## Highest-priority review targets for 2.9
+
+1. **Isolation** — SOCKS-only `127.0.0.1:10808` without TUN/HEV is tested separately from HTTP `10809`.
+2. **Package-independent Xray** — core capability must not depend on `applicationId` `com.v2ray.ang`.
+3. **Generated config** — sanitized field-by-field compare; credentials `[REDACTED]`.
+4. **protect / underlying network** — runtime evidence, not source presence alone.
+5. **No routing loop** — Xray must not re-enter TUN → HEV → SOCKS → Xray.
+6. **Fail-closed UI** — no fake CONNECTED / `Защищено`.
+7. **No security weakening** — no trust-all TLS, no mock VPN, no readiness bypass.
+8. **No 2.2–2.8 regression**.
 
 ## Scope discipline
 
-Do **not** turn unimplemented 2.9 VPN recovery or 3.0 Premium UI items into P0/P1 during 2.8 review.
+Do **not** turn unimplemented 3.0 Premium UI or 3.1 Mature Platform items into P0/P1 during 2.9 review.
 
-## Exit gate for 2.8 engineering
+## Exit gate for 2.9 engineering
 
-Then run one final `[hotfox-phase-exit]`. If P0=0 and P1=0:
+Then run one final `[hotfox-phase-exit]`. If P0=0 and P1=0 and engineering-runtime VPN E2E passed:
 
-`2.8 ENGINEERING COMPLETE — physical release validation deferred.`
+`2.9 ENGINEERING COMPLETE — real engineering-runtime VPN E2E passed; final physical release validation deferred.`
 
-Then immediately move to `2.9 VPN Core Recovery / Real Connection Fix` (`docs/HOTFOX_2_9_VPN_RECOVERY.md`).
+Then immediately move to `3.0 Premium Android Experience`.
 
 ## Physical-device policy
 
-Physical Android validation is **NOT** a blocker for closing 2.8. Phase 2.9 requires engineering-runtime VPN E2E. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.
+A physical handset is **NOT** required to close 2.9 if emulator/runtime E2E in the available engineering environment passed. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.

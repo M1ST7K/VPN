@@ -2,7 +2,7 @@
 
 Status: **CANONICAL**
 
-Current engineering phase: **2.8 — HotFox Autopilot / Adaptive Protection**
+Current engineering phase: **2.9 — VPN Core Recovery / Real Connection Fix**
 
 This document defines the sequential HotFox engineering roadmap from the already completed truthful core and commercial foundation through the mature 3.0 platform.
 
@@ -1013,7 +1013,7 @@ Do not run or request the final physical Android release acceptance yet solely b
 
 # 2.8 — HOTFOX AUTOPILOT / ADAPTIVE PROTECTION
 
-Status: **IN PROGRESS**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -1225,6 +1225,16 @@ Coverage should include:
 → immediately start 2.9.
 
 No physical Android test is required between 2.8 and 2.9.
+
+---
+
+# 2.9 — VPN CORE RECOVERY / REAL CONNECTION FIX
+
+Status: **IN PROGRESS**
+
+Canonical specification: `docs/HOTFOX_2_9_VPN_RECOVERY.md` and `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc`.
+
+This phase proves real Internet through TUN → HEV → SOCKS `127.0.0.1:10808` → Xray. The next heading named «2.9 Premium Android Experience» is the shifted **3.0** scope and must not start until this recovery phase is ENGINEERING COMPLETE.
 
 ---
 

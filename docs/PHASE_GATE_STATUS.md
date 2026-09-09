@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is an **engineering-exit candidate** (implementation `ed23ee2`, CI `34404710374`). Do not record `2.8 ENGINEERING COMPLETE` until phase-exit `APPROVED`. Physical-device VPN E2E remains **NOT EXECUTED**. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** for the final release gate; 2.9 itself requires engineering-runtime VPN E2E. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -431,9 +431,7 @@ Implementation included:
 
 ## Phase 2.8 — HotFox Autopilot / Adaptive Protection
 
-**ENGINEERING-EXIT CANDIDATE.** 2.7 engineering gate is closed (round 11 `APPROVED`, P0 = 0, P1 = 0). Owner roadmap after 2.8 is `2.9 VPN Core Recovery`, then `3.0 Premium Android Experience`, then `3.1 Mature HotFox Platform`. Physical-device VPN E2E remains the later `FINAL RELEASE DEVICE GATE` and does **not** block 2.8 engineering.
-
-Implementation candidate `ed23ee2c33dc4be95a27ff545b792b9f23a5dd7b`. GitHub CI for exact SHA `ed23ee2c33dc4be95a27ff545b792b9f23a5dd7b` (run `34404710374`):
+**ENGINEERING COMPLETE — physical release validation deferred.** 2.8 engineering gate is closed (round 13 `APPROVED`, P0 = 0, P1 = 0) on SHA `33beed79cd6c02076162b2ec295f41bb9ab39baf` / implementation `ed23ee2c33dc4be95a27ff545b792b9f23a5dd7b`. GitHub CI for exact SHA `33beed79cd6c02076162b2ec295f41bb9ab39baf` (run `34406014521`):
 
 - Payload integrity: PASS
 - Reconstruct and overlay verification: PASS
@@ -443,9 +441,9 @@ Implementation candidate `ed23ee2c33dc4be95a27ff545b792b9f23a5dd7b`. GitHub CI f
 - Record APK SHA-256: PASS
 - Publish HotFox Dev Latest: PASS
 
-This head is a 2.8 `[hotfox-phase-exit]` candidate. Do not record `2.8 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+Physical-device VPN E2E remains **NOT EXECUTED** and does **not** block 2.9. Round 12 P1 (instant expiry) is included.
 
-Implementation in this candidate:
+Implementation included:
 
 1. `ConnectionIntentEngine` maps network / policy / entitlement / pause / session to one serialized intent.
 2. Autopilot start/stop goes through `VpnRestartGate` / `CoreServiceManager.startVServiceFromAutopilot` (no second session controller).
@@ -455,6 +453,13 @@ Implementation in this candidate:
 6. Boot/process-start recovers policy without resurrecting a stale session id; event-driven `NetworkCallback`.
 7. Protection profiles `Скорость` / `Баланс` / `Максимальная защита` map to routing/LAN/ads/Shadow defaults.
 8. User disconnect suppresses auto-reconnect until network change; manual selection is not rewritten to AUTO; reconnect gap is bounded.
-9. Subscription presentation ACTIVE/EXPIRED is decided from the expiry instant (`now >= expiry`); calendar remaining days are display-only and non-negative. Round 12 P1.
+9. Subscription presentation ACTIVE/EXPIRED is decided from the expiry instant (`now >= expiry`); calendar remaining days are display-only and non-negative.
+
+## Phase 2.9 — VPN Core Recovery / Real Connection Fix
+
+**IN PROGRESS.** 2.8 engineering gate is closed (round 13 `APPROVED`, P0 = 0, P1 = 0). Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`. Do not record `2.9 ENGINEERING COMPLETE` until engineering-runtime VPN E2E proves real Internet through TUN → HEV → SOCKS → Xray, plus phase-exit `APPROVED` (P0=0, P1=0). Premium UI is 3.0 and must not start now.
+
+Physical-device handset validation remains the later `FINAL RELEASE DEVICE GATE` unless the owner requests an earlier physical run. Emulator/runtime E2E **is** required for 2.9.
+
 
 
