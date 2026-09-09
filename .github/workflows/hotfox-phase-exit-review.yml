@@ -1,0 +1,75 @@
+name: HotFox Phase Exit Review Orchestrator
+
+on:
+  workflow_run:
+    workflows: ["HotFox bootstrap and Android CI"]
+    types: [completed]
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+  issues: write
+
+concurrency:
+  group: hotfox-phase-exit-review-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch-phase-exit-review:
+    name: Dispatch one phase-exit AI review after green CI
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'cursor/hotfox-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Gate on phase-exit marker, dedupe, and dispatch reviewer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          message="$(gh api "repos/${REPO}/commits/${HEAD_SHA}" --jq '.commit.message')"
+          if ! grep -Fqi '[hotfox-phase-exit]' <<< "$message"; then
+            echo "Ordinary green CI: no phase-exit marker, so OpenAI review is not requested."
+            exit 0
+          fi
+
+          owner="${REPO%%/*}"
+          pr_number="$(
+            gh api -X GET "repos/${REPO}/pulls" \
+              -f state=open \
+              -f head="${owner}:${HEAD_BRANCH}" \
+              -f per_page=100 \
+              --jq '.[0].number // empty'
+          )"
+
+          if [[ -z "$pr_number" ]]; then
+            echo "Phase-exit marker found but no open PR exists for ${HEAD_BRANCH}." >&2
+            exit 1
+          fi
+
+          comments="$(gh api --paginate "repos/${REPO}/issues/${pr_number}/comments?per_page=100" --jq '.[].body' || true)"
+          if grep -Fq "HOTFOX_AI_REVIEW head=${HEAD_SHA}" <<< "$comments" || \
+             grep -Fq "HOTFOX_PHASE_EXIT_REVIEW_QUEUED head=${HEAD_SHA}" <<< "$comments"; then
+            echo "Phase-exit review for ${HEAD_SHA} was already queued or completed; skipping duplicate."
+            exit 0
+          fi
+
+          payload="$(jq -nc --arg pr "$pr_number" '{ref:"main",inputs:{pr_number:$pr,review_mode:"phase_exit"}}')"
+          gh api -X POST "repos/${REPO}/actions/workflows/hotfox-ai-review.yml/dispatches" --input - <<< "$payload"
+
+          body="<!-- HOTFOX_PHASE_EXIT_REVIEW_QUEUED head=${HEAD_SHA} -->
+          ### HotFox phase-exit review queued
+
+          Полный CI для phase-exit candidate завершён успешно. Один AI checkpoint review запущен автоматически. Обычные push не вызывают OpenAI reviewer."
+          gh api -X POST "repos/${REPO}/issues/${pr_number}/comments" -f body="$body" >/dev/null
+
+          echo "Dispatched phase-exit AI review for PR #${pr_number}, head ${HEAD_SHA}."
