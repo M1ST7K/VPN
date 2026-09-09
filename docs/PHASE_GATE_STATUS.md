@@ -314,3 +314,9 @@ GitHub CI for exact SHA `47fbaad0d829f141f08f8d4b8c309f57a87a011e` (run `3436600
 - Emulator UI smoke: skipped (not VPN E2E)
 
 This head is the next 2.4 `[hotfox-phase-exit]` candidate. Do not record `2.4 ENGINEERING COMPLETE` until APPROVED (P0=0, P1=0).
+
+Round-3 trusted checkpoint on `47fbaad` returned **CHANGES_REQUIRED** (one P1). Fix SHA: `f9c9ed2`.
+
+Phase-exit validation now uses the distinct marker `[hotfox-phase-exit]`. Ordinary `[hotfox-review]` is not required in `phase_exit` mode, so a correctly marked candidate is not refused as `NOT_REQUESTED`.
+
+GitHub CI for exact SHA `f9c9ed2` (run `34367604694`): reconstruct/unit/lint/release/Publish PASS. Emulator skipped.

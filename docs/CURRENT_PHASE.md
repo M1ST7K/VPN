@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.4 «Smart Connection»
 
-Status: **IN PROGRESS** (round-3 P1: phase-exit marker must be `[hotfox-phase-exit]`, not `[hotfox-review]`)
+Status: **ENGINEERING-EXIT CANDIDATE** (round-3 marker fix in `f9c9ed2`, CI PASS; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
