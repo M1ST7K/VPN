@@ -4,6 +4,12 @@ plugins {
     id("com.jaredsburrows.license")
 }
 
+val hotfoxSandboxCommerceRequested: Boolean =
+    providers.gradleProperty("HOTFOX_SANDBOX_COMMERCE")
+        .orElse(providers.environmentVariable("HOTFOX_SANDBOX_COMMERCE").orElse("false"))
+        .get()
+        .equals("true", ignoreCase = true)
+
 android {
     namespace = "com.v2ray.ang"
     compileSdk = 37
@@ -72,19 +78,10 @@ android {
     }
 
     buildTypes {
-        val sandboxRequested = providers.gradleProperty("HOTFOX_SANDBOX_COMMERCE")
-            .orElse(providers.environmentVariable("HOTFOX_SANDBOX_COMMERCE").orElse("false"))
-            .get()
-            .equals("true", ignoreCase = true)
         debug {
-            buildConfigField("boolean", "HOTFOX_SANDBOX_COMMERCE", sandboxRequested.toString())
+            buildConfigField("boolean", "HOTFOX_SANDBOX_COMMERCE", hotfoxSandboxCommerceRequested.toString())
         }
         release {
-            if (sandboxRequested) {
-                throw org.gradle.api.GradleException(
-                    "HOTFOX_SANDBOX_COMMERCE cannot be enabled for release builds",
-                )
-            }
             buildConfigField("boolean", "HOTFOX_SANDBOX_COMMERCE", "false")
             isMinifyEnabled = false
             signingConfig = signingConfigs.findByName("hotfoxRelease")
@@ -245,4 +242,16 @@ dependencies {
     testImplementation(libs.org.mockito.mockito.inline)
     testImplementation(libs.mockito.kotlin)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+}
+
+gradle.taskGraph.whenReady {
+    if (!hotfoxSandboxCommerceRequested) return@whenReady
+    val releaseRequested = gradle.taskGraph.allTasks.any { task ->
+        task.project.path == ":app" && task.name.contains("Release")
+    }
+    if (releaseRequested) {
+        throw org.gradle.api.GradleException(
+            "HOTFOX_SANDBOX_COMMERCE cannot be enabled for release builds",
+        )
+    }
 }

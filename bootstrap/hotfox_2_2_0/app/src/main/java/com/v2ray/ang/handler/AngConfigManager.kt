@@ -30,7 +30,9 @@ import com.v2ray.ang.util.SubscriptionUserInfoParser
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.commerce.CommercePreferences
 import com.v2ray.ang.commerce.HotfoxManifestRefresh
+import com.v2ray.ang.commerce.ManagedConfigParser
 import com.v2ray.ang.commerce.ManifestRefreshPolicy
+import com.v2ray.ang.commerce.MmkvManagedServerStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import java.net.URI
 
@@ -651,11 +653,22 @@ object AngConfigManager {
     }
 
     /**
+     * Parses already-fetched subscription body into ProfileItems without MMKV writes.
+     */
+    fun parseManagedSubscriptionText(configText: String, subid: String): List<ProfileItem> {
+        if (configText.isBlank() || subid.isBlank()) return emptyList()
+        return ManagedConfigParser.parseShareLinks(configText, subid)
+            .filter(ManagedConfigParser::isXrayUsable)
+    }
+
+    /**
      * Imports already-fetched subscription body into [subid] without writing a URL to MMKV.
+     * Replacement is staged by [MmkvManagedServerStore]; last-known-good is kept on failure.
      */
     fun importManagedSubscriptionText(configText: String, subid: String): Int {
-        if (configText.isBlank() || subid.isBlank()) return 0
-        return parseConfigViaSub(configText, subid, append = false)
+        val items = parseManagedSubscriptionText(configText, subid)
+        if (items.isEmpty()) return 0
+        return MmkvManagedServerStore.replaceManaged(subid, items).size
     }
 
     /**

@@ -85,6 +85,18 @@ grep -q 'object SandboxPaymentE2e' "$PROJECT/app/src/debug/java/com/v2ray/ang/co
   || fail "sandbox payment E2E orchestrator missing"
 grep -q 'HOTFOX_SANDBOX_COMMERCE cannot be enabled for release builds' "$PROJECT/app/build.gradle.kts" \
   || fail "release sandbox commerce Gradle guard missing"
+grep -q 'gradle.taskGraph.whenReady' "$PROJECT/app/build.gradle.kts" \
+  || fail "sandbox commerce release rejection must be task-graph gated"
+grep -q 'fun isXrayUsable' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/ManagedConfigParser.kt" \
+  || fail "managed Xray-usable validation missing"
+grep -q 'failPutsAfter' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/ManagedServerStore.kt" \
+  || fail "managed replace failure injection missing"
+if grep -q 'fun toProfile(' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/ManagedManifestParser.kt"; then
+  fail "identity-only manifests must not synthesize profiles"
+fi
+if grep -q 'removeServerViaSubid' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/ManagedServerStore.kt"; then
+  fail "managed replace must not delete live inventory before staging"
+fi
 grep -q 'class ManagedManifestApplicator' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/ManagedManifestApplicator.kt" \
   || fail "managed manifest applicator missing"
 if grep -q 'SandboxCommerceBackend()' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceFactory.kt"; then

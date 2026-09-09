@@ -73,30 +73,4 @@ object ManagedManifestParser {
             ParsedManagedManifest(emptyList(), malformed = true)
         }
     }
-
-    fun toProfile(
-        identity: ManifestRefreshPolicy.ServerIdentity,
-        subscriptionId: String,
-    ): ManagedProfile {
-        val guid = "hf-" + HotfoxManifestRefresh.fingerprintOf(
-            identity.remarks,
-            identity.server,
-            identity.port,
-            identity.protocol,
-            identity.network,
-            identity.security,
-            identity.fingerprint,
-        ).take(16)
-        return ManagedProfile(
-            guid = guid,
-            remarks = identity.remarks,
-            server = identity.server,
-            port = identity.port,
-            protocol = identity.protocol,
-            network = identity.network,
-            security = identity.security,
-            fingerprint = identity.fingerprint,
-            subscriptionId = subscriptionId,
-        )
-    }
 }

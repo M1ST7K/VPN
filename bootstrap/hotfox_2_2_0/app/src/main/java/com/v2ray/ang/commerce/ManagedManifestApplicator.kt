@@ -1,8 +1,12 @@
 package com.v2ray.ang.commerce
 
+import com.v2ray.ang.dto.entities.ProfileItem
+
 /**
- * Applies an authenticated HotFox-managed manifest to the real server repository.
- * Empty/malformed payloads keep last-known-good inventory. Subscription URLs are
+ * Applies an authenticated HotFox-managed payload to the server repository.
+ * Identity-only JSON is rejected. Share-link / subscription text is parsed and
+ * validated before any live inventory write. Empty, malformed, incomplete, or
+ * failed replacements keep last-known-good inventory. Subscription URLs are
  * fetched through [fetchUrl] and must not be written to MMKV or logs.
  */
 class ManagedManifestApplicator(
@@ -15,54 +19,56 @@ class ManagedManifestApplicator(
         manifest: CommerceManifest,
         subscriptionUrl: String? = null,
     ): CommerceSubscriptionSync.Outcome {
-        val parsed = ManagedManifestParser.parse(manifest)
-        val jsonDecision = ManifestRefreshPolicy.decide(
-            parsedCount = parsed.servers.size,
-            malformed = parsed.malformed,
-            emptyPayload = parsed.servers.isEmpty(),
-        )
-        if (parsed.malformed) {
-            return keep(snapshot, jsonDecision)
-        }
         val subId = managedSubscriptionId().ifBlank { "hotfox-managed" }
-        if (parsed.servers.isNotEmpty()) {
-            val written = store.replaceManaged(
-                subId,
-                parsed.servers.map { ManagedManifestParser.toProfile(it, subId) },
-            )
-            store.restoreSelection(snapshot)
-            return CommerceSubscriptionSync.Outcome(
-                decision = ManifestRefreshPolicy.RefreshDecision(commit = true),
-                inventory = written.map { it.identity() },
-                restored = ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, written.map { it.identity() }),
-                profiles = store.profiles(),
-            )
+        val fromPayload = ManagedConfigParser.parse(manifest.payload, subId)
+        when (fromPayload) {
+            is ManagedConfigParser.Result.Complete -> return commit(snapshot, subId, fromPayload.profiles)
+            is ManagedConfigParser.Result.Incomplete -> {
+                return keep(snapshot, ManifestRefreshPolicy.decide(0, malformed = false, emptyPayload = false, incomplete = true))
+            }
+            is ManagedConfigParser.Result.Malformed -> {
+                return keep(snapshot, ManifestRefreshPolicy.decide(0, malformed = true, emptyPayload = false))
+            }
+            is ManagedConfigParser.Result.Empty -> Unit
         }
         val url = subscriptionUrl?.takeIf { it.isNotBlank() } ?: manifest.subscriptionUrl
         if (!url.isNullOrBlank()) {
             val body = fetchUrl(url)
             if (body.isNullOrBlank()) {
-                return keep(snapshot, ManifestRefreshPolicy.RefreshDecision(commit = false, error = "empty_manifest"))
+                return keep(snapshot, ManifestRefreshPolicy.decide(0, malformed = false, emptyPayload = true))
             }
-            val count = store.importConfigText(body, subId)
-            val decision = ManifestRefreshPolicy.decide(
-                parsedCount = count,
-                malformed = count <= 0,
-                emptyPayload = count <= 0,
-            )
-            if (!decision.commit) {
-                return keep(snapshot, decision)
+            return when (val fetched = ManagedConfigParser.parse(body, subId)) {
+                is ManagedConfigParser.Result.Complete -> commit(snapshot, subId, fetched.profiles)
+                is ManagedConfigParser.Result.Incomplete ->
+                    keep(snapshot, ManifestRefreshPolicy.decide(0, malformed = false, emptyPayload = false, incomplete = true))
+                is ManagedConfigParser.Result.Malformed ->
+                    keep(snapshot, ManifestRefreshPolicy.decide(0, malformed = true, emptyPayload = false))
+                is ManagedConfigParser.Result.Empty ->
+                    keep(snapshot, ManifestRefreshPolicy.decide(0, malformed = false, emptyPayload = true))
             }
-            store.restoreSelection(snapshot)
-            val profiles = store.profiles()
-            return CommerceSubscriptionSync.Outcome(
-                decision = ManifestRefreshPolicy.RefreshDecision(commit = true),
-                inventory = profiles.map { it.identity() },
-                restored = ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, profiles.map { it.identity() }),
-                profiles = profiles,
+        }
+        return keep(snapshot, ManifestRefreshPolicy.decide(0, malformed = false, emptyPayload = true))
+    }
+
+    private fun commit(
+        snapshot: ManifestRefreshPolicy.InventorySnapshot,
+        subId: String,
+        items: List<ProfileItem>,
+    ): CommerceSubscriptionSync.Outcome {
+        val written = store.replaceManaged(subId, items)
+        if (written.isEmpty()) {
+            return keep(
+                snapshot,
+                ManifestRefreshPolicy.decide(items.size, malformed = false, emptyPayload = false, replaceFailed = true),
             )
         }
-        return keep(snapshot, jsonDecision)
+        store.restoreSelection(snapshot)
+        return CommerceSubscriptionSync.Outcome(
+            decision = ManifestRefreshPolicy.RefreshDecision(commit = true),
+            inventory = written.map { it.identity() },
+            restored = ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, written.map { it.identity() }),
+            profiles = store.profiles(),
+        )
     }
 
     private fun keep(

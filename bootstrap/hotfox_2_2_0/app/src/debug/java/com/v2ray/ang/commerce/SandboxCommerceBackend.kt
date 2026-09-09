@@ -251,7 +251,7 @@ class SandboxCommerceBackend(
         if (forceManifestFailure) {
             return CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE, "manifest_unavailable")
         }
-        return CommerceResult.Ok(SandboxManifest.encode(SandboxManifest.sandboxInventory()))
+        return CommerceResult.Ok(SandboxManifest.encodeShareLinks())
     }
 
     override suspend fun validatePromo(code: String, planId: String): CommerceResult<PromoQuote> {

@@ -240,26 +240,24 @@ class HotfoxCommercePaymentE2eTest {
         val failed = coordinator.syncManagedManifest(snapshot)
         assertTrue(failed is CommerceResult.Err)
         val store = InMemoryManagedServerStore()
-        store.replaceManaged(
-            "hotfox-managed",
-            lastKnown.map { ManagedManifestParser.toProfile(it, "hotfox-managed") },
-        )
+        assertEquals(2, store.importConfigText(SandboxManifest.shareLinkBody(), "hotfox-managed"))
+        val seeded = store.snapshot()
         val kept = CommerceSubscriptionSync.apply(
-            snapshot,
+            seeded,
             CommerceManifest(format = "hotfox-sandbox-v1", payload = "{not-json"),
             store = store,
         )
         assertFalse(kept.decision.commit)
-        assertEquals(lastKnown, kept.inventory)
+        assertEquals(seeded.servers, kept.inventory)
         assertEquals("malformed_manifest", kept.decision.error)
         assertEquals(2, store.profiles().size)
         val empty = CommerceSubscriptionSync.apply(
-            snapshot,
+            seeded,
             SandboxManifest.encode(emptyList()),
             store = store,
         )
         assertFalse(empty.decision.commit)
-        assertEquals(lastKnown, empty.inventory)
+        assertEquals(seeded.servers, empty.inventory)
         val connect = VpnConnectHandoff.resolve(
             store = store,
             delaysByRemarks = mapOf("Amsterdam" to 30L, "Frankfurt" to 12L),
@@ -316,7 +314,7 @@ class HotfoxCommercePaymentE2eTest {
             }
         }
         val inventory = InMemoryManagedServerStore()
-        val body = ManagedManifestParser.encode(SandboxManifest.sandboxInventory()).payload
+        val body = SandboxManifest.shareLinkBody()
         val syncing = coordinator(
             wrapping,
             secrets,
@@ -371,6 +369,84 @@ class HotfoxCommercePaymentE2eTest {
         val paid = (backend.getOrder(order.id) as CommerceResult.Ok).value
         assertEquals(OrderState.FULFILLED, paid.state)
         assertEquals("pay_original", paid.providerPaymentId)
+    }
+
+    @Test
+    fun identityOnlyManifestDoesNotCommitIncompleteProfiles() {
+        val store = InMemoryManagedServerStore()
+        assertEquals(2, store.importConfigText(SandboxManifest.shareLinkBody(), "hotfox-managed"))
+        val lastKnown = store.snapshot()
+        val originalGuids = store.profiles().map { it.guid }
+        val kept = CommerceSubscriptionSync.apply(
+            lastKnown,
+            SandboxManifest.encode(SandboxManifest.sandboxInventory()),
+            store = store,
+        )
+        assertFalse(kept.decision.commit)
+        assertEquals("incomplete_manifest", kept.decision.error)
+        assertEquals(lastKnown.servers, kept.inventory)
+        assertEquals(originalGuids, store.profiles().map { it.guid })
+        store.profileItems().forEach { item ->
+            assertNotNull(ManagedConfigParser.xrayOutbound(item))
+        }
+    }
+
+    @Test
+    fun completeShareLinksPersistXrayUsableProfiles() {
+        val store = InMemoryManagedServerStore()
+        val snapshot = ManifestRefreshPolicy.InventorySnapshot(
+            servers = emptyList(),
+            favoriteIdentities = emptySet(),
+            autoMode = true,
+            selectedIdentity = null,
+        )
+        val outcome = CommerceSubscriptionSync.apply(
+            snapshot,
+            SandboxManifest.encodeShareLinks(),
+            store = store,
+        )
+        assertTrue(outcome.decision.commit)
+        assertEquals(2, store.profileItems().size)
+        val remarks = store.profiles().map { it.remarks }.toSet()
+        assertEquals(setOf("Amsterdam", "Frankfurt"), remarks)
+        store.profileItems().forEach { item ->
+            assertEquals(com.v2ray.ang.enums.EConfigType.SOCKS, item.configType)
+            val outbound = ManagedConfigParser.xrayOutbound(item)
+            assertNotNull(outbound)
+            assertEquals("socks", outbound!!.protocol)
+            val server = outbound.settings!!.servers!!.first()
+            assertEquals(item.server, server.address)
+            assertEquals(item.serverPort!!.toInt(), server.port)
+            assertTrue(item.server!!.endsWith(".sandbox.hotfox.invalid"))
+        }
+    }
+
+    @Test
+    fun midWriteFailureRestoresLastKnownGoodInventory() {
+        val store = InMemoryManagedServerStore()
+        assertEquals(2, store.importConfigText(SandboxManifest.shareLinkBody(), "hotfox-managed"))
+        val originalGuids = store.profiles().map { it.guid }
+        val originalServers = store.profiles().map { it.server }.toSet()
+        val snapshot = store.snapshot()
+        store.failPutsAfter = 1
+        val replacement = CommerceManifest(
+            format = SandboxManifest.SHARE_FORMAT,
+            payload = listOf(
+                "socks://lon.sandbox.hotfox.invalid:1080#London",
+                "socks://par.sandbox.hotfox.invalid:1080#Paris",
+            ).joinToString("\n"),
+        )
+        val failed = CommerceSubscriptionSync.apply(snapshot, replacement, store = store)
+        assertFalse(failed.decision.commit)
+        assertEquals("replace_failed", failed.decision.error)
+        assertEquals(originalGuids, store.profiles().map { it.guid })
+        assertEquals(originalServers, store.profiles().map { it.server }.toSet())
+        assertEquals(snapshot.servers, store.snapshot().servers)
+        store.failPutsAfter = null
+        store.failBeforeSwap = true
+        val beforeSwap = CommerceSubscriptionSync.apply(snapshot, replacement, store = store)
+        assertFalse(beforeSwap.decision.commit)
+        assertEquals(originalGuids, store.profiles().map { it.guid })
     }
 
     @Test

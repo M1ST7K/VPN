@@ -43,9 +43,17 @@ object ManifestRefreshPolicy {
         return parsedCount > 0
     }
 
-    fun decide(parsedCount: Int, malformed: Boolean, emptyPayload: Boolean): RefreshDecision {
+    fun decide(
+        parsedCount: Int,
+        malformed: Boolean,
+        emptyPayload: Boolean,
+        incomplete: Boolean = false,
+        replaceFailed: Boolean = false,
+    ): RefreshDecision {
         return when {
             malformed -> RefreshDecision(commit = false, error = "malformed_manifest")
+            incomplete -> RefreshDecision(commit = false, error = "incomplete_manifest")
+            replaceFailed -> RefreshDecision(commit = false, error = "replace_failed")
             emptyPayload || parsedCount <= 0 -> RefreshDecision(commit = false, error = "empty_manifest")
             else -> RefreshDecision(commit = true)
         }

@@ -23,6 +23,24 @@ def read(rel: str) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
+def extract_balanced_block(src: str, needle: str) -> str:
+    idx = src.find(needle)
+    if idx < 0:
+        return ""
+    i = src.find("{", idx)
+    if i < 0:
+        return ""
+    depth = 0
+    for j in range(i, len(src)):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[i : j + 1]
+    return ""
+
+
 def must_contain(rel: str, needle: str, label: str | None = None) -> None:
     text = read(rel)
     if text and needle not in text:
@@ -280,6 +298,18 @@ def main() -> int:
     gradle = read("app/build.gradle.kts")
     if gradle and "HOTFOX_SANDBOX_COMMERCE cannot be enabled for release builds" not in gradle:
         fail("release sandbox commerce Gradle guard missing")
+    if gradle and "gradle.taskGraph.whenReady" not in gradle:
+        fail("sandbox commerce release rejection must be gated on the task graph")
+    if gradle:
+        build_types = extract_balanced_block(gradle, "buildTypes")
+        release_block = extract_balanced_block(build_types, "release {")
+        if "GradleException" in release_block or "throw " in release_block:
+            fail("release buildType must not throw when HOTFOX_SANDBOX_COMMERCE is set")
+        if 'buildConfigField("boolean", "HOTFOX_SANDBOX_COMMERCE", "false")' not in release_block:
+            fail("release must force HOTFOX_SANDBOX_COMMERCE false")
+        debug_block = extract_balanced_block(build_types, "debug {")
+        if "HOTFOX_SANDBOX_COMMERCE" not in debug_block:
+            fail("debug must honor HOTFOX_SANDBOX_COMMERCE")
     if gradle and 'src/main' in gradle and "SandboxCommerceBackend" in read(
         "app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceFactory.kt"
     ):
@@ -295,6 +325,27 @@ def main() -> int:
         "class ManagedManifestApplicator",
         "managed manifest applicator",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/ManagedConfigParser.kt",
+        "fun isXrayUsable",
+        "managed configs must be Xray-usable",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/ManagedServerStore.kt",
+        "failPutsAfter",
+        "managed replace failure injection",
+    )
+    parser = read("app/src/main/java/com/v2ray/ang/commerce/ManagedManifestParser.kt")
+    if parser and "fun toProfile(" in parser:
+        fail("identity-only manifests must not synthesize ProfileItem/VLESS profiles")
+    applicator = read("app/src/main/java/com/v2ray/ang/commerce/ManagedManifestApplicator.kt")
+    if applicator and "ManagedManifestParser.toProfile" in applicator:
+        fail("applicator must not persist identity-only managed profiles")
+    store = read("app/src/main/java/com/v2ray/ang/commerce/ManagedServerStore.kt")
+    if store and "EConfigType.VLESS" in store:
+        fail("managed store must not synthesize VLESS from identity fields")
+    if store and "removeServerViaSubid" in store:
+        fail("managed replace must not delete live inventory before staging")
 
     secret_re = re.compile(
         r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}|"
