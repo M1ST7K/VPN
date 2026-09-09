@@ -11,6 +11,7 @@ This directory makes the repository reproducible for Cursor Cloud Agents and Git
 - checks out exact upstream v2rayNG tag `2.2.6` / commit `15b4fff8e45da9bc0acaa5cc1d80a1d3531e8712`;
 - copies the Android project from the upstream `V2rayNG/` subdirectory;
 - applies the verified HotFox 2.1.0 source overlay;
+- installs the vector `hotfox_logo` branding drawable omitted from the text overlay;
 - builds HEV/tun2socks for `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64` with Android NDK `29.0.14206865`;
 - downloads and verifies `libv2ray.aar` v26.6.27 using SHA-256 `7846eb7f663d1d8ae931034faa7a56cccc82d618c2d029198e6e91a77fd8de1e`;
 - runs structural, native-library, UI-source, and secret checks.

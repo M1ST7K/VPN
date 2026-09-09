@@ -44,3 +44,12 @@ Thumbs.db
 
 # Bootstrap reconstructed sources are generated from the versioned payload
 # and are intentionally not committed in this setup branch.
+V2rayNG/
+docs/CURSOR_PRO_ULTRA_MASTER_PROMPT_HOTFOX_PROXY_2.2.0.txt
+docs/HOTFOX_UI_REFERENCE.jpeg
+docs/BOOTSTRAP_PAYLOAD_MANIFEST.txt
+docs/DEPENDENCY_VERIFICATION.md
+docs/README_HOTFOX.md
+docs/SECURITY_HOTFOX.md
+docs/THIRD_PARTY_NOTICES.md
+docs/VERIFICATION_REPORT_2.1.0.md

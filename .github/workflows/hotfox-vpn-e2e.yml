@@ -1,0 +1,29 @@
+name: HotFox VPN E2E (secret-driven, not physical)
+
+# Future automated VPN E2E. This is NOT physical-device acceptance
+# and MUST NOT be treated as a substitute for a real phone.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vpn-e2e-placeholder:
+    name: VPN E2E placeholder (NOT physical-device)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require dedicated test secret without logging it
+        env:
+          HOTFOX_TEST_SUBSCRIPTION_URL: ${{ secrets.HOTFOX_TEST_SUBSCRIPTION_URL }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${HOTFOX_TEST_SUBSCRIPTION_URL}" ]]; then
+            echo "NOT EXECUTED: HOTFOX_TEST_SUBSCRIPTION_URL is not set"
+            echo "Physical-device E2E remains NOT EXECUTED."
+            exit 0
+          fi
+          echo "Secret present (length=${#HOTFOX_TEST_SUBSCRIPTION_URL}). Connect/IP probes are not implemented yet."
+          echo "NOT EXECUTED: automated VPN E2E implementation is still a design (see docs/HOTFOX_AUTOMATED_VPN_E2E.md)."
+          echo "Physical-device E2E remains NOT EXECUTED."

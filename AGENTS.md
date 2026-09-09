@@ -1,64 +1,144 @@
-# HOTFOX PROXY — MANDATORY AGENT INSTRUCTIONS
+# HOTFOX PROXY — MANDATORY AGENT RULES
 
-You are working on the production Android VPN application **HotFox Proxy**.
+You are working on the production Android VPN application **HotFox Proxy** (`com.hotfox.vpn`, Android API 24+).
 
-The repository is not a demo. Do not replace it with a prototype, web app, mockup, or simplified VPN implementation.
+This repository is not a demo. Do not replace the current app with a prototype, web app, mock VPN, simplified tunnel, or a ground-up rewrite.
 
-## Mandatory first actions
+## Read order — keep context small
 
 Before editing production code:
 
 1. Read this file completely.
-2. Run `bash bootstrap/bootstrap_source.sh` if the `V2rayNG/` project is not already present.
-3. Read `docs/CURSOR_PRO_ULTRA_MASTER_PROMPT_HOTFOX_PROXY_2.2.0.txt` completely.
-4. Inspect `docs/HOTFOX_UI_REFERENCE.jpeg`.
-5. Inspect the existing Android/VPN implementation, verification reports, security notes, build configuration and Git status.
-6. Continue from the existing HotFox 2.1.0 implementation; do not rebuild the product from scratch.
+2. Read `docs/CURRENT_PHASE.md` completely.
+3. Read the phase document linked from `docs/CURRENT_PHASE.md`.
+4. Inspect only the relevant implementation/tests/reports for the task.
+5. Read `docs/HOTFOX_MASTER_ROADMAP.md` only when you need cross-phase/product context.
+6. Read the older full Ultra Master Prompt only when `CURRENT_PHASE.md` or a concrete task explicitly requires a historical requirement from it.
 
-The master specification is normative. Do not skim it or silently replace requirements with your own interpretation.
+Do **not** reread the entire giant product roadmap for every small change.
 
-## Execution mode
+## Core product truth
 
-Do not merely produce a plan. Work directly on the repository. Inspect code, modify code, create required files, build, run tests, inspect failures, fix failures, rerun checks, review the diff and leave the repository in a coherent buildable state.
+HotFox must be a real Android VPN. The intended protected path remains conceptually:
 
-Do not claim completion merely because the source compiles.
+`Android apps -> Android VpnService/TUN -> HEV/tun2socks -> local SOCKS -> Xray -> supported VPN outbound -> server -> Internet`
 
-## Core product requirement
+The UI may show `CONNECTED` / `Защищено` only when the canonical current VPN session has passed the strongest bounded path verification implemented for the production path.
 
-HotFox Proxy must be a real Android VPN. The production networking path must result in real Android application traffic being routed through the VPN transport. Conceptually:
+A VPN icon, established TUN, running Xray, listening SOCKS port, or HEV stats array alone is not proof of protection.
 
-Android applications -> Android VpnService -> TUN -> HEV/tun2socks -> local SOCKS -> Xray -> VLESS/supported transport -> HotFox server -> Internet.
-
-The UI may show `Защищено` / connected only when the production tunnel path is actually operational. A VPN notification, started Xray process, open local SOCKS port, or established TUN interface alone is not sufficient proof of a successful end-to-end VPN connection.
-
-## Non-negotiable acceptance condition
-
-When physical-device E2E is executed, the implementation must be capable of satisfying:
+Physical-device acceptance must be capable of proving:
 
 `external IP before VPN != external IP after successful VPN connection`
 
-and the post-connect IP must correspond to the selected VPN egress. Traffic must not silently bypass the VPN. DNS leakage, IPv6 leakage, routing bypass, false connected states and VPN feedback loops are release-blocking defects where the configured protection policy requires fail-closed behavior.
+plus real browser/app traffic and acceptable DNS/IPv6 behavior.
 
-## UI requirement
+## Canonical state and lifecycle
 
-The supplied HotFox UI reference is the visual source of truth. Do not redesign it into generic Material VPN UI. Preserve editorial minimalism, charcoal background, warm cream typography, restrained orange accent, thin separators, vertical navigation, generous negative space, precision alignment, connection visualization, real traffic counters, the server-list treatment and the Premium screen treatment.
+- `VpnSessionCoordinator` (or its deliberate successor) is the canonical protection-state authority.
+- Stale async work must never overwrite a newer generation.
+- Startup, reconnect/handover and teardown must be serialized/owned explicitly.
+- Repeated start/stop actions must be idempotent.
+- Permission revocation, service destruction, process recreation and network handover must not leave stale protected state or live obsolete resources.
+- Fail closed where the configured protection policy requires it.
 
-Every important interaction must have truthful idle, pressed, loading, connecting, connected, disconnecting, reconnecting, degraded, error and disabled states where applicable.
+## AUTO server contract
 
-## Engineering quality
+`Авто-выбор сервера` is a first-class persisted mode and must remain the **first server-list row** (`HotfoxServerListContract.AUTO_ROW_INDEX = 0`).
 
-Never fake ping, bandwidth, connection success, traffic counters, server availability or subscription validity. Avoid placeholders and TODO implementations in release-critical code. Avoid mock networking in production source sets.
+- AUTO is not a fake server GUID.
+- Manual selection must remain manual until the user changes it.
+- AUTO may resolve to a concrete healthy server for a session.
+- The connection screen must truthfully show the resolved AUTO target.
+- Never invent ping, health, load, region or availability.
+
+## Phone UI contract
+
+Primary phone navigation is exactly the three editorial bottom destinations (bottom bar):
+
+`Соединение / Серверы / Подписка`
+
+Do not restore the old side rail/drawer or a competing second primary navigation system.
+
+Preserve the HotFox direction: charcoal/purple-black canvas, warm cream typography, restrained orange accent, green only for real success, thin separators, clean contemporary server rows, visible state-aware route bars, no black-on-black icons and no square/missing-glyph placeholders.
+
+Do not trade VPN correctness for visual polish.
+
+## Subscription and future commerce
+
+Runtime subscription data stays runtime-driven. Never embed a private user subscription URL/token in the APK or repository.
+
+Future HotFox purchase/entitlement work is defined in later phase docs. When implemented:
+
+- payment provider secrets remain backend-only;
+- app-side browser redirects never prove payment;
+- backend verification/webhook/reconciliation is authoritative;
+- HotFox-managed access and external/manual subscriptions remain supported paths;
+- bearer entitlement/subscription secrets use Keystore-backed storage.
+
+Do not implement future billing/product milestones while `docs/CURRENT_PHASE.md` says they are out of scope.
 
 ## Security
 
-Never commit or expose signing private keys, keystore passwords, API secrets, private tokens, personal subscription URLs, user credentials or production secrets. Never log complete VLESS URLs, UUIDs, tokens or credentials. Redact sensitive values in diagnostics. Do not weaken TLS, Reality or certificate validation merely to make tests pass.
+Never commit or expose:
+- API keys;
+- signing private keys/keystores/passwords;
+- private UUIDs/tokens/passwords;
+- personal subscription URLs;
+- payment-provider secrets.
 
-## Release discipline
+Never log complete VLESS links, credentials, bearer tokens or full subscription URLs. Redact diagnostics. Do not weaken TLS/Reality/certificate validation to get green.
 
-Before declaring the task complete, run an appropriate clean build, applicable unit tests, lint/static analysis, the project verifier, secret scans and a final diff review. If the environment does not permit real-device testing, explicitly mark device-level checks as NOT EXECUTED. Never report a device test as PASS unless it actually ran successfully.
+## Engineering quality
 
-## Final report
+Never fake:
+- ping;
+- bandwidth/traffic;
+- connection success;
+- server health/load;
+- subscription validity/expiry;
+- payment success;
+- device E2E evidence.
 
-Report changed architecture, files changed, bugs fixed, UI work completed, VPN/routing work completed, tests executed, exact build commands, build result, unresolved issues, remaining physical-device tests, security review result and release-readiness assessment.
+Avoid production TODOs/mocks in release-critical paths. Prefer bounded structured concurrency over sleeps, busy waits, detached scopes or global mutable flags.
 
-Until the applicable requirements are satisfied, continue working.
+## Build/test loop
+
+After relevant implementation changes, run the applicable project gates yourself. Do not ask the owner to click Build.
+
+Typical 2.2 Android gates:
+
+- reconstruct/apply overlay when needed;
+- `:app:assemblePlaystoreDebug`;
+- `:app:testPlaystoreDebugUnitTest`;
+- `:app:lintPlaystoreDebug`;
+- `:app:assemblePlaystoreRelease` (unsigned compile gate);
+- `python3 verification/static_check_2_2_0.py`;
+- `bash bootstrap/verify_hotfox_2_2_0.sh`;
+- relevant secret/static checks;
+- inspect GitHub CI.
+
+Emulator smoke proves install/navigation only. It is **not** VPN E2E.
+
+## AI checkpoint review policy
+
+Ordinary fix/build commits should rely on GitHub CI and focused tests. They must **not** spend OpenAI review budget automatically.
+
+Request the trusted GPT-5.6 Sol checkpoint review only after a coherent task block is ready and applicable CI/tests are green by making the **final checkpoint commit message contain**:
+
+`[hotfox-review]`
+
+If a trusted checkpoint review reports substantiated P0/P1 findings:
+
+1. fix all of them;
+2. use ordinary commits while iterating/repairing CI;
+3. do not request a new AI review on every fix commit;
+4. once the whole fix block is green, make one final checkpoint commit containing `[hotfox-review]`.
+
+P2-only feedback is not a blocker and must not create an autonomous fix loop.
+
+## Completion/reporting
+
+Do not claim a task complete because source compiles. Report what changed, tests/builds actually executed, unresolved blockers, physical-device checks still NOT EXECUTED, and release-readiness truthfully.
+
+Until the current phase exit gate is satisfied, prioritize that phase instead of adding unrelated future features.
