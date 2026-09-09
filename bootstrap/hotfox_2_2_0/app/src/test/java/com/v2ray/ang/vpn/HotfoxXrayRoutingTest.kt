@@ -1,6 +1,5 @@
 package com.v2ray.ang.vpn
 
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -54,21 +53,16 @@ class HotfoxXrayRoutingTest {
 
     @Test
     fun globalDropsPresetDirectRulesAndKeepsDns() {
-        val input = JSONObject()
-            .put(
-                "routing",
-                JSONObject().put(
-                    "rules",
-                    org.json.JSONArray()
-                        .put(JSONObject().put("outboundTag", "direct").put("domain", org.json.JSONArray().put("geosite:cn")))
-                        .put(JSONObject().put("outboundTag", "dns-out").put("port", "53")),
-                ),
-            )
-            .toString()
-        val out = JSONObject(HotfoxXrayConfigInjector.apply(input, smart.copy(mode = HotfoxRoutingMode.GLOBAL)))
-        val rules = out.getJSONObject("routing").getJSONArray("rules")
-        assertEquals(1, rules.length())
-        assertEquals("dns-out", rules.getJSONObject(0).getString("outboundTag"))
+        val merged = HotfoxXrayConfigInjector.merge(
+            listOf(
+                HotfoxXrayConfigInjector.ExistingRule("direct"),
+                HotfoxXrayConfigInjector.ExistingRule("dns-out"),
+            ),
+            smart.copy(mode = HotfoxRoutingMode.GLOBAL),
+        )
+        assertEquals(listOf("dns-out"), merged.map { it.outboundTag })
+        assertFalse(HotfoxXrayConfigInjector.keepExisting(HotfoxRoutingMode.GLOBAL, "direct"))
+        assertTrue(HotfoxXrayConfigInjector.keepExisting(HotfoxRoutingMode.GLOBAL, "dns-out"))
     }
 
     @Test
@@ -77,22 +71,14 @@ class HotfoxXrayRoutingTest {
             mode = HotfoxRoutingMode.CUSTOM,
             adsBlocked = true,
         )
-        val input = JSONObject()
-            .put(
-                "routing",
-                JSONObject().put(
-                    "rules",
-                    org.json.JSONArray().put(
-                        JSONObject().put("outboundTag", "direct").put("domain", org.json.JSONArray().put("geosite:cn")),
-                    ),
-                ),
-            )
-            .toString()
-        val out = JSONObject(HotfoxXrayConfigInjector.apply(input, snap))
-        val rules = out.getJSONObject("routing").getJSONArray("rules")
-        assertEquals(2, rules.length())
-        assertEquals(HotfoxXrayRouting.TAG_BLOCKED, rules.getJSONObject(0).getString("outboundTag"))
-        assertEquals("direct", rules.getJSONObject(1).getString("outboundTag"))
+        val merged = HotfoxXrayConfigInjector.merge(
+            listOf(HotfoxXrayConfigInjector.ExistingRule("direct")),
+            snap,
+        )
+        assertEquals(2, merged.size)
+        assertEquals(HotfoxXrayRouting.TAG_BLOCKED, merged[0].outboundTag)
+        assertEquals("direct", merged[1].outboundTag)
+        assertTrue(HotfoxXrayConfigInjector.keepExisting(HotfoxRoutingMode.CUSTOM, "direct"))
     }
 
     @Test
@@ -118,15 +104,12 @@ class HotfoxXrayRoutingTest {
                 RoutingRule("b", RoutingRuleKind.DOMAIN_SUFFIX, "ads.example", RouteAction.BLOCK),
             ),
         )
-        val first = JSONObject().put("outbounds", org.json.JSONArray().put(JSONObject().put("tag", "proxy"))).toString()
-        val afterReconnect = HotfoxXrayConfigInjector.apply(first, snap)
-        val afterServerChange = HotfoxXrayConfigInjector.apply(
-            JSONObject(afterReconnect).put("outbounds", org.json.JSONArray().put(JSONObject().put("tag", "proxy-2"))).toString(),
-            snap,
-        )
-        val rules = JSONObject(afterServerChange).getJSONObject("routing").getJSONArray("rules")
-        assertEquals("domain:ads.example", rules.getJSONObject(0).getJSONArray("domain").getString(0))
-        assertEquals("block", rules.getJSONObject(0).getString("outboundTag"))
-        assertEquals("proxy-2", JSONObject(afterServerChange).getJSONArray("outbounds").getJSONObject(0).getString("tag"))
+        val existing = listOf(HotfoxXrayConfigInjector.ExistingRule("dns-out"))
+        val afterReconnect = HotfoxXrayConfigInjector.merge(existing, snap)
+        val afterServerChange = HotfoxXrayConfigInjector.merge(existing, snap)
+        assertEquals(afterReconnect, afterServerChange)
+        assertEquals("domain:ads.example", afterServerChange[0].domain.single())
+        assertEquals("block", afterServerChange[0].outboundTag)
+        assertEquals("dns-out", afterServerChange.last().outboundTag)
     }
 }

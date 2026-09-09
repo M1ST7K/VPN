@@ -71,10 +71,30 @@ object HotfoxXrayRouting {
 }
 
 object HotfoxXrayConfigInjector {
+    data class ExistingRule(val outboundTag: String)
+
     /**
      * Prepends HotFox field rules. SMART/GLOBAL/include/exclude drop preset
      * `direct` rules so geosite:cn / geoip:private cannot silently bypass VPN.
      * CUSTOM keeps editor/subscription DIRECT rules after the HotFox prefix.
+     */
+    fun merge(existing: List<ExistingRule>, snapshot: RoutingPolicySnapshot): List<XrayFieldRule> {
+        val prefix = HotfoxXrayRouting.rules(snapshot)
+        val kept = existing.mapNotNull { rule ->
+            if (!keepExisting(snapshot.mode, rule.outboundTag)) return@mapNotNull null
+            XrayFieldRule(outboundTag = rule.outboundTag, source = "existing")
+        }
+        return prefix + kept
+    }
+
+    fun keepExisting(mode: HotfoxRoutingMode, outboundTag: String): Boolean {
+        if (mode != HotfoxRoutingMode.CUSTOM && outboundTag == HotfoxXrayRouting.TAG_DIRECT) {
+            return false
+        }
+        return true
+    }
+
+    /**
      * Malformed JSON is returned unchanged so optional routing cannot break the core.
      */
     fun apply(content: String, snapshot: RoutingPolicySnapshot): String {
@@ -83,18 +103,26 @@ object HotfoxXrayConfigInjector {
             val root = JSONObject(content)
             val routing = root.optJSONObject("routing") ?: JSONObject().also { root.put("routing", it) }
             val existing = routing.optJSONArray("rules") ?: JSONArray()
-            val dropDirect = snapshot.mode != HotfoxRoutingMode.CUSTOM
-            val kept = JSONArray()
+            val existingRules = ArrayList<ExistingRule>()
             for (index in 0 until existing.length()) {
                 val rule = existing.optJSONObject(index) ?: continue
-                val tag = rule.optString("outboundTag")
-                if (dropDirect && tag == HotfoxXrayRouting.TAG_DIRECT) continue
-                kept.put(rule)
+                existingRules.add(ExistingRule(rule.optString("outboundTag")))
             }
+            val planned = merge(existingRules, snapshot)
             val merged = JSONArray()
-            HotfoxXrayRouting.rules(snapshot).forEach { merged.put(toJson(it)) }
-            for (index in 0 until kept.length()) {
-                merged.put(kept.get(index))
+            var existingIndex = 0
+            planned.forEach { rule ->
+                if (rule.source == "existing") {
+                    while (existingIndex < existing.length()) {
+                        val raw = existing.optJSONObject(existingIndex++)
+                        if (raw != null && keepExisting(snapshot.mode, raw.optString("outboundTag"))) {
+                            merged.put(raw)
+                            return@forEach
+                        }
+                    }
+                } else {
+                    merged.put(toJson(rule))
+                }
             }
             routing.put("rules", merged)
             root.toString()
