@@ -348,9 +348,14 @@ def main() -> int:
         fail("managed replace must not delete live inventory before staging")
 
     must_contain(
-        "app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt",
-        "class ServerHealthRepository",
-        "2.4 server health repository",
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxAutoFailover.kt",
+        "object HotfoxAutoFailover",
+        "2.4 AUTO failover policy",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "fun scheduleAuthorizedRestart",
+        "generation-owned AUTO failover restart",
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt",

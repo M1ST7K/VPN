@@ -35,7 +35,9 @@ import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.ErrorMessageMapper
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
+import com.v2ray.ang.vpn.HotfoxAutoFailover
 import com.v2ray.ang.vpn.HotfoxServerSelection
+import com.v2ray.ang.vpn.FailoverAction
 import com.v2ray.ang.vpn.VpnRestartGate
 import com.v2ray.ang.vpn.VpnLoopPrevention
 import com.v2ray.ang.vpn.VpnReadiness
@@ -579,7 +581,26 @@ object CoreServiceManager {
         return false
     }
 
-    /** Watches the physical uplink and keeps the existing Android VPN alive across handovers. */
+    /**
+     * Generation-owned restart used by user restart and AUTO failover.
+     * Does not start VpnService until [VpnRestartGate.tryDispatchStart] wins.
+     */
+    fun scheduleAuthorizedRestart(context: Context) {
+        val request = VpnRestartGate.nextRequest()
+        val app = context.applicationContext
+        restartScope.launch {
+            VpnSessionCoordinator.awaitIdle()
+            val started = VpnRestartGate.tryDispatchStart(request) {
+                startVServiceAfterAuthorizedRestart(app)
+            }
+            if (!started) {
+                LogUtil.i(AppConfig.TAG, "StartCore-Manager: restart cancelled request=$request")
+            }
+        }
+    }
+
+    fun requestConnectedReload(): Boolean = reloadCore()
+
     private fun startNetworkMonitor(service: Service) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
         if (networkMonitor != null) return
@@ -704,6 +725,7 @@ object CoreServiceManager {
                 LogUtil.w(AppConfig.TAG, "StartCore-Manager: stale reload completion attempt=$attempt")
                 return false
             }
+            HotfoxAutoFailover.reset()
             true
         } catch (e: Exception) {
             val message = e.message?.takeUnless { it.isBlank() } ?: e.javaClass.simpleName
@@ -719,6 +741,15 @@ object CoreServiceManager {
     }
 
     private fun failHandover(service: Service, attempt: Long, code: String, message: String): Boolean {
+        val decision = HotfoxAutoFailover.considerLive(code)
+        if (decision.action == FailoverAction.SWITCH) {
+            LogUtil.i(AppConfig.TAG, "StartCore-Manager: AUTO handover failover ${decision.reason} next=${decision.guid}")
+            if (VpnSessionCoordinator.markReconnecting(attempt)) {
+                scheduleAuthorizedRestart(service.applicationContext)
+            }
+            runCatching { serviceControl?.get()?.stopService() }
+            return false
+        }
         if (!VpnSessionCoordinator.markError(attempt, code, message)) {
             return false
         }
@@ -948,18 +979,9 @@ object CoreServiceManager {
 
                 AppConfig.MSG_STATE_RESTART -> {
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Restart service")
-                    val request = VpnRestartGate.nextRequest()
                     val app = serviceControl.getService().applicationContext
                     serviceControl.stopService()
-                    restartScope.launch {
-                        VpnSessionCoordinator.awaitIdle()
-                        val started = VpnRestartGate.tryDispatchStart(request) {
-                            startVServiceAfterAuthorizedRestart(app)
-                        }
-                        if (!started) {
-                            LogUtil.i(AppConfig.TAG, "StartCore-Manager: restart cancelled request=$request")
-                        }
-                    }
+                    scheduleAuthorizedRestart(app)
                 }
 
                 AppConfig.MSG_MEASURE_DELAY -> {

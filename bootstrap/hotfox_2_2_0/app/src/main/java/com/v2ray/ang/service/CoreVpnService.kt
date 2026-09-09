@@ -26,6 +26,9 @@ import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.MyContextWrapper
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.DuplicateStartDisposition
+import com.v2ray.ang.vpn.FailoverAction
+import com.v2ray.ang.vpn.HotfoxAutoFailover
+import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.VpnConnectionStage
 import com.v2ray.ang.vpn.VpnLoopPrevention
 import com.v2ray.ang.vpn.VpnReadiness
@@ -224,11 +227,12 @@ class CoreVpnService : VpnService(), ServiceControl {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: markConnected rejected attempt=$attempt")
             return
         }
+        HotfoxAutoFailover.reset()
         RootLanSharing.startClientSharing(this)
         CoreServiceManager.notifyTunnelReady(this)
         CoreServiceManager.startNetworkMonitorIfNeeded()
         startTrafficReporting()
-        health.start()
+        health.start(onRepeatedCoreFailure = { handleConnectedAutoFailover() })
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: CONNECTED attempt=$attempt backend=${path.backend}")
     }
 
@@ -468,6 +472,9 @@ class CoreVpnService : VpnService(), ServiceControl {
 
     private fun failTunnelStart(attempt: Long, code: String, message: String) {
         LogUtil.e(AppConfig.TAG, "StartCore-VPN: $code $message")
+        if (tryAutoFailover(attempt, code)) {
+            return
+        }
         if (!VpnSessionCoordinator.markError(attempt, code, message)) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: stale failTunnelStart ignored attempt=$attempt")
             return
@@ -476,12 +483,36 @@ class CoreVpnService : VpnService(), ServiceControl {
         stopAllService()
     }
 
+    private fun tryAutoFailover(attempt: Long, code: String): Boolean {
+        if (!VpnSessionCoordinator.isCurrent(attempt)) return false
+        val decision = HotfoxAutoFailover.considerLive(code)
+        if (decision.action != FailoverAction.SWITCH) return false
+        if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
+        LogUtil.i(AppConfig.TAG, "StartCore-VPN: AUTO failover ${decision.reason} next=${decision.guid}")
+        CoreServiceManager.scheduleAuthorizedRestart(applicationContext)
+        stopAllService()
+        return true
+    }
+
+    private fun handleConnectedAutoFailover() {
+        if (VpnSessionCoordinator.currentState() != VpnSessionState.CONNECTED) return
+        if (!HotfoxServerSelection.isAutoMode()) return
+        val decision = HotfoxAutoFailover.considerLive("HF-VPN-006")
+        if (decision.action != FailoverAction.SWITCH) return
+        LogUtil.i(AppConfig.TAG, "StartCore-VPN: AUTO connected failover ${decision.reason} next=${decision.guid}")
+        CoreServiceManager.requestConnectedReload()
+    }
+
     private fun stopAllService(isForced: Boolean = true) {
         unlockStart()
-        val keepError = VpnSessionCoordinator.currentState() == VpnSessionState.ERROR
+        val state = VpnSessionCoordinator.currentState()
+        val keepError = state == VpnSessionState.ERROR
+        val keepReconnecting = state == VpnSessionState.RECONNECTING
         val stopAttempt = VpnSessionCoordinator.currentAttempt()
         if (!keepError) {
-            VpnSessionCoordinator.setState(stopAttempt, VpnSessionState.DISCONNECTING)
+            if (!keepReconnecting) {
+                VpnSessionCoordinator.setState(stopAttempt, VpnSessionState.DISCONNECTING)
+            }
             VpnSessionCoordinator.setTeardownActive(true)
         }
         isRunning = false

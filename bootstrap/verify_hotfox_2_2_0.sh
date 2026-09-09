@@ -103,6 +103,10 @@ if grep -q 'SandboxCommerceBackend()' "$PROJECT/app/src/main/java/com/v2ray/ang/
   fail "main factory must not instantiate SandboxCommerceBackend"
 fi
 
+grep -q 'object HotfoxAutoFailover' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutoFailover.kt" \
+  || fail "HotfoxAutoFailover missing"
+grep -q 'fun scheduleAuthorizedRestart' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "generation-owned AUTO failover restart missing"
 grep -q 'class ServerHealthRepository' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt" \
   || fail "ServerHealthRepository missing"
 grep -q 'fun significantlyBetter' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt" \

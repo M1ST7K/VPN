@@ -16,6 +16,17 @@ object HotfoxServerSelection {
     var lastAutoReason: String = ""
         private set
 
+    fun recordAutoReason(reason: String) {
+        lastAutoReason = reason
+    }
+
+    fun persistAutoTarget(guid: String) {
+        if (guid.isBlank() || guid == AUTO_GUID) return
+        MmkvManager.setSelectServer(guid)
+    }
+
+    fun currentCandidates(): List<Candidate> = candidates()
+
     fun isAutoMode(): Boolean = MmkvManager.decodeSettingsBool(PREF_AUTO_SERVER, true)
 
     fun setAutoMode(enabled: Boolean) {

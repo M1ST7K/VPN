@@ -539,7 +539,7 @@
     <string name="hotfox_headline_connecting">Подключение</string>
     <string name="hotfox_headline_disconnected">Не защищено</string>
     <string name="hotfox_headline_error">Нет соединения</string>
-    <string name="hotfox_headline_reconnecting">Переподключение</string>
+    <string name="hotfox_headline_reconnecting">Переподключаем…</string>
     <string name="hotfox_settings_content_description">Настройки HotFox</string>
     <string name="hotfox_copy_diagnostics">Копировать диагностику</string>
     <string name="hotfox_headline_disconnecting">Отключение</string>
