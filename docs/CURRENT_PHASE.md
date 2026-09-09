@@ -1,125 +1,68 @@
-# CURRENT PHASE — HotFox 2.2 «Truthful Core»
+# CURRENT PHASE — HotFox 2.3 «Commercial Foundation»
 
 Status: **IN PROGRESS**
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
-Linked detailed phase spec: `docs/phases/2.2-truthful-core.md`
+Linked detailed phase spec: `docs/phases/2.3-commercial-foundation.md`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
 Review policy: `docs/AI_REVIEW_POLICY.md`
+Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
 ## Goal
 
-Produce an exact-sha Android APK that is not merely buildable but can truthfully prove real VPN protection on a physical Android device.
+Let a new user obtain HotFox-managed VPN access from the Subscription screen without pasting a private subscription URL, while keeping external/manual subscription support.
 
-Required user journey:
+Do **not** claim HotFox is a production-ready release. Phase 2.2 is **engineering-complete** and **release-deferred**.
 
-`Select AUTO/manual server -> Connect -> canonical CONNECTED -> real app/browser traffic exits through VPN server -> Disconnect restores normal network`
+## Inherited 2.2 release gate (still blocking production)
 
-## Current release blockers
+Physical-device VPN E2E is **NOT EXECUTED**. Before any production release, an exact SHA must still prove:
 
-The latest trusted checkpoint before this phase split still identified these remaining lifecycle/publication issues. Do not move to billing or feature expansion until a newer checkpoint proves them resolved.
+- external IPv4 before VPN != after successful connect;
+- real browser/app traffic through the tunnel;
+- DNS/IPv6 leak or explicit fail-closed behavior;
+- disconnect restores normal network;
+- rapid reconnect, permission revoke, Wi-Fi/cellular handover.
 
-1. **Stop ownership / stop epoch**
-   - A repeated stop must not supersede the active stop worker's generation.
-   - An on-time worker completion must not clear teardown before the owner finishes cleanup.
-   - A late successful stop after timeout must finish the same teardown and permit reconnect safely.
-
-2. **Generation-safe Xray shutdown during handover**
-   - A delayed shutdown callback from the old core must not stop a replacement session.
-   - A replacement-core failure must not be accidentally suppressed by a global temporal flag.
-
-3. **Dev Latest publication authority**
-   - One mutable `HotFox Dev Latest` artifact cannot be safely published by multiple independent branches without a repository-wide freshness rule.
-   - Prefer one authoritative publisher or immutable branch/SHA artifacts.
-
-4. **Physical-device VPN proof**
-   - Still required for the exact retest SHA.
-   - Emulator smoke does not satisfy this.
+Emulator UI smoke is not that proof.
 
 ## Work allowed now
 
-- VPN lifecycle/state/race fixes.
-- Xray/HEV/TUN datapath verification.
-- DNS/IPv6 fail-closed correctness required for 2.2 acceptance.
-- loop-prevention correctness.
-- AUTO correctness and server-to-config binding.
-- connection/subscription UI bug fixes already required by the owner.
-- CI/APK provenance required to produce a trustworthy retest artifact.
-- deterministic unit/integration tests for current blockers.
-- emulator UI smoke maintenance where it directly protects the current UI.
+- Subscription-screen commercial onboarding (NO_ACCESS / plan catalog / buy / restore / promo entry).
+- HotFox backend entitlement + hosted checkout integration **without** putting provider secrets in the APK.
+- Keystore-backed storage for entitlement/subscription secrets.
+- Preserve AUTO, manual import, and the truthful VPN core from 2.2.
+- Keep fail-closed VPN/DNS/IPv6 behavior; do not weaken it for commerce.
+- Tests for order/entitlement/restore/keystore failure classes as specified in the 2.3 phase doc.
 
 ## Not now
 
-Do not start these until the 2.2 exit gate is met:
+Do not start these until 2.3’s own exit gate is met:
 
-- payment checkout;
-- HotFox billing backend;
-- promo codes;
-- account/device-plan system;
-- new ad/tracker blocking product;
-- extra Android widgets/automation unrelated to 2.2;
-- broad architecture rewrites;
-- major visual redesign;
-- 3.0 cleanup.
-
-The future work is documented, not forgotten.
+- extra ad/tracker product work (phase 2.5);
+- extra Android widgets/automation (phase 2.6);
+- 3.0 architecture cleanup;
+- claiming `автопродление` unless the backend actually owns recurring billing.
 
 ## Checkpoint protocol
 
-Use ordinary commits while fixing code and CI.
+Use ordinary commits while implementing and while CI is red.
 
-Only when a coherent fix block is complete and applicable automated gates are green, make one final commit whose message contains:
+Only when a coherent 2.3 block is complete and applicable automated gates are green, make one final commit whose message contains:
 
 `[hotfox-review]`
 
-That commit requests the expensive GPT-5.6 Sol checkpoint review.
-
 Do not put `[hotfox-review]` on every intermediate commit.
 
-## Automated gate
+The trusted reviewer round cap on this PR is currently 10. A later 2.3 checkpoint may need the cap raised on `main` before another OpenAI review can run.
 
-Before a checkpoint, run/verify as applicable:
+## Phase 2.3 exit definition
 
-- debug APK build;
-- unit tests;
-- Android lint;
-- unsigned release compile;
-- HotFox static/overlay verifier;
-- secret scan;
-- GitHub CI;
-- emulator install/navigation smoke for relevant UI changes.
+2.3 engineering may be marked complete when a sandbox/test payment can prove:
 
-## Physical-device exit gate
+`choose plan -> create order -> hosted checkout -> backend verifies payment -> entitlement issued -> credentials stored safely -> subscription/server sync -> AUTO remains selected -> VPN core still uses the truthful 2.2 path`
 
-For the exact candidate SHA record:
+without pasting a paid HotFox URL and without embedding payment-provider secrets in the APK.
 
-- physical device model + Android version;
-- external IPv4 before VPN;
-- connected resolved server;
-- external IPv4 after VPN;
-- assert before != after;
-- real HTTPS browser traffic;
-- real traffic from another app where practical;
-- DNS leak observation;
-- IPv6 behavior (VPN egress or explicit fail-closed according to policy);
-- disconnect restores normal network;
-- rapid reconnect;
-- Wi-Fi/cellular handover;
-- permission revoke / service destruction sanity;
-- sanitized diagnostic/log evidence.
-
-## Phase 2.2 exit definition
-
-2.2 may be marked complete only when all are true:
-
-- CI/build/test gates green on the exact candidate SHA;
-- trusted checkpoint review has no substantiated P0/P1 blockers;
-- APK artifact is tied to that SHA;
-- physical-device E2E is PASS;
-- UI does not falsely claim protection;
-- AUTO is first and actually resolves the server used by the tunnel;
-- no release-blocking DNS/IPv6 bypass is observed;
-- repeated connect/disconnect/reconnect and handover are stable enough for release acceptance.
-
-When this exit gate is met, change `CURRENT_PHASE.md` to phase 2.3 and update the trusted reviewer current-phase scope on `main` before beginning commercial work.
+2.3 does **not** satisfy the 2.2 physical-device release gate.

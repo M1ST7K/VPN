@@ -46,9 +46,13 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 ### Engineering gate status
 
-**FINAL CHECKPOINT REQUESTED** after the round-9 fix block.
+**ENGINEERING COMPLETE** — trusted checkpoint **round 10** returned `APPROVED` with no substantiated P0/P1 (head `3a835d8`, implementation `75839a5`).
 
-Do not mark 2.2 Engineering Complete until this checkpoint returns `APPROVED` with no substantiated P0/P1. Do not start 2.3 until that happens. Physical-device E2E remains a separate release gate.
+P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
+
+Phase 2.3 Commercial Foundation is now the active engineering phase in `docs/CURRENT_PHASE.md`. Do not claim a production VPN release.
+
+The trusted reviewer round cap on this PR is 10. Raise it on `main` before requesting another OpenAI checkpoint.
 
 ### Release gate status
 
