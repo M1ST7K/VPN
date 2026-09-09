@@ -78,13 +78,16 @@ object WebhookReconciliation {
         if (owner != null && owner != current.id) {
             return WebhookApplyResult.Rejected("payment_id_conflict")
         }
-        seenEventIds.add(event.eventId)
-        return when (event.type) {
+        val result = when (event.type) {
             WebhookEventType.PAID -> applyPaid(current, event, paymentOwners)
             WebhookEventType.PENDING -> applyPending(current)
             WebhookEventType.CANCELLED -> applyTerminal(current, OrderState.CANCELLED)
             WebhookEventType.FAILED -> applyTerminal(current, OrderState.FAILED)
         }
+        if (result is WebhookApplyResult.Applied || result is WebhookApplyResult.Duplicate) {
+            seenEventIds.add(event.eventId)
+        }
+        return result
     }
 
     private fun applyPaid(
@@ -92,13 +95,17 @@ object WebhookReconciliation {
         event: ProviderWebhookEvent,
         paymentOwners: MutableMap<String, String>,
     ): WebhookApplyResult {
-        paymentOwners[event.providerPaymentId] = current.id
         if (OrderStateMachine.isPaidTruth(current.state)) {
-            return WebhookApplyResult.Duplicate(current)
+            return if (current.providerPaymentId == event.providerPaymentId) {
+                WebhookApplyResult.Duplicate(current)
+            } else {
+                WebhookApplyResult.Rejected("payment_id_conflict")
+            }
         }
         if (OrderStateMachine.isTerminalFailure(current.state)) {
             return WebhookApplyResult.Rejected("already_terminal")
         }
+        paymentOwners[event.providerPaymentId] = current.id
         var next = towardPending(current)
         next = OrderStateMachine.transition(next, OrderState.PAID).copy(
             paidAtEpochSeconds = event.occurredAtEpochSeconds,

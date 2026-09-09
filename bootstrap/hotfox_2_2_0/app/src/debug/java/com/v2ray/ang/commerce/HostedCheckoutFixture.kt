@@ -1,8 +1,8 @@
 package com.v2ray.ang.commerce
 
 /**
- * Deterministic hosted-checkout stand-in. Opening or returning from checkout
- * never marks an order paid. Payment truth stays on the webhook path.
+ * Deterministic hosted-checkout stand-in. Debug/test only.
+ * Opening or returning from checkout never marks an order paid.
  */
 object HostedCheckoutFixture {
     fun returnUri(order: CommerceOrder, claimSuccess: Boolean): String {

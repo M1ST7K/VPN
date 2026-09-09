@@ -635,6 +635,30 @@ object AngConfigManager {
     }
 
     /**
+     * Fetches subscription text without persisting or logging the URL.
+     * Used by HotFox-managed sync where the URL lives in Keystore.
+     */
+    fun fetchSubscriptionBody(url: String): String? {
+        if (!Utils.isValidUrl(url) || !Utils.isValidSubUrl(url)) return null
+        return try {
+            HttpUtil.getSubscriptionResponse(
+                UrlContentRequest(url = url, timeout = 15000),
+            )?.content?.takeIf { it.isNotBlank() }
+        } catch (e: Exception) {
+            LogUtil.e(AppConfig.TAG, "Managed subscription fetch failed", e)
+            null
+        }
+    }
+
+    /**
+     * Imports already-fetched subscription body into [subid] without writing a URL to MMKV.
+     */
+    fun importManagedSubscriptionText(configText: String, subid: String): Int {
+        if (configText.isBlank() || subid.isBlank()) return 0
+        return parseConfigViaSub(configText, subid, append = false)
+    }
+
+    /**
      * Parses the configuration via a subscription.
      *
      * @param server The server string.

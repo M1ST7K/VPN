@@ -25,14 +25,6 @@ android {
         buildConfigField("String", "PAYMENT_TARIFFS_JSON", buildConfigString("HOTFOX_PAYMENT_TARIFFS_JSON"))
         buildConfigField("String", "PAYMENT_BACKEND_URL", buildConfigString("HOTFOX_PAYMENT_BACKEND_URL"))
         buildConfigField("String", "VPN_PANEL_API_URL", buildConfigString("HotFox_Proxy_PANEL_API_URL"))
-        val sandboxCommerce = providers.gradleProperty("HOTFOX_SANDBOX_COMMERCE")
-            .orElse(providers.environmentVariable("HOTFOX_SANDBOX_COMMERCE").orElse("false"))
-            .get()
-        buildConfigField(
-            "boolean",
-            "HOTFOX_SANDBOX_COMMERCE",
-            if (sandboxCommerce.equals("true", ignoreCase = true)) "true" else "false",
-        )
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -80,7 +72,20 @@ android {
     }
 
     buildTypes {
+        val sandboxRequested = providers.gradleProperty("HOTFOX_SANDBOX_COMMERCE")
+            .orElse(providers.environmentVariable("HOTFOX_SANDBOX_COMMERCE").orElse("false"))
+            .get()
+            .equals("true", ignoreCase = true)
+        debug {
+            buildConfigField("boolean", "HOTFOX_SANDBOX_COMMERCE", sandboxRequested.toString())
+        }
         release {
+            if (sandboxRequested) {
+                throw org.gradle.api.GradleException(
+                    "HOTFOX_SANDBOX_COMMERCE cannot be enabled for release builds",
+                )
+            }
+            buildConfigField("boolean", "HOTFOX_SANDBOX_COMMERCE", "false")
             isMinifyEnabled = false
             signingConfig = signingConfigs.findByName("hotfoxRelease")
             proguardFiles(

@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.3 «Commercial Foundation»
 
-Status: **IN PROGRESS** (round-13 **APPROVED** on `bdae55b`; sandbox/test payment E2E implementation `5be5f34`, GitHub reconstruct **PASS** `34332785857`, requesting round-14 `[hotfox-review]`)
+Status: **IN PROGRESS** (round-14 **CHANGES_REQUIRED**; sandbox isolated from release, managed inventory apply, fulfillment/webhook payment-ID fixes in progress)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 

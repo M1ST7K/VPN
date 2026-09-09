@@ -5,9 +5,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Deterministic test/sandbox adapter. It never treats a browser `success=true` return as paid.
- * Only [markPaidFromVerifiedWebhook] (stand-in for a server webhook) can move an order to PAID
- * and issue an entitlement. This is a fixture, not production payment.
+ * Deterministic debug/test adapter. Never compiled into release.
+ * Browser `success=true` is never paid. Only a verified webhook can move an order to PAID.
  */
 class SandboxCommerceBackend(
     private val clock: () -> Long = { System.currentTimeMillis() / 1000L },
@@ -95,9 +94,6 @@ class SandboxCommerceBackend(
         return CommerceResult.Ok(order)
     }
 
-    /**
-     * Records that the user returned from hosted checkout. Must not grant entitlement.
-     */
     fun noteCheckoutReturn(orderId: String?): CommerceOrder? {
         val order = orderId?.let { ordersById[it] } ?: return null
         if (order.state == OrderState.CREATED) {
@@ -117,9 +113,6 @@ class SandboxCommerceBackend(
         return cancelled
     }
 
-    /**
-     * Server-side webhook ingest. Browser returns must not call this.
-     */
     fun ingestWebhook(event: ProviderWebhookEvent): WebhookApplyResult {
         val current = ordersById[event.orderId] ?: return WebhookApplyResult.Rejected("unknown_order")
         val signed = WebhookSignature.verify(webhookHmacSecret, event)
@@ -160,9 +153,6 @@ class SandboxCommerceBackend(
         return unsigned.copy(signature = WebhookSignature.sign(webhookHmacSecret, unsigned))
     }
 
-    /**
-     * Test stand-in for a verified backend webhook. Not callable from a browser return parser.
-     */
     fun markPaidFromVerifiedWebhook(orderId: String, providerPaymentId: String): CommerceOrder {
         val event = signedEvent(
             orderId = orderId,
@@ -179,6 +169,10 @@ class SandboxCommerceBackend(
 
     fun completeFulfillment(orderId: String): CommerceOrder {
         val current = ordersById[orderId] ?: error("unknown order")
+        val canFulfill = current.state == OrderState.PAID ||
+            current.state == OrderState.ENTITLEMENT_PROVISIONING ||
+            current.state == OrderState.FULFILLED
+        if (!canFulfill) return current
         var next = current
         if (next.state == OrderState.PAID) {
             next = OrderStateMachine.transition(next, OrderState.ENTITLEMENT_PROVISIONING)
@@ -187,7 +181,7 @@ class SandboxCommerceBackend(
             next = OrderStateMachine.transition(next, OrderState.FULFILLED)
         }
         persistOrder(next)
-        if (fulfilledOrderIds.add(orderId)) {
+        if (next.state == OrderState.FULFILLED && fulfilledOrderIds.add(orderId)) {
             val plan = catalog.first { it.id == next.planId }
             val now = clock()
             val entitlement = CommerceEntitlement(

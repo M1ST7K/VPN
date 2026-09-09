@@ -3,30 +3,42 @@ package com.v2ray.ang.commerce
 import com.v2ray.ang.vpn.HotfoxServerSelection
 
 /**
- * Hands a HotFox-managed inventory to the existing 2.2 AUTO/connect resolver.
- * Does not start VpnService, publish CONNECTED, or mark pathVerified.
+ * Hands persisted HotFox-managed profiles to the existing 2.2 AUTO/connect resolver.
+ * Uses repository GUIDs. Does not start VpnService, publish CONNECTED, or mark pathVerified.
  */
 object VpnConnectHandoff {
     fun resolve(
         auto: Boolean,
-        inventory: List<ManifestRefreshPolicy.ServerIdentity>,
+        profiles: List<ManagedProfile>,
         delaysByRemarks: Map<String, Long> = emptyMap(),
-        selectedRemarks: String? = null,
+        selectedGuid: String? = null,
     ): HotfoxServerSelection.ResolveResult {
-        val candidates = inventory.mapIndexed { index, identity ->
+        val candidates = profiles.map { profile ->
             HotfoxServerSelection.Candidate(
-                guid = "hotfox-managed-$index",
-                remarks = identity.remarks,
-                delay = delaysByRemarks[identity.remarks] ?: 0L,
+                guid = profile.guid,
+                remarks = profile.remarks,
+                delay = delaysByRemarks[profile.remarks] ?: 0L,
             )
         }
-        val selectedGuid = selectedRemarks?.let { remarks ->
-            candidates.firstOrNull { it.remarks == remarks }?.guid
-        } ?: candidates.firstOrNull()?.guid
         return HotfoxServerSelection.pick(
             servers = candidates,
             auto = auto,
-            selectedGuid = selectedGuid,
+            selectedGuid = selectedGuid ?: profiles.firstOrNull()?.guid,
+        )
+    }
+
+    fun resolve(
+        store: ManagedServerStore,
+        delaysByRemarks: Map<String, Long> = emptyMap(),
+    ): HotfoxServerSelection.ResolveResult {
+        val snapshot = store.snapshot()
+        return resolve(
+            auto = snapshot.autoMode,
+            profiles = store.profiles(),
+            delaysByRemarks = delaysByRemarks,
+            selectedGuid = store.profiles().firstOrNull { profile ->
+                snapshot.selectedIdentity != null && profile.identity() == snapshot.selectedIdentity
+            }?.guid,
         )
     }
 }

@@ -4,7 +4,7 @@ import com.v2ray.ang.vpn.HotfoxServerSelection
 
 /**
  * Deterministic CI proof of the 2.3 commercial exit path.
- * Does not start Android VpnService and does not use a real payment provider.
+ * Debug/test only. Does not start Android VpnService.
  */
 object SandboxPaymentE2e {
     data class Report(
@@ -15,6 +15,7 @@ object SandboxPaymentE2e {
         val credentialStored: Boolean,
         val syncCommitted: Boolean,
         val autoMode: Boolean,
+        val persistedProfiles: List<ManagedProfile>,
         val connect: HotfoxServerSelection.ResolveResult,
         val restoredAfterReinstall: Boolean,
     )
@@ -23,6 +24,7 @@ object SandboxPaymentE2e {
         backend: SandboxCommerceBackend,
         coordinator: CommerceCoordinator,
         secrets: SecretStore,
+        inventory: ManagedServerStore,
         intents: CheckoutIntentStore,
         metadata: EntitlementMetadataStore,
         relaunch: (secrets: SecretStore, intents: CheckoutIntentStore, metadata: EntitlementMetadataStore) -> CommerceCoordinator,
@@ -60,9 +62,9 @@ object SandboxPaymentE2e {
         check(sync.value.decision.commit)
         val restored = checkNotNull(sync.value.restored)
         check(restored.autoMode)
+        check(inventory.profiles().isNotEmpty()) { "managed sync must persist profiles" }
         val connect = VpnConnectHandoff.resolve(
-            auto = restored.autoMode,
-            inventory = sync.value.inventory,
+            store = inventory,
             delaysByRemarks = mapOf("Amsterdam" to 42L, "Frankfurt" to 18L),
         )
         val emptySecrets = InMemorySecretStore()
@@ -81,6 +83,7 @@ object SandboxPaymentE2e {
             credentialStored = secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL) is SecretGetResult.Value,
             syncCommitted = sync.value.decision.commit,
             autoMode = restored.autoMode,
+            persistedProfiles = inventory.profiles(),
             connect = connect,
             restoredAfterReinstall = recovered is CommerceResult.Ok &&
                 CommerceAccessResolver.resolve(reinstall.collectFacts()) ==

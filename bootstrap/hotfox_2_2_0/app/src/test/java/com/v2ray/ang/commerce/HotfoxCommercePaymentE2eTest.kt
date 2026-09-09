@@ -6,6 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -18,14 +19,16 @@ class HotfoxCommercePaymentE2eTest {
         val secrets = InMemorySecretStore()
         val intents = InMemoryCheckoutIntentStore()
         val metadata = InMemoryEntitlementMetadataStore()
-        val coordinator = coordinator(backend, secrets, intents, metadata)
+        val inventory = InMemoryManagedServerStore()
+        val coordinator = coordinator(backend, secrets, intents, metadata, inventory)
         val report = SandboxPaymentE2e.run(
             backend = backend,
             coordinator = coordinator,
             secrets = secrets,
+            inventory = inventory,
             intents = intents,
             metadata = metadata,
-            relaunch = { s, i, m -> coordinator(backend, s, i, m) },
+            relaunch = { s, i, m -> coordinator(backend, s, i, m, inventory) },
             nowEpochSeconds = now,
         )
         assertEquals(3, report.plans.size)
@@ -36,10 +39,12 @@ class HotfoxCommercePaymentE2eTest {
         assertEquals(CommercialPresentationState.HOTFOX_ACTIVE, report.presentation)
         assertTrue(report.syncCommitted)
         assertTrue(report.autoMode)
+        assertEquals(2, report.persistedProfiles.size)
         assertTrue(report.connect is HotfoxServerSelection.ResolveResult.Success)
         val success = report.connect as HotfoxServerSelection.ResolveResult.Success
         assertTrue(success.resolvedFromAuto)
-        assertEquals("hotfox-managed-1", success.guid)
+        val frankfurt = report.persistedProfiles.first { it.remarks == "Frankfurt" }
+        assertEquals(frankfurt.guid, success.guid)
         assertTrue(report.restoredAfterReinstall)
     }
 
@@ -234,27 +239,34 @@ class HotfoxCommercePaymentE2eTest {
         backend.forceManifestFailure = true
         val failed = coordinator.syncManagedManifest(snapshot)
         assertTrue(failed is CommerceResult.Err)
+        val store = InMemoryManagedServerStore()
+        store.replaceManaged(
+            "hotfox-managed",
+            lastKnown.map { ManagedManifestParser.toProfile(it, "hotfox-managed") },
+        )
         val kept = CommerceSubscriptionSync.apply(
             snapshot,
             CommerceManifest(format = "hotfox-sandbox-v1", payload = "{not-json"),
+            store = store,
         )
         assertFalse(kept.decision.commit)
         assertEquals(lastKnown, kept.inventory)
         assertEquals("malformed_manifest", kept.decision.error)
+        assertEquals(2, store.profiles().size)
         val empty = CommerceSubscriptionSync.apply(
             snapshot,
             SandboxManifest.encode(emptyList()),
+            store = store,
         )
         assertFalse(empty.decision.commit)
         assertEquals(lastKnown, empty.inventory)
         val connect = VpnConnectHandoff.resolve(
-            auto = true,
-            inventory = lastKnown,
+            store = store,
             delaysByRemarks = mapOf("Amsterdam" to 30L, "Frankfurt" to 12L),
         )
         assertTrue(connect is HotfoxServerSelection.ResolveResult.Success)
         assertTrue((connect as HotfoxServerSelection.ResolveResult.Success).resolvedFromAuto)
-        assertEquals("hotfox-managed-1", connect.guid)
+        assertEquals(store.profiles().first { it.remarks == "Frankfurt" }.guid, connect.guid)
     }
 
     @Test
@@ -303,7 +315,17 @@ class HotfoxCommercePaymentE2eTest {
                 )
             }
         }
-        val syncing = coordinator(wrapping, secrets)
+        val inventory = InMemoryManagedServerStore()
+        val body = ManagedManifestParser.encode(SandboxManifest.sandboxInventory()).payload
+        val syncing = coordinator(
+            wrapping,
+            secrets,
+            inventory = inventory,
+            fetchManagedUrl = { url ->
+                assertEquals("https://manifest.sandbox.hotfox.invalid/sub", url)
+                body
+            },
+        )
         val snapshot = ManifestRefreshPolicy.InventorySnapshot(
             servers = emptyList(),
             favoriteIdentities = emptySet(),
@@ -312,11 +334,51 @@ class HotfoxCommercePaymentE2eTest {
         )
         val synced = syncing.syncManagedManifest(snapshot)
         assertTrue(synced is CommerceResult.Ok)
+        assertTrue((synced as CommerceResult.Ok).value.decision.commit)
+        assertEquals(2, inventory.profiles().size)
         assertEquals(
             "https://manifest.sandbox.hotfox.invalid/sub",
             (secrets.get(SecretKeys.SUBSCRIPTION_TOKEN) as SecretGetResult.Value).utf8(),
         )
         assertFalse(CheckoutReturnParser.isPaidProof(HostedCheckoutFixture.returnUri(order, claimSuccess = true)))
+    }
+
+    @Test
+    fun unpaidAndCancelledOrdersCannotBeFulfilled() = runBlocking {
+        val backend = sandbox()
+        val created = (backend.createOrder(CreateOrderRequest("idem-unpaid", "plan_1m", "install")) as CommerceResult.Ok).value
+        val stillCreated = backend.completeFulfillment(created.id)
+        assertEquals(OrderState.CREATED, stillCreated.state)
+        assertTrue(backend.claimEntitlement(created.id, "install") is CommerceResult.Err)
+        assertEquals(null, (backend.getEntitlement("ent_${created.id}") as CommerceResult.Ok).value)
+        val cancelled = (backend.createOrder(CreateOrderRequest("idem-cancel-f", "plan_1m", "install")) as CommerceResult.Ok).value
+        backend.cancelCheckout(cancelled.id)
+        backend.completeFulfillment(cancelled.id)
+        assertEquals(OrderState.CANCELLED, (backend.getOrder(cancelled.id) as CommerceResult.Ok).value.state)
+        assertTrue(backend.claimEntitlement(cancelled.id, "install") is CommerceResult.Err)
+    }
+
+    @Test
+    fun paidOrderRejectsADifferentProviderPaymentId() = runBlocking {
+        val backend = sandbox()
+        val order = (backend.createOrder(CreateOrderRequest("idem-alt-pay", "plan_1m", "install")) as CommerceResult.Ok).value
+        backend.ingestWebhook(backend.signedEvent(order.id, WebhookEventType.PAID, "pay_original", "evt_orig", now))
+        val conflict = backend.ingestWebhook(
+            backend.signedEvent(order.id, WebhookEventType.PAID, "pay_other", "evt_other", now),
+        )
+        assertTrue(conflict is WebhookApplyResult.Rejected)
+        assertEquals("payment_id_conflict", (conflict as WebhookApplyResult.Rejected).reason)
+        val paid = (backend.getOrder(order.id) as CommerceResult.Ok).value
+        assertEquals(OrderState.FULFILLED, paid.state)
+        assertEquals("pay_original", paid.providerPaymentId)
+    }
+
+    @Test
+    fun defaultDebugBuildDoesNotSelectSandboxCommerce() {
+        assertFalse(com.v2ray.ang.BuildConfig.HOTFOX_SANDBOX_COMMERCE)
+        assertFalse(HotfoxCommerceFactory.sandboxCommerceEnabled())
+        assertNull(HotfoxDebugCommerce.maybeSandbox())
+        assertTrue(HotfoxCommerceFactory.create() is UnavailableCommerceBackend)
     }
 
     @Test
@@ -340,11 +402,15 @@ class HotfoxCommercePaymentE2eTest {
         secrets: SecretStore = InMemorySecretStore(),
         intents: CheckoutIntentStore = InMemoryCheckoutIntentStore(),
         metadata: EntitlementMetadataStore = InMemoryEntitlementMetadataStore(),
+        inventory: ManagedServerStore = InMemoryManagedServerStore(),
+        fetchManagedUrl: (String) -> String? = { null },
     ) = CommerceCoordinator(
         backend = backend,
         secrets = secrets,
         intents = intents,
         metadata = metadata,
+        inventory = inventory,
+        fetchManagedUrl = fetchManagedUrl,
         installId = { "install-e2e" },
         nowEpochSeconds = { now },
     )

@@ -4,16 +4,16 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
-data class ParsedSandboxManifest(
+data class ParsedManagedManifest(
     val servers: List<ManifestRefreshPolicy.ServerIdentity>,
     val malformed: Boolean,
 )
 
 /**
- * Sandbox/CI manifest format. Payloads describe synthetic hosts only.
- * Production VLESS URLs and provider credentials must not appear here.
+ * Inventory JSON used by HotFox-managed sync. This is not a payment backend.
+ * Payloads must not contain production VLESS URLs or provider credentials.
  */
-object SandboxManifest {
+object ManagedManifestParser {
     const val FORMAT = "hotfox-sandbox-v1"
 
     fun encode(servers: List<ManifestRefreshPolicy.ServerIdentity>): CommerceManifest {
@@ -35,16 +35,16 @@ object SandboxManifest {
         return CommerceManifest(format = FORMAT, payload = root.toString())
     }
 
-    fun parse(manifest: CommerceManifest): ParsedSandboxManifest {
+    fun parse(manifest: CommerceManifest): ParsedManagedManifest {
         val payload = manifest.payload
         if (payload.isNullOrBlank()) {
-            return ParsedSandboxManifest(emptyList(), malformed = false)
+            return ParsedManagedManifest(emptyList(), malformed = false)
         }
         return try {
             val root = JsonParser.parseString(payload).asJsonObject
             val format = root.get("format")?.asString ?: manifest.format
             if (format.isNotBlank() && format != FORMAT) {
-                return ParsedSandboxManifest(emptyList(), malformed = true)
+                return ParsedManagedManifest(emptyList(), malformed = true)
             }
             val array = root.getAsJsonArray("servers") ?: JsonArray()
             val servers = ArrayList<ManifestRefreshPolicy.ServerIdentity>(array.size())
@@ -54,7 +54,7 @@ object SandboxManifest {
                 val server = item.get("server")?.asString.orEmpty()
                 val port = item.get("port")?.asString.orEmpty()
                 if (remarks.isBlank() || server.isBlank() || port.isBlank()) {
-                    return ParsedSandboxManifest(emptyList(), malformed = true)
+                    return ParsedManagedManifest(emptyList(), malformed = true)
                 }
                 servers.add(
                     ManifestRefreshPolicy.ServerIdentity(
@@ -68,30 +68,35 @@ object SandboxManifest {
                     ),
                 )
             }
-            ParsedSandboxManifest(servers, malformed = false)
+            ParsedManagedManifest(servers, malformed = false)
         } catch (_: Exception) {
-            ParsedSandboxManifest(emptyList(), malformed = true)
+            ParsedManagedManifest(emptyList(), malformed = true)
         }
     }
 
-    fun sandboxInventory(): List<ManifestRefreshPolicy.ServerIdentity> = listOf(
-        ManifestRefreshPolicy.ServerIdentity(
-            remarks = "Amsterdam",
-            server = "ams.sandbox.hotfox.invalid",
-            port = "443",
-            protocol = "VLESS",
-            network = "xhttp",
-            security = "reality",
-            fingerprint = "chrome",
-        ),
-        ManifestRefreshPolicy.ServerIdentity(
-            remarks = "Frankfurt",
-            server = "fra.sandbox.hotfox.invalid",
-            port = "443",
-            protocol = "VLESS",
-            network = "xhttp",
-            security = "reality",
-            fingerprint = "chrome",
-        ),
-    )
+    fun toProfile(
+        identity: ManifestRefreshPolicy.ServerIdentity,
+        subscriptionId: String,
+    ): ManagedProfile {
+        val guid = "hf-" + HotfoxManifestRefresh.fingerprintOf(
+            identity.remarks,
+            identity.server,
+            identity.port,
+            identity.protocol,
+            identity.network,
+            identity.security,
+            identity.fingerprint,
+        ).take(16)
+        return ManagedProfile(
+            guid = guid,
+            remarks = identity.remarks,
+            server = identity.server,
+            port = identity.port,
+            protocol = identity.protocol,
+            network = identity.network,
+            security = identity.security,
+            fingerprint = identity.fingerprint,
+            subscriptionId = subscriptionId,
+        )
+    }
 }

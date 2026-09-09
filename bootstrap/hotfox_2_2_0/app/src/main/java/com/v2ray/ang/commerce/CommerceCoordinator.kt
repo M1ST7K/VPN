@@ -17,6 +17,8 @@ class CommerceCoordinator(
     private val secrets: SecretStore,
     private val intents: CheckoutIntentStore = MmkvCheckoutIntentStore,
     private val metadata: EntitlementMetadataStore = MmkvEntitlementMetadataStore,
+    private val inventory: ManagedServerStore = InMemoryManagedServerStore(),
+    private val fetchManagedUrl: (String) -> String? = { null },
     private val installId: () -> String = { CommercePreferences.installId() },
     private val nowEpochSeconds: () -> Long = { System.currentTimeMillis() / 1000L },
 ) {
@@ -221,13 +223,19 @@ class CommerceCoordinator(
                             return CommerceResult.Err(CommerceError.REJECTED, "keystore_write_failed")
                     }
                 }
-                val outcome = CommerceSubscriptionSync.apply(snapshot, manifest.value)
+                val storedUrl = when (val stored = secrets.get(SecretKeys.SUBSCRIPTION_TOKEN)) {
+                    is SecretGetResult.Value -> stored.utf8()
+                    else -> subscriptionUrl
+                }
+                val subId = runCatching { CommercePreferences.hotfoxSubscriptionId() }.getOrNull().orEmpty()
+                    .ifBlank { "hotfox-managed" }
+                runCatching { CommercePreferences.setHotfoxSubscriptionId(subId) }
+                val outcome = ManagedManifestApplicator(
+                    store = inventory,
+                    fetchUrl = fetchManagedUrl,
+                    managedSubscriptionId = { subId },
+                ).apply(snapshot, manifest.value, storedUrl)
                 if (outcome.decision.commit) {
-                    runCatching { CommercePreferences.recordManifestSuccess() }
-                    CommerceResult.Ok(outcome)
-                } else if (!subscriptionUrl.isNullOrBlank() && outcome.decision.error == "empty_manifest") {
-                    // Opaque HTTPS subscription token is Keystore-backed. Inventory swap stays
-                    // on the existing 2.2 updater; this is not a failed HotFox-managed sync.
                     runCatching { CommercePreferences.recordManifestSuccess() }
                     CommerceResult.Ok(outcome)
                 } else {
@@ -383,6 +391,12 @@ class CommerceCoordinator(
                 instance ?: CommerceCoordinator(
                     backend = HotfoxCommerceFactory.create(),
                     secrets = AndroidKeystoreSecretStore(context.applicationContext),
+                    intents = MmkvCheckoutIntentStore,
+                    metadata = MmkvEntitlementMetadataStore,
+                    inventory = MmkvManagedServerStore,
+                    fetchManagedUrl = { url ->
+                        com.v2ray.ang.handler.AngConfigManager.fetchSubscriptionBody(url)
+                    },
                 ).also { instance = it }
             }
         }

@@ -9,25 +9,16 @@ object CommerceSubscriptionSync {
         val decision: ManifestRefreshPolicy.RefreshDecision,
         val inventory: List<ManifestRefreshPolicy.ServerIdentity>,
         val restored: ManifestRefreshPolicy.RestoredSelection?,
+        val profiles: List<ManagedProfile> = emptyList(),
     )
 
     fun apply(
         snapshot: ManifestRefreshPolicy.InventorySnapshot,
         manifest: CommerceManifest,
+        store: ManagedServerStore = InMemoryManagedServerStore(),
+        fetchUrl: (String) -> String? = { null },
+        subscriptionUrl: String? = null,
     ): Outcome {
-        val parsed = SandboxManifest.parse(manifest)
-        val empty = parsed.servers.isEmpty()
-        val decision = ManifestRefreshPolicy.decide(
-            parsedCount = parsed.servers.size,
-            malformed = parsed.malformed,
-            emptyPayload = empty,
-        )
-        val inventory = ManifestRefreshPolicy.inventoryAfter(snapshot, parsed.servers, decision)
-        val restored = if (decision.commit) {
-            ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, parsed.servers)
-        } else {
-            null
-        }
-        return Outcome(decision = decision, inventory = inventory, restored = restored)
+        return ManagedManifestApplicator(store, fetchUrl).apply(snapshot, manifest, subscriptionUrl)
     }
 }

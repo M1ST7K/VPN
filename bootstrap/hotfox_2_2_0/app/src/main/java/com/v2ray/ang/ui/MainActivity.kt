@@ -463,7 +463,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             if (snapshot != null) {
                 val synced = coordinator.syncManagedManifest(snapshot)
                 if (synced is CommerceResult.Ok && synced.value.decision.commit) {
-                    runCatching { HotfoxManifestRefresh.restoreAfterSuccess(snapshot) }
+                    // Inventory swap and AUTO restore already happened inside the applicator.
                 } else if (snapshot.autoMode) {
                     runCatching { HotfoxServerSelection.setAutoMode(true) }
                 }

@@ -81,10 +81,15 @@ grep -q 'HotfoxManifestRefresh.restoreAfterSuccess' "$PROJECT/app/src/main/java/
   || fail "transactional manifest restore missing"
 grep -q 'fun apply' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/WebhookReconciliation.kt" \
   || fail "webhook reconciliation missing"
-grep -q 'object SandboxPaymentE2e' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/SandboxPaymentE2e.kt" \
+grep -q 'object SandboxPaymentE2e' "$PROJECT/app/src/debug/java/com/v2ray/ang/commerce/SandboxPaymentE2e.kt" \
   || fail "sandbox payment E2E orchestrator missing"
-grep -q 'HOTFOX_SANDBOX_COMMERCE' "$PROJECT/app/build.gradle.kts" \
-  || fail "sandbox commerce BuildConfig flag missing"
+grep -q 'HOTFOX_SANDBOX_COMMERCE cannot be enabled for release builds' "$PROJECT/app/build.gradle.kts" \
+  || fail "release sandbox commerce Gradle guard missing"
+grep -q 'class ManagedManifestApplicator' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/ManagedManifestApplicator.kt" \
+  || fail "managed manifest applicator missing"
+if grep -q 'SandboxCommerceBackend()' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceFactory.kt"; then
+  fail "main factory must not instantiate SandboxCommerceBackend"
+fi
 
 for abi in arm64-v8a armeabi-v7a x86 x86_64; do
   for lib in libhev-socks5-tunnel.so libhevsockstun.so; do

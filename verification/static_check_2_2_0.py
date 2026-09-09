@@ -273,9 +273,27 @@ def main() -> int:
         "webhook reconciliation",
     )
     must_contain(
-        "app/src/main/java/com/v2ray/ang/commerce/SandboxPaymentE2e.kt",
+        "app/src/debug/java/com/v2ray/ang/commerce/SandboxPaymentE2e.kt",
         "object SandboxPaymentE2e",
         "sandbox payment E2E orchestrator",
+    )
+    gradle = read("app/build.gradle.kts")
+    if gradle and "HOTFOX_SANDBOX_COMMERCE cannot be enabled for release builds" not in gradle:
+        fail("release sandbox commerce Gradle guard missing")
+    if gradle and 'src/main' in gradle and "SandboxCommerceBackend" in read(
+        "app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceFactory.kt"
+    ):
+        fail("release factory must not reference SandboxCommerceBackend")
+    factory = read("app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceFactory.kt")
+    if factory and "SandboxCommerceBackend()" in factory:
+        fail("main HotfoxCommerceFactory must not instantiate SandboxCommerceBackend")
+    release_stub = read("app/src/release/java/com/v2ray/ang/commerce/HotfoxDebugCommerce.kt")
+    if release_stub and "SandboxCommerceBackend" in release_stub:
+        fail("release HotfoxDebugCommerce must not reference SandboxCommerceBackend")
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/ManagedManifestApplicator.kt",
+        "class ManagedManifestApplicator",
+        "managed manifest applicator",
     )
 
     secret_re = re.compile(
