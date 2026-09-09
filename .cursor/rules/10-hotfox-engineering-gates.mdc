@@ -1,5 +1,5 @@
 ---
-description: HotFox engineering gate policy for stage transitions and physical validation
+description: HotFox engineering gate policy for sequential roadmap progression and final physical release validation
 alwaysApply: true
 ---
 
@@ -7,146 +7,211 @@ alwaysApply: true
 
 This rule is ALWAYS ACTIVE for the HotFox project.
 
-## 1. Stage 2.3 closure
+Canonical roadmap details live in:
 
-Physical validation on a real Android device is NOT a blocking condition for closing the 2.3 engineering gate.
+`docs/HOTFOX_ROADMAP.md`
 
-The 2.3 stage may be marked:
+Before starting or closing a roadmap phase, use that document as the phase scope source of truth together with the current repository implementation and reviewer guardrails.
 
-`2.3 ENGINEERING COMPLETE`
+## 1. Canonical roadmap order
 
-when all required implementation work and engineering-level validation for 2.3 are complete and a final `[hotfox-review]` reports:
+The active sequence is:
 
-- P0 = 0
-- P1 = 0
+`2.2 Truthful Core`
+→ `2.3 Commercial Foundation`
+→ `2.4 Smart Connection`
+→ `2.5 Privacy Controls / Smart Routing`
+→ `2.6 HotFox Shadow / Stealth & Resilience`
+→ `2.7 Operations / Release Infrastructure`
+→ `2.8 HotFox Autopilot / Adaptive Protection`
+→ `2.9 Premium Android Experience`
+→ `3.0 Mature HotFox Platform`
+→ `FINAL RELEASE DEVICE GATE`
 
-Do not block the roadmap solely because a physical device test has not yet been performed.
+Do not reorder or skip phases unless the owner explicitly changes the roadmap.
 
-## 2. Required 2.3 engineering scope
+## 2. Historical phases remain preserved
 
-Before declaring `2.3 ENGINEERING COMPLETE`, verify the implemented engineering scope expected for 2.3, including as applicable:
+2.2 and 2.3 are historical engineering phases with their existing implementation, commits, test evidence and review history.
 
-- plan selection;
-- order creation;
-- hosted checkout / sandbox flow;
-- backend-authoritative payment verification;
-- no trust in client-side `success=true` or equivalent client assertions;
-- entitlement issuance based on authoritative backend state;
-- persistence/recovery behavior;
-- Keystore-backed sensitive local state where required;
-- manifest sync;
-- AUTO integration into the existing truthful VPN path;
-- duplicate webhook handling;
-- idempotency;
-- lost checkout response handling;
-- checkout cancellation handling;
-- app restart / recovery handling;
-- regression coverage for affected flows.
+Do not delete or rewrite historical evidence merely because the roadmap has advanced.
 
-The exact source of truth remains the current HotFox specification and repository state. Do not invent completion evidence.
+Do not reopen a completed historical phase solely because physical-device validation remains pending.
 
-## 3. Final 2.3 review
+Revisit an earlier phase only if:
 
-After implementation and tests are complete, run exactly one final `[hotfox-review]` for the 2.3 engineering exit.
+- a new real P0 is discovered;
+- a new real P1 is discovered;
+- a material regression invalidates an earlier guarantee;
+- the current phase exposes a genuine architectural defect that must be corrected.
 
-If the final review has:
+## 3. Current phase
 
-- P0 = 0
-- P1 = 0
-
-then record:
-
-`2.3 ENGINEERING COMPLETE`
-
-and proceed to 2.4.
-
-If a real P0 or P1 remains, do not force-close 2.3. Fix the blocking issue first.
-
-## 4. Physical validation is a separate gate
-
-Physical validation on a real Android device must be tracked separately from the 2.3 engineering gate.
-
-Absence of physical validation MUST be reported truthfully, for example:
-
-"Physical validation на реальном Android-устройстве ещё не выполнена. Это отдельный последующий gate и не блокирует переход к 2.4."
-
-Do not misrepresent unperformed physical validation as completed.
-
-## 5. Release readiness
-
-Physical validation remains required before claiming production/release readiness where the release criteria require it.
-
-Therefore:
-
-- `2.3 ENGINEERING COMPLETE` may be declared without physical validation if the engineering gate criteria are satisfied.
-- `2.4 Smart Connection` may begin after 2.3 engineering closure.
-- `RELEASE READY` MUST NOT be claimed solely from engineering completion if required physical validation has not been performed.
-
-Keep these states distinct.
-
-## 6. Transition to 2.4
-
-Once `2.3 ENGINEERING COMPLETE` is validly established, immediately continue with:
+Current engineering phase is:
 
 `2.4 Smart Connection`
 
-Do not request a physical device test from the user as a prerequisite for starting 2.4.
+2.4 is already in progress.
 
-Do not remain idle waiting for physical validation before beginning 2.4.
+Do not restart 2.3 work unless one of the legitimate regression conditions above applies.
 
-Do not reopen 2.3 merely because physical validation is pending.
+## 4. Standard engineering exit gate for 2.4 through 3.0
 
-Reopen or revisit 2.3 only when:
+For every phase from 2.4 through 3.0, the standard engineering exit is:
 
-- a new P0 is discovered;
-- a new P1 is discovered;
-- a material regression invalidates the 2.3 engineering gate;
-- 2.4 work exposes a genuine architectural defect in the 2.3 implementation that must be corrected.
+`phase implementation complete`
+→ `required build/CI checks complete`
+→ `required automated/unit/integration validation complete`
+→ one final `[hotfox-review]`
+→ `P0 = 0, P1 = 0`
+→ `<phase> ENGINEERING COMPLETE`
+→ immediately start the next canonical roadmap phase.
 
-## 7. Truthful status model
+P2-only findings do not block progression unless the owner explicitly promotes them.
 
-Always distinguish these states explicitly:
+Do not claim engineering completion without real evidence from code/tests/review.
+
+## 5. Physical Android testing is NOT a per-phase blocker
+
+Physical validation on a real Android device is NOT required to close:
+
+- 2.4;
+- 2.5;
+- 2.6;
+- 2.7;
+- 2.8;
+- 2.9;
+- 3.0 engineering gates.
+
+Do NOT ask the user to perform a physical Android test before progressing from one of these engineering phases to the next.
+
+Do NOT remain idle waiting for a physical device test if the engineering gate is otherwise satisfied.
+
+Do NOT treat missing real-device validation by itself as a P0/P1 engineering-phase finding.
+
+Do NOT falsely claim a physical test was performed.
+
+Truthful stage wording may state:
+
+`ENGINEERING COMPLETE — physical release validation deferred.`
+
+## 6. One final physical release gate
+
+Physical Android validation is consolidated into the single final:
+
+`FINAL RELEASE DEVICE GATE`
+
+This gate occurs after `3.0 ENGINEERING COMPLETE`, or after an explicit owner-approved release-candidate cut if the owner chooses to ship before all planned 3.0 platform work.
+
+Only this final release gate may block the claim:
+
+`RELEASE READY`
+
+Until that physical acceptance actually passes, do not claim `RELEASE READY`.
+
+The detailed device acceptance suite is defined in `docs/HOTFOX_ROADMAP.md`.
+
+## 7. No physical-test prompts between phases
+
+After a valid engineering completion state, continue automatically to the next canonical phase.
+
+Examples:
+
+`2.4 ENGINEERING COMPLETE` → start 2.5.
+
+`2.5 ENGINEERING COMPLETE` → start 2.6.
+
+`2.6 ENGINEERING COMPLETE` → start 2.7.
+
+`2.7 ENGINEERING COMPLETE` → start 2.8.
+
+`2.8 ENGINEERING COMPLETE` → start 2.9.
+
+`2.9 ENGINEERING COMPLETE` → start 3.0.
+
+Do not ask:
+
+- "Please test on a physical Android device before I continue";
+- "I need a real-device test to start the next roadmap phase";
+- equivalent blocking requests.
+
+Instead record physical validation as deferred to the final release gate and continue.
+
+## 8. Truthful validation status model
+
+Always distinguish:
 
 ### Implemented
-The code path exists in the repository.
+The code path exists.
 
 ### Automatically tested
-Relevant automated tests have passed.
+Relevant automated checks/tests passed.
 
-### Integration/E2E validated
-The relevant integration or E2E path has been exercised in the available engineering environment.
+### Integration validated
+The relevant integration path was exercised in the available engineering environment.
 
 ### Physically validated
-The behavior has been tested on a real Android device where required.
+The behavior was actually tested on a real Android device.
 
-### Not validated
-The relevant validation has not been performed.
+### Not physically validated
+No real-device proof exists yet.
 
-Never collapse these states into a generic `done`.
+### Release ready
+The final release acceptance criteria, including required real-device validation, passed.
 
-## 8. No fabricated evidence
+Never collapse these into a generic `done`.
 
-Never claim that a test, payment, entitlement, VPN path, checkout, recovery path, or physical validation passed unless there is actual evidence available in the current work context.
+## 9. Earlier guarantees remain binding
 
-If evidence is missing, state that clearly while still following the gate policy above.
+Later roadmap work must preserve:
 
-## 9. User interaction policy for this transition
+- real Android `VpnService`/TUN traffic forwarding through HEV/tun2socks and Xray;
+- canonical truthful connection state;
+- DNS leak prevention policy;
+- IPv6 route/fail-closed policy;
+- bounded serialized reconnect/failover;
+- backend-authoritative entitlement;
+- no trust in checkout return `success=true`;
+- Keystore-backed protection where required;
+- no secrets embedded/logged;
+- manual subscription fallback where still part of product scope;
+- AUTO/manual user intent correctness.
 
-Do not ask the user to perform a physical device test before 2.4 if 2.3 otherwise satisfies its engineering exit criteria.
+A future feature does not get permission to weaken an earlier release-critical guarantee.
 
-Do not ask for confirmation to start 2.4 after a valid `2.3 ENGINEERING COMPLETE` state. Continue according to the roadmap.
+## 10. Scope discipline
 
-If physical validation remains pending, record it as a separate future release-readiness task rather than a blocker for Smart Connection engineering.
+Work primarily on the current phase.
 
-## 10. Canonical transition
+Do not implement an entire future phase early merely because it is described in the roadmap.
 
-The intended transition is:
+Small prerequisite abstractions are allowed when necessary for correct current architecture, but do not turn them into uncontrolled scope expansion.
 
-`2.3 implementation complete`
-→ `2.3 automated/integration validation complete`
-→ final `[hotfox-review]`
-→ `P0 = 0, P1 = 0`
-→ `2.3 ENGINEERING COMPLETE`
-→ `2.4 Smart Connection`
+During `[hotfox-review]`, do not classify unimplemented future roadmap items as current P0/P1 defects.
 
-Physical validation remains a separate later gate and must not be silently forgotten or falsely marked complete.
+Review:
+
+- regressions of earlier guarantees;
+- correctness/security of the current implemented phase;
+- code actually present in the diff/repository context.
+
+## 11. No fabricated evidence
+
+Never claim a test, payment, entitlement, VPN path, AUTO decision, routing rule, Shadow path, update verification, Autopilot action or physical validation passed unless evidence exists.
+
+If physical validation has not run, state that truthfully while still following the non-blocking engineering progression policy.
+
+## 12. Canonical progression contract
+
+For each phase:
+
+`implement current roadmap scope`
+→ `build`
+→ `tests / lint / static / integration as applicable`
+→ `final [hotfox-review]`
+→ if P0/P1 exist: fix them
+→ if P0=0 and P1=0: mark ENGINEERING COMPLETE
+→ update current-phase context
+→ start next roadmap phase immediately.
+
+Physical validation is performed once at the final release device gate, not repeatedly between roadmap phases.
