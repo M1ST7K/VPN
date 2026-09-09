@@ -8,6 +8,20 @@ Review only evidence present in the current diff/current PR context. Do not inve
 
 `CHANGES_REQUIRED` is reserved for P0/P1 findings. P2-only feedback must not trigger another autonomous Cursor iteration.
 
+### Engineering-phase vs final release device validation
+
+Physical Android validation is intentionally deferred to the single `FINAL RELEASE DEVICE GATE` defined in `docs/HOTFOX_ROADMAP.md`.
+
+During engineering phases 2.4 through 3.0:
+
+- missing real-device validation by itself MUST NOT be reported as a P0 or P1;
+- do not block `ENGINEERING COMPLETE` solely because a physical Android test has not run;
+- do not ask the user to perform a physical test before the next roadmap phase;
+- continue to require truthful reporting that physical validation has not yet run;
+- never claim `RELEASE READY` until the final physical release gate actually passes.
+
+Physical-device failures discovered later may of course reveal real P0/P1 product defects. This rule only prevents absence of the deferred release test from becoming an artificial blocker at every engineering checkpoint.
+
 ## P0 — release-blocking correctness/security
 
 1. HotFox must remain a real Android VPN. Production traffic path must remain conceptually:
@@ -24,7 +38,7 @@ Review only evidence present in the current diff/current PR context. Do not inve
 11. Do not weaken TLS, Reality, certificate validation or transport security merely to make tests pass.
 12. Do not commit or log secrets: subscription URLs, private UUIDs/tokens, API keys, signing passwords, keystores or private keys.
 13. Do not add production mocks, fake networking, fake pings, fake traffic counters, fake server health or fake subscription state.
-14. Physical-device E2E must never be claimed as PASS unless it actually ran. External-IP change, DNS leak and IPv6 leak remain device acceptance checks.
+14. Physical-device E2E must never be claimed as PASS unless it actually ran. External-IP change, DNS leak and IPv6 leak remain final device acceptance checks.
 
 ## P1 — major functional/architectural quality
 
@@ -88,4 +102,6 @@ Then use these sections when relevant:
 
 Every P0/P1 finding should name the affected file/symbol and explain the concrete failure mode. Prefer actionable fixes over broad advice. If evidence is insufficient, do not manufacture a finding.
 
-Use `APPROVED` when there are no substantiated P0/P1 defects, even if P2 suggestions remain.
+For engineering phases before the final release device gate, the `DEVICE_E2E` section may truthfully state that physical validation is deferred. That statement alone must not change an otherwise valid `APPROVED` engineering verdict.
+
+Use `APPROVED` when there are no substantiated P0/P1 defects, even if P2 suggestions remain or final physical release validation is still deferred.

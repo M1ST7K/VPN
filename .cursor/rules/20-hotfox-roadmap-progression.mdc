@@ -1,0 +1,119 @@
+---
+description: HotFox canonical roadmap sequencing and automatic phase progression
+alwaysApply: true
+---
+
+# HOTFOX — ROADMAP PROGRESSION RULE
+
+This rule is ALWAYS ACTIVE.
+
+Canonical roadmap:
+
+`docs/HOTFOX_ROADMAP.md`
+
+Current phase:
+
+`2.4 Smart Connection`
+
+## 1. Read the roadmap before phase work
+
+Before planning, implementing or closing a roadmap phase, read the corresponding section in `docs/HOTFOX_ROADMAP.md`.
+
+Do not rely on an older chat summary when the repository roadmap is available.
+
+## 2. Preserve historical work
+
+Do not delete, rewrite or invalidate completed 2.2/2.3 work simply because later phases exist.
+
+Preserve earlier code paths and reviewer evidence unless the current phase uncovers a real regression or architectural defect.
+
+## 3. Work sequentially
+
+Canonical sequence:
+
+`2.4 Smart Connection`
+→ `2.5 Privacy Controls / Smart Routing`
+→ `2.6 HotFox Shadow / Stealth & Resilience`
+→ `2.7 Operations / Release Infrastructure`
+→ `2.8 HotFox Autopilot / Adaptive Protection`
+→ `2.9 Premium Android Experience`
+→ `3.0 Mature HotFox Platform`
+
+Do not skip directly to a later phase.
+
+Do not blend several future phases into one uncontrolled implementation batch.
+
+Small prerequisite abstractions are allowed when they are genuinely necessary for the current phase.
+
+## 4. Standard phase closure
+
+For the current phase:
+
+1. finish the required implementation;
+2. run the repository-required build/CI checks;
+3. run relevant unit/integration/static/lint tests;
+4. fix real failures rather than disabling meaningful checks;
+5. run one final `[hotfox-review]`;
+6. if P0 or P1 remains, fix it;
+7. if P0=0 and P1=0, record `<phase> ENGINEERING COMPLETE — physical release validation deferred.`;
+8. update trusted current-phase context to the next phase;
+9. immediately start the next roadmap phase.
+
+P2-only findings are non-blocking unless explicitly promoted by the owner.
+
+## 5. Do not stop for physical Android testing between phases
+
+Physical Android testing is not a transition requirement for 2.4 -> 2.5 -> 2.6 -> 2.7 -> 2.8 -> 2.9 -> 3.0.
+
+Do not ask the owner for a physical device test as a prerequisite for continuing this sequence.
+
+Do not wait idle for such a test.
+
+Do not classify the absence of deferred physical testing as a phase P0/P1.
+
+Never fabricate physical test evidence.
+
+## 6. Final physical release gate only
+
+After `3.0 ENGINEERING COMPLETE`, stop automatic engineering phase progression because the canonical engineering roadmap is complete.
+
+At that point the project enters:
+
+`FINAL RELEASE DEVICE GATE`
+
+The real-device acceptance suite in `docs/HOTFOX_ROADMAP.md` must actually pass before claiming:
+
+`RELEASE READY`
+
+The owner may explicitly cut a release candidate earlier and invoke the final release device gate for that release, but Cursor must not assume such a cut on its own.
+
+## 7. Reviewer scope discipline
+
+During each phase, review:
+
+- regressions of completed guarantees;
+- concrete defects in the currently implemented phase;
+- build/test/security issues evidenced by current code.
+
+Do not report unimplemented future roadmap functionality as a current P0/P1.
+
+## 8. Truthful VPN and commerce guarantees always win
+
+Roadmap progression must never weaken:
+
+- real VpnService/TUN -> HEV/tun2socks -> Xray traffic forwarding;
+- canonical protected-state truth;
+- DNS and IPv6 leak policy;
+- bounded lifecycle/reconnect behavior;
+- backend-authoritative payment and entitlement;
+- secret handling;
+- manual subscription compatibility where still in scope;
+- AUTO/manual selection intent.
+
+Do not trade correctness for faster milestone completion.
+
+## 9. Communication
+
+All phase reports, `[hotfox-review]` summaries, P0/P1/P2 explanations and transition notices must follow the HotFox Russian communication rule.
+
+Canonical technical identifiers may remain in English.
