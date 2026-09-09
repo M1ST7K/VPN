@@ -109,9 +109,34 @@ GitHub CI for exact SHA `6a0eef8f4b9007d097539078f7840d95c75f855e`:
 - Reconstruct and build Android app: PASS;
 - remaining bootstrap/Android jobs: PASS (run `34319308050`).
 
+Round-11 trusted checkpoint on `856bfce` returned **CHANGES_REQUIRED** (P1 only). Implementation fix SHA: `664bd27a51b7bfdbfdaa5a00bcae90023abbbc6a`.
+
+Round-11 P1s addressed in `664bd27`:
+
+1. Paid checkout claims a backend-authoritative entitlement and persists the Keystore credential before HotFox-managed access is enabled. Browser `success=true` remains non-authoritative.
+2. Keystore write failure does not set origin or clear the pending order. Presentation uses trusted entitlement status/expiry; missing backend status is not defaulted to `ACTIVE`.
+3. Checkout idempotency keys are persisted before network dispatch, reused after lost responses, and serialized against concurrent taps.
+4. Manifest refresh identity includes protocol/transport/security plus a SHA-256 fingerprint of connection-defining fields.
+5. Dashboard reads a cached commercial snapshot; Keystore/file secret I/O runs off the UI thread.
+
+Local engineering evidence for `664bd27`:
+
+- debug APK build: PASS;
+- unit tests: PASS (133);
+- Android lint: PASS;
+- unsigned release compile: PASS;
+- HotFox static/overlay verifiers: PASS;
+- overlay secret scan: PASS.
+
+GitHub CI for exact SHA `664bd27a51b7bfdbfdaa5a00bcae90023abbbc6a`:
+
+- Payload integrity: PASS;
+- Reconstruct and build Android app: PASS;
+- remaining bootstrap/Android jobs: PASS (run `34321635941`).
+
 ### Engineering gate status
 
-**IN PROGRESS** — first coherent app/foundation block is implemented and automated gates are green. Phase 2.3 is **not** engineering-complete until a sandbox/test payment proves the full `plan → checkout → backend-verified entitlement → sync → AUTO → 2.2 VPN path` exit.
+**IN PROGRESS** — first coherent app/foundation block plus round-11 P1 fulfillment/idempotency/identity/Keystore-thread fixes are implemented and automated gates are green. Phase 2.3 is **not** engineering-complete until a sandbox/test payment proves the full `plan → checkout → backend-verified entitlement → sync → AUTO → 2.2 VPN path` exit.
 
 Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXECUTED**.
 
