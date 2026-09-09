@@ -209,7 +209,7 @@ class HotfoxCommerceFoundationTest {
 
     @Test
     fun verifiedPaidOrderFulfillsIntoPersistedEntitlement() = runBlocking {
-        val backend = SandboxCommerceBackend()
+        val backend = testBackend()
         val secrets = InMemorySecretStore()
         val intents = InMemoryCheckoutIntentStore()
         val metadata = InMemoryEntitlementMetadataStore()
@@ -252,7 +252,7 @@ class HotfoxCommerceFoundationTest {
 
     @Test
     fun keystoreWriteFailureDoesNotClearOrderOrClaimSuccess() = runBlocking {
-        val backend = SandboxCommerceBackend()
+        val backend = testBackend()
         val secrets = InMemorySecretStore().apply { failPuts = true }
         val intents = InMemoryCheckoutIntentStore()
         val metadata = InMemoryEntitlementMetadataStore()
@@ -417,8 +417,170 @@ class HotfoxCommerceFoundationTest {
         assertEquals(right, ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, listOf(right)).selectedIdentity)
     }
 
+    @Test
+    fun successTrueReturnStillPollsBackendWithoutTrustingBrowserClaim() = runBlocking {
+        val backend = testBackend()
+        val secrets = InMemorySecretStore()
+        val intents = InMemoryCheckoutIntentStore()
+        val metadata = InMemoryEntitlementMetadataStore()
+        val coordinator = testCoordinator(backend, secrets, intents, metadata)
+        val order = (coordinator.startCheckout("plan_1m") as CommerceResult.Ok).value
+        val claimedReturn = "https://hotfox.example/return?success=true&orderId=${order.id}"
+        assertFalse(CheckoutReturnParser.isPaidProof(claimedReturn))
+        val pollsBefore = backend.getOrderCount()
+        val unpaid = coordinator.handleCheckoutReturn(claimedReturn)
+        assertTrue(unpaid is CommerceResult.Ok)
+        assertTrue(backend.getOrderCount() > pollsBefore)
+        assertTrue(secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL) is SecretGetResult.Missing)
+        assertNull(metadata.read())
+        assertEquals(
+            CommercialPresentationState.PAYMENT_PENDING,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+
+        backend.markPaidFromVerifiedWebhook(order.id, "pay_browser_ignored")
+        val paid = coordinator.handleCheckoutReturn(claimedReturn)
+        assertTrue(paid is CommerceResult.Ok)
+        assertTrue(secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL) is SecretGetResult.Value)
+        assertEquals(
+            CommercialPresentationState.HOTFOX_ACTIVE,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+    }
+
+    @Test
+    fun authoritativeNullEntitlementInvalidatesLocalAccess() = runBlocking {
+        val backend = testBackend()
+        val secrets = InMemorySecretStore()
+        val intents = InMemoryCheckoutIntentStore()
+        val metadata = InMemoryEntitlementMetadataStore()
+        val coordinator = testCoordinator(backend, secrets, intents, metadata)
+        val order = (coordinator.startCheckout("plan_1m") as CommerceResult.Ok).value
+        backend.markPaidFromVerifiedWebhook(order.id, "pay_then_revoke")
+        assertTrue(coordinator.handleCheckoutReturn("https://hotfox.example/return?orderId=${order.id}") is CommerceResult.Ok)
+        assertEquals(
+            CommercialPresentationState.HOTFOX_ACTIVE,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+        val credential = (secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL) as SecretGetResult.Value).utf8()
+        backend.forgetEntitlement(credential)
+        val refreshed = coordinator.refreshEntitlement()
+        assertTrue(refreshed is CommerceResult.Ok)
+        assertNull((refreshed as CommerceResult.Ok).value)
+        assertTrue(secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL) is SecretGetResult.Missing)
+        assertNull(metadata.read())
+        assertNull(intents.load())
+        assertEquals(
+            CommercialPresentationState.NO_ACCESS,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+        assertEquals(CommercialPresentationState.NO_ACCESS, coordinator.presentationSnapshot())
+    }
+
+    @Test
+    fun futureStartAndInvertedEntitlementWindowsAreNotUsable() {
+        assertTrue(
+            EntitlementParser.fromFields(
+                entitlementId = "ent_inv",
+                customerId = "cust",
+                source = "HOTFOX",
+                planId = "plan_1m",
+                status = "ACTIVE",
+                startsAtEpochSeconds = 200,
+                expiresAtEpochSeconds = 100,
+                orderId = "ord",
+            ) is CommerceResult.Err,
+        )
+        assertTrue(
+            EntitlementParser.fromFields(
+                entitlementId = "ent_grace",
+                customerId = "cust",
+                source = "HOTFOX",
+                planId = "plan_1m",
+                status = "ACTIVE",
+                startsAtEpochSeconds = 100,
+                expiresAtEpochSeconds = 200,
+                orderId = "ord",
+                graceUntilEpochSeconds = 150,
+            ) is CommerceResult.Err,
+        )
+        val future = (EntitlementParser.fromFields(
+            entitlementId = "ent_future",
+            customerId = "cust",
+            source = "HOTFOX",
+            planId = "plan_1m",
+            status = "ACTIVE",
+            startsAtEpochSeconds = 1_800_000_000L,
+            expiresAtEpochSeconds = 1_900_000_000L,
+            orderId = "ord",
+        ) as CommerceResult.Ok).value
+        assertEquals(
+            EntitlementStatus.PROVISIONING,
+            EntitlementParser.effectiveStatus(future, 1_700_000_000L),
+        )
+        assertFalse(EntitlementStateMachine.isUsable(EntitlementParser.effectiveStatus(future, 1_700_000_000L)))
+        val coordinator = testCoordinator(
+            secrets = InMemorySecretStore(),
+            metadata = InMemoryEntitlementMetadataStore(),
+        )
+        assertTrue(coordinator.persistEntitlement(future) is CommerceResult.Ok)
+        assertEquals(
+            CommercialPresentationState.ENTITLEMENT_PROVISIONING,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+        assertFalse(
+            EntitlementStateMachine.isUsable(
+                coordinator.collectFacts().entitlementStatus ?: EntitlementStatus.NONE,
+            ),
+        )
+    }
+
+    @Test
+    fun refreshIdentityDistinguishesSameEndpointUuidOrClientFingerprint() {
+        val uuidA = vlessProfile(
+            uuid = "11111111-2222-3333-4444-555555555555",
+            clientFingerprint = "chrome",
+        )
+        val uuidB = vlessProfile(
+            uuid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            clientFingerprint = "chrome",
+        )
+        val fingerprintB = vlessProfile(
+            uuid = "11111111-2222-3333-4444-555555555555",
+            clientFingerprint = "firefox",
+        )
+        val left = HotfoxManifestRefresh.identityOf(uuidA)
+        val rightUuid = HotfoxManifestRefresh.identityOf(uuidB)
+        val rightFp = HotfoxManifestRefresh.identityOf(fingerprintB)
+        assertNotEquals(left, rightUuid)
+        assertNotEquals(left, rightFp)
+        assertEquals(left.server, rightUuid.server)
+        assertEquals(left.port, rightFp.port)
+        val snapshot = ManifestRefreshPolicy.InventorySnapshot(
+            servers = listOf(left),
+            favoriteIdentities = setOf(left),
+            autoMode = false,
+            selectedIdentity = left,
+        )
+        assertEquals(left, ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, listOf(left, rightUuid)).selectedIdentity)
+        assertEquals(rightUuid, ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, listOf(rightUuid)).selectedIdentity)
+    }
+
+    private fun testBackend() = SandboxCommerceBackend(clock = { 1_700_000_000L })
+
+    private fun vlessProfile(uuid: String, clientFingerprint: String) =
+        com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.VLESS).apply {
+            remarks = "Amsterdam"
+            server = "vpn.example"
+            serverPort = "443"
+            network = "grpc"
+            security = "reality"
+            password = uuid
+            fingerPrint = clientFingerprint
+        }
+
     private fun testCoordinator(
-        backend: HotfoxCommerceBackend = SandboxCommerceBackend(),
+        backend: HotfoxCommerceBackend = SandboxCommerceBackend(clock = { 1_700_000_000L }),
         secrets: SecretStore = InMemorySecretStore(),
         intents: CheckoutIntentStore = InMemoryCheckoutIntentStore(),
         metadata: EntitlementMetadataStore = InMemoryEntitlementMetadataStore(),

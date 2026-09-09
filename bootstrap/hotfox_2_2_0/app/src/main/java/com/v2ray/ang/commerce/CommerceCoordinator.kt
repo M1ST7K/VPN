@@ -100,12 +100,10 @@ class CommerceCoordinator(
 
     /**
      * Browser return: extract order id for polling only. Never grant entitlement from the URI.
-     * A verified paid/fulfilled order is exchanged with the backend for an entitlement credential.
+     * Payment-claim query markers (`success=true`, etc.) are ignored; they never skip backend polling
+     * and never count as paid truth, even if [CheckoutReturnParser.isPaidProof] is true.
      */
     suspend fun handleCheckoutReturn(uriString: String?): CommerceResult<CommerceOrder?> {
-        if (CheckoutReturnParser.isPaidProof(uriString)) {
-            return CommerceResult.Err(CommerceError.REJECTED, "browser_return_is_not_payment_truth")
-        }
         val orderId = CheckoutReturnParser.extractOrderId(uriString)
             ?: intents.load()?.orderId
             ?: runCatching { CommercePreferences.lastOrderId() }.getOrNull()
@@ -170,8 +168,14 @@ class CommerceCoordinator(
         }
         return when (val result = backend.getEntitlement(credential)) {
             is CommerceResult.Ok -> {
-                val value = result.value ?: return CommerceResult.Ok(null)
-                persistEntitlement(value)
+                val value = result.value
+                if (value == null) {
+                    invalidateLocalHotfoxAccess()
+                    refreshPresentation()
+                    CommerceResult.Ok(null)
+                } else {
+                    persistEntitlement(value)
+                }
             }
             is CommerceResult.Err -> result
         }
@@ -281,6 +285,24 @@ class CommerceCoordinator(
             lastSyncFailed = runCatching { CommercePreferences.lastManifestError() }.getOrNull() != null && hasHotfox,
             hasLocalServers = serverCount > 0,
         )
+    }
+
+    /**
+     * Authoritative backend absence of an entitlement. Transient errors must not call this.
+     */
+    private fun invalidateLocalHotfoxAccess() {
+        secrets.delete(SecretKeys.ENTITLEMENT_CREDENTIAL)
+        secrets.delete(SecretKeys.SUBSCRIPTION_TOKEN)
+        metadata.clear()
+        localOrigin = CommercePreferences.ORIGIN_NONE
+        runCatching { CommercePreferences.setAccessOrigin(CommercePreferences.ORIGIN_NONE) }
+        val pending = intents.load()
+        if (pending != null &&
+            (pending.state == OrderState.FULFILLED || pending.state == OrderState.ENTITLEMENT_PROVISIONING)
+        ) {
+            intents.clear()
+        }
+        cachedPresentation = CommercialPresentationState.NO_ACCESS
     }
 
     /**

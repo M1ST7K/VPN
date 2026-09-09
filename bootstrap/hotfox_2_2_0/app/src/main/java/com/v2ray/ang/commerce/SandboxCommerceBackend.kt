@@ -20,6 +20,7 @@ class SandboxCommerceBackend(
     private val fulfilledOrderIds = ConcurrentHashMap.newKeySet<String>()
     private val entitlements = ConcurrentHashMap<String, CommerceEntitlement>()
     private val createCount = AtomicInteger(0)
+    private val getOrderCount = AtomicInteger(0)
 
     val catalog: List<CommercePlan> = listOf(
         CommercePlan(
@@ -56,6 +57,8 @@ class SandboxCommerceBackend(
 
     fun createdOrderCount(): Int = createCount.get()
 
+    fun getOrderCount(): Int = getOrderCount.get()
+
     override suspend fun listPlans(): CommerceResult<List<CommercePlan>> =
         CommerceResult.Ok(catalog.sortedBy { it.sortOrder })
 
@@ -82,6 +85,7 @@ class SandboxCommerceBackend(
     }
 
     override suspend fun getOrder(orderId: String): CommerceResult<CommerceOrder> {
+        getOrderCount.incrementAndGet()
         val order = ordersById[orderId] ?: return CommerceResult.Err(CommerceError.NOT_FOUND)
         return CommerceResult.Ok(order)
     }
@@ -139,6 +143,11 @@ class SandboxCommerceBackend(
             entitlements[entitlement.entitlementId] = entitlement
         }
         return next
+    }
+
+    fun forgetEntitlement(credential: String) {
+        entitlements.remove(credential)
+        entitlements.entries.removeIf { it.value.entitlementId == credential }
     }
 
     override suspend fun getEntitlement(credential: String?): CommerceResult<CommerceEntitlement?> {

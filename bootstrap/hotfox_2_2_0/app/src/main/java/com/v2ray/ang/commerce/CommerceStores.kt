@@ -23,6 +23,13 @@ object MmkvCheckoutIntentStore : CheckoutIntentStore {
         MmkvManager.encodeSettings(CommercePreferences.KEY_LAST_ORDER_STATE, intent.state.name)
         MmkvManager.encodeSettings(CommercePreferences.KEY_LAST_ORDER_ID, intent.orderId.orEmpty())
     }
+
+    override fun clear() {
+        MmkvManager.encodeSettings(CommercePreferences.KEY_IDEMPOTENCY, "")
+        MmkvManager.encodeSettings(CommercePreferences.KEY_LAST_PLAN_ID, "")
+        MmkvManager.encodeSettings(CommercePreferences.KEY_LAST_ORDER_STATE, "")
+        MmkvManager.encodeSettings(CommercePreferences.KEY_LAST_ORDER_ID, "")
+    }
 }
 
 object MmkvEntitlementMetadataStore : EntitlementMetadataStore {

@@ -61,6 +61,12 @@ object EntitlementParser {
         if (expiresAtEpochSeconds == null || expiresAtEpochSeconds <= 0L) {
             return CommerceResult.Err(CommerceError.INVALID, "missing_entitlement_expiry")
         }
+        if (expiresAtEpochSeconds <= startsAtEpochSeconds) {
+            return CommerceResult.Err(CommerceError.INVALID, "inverted_entitlement_window")
+        }
+        if (graceUntilEpochSeconds != null && graceUntilEpochSeconds < expiresAtEpochSeconds) {
+            return CommerceResult.Err(CommerceError.INVALID, "invalid_grace_boundary")
+        }
         val parsedSource = source?.let { runCatching { EntitlementSource.valueOf(it) }.getOrNull() }
             ?: EntitlementSource.HOTFOX
         return CommerceResult.Ok(
@@ -84,6 +90,9 @@ object EntitlementParser {
         if (entitlement.status == EntitlementStatus.REVOKED) return EntitlementStatus.REVOKED
         if (entitlement.status == EntitlementStatus.EXPIRED) return EntitlementStatus.EXPIRED
         if (entitlement.status == EntitlementStatus.PROVISIONING) return EntitlementStatus.PROVISIONING
+        if (nowEpochSeconds < entitlement.startsAtEpochSeconds) {
+            return EntitlementStatus.PROVISIONING
+        }
         if (nowEpochSeconds > entitlement.expiresAtEpochSeconds) {
             val grace = entitlement.graceUntilEpochSeconds
             if (grace != null && nowEpochSeconds <= grace) return EntitlementStatus.GRACE

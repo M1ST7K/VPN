@@ -10,6 +10,7 @@ data class CheckoutIntent(
 interface CheckoutIntentStore {
     fun load(): CheckoutIntent?
     fun save(intent: CheckoutIntent)
+    fun clear()
 }
 
 class InMemoryCheckoutIntentStore : CheckoutIntentStore {
@@ -20,6 +21,10 @@ class InMemoryCheckoutIntentStore : CheckoutIntentStore {
 
     override fun save(intent: CheckoutIntent) {
         this.intent = intent
+    }
+
+    override fun clear() {
+        intent = null
     }
 }
 
