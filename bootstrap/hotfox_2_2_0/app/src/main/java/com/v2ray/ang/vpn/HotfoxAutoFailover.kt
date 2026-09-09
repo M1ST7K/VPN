@@ -24,13 +24,14 @@ object HotfoxAutoFailover {
         servers: List<HotfoxServerSelection.Candidate>,
         healthByGuid: Map<String, ServerHealth> = emptyMap(),
         nowEpochMs: Long = 0L,
+        networkContext: Long = 0L,
     ): FailoverDecision {
         if (!isServerTargetFailure(code)) {
             return FailoverDecision(FailoverAction.STOP, failedGuid, "not_server_failure", attempts)
         }
         val health = healthByGuid.toMutableMap()
         if (failedGuid != null) {
-            val dead = ServerHealthMath.fromCachedDelay(failedGuid, -1L, nowEpochMs)
+            val dead = ServerHealthMath.fromCachedDelay(failedGuid, -1L, nowEpochMs, networkContext)
             health[failedGuid] = dead
         }
         val decision = AutoSelectionPolicy.failover(
@@ -40,6 +41,7 @@ object HotfoxAutoFailover {
             selectedGuid = failedGuid,
             attempt = attempts,
             nowEpochMs = nowEpochMs,
+            networkContext = networkContext,
         )
         if (decision.action != FailoverAction.STOP) {
             attempts = decision.attempt
@@ -72,6 +74,7 @@ object HotfoxAutoFailover {
             servers = servers,
             healthByGuid = HotfoxServerSelection.healthSnapshot(servers, nowEpochMs),
             nowEpochMs = nowEpochMs,
+            networkContext = HotfoxServerSelection.health.networkContext,
         )
         apply(decision)
         return decision

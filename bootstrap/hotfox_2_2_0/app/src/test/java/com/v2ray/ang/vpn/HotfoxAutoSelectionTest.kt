@@ -17,6 +17,7 @@ class HotfoxAutoSelectionTest {
     @Before
     fun resetHealth() {
         HotfoxServerSelection.health.resetForTests()
+        HotfoxServerSelection.resetLastGoodForTests()
     }
 
     @Test
@@ -422,5 +423,133 @@ class HotfoxAutoSelectionTest {
             HotfoxLatencyDisplay.format(health = ServerHealth(guid = "a", availability = ServerAvailability.DEAD)),
         )
         assertFalse(HotfoxLatencyDisplay.format(delayMs = 0L).contains("0 ms"))
+    }
+
+    @Test
+    fun coldStartBiasesToLastGoodEligibleCandidate() {
+        val servers = listOf(
+            HotfoxServerSelection.Candidate("paris", "Paris", 0L),
+            HotfoxServerSelection.Candidate("berlin", "Berlin", 0L),
+            HotfoxServerSelection.Candidate("helsinki", "Helsinki", 0L),
+        )
+        val result = HotfoxServerSelection.pick(
+            servers,
+            auto = true,
+            selectedGuid = null,
+            lastGoodGuid = "berlin",
+        )
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("berlin", true), result)
+    }
+
+    @Test
+    fun invalidCandidateDoesNotPoisonEligibleSet() {
+        val servers = listOf(
+            HotfoxServerSelection.Candidate("bad", "Bad", 12L, hasConfig = false),
+            HotfoxServerSelection.Candidate(
+                guid = "paid",
+                remarks = "Paid",
+                delay = 18L,
+                requiresEntitlement = true,
+                entitlementUsable = false,
+            ),
+            HotfoxServerSelection.Candidate("ok", "Ok", 40L),
+        )
+        val result = HotfoxServerSelection.pick(servers, auto = true, selectedGuid = "bad")
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("ok", true), result)
+        val counts = AutoCandidateFilter.filteredCounts(servers)
+        assertEquals(1, counts[AutoFilterReason.ELIGIBLE])
+        assertEquals(1, counts[AutoFilterReason.MISSING_CONFIG])
+        assertEquals(1, counts[AutoFilterReason.ENTITLEMENT_BLOCKED])
+    }
+
+    @Test
+    fun manualHttpsServerIsNotEntitlementGated() {
+        val servers = listOf(
+            HotfoxServerSelection.Candidate(
+                guid = "manual",
+                remarks = "Manual",
+                delay = 33L,
+                requiresEntitlement = false,
+                entitlementUsable = false,
+            ),
+        )
+        val result = HotfoxServerSelection.pick(servers, auto = true, selectedGuid = null)
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("manual", true), result)
+    }
+
+    @Test
+    fun networkChangeDoesNotUseOldLatencyToFlap() {
+        val servers = listOf(
+            HotfoxServerSelection.Candidate("current", "Current", 90L),
+            HotfoxServerSelection.Candidate("wifi-fast", "Fast", 12L),
+        )
+        val health = mapOf(
+            "current" to ServerHealthMath.fromCachedDelay("current", 90L, 1_000L, networkContext = 0L),
+            "wifi-fast" to ServerHealthMath.fromCachedDelay("wifi-fast", 12L, 1_000L, networkContext = 0L),
+        )
+        val kept = HotfoxServerSelection.resolveForHandover(
+            servers,
+            auto = true,
+            selectedGuid = "current",
+            healthByGuid = health,
+            nowEpochMs = 1_000L,
+            networkChanged = true,
+            networkContext = 1L,
+        )
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("current", true), kept)
+        assertNull(AutoSelectionPolicy.score(health.getValue("wifi-fast"), 1_000L, networkContext = 1L))
+    }
+
+    @Test
+    fun networkInvalidationDropsLatencyAndKeepsLastSuccess() {
+        val repo = HotfoxServerSelection.health
+        repo.record(ProbeSample("a", success = true, latencyMs = 22L, observedAtEpochMs = 5L, generation = 1L))
+        val before = repo.snapshot("a")
+        assertEquals(22L, before.latestLatencyMs)
+        repo.invalidateForNetworkChange()
+        val after = repo.snapshot("a")
+        assertEquals(ServerAvailability.UNKNOWN, after.availability)
+        assertNull(after.latestLatencyMs)
+        assertEquals(5L, after.lastSuccessAtEpochMs)
+        assertEquals(1L, repo.networkContext)
+        val resurrected = HotfoxServerSelection.healthSnapshot(
+            listOf(HotfoxServerSelection.Candidate("a", "A", 22L)),
+            nowEpochMs = 9L,
+        )
+        assertEquals(ServerAvailability.UNKNOWN, resurrected.getValue("a").availability)
+        assertNull(resurrected.getValue("a").latestLatencyMs)
+    }
+
+    @Test
+    fun selectingLabelDoesNotClaimProtected() {
+        assertEquals(
+            HotfoxResolvedTargetDisplay.SELECTING_COPY,
+            HotfoxResolvedTargetDisplay.serverLabel(
+                auto = true,
+                connecting = true,
+                city = null,
+                stage = VpnConnectionStage.RESOLVE_SERVER,
+            ),
+        )
+        assertEquals(
+            "Авто · Хельсинки",
+            HotfoxResolvedTargetDisplay.serverLabel(
+                auto = true,
+                connecting = false,
+                city = "Хельсинки",
+            ),
+        )
+        assertEquals(
+            HotfoxResolvedTargetDisplay.Phase.RESOLVED,
+            HotfoxResolvedTargetDisplay.phase(
+                auto = true,
+                connecting = true,
+                resolvedRemark = "Хельсинки",
+                stage = VpnConnectionStage.RESOLVE_SERVER,
+            ),
+        )
+        assertFalse(
+            ConnectionUiMapper.isProtectedHeadline(VpnSessionState.PREPARING),
+        )
     }
 }

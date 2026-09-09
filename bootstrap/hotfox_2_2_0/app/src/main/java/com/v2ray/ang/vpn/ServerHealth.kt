@@ -24,8 +24,12 @@ data class ServerHealth(
     val availability: ServerAvailability = ServerAvailability.UNKNOWN,
     val probeGeneration: Long = 0L,
     val probeInFlight: Boolean = false,
+    val networkContext: Long = 0L,
 ) {
     fun isMeasured(): Boolean = availability != ServerAvailability.UNKNOWN
+
+    fun hasFreshLatency(currentNetworkContext: Long): Boolean =
+        isMeasured() && networkContext == currentNetworkContext && latestLatencyMs != null
 }
 
 data class ProbeSample(
@@ -76,7 +80,12 @@ object ServerHealthMath {
         )
     }
 
-    fun fromCachedDelay(guid: String, delayMs: Long, nowEpochMs: Long = 0L): ServerHealth {
+    fun fromCachedDelay(
+        guid: String,
+        delayMs: Long,
+        nowEpochMs: Long = 0L,
+        networkContext: Long = 0L,
+    ): ServerHealth {
         return when {
             delayMs < 0L -> ServerHealth(
                 guid = guid,
@@ -84,8 +93,9 @@ object ServerHealthMath {
                 lastFailureAtEpochMs = nowEpochMs,
                 consecutiveFailures = 1,
                 availability = ServerAvailability.DEAD,
+                networkContext = networkContext,
             )
-            delayMs == 0L -> ServerHealth(guid = guid)
+            delayMs == 0L -> ServerHealth(guid = guid, networkContext = networkContext)
             else -> ServerHealth(
                 guid = guid,
                 lastProbeAtEpochMs = nowEpochMs,
@@ -98,6 +108,7 @@ object ServerHealthMath {
                 } else {
                     ServerAvailability.HEALTHY
                 },
+                networkContext = networkContext,
             )
         }
     }

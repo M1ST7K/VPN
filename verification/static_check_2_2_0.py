@@ -363,9 +363,24 @@ def main() -> int:
         "AUTO hysteresis thresholds",
     )
     must_contain(
-        "app/src/main/java/com/v2ray/ang/vpn/HealthProbeEngine.kt",
-        "MAX_CONCURRENT",
-        "bounded health probe concurrency",
+        "app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt",
+        "fun invalidateForNetworkChange",
+        "2.4 network-context health invalidation",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt",
+        "ENTITLEMENT_BLOCKED",
+        "2.4 AUTO eligibility filter",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxResolvedTargetDisplay.kt",
+        "Подбираем сервер",
+        "2.4 truthful AUTO selecting label",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "invalidateForNetworkChange",
+        "handover invalidates previous-network health",
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/HotfoxLatencyDisplay.kt",

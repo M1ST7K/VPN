@@ -228,6 +228,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             return
         }
         HotfoxAutoFailover.reset()
+        MmkvManager.getSelectServer()?.let { HotfoxServerSelection.rememberLastGoodAuto(it) }
         RootLanSharing.startClientSharing(this)
         CoreServiceManager.notifyTunnelReady(this)
         CoreServiceManager.startNetworkMonitorIfNeeded()

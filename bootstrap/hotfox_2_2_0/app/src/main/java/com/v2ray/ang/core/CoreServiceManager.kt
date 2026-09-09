@@ -631,6 +631,7 @@ object CoreServiceManager {
             val tunInterface = currentVpnInterface
             isReloading = true
             if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
+            HotfoxServerSelection.invalidateForNetworkChange()
             when (val resolved = HotfoxServerSelection.resolveForHandover()) {
                 is HotfoxServerSelection.ResolveResult.Failure -> {
                     LogUtil.e(AppConfig.TAG, "StartCore-Manager: handover server resolve failed: ${resolved.message}")
@@ -726,6 +727,7 @@ object CoreServiceManager {
                 return false
             }
             HotfoxAutoFailover.reset()
+            MmkvManager.getSelectServer()?.let { HotfoxServerSelection.rememberLastGoodAuto(it) }
             true
         } catch (e: Exception) {
             val message = e.message?.takeUnless { it.isBlank() } ?: e.javaClass.simpleName

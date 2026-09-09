@@ -24,7 +24,8 @@ object AutoSelectionPolicy {
         val reason: String,
     )
 
-    fun score(health: ServerHealth, nowEpochMs: Long): Double? {
+    fun score(health: ServerHealth, nowEpochMs: Long, networkContext: Long = 0L): Double? {
+        if (health.networkContext != networkContext) return null
         return when (health.availability) {
             ServerAvailability.DEAD -> null
             ServerAvailability.UNKNOWN -> null
@@ -64,21 +65,28 @@ object AutoSelectionPolicy {
         auto: Boolean,
         selectedGuid: String?,
         nowEpochMs: Long = 0L,
+        lastGoodGuid: String? = null,
+        networkContext: Long = 0L,
     ): HotfoxServerSelection.ResolveResult {
-        if (servers.isEmpty()) {
+        val eligible = AutoCandidateFilter.eligible(servers)
+        if (eligible.isEmpty()) {
             return HotfoxServerSelection.ResolveResult.Failure("HF-VPN-010 Нет серверов")
         }
         if (!auto) {
-            return manualPick(servers, selectedGuid)
+            return manualPick(eligible, selectedGuid)
         }
-        val scored = scoreHealthy(servers, healthByGuid, nowEpochMs)
+        val scored = scoreHealthy(eligible, healthByGuid, nowEpochMs, networkContext)
         val best = scored.minByOrNull { it.score }
         if (best != null) {
             return HotfoxServerSelection.ResolveResult.Success(best.guid, resolvedFromAuto = true)
         }
-        val untested = servers.filter { delayOf(it, healthByGuid) == 0L && !isDead(it, healthByGuid) }
+        val untested = eligible.filter { !isDead(it, healthByGuid) && !hasFreshScore(it, healthByGuid, nowEpochMs, networkContext) }
         if (untested.isNotEmpty()) {
-            return HotfoxServerSelection.ResolveResult.Success(untested.first().guid, resolvedFromAuto = true)
+            val lastGood = lastGoodGuid?.let { id -> untested.firstOrNull { it.guid == id } }
+            return HotfoxServerSelection.ResolveResult.Success(
+                (lastGood ?: untested.first()).guid,
+                resolvedFromAuto = true,
+            )
         }
         return HotfoxServerSelection.ResolveResult.Failure("HF-VPN-011 Нет доступных серверов")
     }
@@ -89,20 +97,53 @@ object AutoSelectionPolicy {
         auto: Boolean,
         selectedGuid: String?,
         nowEpochMs: Long = 0L,
+        lastGoodGuid: String? = null,
+        networkChanged: Boolean = false,
+        networkContext: Long = 0L,
     ): HotfoxServerSelection.ResolveResult {
+        val eligible = AutoCandidateFilter.eligible(servers)
         if (!auto) {
-            return pick(servers, healthByGuid, auto = false, selectedGuid = selectedGuid, nowEpochMs = nowEpochMs)
+            return pick(
+                eligible,
+                healthByGuid,
+                auto = false,
+                selectedGuid = selectedGuid,
+                nowEpochMs = nowEpochMs,
+                lastGoodGuid = lastGoodGuid,
+                networkContext = networkContext,
+            )
         }
-        val current = servers.firstOrNull { it.guid == selectedGuid } ?: return pick(
-            servers, healthByGuid, auto = true, selectedGuid = selectedGuid, nowEpochMs = nowEpochMs,
+        if (networkChanged) {
+            val sticky = eligible.firstOrNull { it.guid == selectedGuid }
+            if (sticky != null && !isDead(sticky, healthByGuid)) {
+                return HotfoxServerSelection.ResolveResult.Success(sticky.guid, resolvedFromAuto = true)
+            }
+            return pick(
+                eligible,
+                healthByGuid,
+                auto = true,
+                selectedGuid = selectedGuid,
+                nowEpochMs = nowEpochMs,
+                lastGoodGuid = lastGoodGuid ?: selectedGuid,
+                networkContext = networkContext,
+            )
+        }
+        val current = eligible.firstOrNull { it.guid == selectedGuid } ?: return pick(
+            eligible,
+            healthByGuid,
+            auto = true,
+            selectedGuid = selectedGuid,
+            nowEpochMs = nowEpochMs,
+            lastGoodGuid = lastGoodGuid,
+            networkContext = networkContext,
         )
         val currentHealth = healthByGuid[current.guid]
-            ?: ServerHealthMath.fromCachedDelay(current.guid, current.delay, nowEpochMs)
+            ?: ServerHealthMath.fromCachedDelay(current.guid, current.delay, nowEpochMs, networkContext)
         val currentUsable = currentHealth.availability == ServerAvailability.HEALTHY ||
             currentHealth.availability == ServerAvailability.DEGRADED
         if (currentUsable) {
-            val currentScore = score(currentHealth, nowEpochMs)
-            val scored = scoreHealthy(servers, healthByGuid, nowEpochMs)
+            val currentScore = score(currentHealth, nowEpochMs, networkContext)
+            val scored = scoreHealthy(eligible, healthByGuid, nowEpochMs, networkContext)
             val best = scored.minByOrNull { it.score }
             if (currentScore != null && best != null && best.guid != current.guid &&
                 significantlyBetter(best.score, currentScore)
@@ -111,7 +152,15 @@ object AutoSelectionPolicy {
             }
             return HotfoxServerSelection.ResolveResult.Success(current.guid, resolvedFromAuto = true)
         }
-        return pick(servers, healthByGuid, auto = true, selectedGuid = selectedGuid, nowEpochMs = nowEpochMs)
+        return pick(
+            eligible,
+            healthByGuid,
+            auto = true,
+            selectedGuid = selectedGuid,
+            nowEpochMs = nowEpochMs,
+            lastGoodGuid = lastGoodGuid,
+            networkContext = networkContext,
+        )
     }
 
     fun failover(
@@ -121,6 +170,8 @@ object AutoSelectionPolicy {
         selectedGuid: String?,
         attempt: Int,
         nowEpochMs: Long = 0L,
+        lastGoodGuid: String? = null,
+        networkContext: Long = 0L,
     ): FailoverDecision {
         if (!auto) {
             return FailoverDecision(FailoverAction.STOP, selectedGuid, "manual_sticky", attempt)
@@ -128,7 +179,15 @@ object AutoSelectionPolicy {
         if (attempt >= FAILOVER_ATTEMPT_CAP) {
             return FailoverDecision(FailoverAction.STOP, selectedGuid, "attempt_cap", attempt)
         }
-        val next = pick(servers, healthByGuid, auto = true, selectedGuid = selectedGuid, nowEpochMs = nowEpochMs)
+        val next = pick(
+            servers,
+            healthByGuid,
+            auto = true,
+            selectedGuid = selectedGuid,
+            nowEpochMs = nowEpochMs,
+            lastGoodGuid = lastGoodGuid,
+            networkContext = networkContext,
+        )
         return when (next) {
             is HotfoxServerSelection.ResolveResult.Success -> {
                 if (next.guid == selectedGuid) {
@@ -169,12 +228,25 @@ object AutoSelectionPolicy {
         servers: List<HotfoxServerSelection.Candidate>,
         healthByGuid: Map<String, ServerHealth>,
         nowEpochMs: Long,
+        networkContext: Long,
     ): List<Scored> {
         return servers.mapNotNull { candidate ->
-            val health = healthByGuid[candidate.guid] ?: ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs)
-            val value = score(health, nowEpochMs) ?: return@mapNotNull null
+            val health = healthByGuid[candidate.guid]
+                ?: ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, networkContext)
+            val value = score(health, nowEpochMs, networkContext) ?: return@mapNotNull null
             Scored(candidate.guid, value, health, "score")
         }
+    }
+
+    private fun hasFreshScore(
+        candidate: HotfoxServerSelection.Candidate,
+        healthByGuid: Map<String, ServerHealth>,
+        nowEpochMs: Long,
+        networkContext: Long,
+    ): Boolean {
+        val health = healthByGuid[candidate.guid]
+            ?: ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, networkContext)
+        return score(health, nowEpochMs, networkContext) != null
     }
 
     private fun manualPick(
@@ -189,11 +261,6 @@ object AutoSelectionPolicy {
             return HotfoxServerSelection.ResolveResult.Failure("HF-VPN-011 Сервер недоступен")
         }
         return HotfoxServerSelection.ResolveResult.Success(match.guid, resolvedFromAuto = false)
-    }
-
-    private fun delayOf(candidate: HotfoxServerSelection.Candidate, healthByGuid: Map<String, ServerHealth>): Long {
-        val health = healthByGuid[candidate.guid]
-        return health?.latestLatencyMs ?: candidate.delay
     }
 
     private fun isDead(candidate: HotfoxServerSelection.Candidate, healthByGuid: Map<String, ServerHealth>): Boolean {

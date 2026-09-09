@@ -9,6 +9,7 @@ import com.v2ray.ang.handler.MmkvManager
 object HotfoxServerSelection {
     const val AUTO_GUID = "hotfox-auto-server"
     const val PREF_AUTO_SERVER = "pref_hotfox_auto_server"
+    const val PREF_LAST_GOOD_AUTO = "pref_hotfox_last_good_auto_guid"
 
     val health = ServerHealthRepository()
 
@@ -16,8 +17,33 @@ object HotfoxServerSelection {
     var lastAutoReason: String = ""
         private set
 
+    @Volatile
+    var lastGoodAutoGuid: String? = null
+        private set
+
     fun recordAutoReason(reason: String) {
         lastAutoReason = reason
+    }
+
+    fun rememberLastGoodAuto(guid: String) {
+        if (guid.isBlank() || guid == AUTO_GUID) return
+        val auto = runCatching { isAutoMode() }.getOrDefault(true)
+        if (!auto) return
+        lastGoodAutoGuid = guid
+        runCatching { MmkvManager.encodeSettings(PREF_LAST_GOOD_AUTO, guid) }
+    }
+
+    fun lastGoodAutoGuidOrPersisted(): String? {
+        lastGoodAutoGuid?.takeIf { it.isNotBlank() }?.let { return it }
+        return runCatching { MmkvManager.decodeSettingsString(PREF_LAST_GOOD_AUTO) }.getOrNull()
+            ?.takeIf { it.isNotBlank() && it != AUTO_GUID }
+    }
+
+    fun invalidateForNetworkChange(): Long = health.invalidateForNetworkChange()
+
+    fun resetLastGoodForTests() {
+        lastGoodAutoGuid = null
+        lastAutoReason = ""
     }
 
     fun persistAutoTarget(guid: String) {
@@ -96,6 +122,8 @@ object HotfoxServerSelection {
                 selectedGuid = MmkvManager.getSelectServer(),
                 healthByGuid = snapshot,
                 nowEpochMs = now,
+                lastGoodGuid = lastGoodAutoGuidOrPersisted(),
+                networkContext = health.networkContext,
             ),
             snapshot,
             now,
@@ -103,9 +131,8 @@ object HotfoxServerSelection {
     }
 
     /**
-     * Network handover: keep the current AUTO target when it remains HEALTHY or
-     * DEGRADED unless another candidate is significantly better. Manual selection
-     * is never replaced by a faster peer.
+     * Network handover: keep the current AUTO target when it remains eligible.
+     * Latency from the previous network context is not used to flap to a "faster" peer.
      */
     fun resolveForHandover(): ResolveResult {
         val servers = candidates()
@@ -118,6 +145,9 @@ object HotfoxServerSelection {
                 selectedGuid = MmkvManager.getSelectServer(),
                 healthByGuid = snapshot,
                 nowEpochMs = now,
+                lastGoodGuid = lastGoodAutoGuidOrPersisted(),
+                networkChanged = true,
+                networkContext = health.networkContext,
             ),
             snapshot,
             now,
@@ -130,6 +160,9 @@ object HotfoxServerSelection {
         selectedGuid: String?,
         healthByGuid: Map<String, ServerHealth> = emptyMap(),
         nowEpochMs: Long = 0L,
+        lastGoodGuid: String? = null,
+        networkChanged: Boolean = false,
+        networkContext: Long = 0L,
     ): ResolveResult {
         return AutoSelectionPolicy.handover(
             servers = servers,
@@ -137,6 +170,9 @@ object HotfoxServerSelection {
             auto = auto,
             selectedGuid = selectedGuid,
             nowEpochMs = nowEpochMs,
+            lastGoodGuid = lastGoodGuid,
+            networkChanged = networkChanged,
+            networkContext = networkContext,
         )
     }
 
@@ -146,6 +182,8 @@ object HotfoxServerSelection {
         selectedGuid: String?,
         healthByGuid: Map<String, ServerHealth> = emptyMap(),
         nowEpochMs: Long = 0L,
+        lastGoodGuid: String? = null,
+        networkContext: Long = 0L,
     ): ResolveResult {
         return AutoSelectionPolicy.pick(
             servers = servers,
@@ -153,6 +191,8 @@ object HotfoxServerSelection {
             auto = auto,
             selectedGuid = selectedGuid,
             nowEpochMs = nowEpochMs,
+            lastGoodGuid = lastGoodGuid,
+            networkContext = networkContext,
         )
     }
 
@@ -166,6 +206,8 @@ object HotfoxServerSelection {
             selectedGuid = MmkvManager.getSelectServer(),
             attempt = attempt,
             nowEpochMs = now,
+            lastGoodGuid = lastGoodAutoGuidOrPersisted(),
+            networkContext = health.networkContext,
         )
     }
 
@@ -197,14 +239,61 @@ object HotfoxServerSelection {
         nowEpochMs: Long = 0L,
         stored: Map<String, ServerHealth> = health.all(),
     ): Map<String, ServerHealth> {
+        val currentContext = health.networkContext
         return servers.associate { candidate ->
             val live = stored[candidate.guid]
-            val merged = if (live != null && (live.isMeasured() || live.probeInFlight)) {
-                live
-            } else {
-                ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs)
+            val merged = when {
+                live == null ->
+                    ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, currentContext)
+                live.networkContext != currentContext ->
+                    live.copy(
+                        latestLatencyMs = null,
+                        ewmaLatencyMs = null,
+                        jitterMs = null,
+                        availability = ServerAvailability.UNKNOWN,
+                        probeInFlight = false,
+                        networkContext = currentContext,
+                    )
+                live.isMeasured() || live.probeInFlight || live.availability == ServerAvailability.UNKNOWN ->
+                    live
+                else ->
+                    ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, currentContext)
             }
             candidate.guid to merged
+        }
+    }
+
+    data class AutoDiagnosticSnapshot(
+        val candidateCount: Int,
+        val eligibleCount: Int,
+        val filteredCount: Int,
+        val networkContext: Long,
+        val lastGoodPresent: Boolean,
+        val reason: String,
+    )
+
+    fun diagnosticSnapshot(): AutoDiagnosticSnapshot {
+        return runCatching {
+            val servers = candidates()
+            val counts = AutoCandidateFilter.filteredCounts(servers)
+            val eligible = counts[AutoFilterReason.ELIGIBLE] ?: 0
+            AutoDiagnosticSnapshot(
+                candidateCount = servers.size,
+                eligibleCount = eligible,
+                filteredCount = servers.size - eligible,
+                networkContext = health.networkContext,
+                lastGoodPresent = !lastGoodAutoGuidOrPersisted().isNullOrBlank(),
+                reason = lastAutoReason.ifBlank { "none" },
+            )
+        }.getOrElse {
+            AutoDiagnosticSnapshot(
+                candidateCount = 0,
+                eligibleCount = 0,
+                filteredCount = 0,
+                networkContext = health.networkContext,
+                lastGoodPresent = lastGoodAutoGuid != null,
+                reason = lastAutoReason.ifBlank { "none" },
+            )
         }
     }
 
@@ -248,7 +337,15 @@ object HotfoxServerSelection {
             Candidate(guid, profile.remarks, delay)
         }
 
-    data class Candidate(val guid: String, val remarks: String, val delay: Long)
+    data class Candidate(
+        val guid: String,
+        val remarks: String,
+        val delay: Long,
+        val hasConfig: Boolean = true,
+        val disabled: Boolean = false,
+        val requiresEntitlement: Boolean = false,
+        val entitlementUsable: Boolean = true,
+    )
 
     data class PersistedSelection(val auto: Boolean, val selectedGuid: String?)
 

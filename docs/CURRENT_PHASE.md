@@ -14,11 +14,11 @@ Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
 Turn `Авто-выбор сервера` from a lowest-cached-ping selector into a real connection reliability engine: health repository, bounded probes, deterministic scoring, hysteresis, bounded AUTO failover, truthful latency UI.
 
-Do **not** claim HotFox is a production-ready release. Phase 2.2 is **engineering-complete** and **release-deferred**. Phase 2.3 is **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is a **separate later gate** — it does not block 2.4 engineering.
+Do **not** claim HotFox is a production-ready release. Phase 2.2 is **engineering-complete** and **release-deferred**. Phase 2.3 is **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is consolidated into the single `FINAL RELEASE DEVICE GATE` after 3.0 — it does **not** block 2.4 engineering or the 2.4 → 2.5 transition.
 
-## Inherited 2.2 release gate (still blocking production)
+## Inherited 2.2 release gate (still blocking `RELEASE READY` only)
 
-Physical-device VPN E2E is **NOT EXECUTED**. Before any production release, an exact SHA must still prove:
+Physical-device VPN E2E is **NOT EXECUTED**. It is **not** a 2.4 engineering-phase blocker. Before any production `RELEASE READY` claim, an exact SHA must still prove:
 
 - external IPv4 before VPN != after successful connect;
 - real browser/app traffic through the tunnel;
@@ -36,6 +36,10 @@ Emulator UI smoke is not that proof.
 - Hysteresis so AUTO does not flap on a few milliseconds.
 - Bounded AUTO failover; manual selection never silently switches.
 - Generation-safe handover: stale probes cannot overwrite a newer network generation.
+- Network-context invalidation so Wi-Fi latency is not reused on cellular.
+- Last-good AUTO memory for cold-start fallback.
+- Eligibility filtering before ranking (invalid/entitlement-blocked entries must not poison the set).
+- Truthful resolved AUTO target (`Подбираем сервер…` then concrete city). `Защищено` still comes only from the canonical VPN session.
 - Editorial server-list rows; AUTO remains row 0.
 - Unit tests listed in `docs/phases/2.4-smart-connection.md`.
 

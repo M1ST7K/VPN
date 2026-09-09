@@ -4,7 +4,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Explicit owner of per-server health. Probe results from an older generation
- * never overwrite a newer generation.
+ * never overwrite a newer generation. Latency from a previous network context
+ * is not reused for AUTO ranking.
  */
 class ServerHealthRepository {
     private val byGuid = ConcurrentHashMap<String, ServerHealth>()
@@ -13,7 +14,11 @@ class ServerHealthRepository {
     var generation: Long = 0L
         private set
 
-    fun snapshot(guid: String): ServerHealth = byGuid[guid] ?: ServerHealth(guid)
+    @Volatile
+    var networkContext: Long = 0L
+        private set
+
+    fun snapshot(guid: String): ServerHealth = byGuid[guid] ?: ServerHealth(guid, networkContext = networkContext)
 
     fun all(): Map<String, ServerHealth> = HashMap(byGuid)
 
@@ -21,6 +26,29 @@ class ServerHealthRepository {
         val next = generation + 1L
         generation = next
         return next
+    }
+
+    /**
+     * Wi-Fi/cellular/loss/restore: drop in-flight probes and forget latency from
+     * the previous network. Last-success timestamps stay for last-good bias.
+     */
+    fun invalidateForNetworkChange(): Long {
+        val nextGeneration = bumpGeneration()
+        val nextContext = networkContext + 1L
+        networkContext = nextContext
+        byGuid.replaceAll { _, health ->
+            health.copy(
+                latestLatencyMs = null,
+                ewmaLatencyMs = null,
+                jitterMs = null,
+                consecutiveFailures = 0,
+                availability = ServerAvailability.UNKNOWN,
+                probeGeneration = nextGeneration,
+                probeInFlight = false,
+                networkContext = nextContext,
+            )
+        }
+        return nextContext
     }
 
     fun markProbeInFlight(guid: String, generation: Long) {
@@ -31,12 +59,13 @@ class ServerHealthRepository {
 
     fun record(sample: ProbeSample): ServerHealth {
         val updated = ServerHealthMath.applySample(snapshot(sample.guid), sample)
+            .copy(networkContext = networkContext)
         byGuid[guidOrKeep(updated)] = updated
         return updated
     }
 
     fun clearMeasured(guid: String) {
-        byGuid[guid] = ServerHealth(guid = guid, probeGeneration = generation)
+        byGuid[guid] = ServerHealth(guid = guid, probeGeneration = generation, networkContext = networkContext)
     }
 
     fun clearInFlight(guid: String) {
@@ -56,6 +85,7 @@ class ServerHealthRepository {
     fun resetForTests() {
         byGuid.clear()
         generation = 0L
+        networkContext = 0L
     }
 
     private fun guidOrKeep(health: ServerHealth): String = health.guid

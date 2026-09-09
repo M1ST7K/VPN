@@ -111,8 +111,14 @@ grep -q 'class ServerHealthRepository' "$PROJECT/app/src/main/java/com/v2ray/ang
   || fail "ServerHealthRepository missing"
 grep -q 'fun significantlyBetter' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt" \
   || fail "AUTO hysteresis missing"
-grep -q 'MAX_CONCURRENT' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HealthProbeEngine.kt" \
-  || fail "bounded probe concurrency missing"
+grep -q 'fun invalidateForNetworkChange' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt" \
+  || fail "network-context health invalidation missing"
+grep -q 'ENTITLEMENT_BLOCKED' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \
+  || fail "AUTO eligibility filter missing"
+grep -q 'Подбираем сервер' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxResolvedTargetDisplay.kt" \
+  || fail "AUTO selecting label missing"
+grep -q 'invalidateForNetworkChange' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "handover does not invalidate previous-network health"
 grep -q 'HotfoxLatencyDisplay.format' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt" \
   || fail "server list does not use truthful latency labels"
 if grep -q '2600L' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt"; then

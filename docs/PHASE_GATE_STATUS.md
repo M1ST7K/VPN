@@ -252,4 +252,4 @@ Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXE
 
 ## Phase 2.4 — Smart Connection
 
-**IN PROGRESS.** 2.3 engineering gate is closed (round 16 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains a separate later release gate and does **not** block 2.4 engineering.
+**IN PROGRESS.** 2.3 engineering gate is closed (round 16 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.4 engineering or progression to 2.5.

@@ -57,6 +57,7 @@ import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
 import com.v2ray.ang.vpn.ConnectionUiMapper
 import com.v2ray.ang.vpn.HotfoxLatencyDisplay
+import com.v2ray.ang.vpn.HotfoxResolvedTargetDisplay
 import com.v2ray.ang.vpn.HotfoxServerPresentation
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.HotfoxSubscriptionPresentation
@@ -64,6 +65,7 @@ import com.v2ray.ang.vpn.HotfoxTrafficFormatter
 import com.v2ray.ang.vpn.HotfoxRouteBarsView
 import com.v2ray.ang.vpn.SubscriptionPresentation
 import com.v2ray.ang.vpn.VpnSessionCoordinator
+import com.v2ray.ang.vpn.VpnSessionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
@@ -1063,11 +1065,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val selected = selectedGuid?.let(MmkvManager::decodeServerConfig)
         val presentation = HotfoxServerPresentation.fromRemark(selected?.remarks)
         val city = presentation.title.takeIf { it.isNotBlank() && it != "—" }
-        val selectedLabel = if (HotfoxServerSelection.isAutoMode() && city != null) {
-            getString(R.string.hotfox_auto_prefix, city)
-        } else {
-            city ?: getString(R.string.hotfox_server_not_selected)
-        }
+        val session = VpnSessionCoordinator.currentState()
+        val connecting = session.isBusy() && session != VpnSessionState.DISCONNECTING
+        val selectedLabel = HotfoxResolvedTargetDisplay.serverLabel(
+            auto = HotfoxServerSelection.isAutoMode(),
+            connecting = connecting,
+            city = city,
+            stage = VpnSessionCoordinator.lastStage(),
+            idleFallback = getString(R.string.hotfox_server_not_selected),
+            autoPrefix = { getString(R.string.hotfox_auto_prefix, it) },
+        )
         binding.tvAutoMode.text = if (HotfoxServerSelection.isAutoMode()) {
             getString(R.string.hotfox_auto_server)
         } else {
