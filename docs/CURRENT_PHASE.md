@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.3 «Commercial Foundation»
 
-Status: **IN PROGRESS** (round-12 P1s fixed on `75d71a4`; GitHub reconstruct PASS `34323252775`; this commit requests the next trusted checkpoint)
+Status: **IN PROGRESS** (round-13 checkpoint **APPROVED** on `bdae55b`; sandbox/test payment E2E still required)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 

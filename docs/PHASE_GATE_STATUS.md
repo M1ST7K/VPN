@@ -158,9 +158,11 @@ GitHub CI for exact SHA `75d71a4b164283e3dafae64b9c3f9a70aa35e918`:
 - Reconstruct and build Android app: PASS;
 - remaining bootstrap/Android jobs: PASS (run `34323252775`).
 
+Round-13 trusted checkpoint on `bdae55b` returned **APPROVED** with no substantiated P0/P1.
+
 ### Engineering gate status
 
-**IN PROGRESS** — first coherent app/foundation block plus round-11/12 P1 commerce fixes are implemented and automated gates are green. Phase 2.3 is **not** engineering-complete until a sandbox/test payment proves the full `plan → checkout → backend-verified entitlement → sync → AUTO → 2.2 VPN path` exit.
+**IN PROGRESS** — first coherent app/foundation block plus round-11/12 P1 commerce fixes are implemented, automated gates are green, and the round-13 checkpoint is **APPROVED**. Phase 2.3 is **not** engineering-complete until a sandbox/test payment proves the full `plan → checkout → backend-verified entitlement → sync → AUTO → 2.2 VPN path` exit.
 
 Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXECUTED**.
 
