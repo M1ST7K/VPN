@@ -134,9 +134,33 @@ GitHub CI for exact SHA `664bd27a51b7bfdbfdaa5a00bcae90023abbbc6a`:
 - Reconstruct and build Android app: PASS;
 - remaining bootstrap/Android jobs: PASS (run `34321635941`).
 
+Round-12 trusted checkpoint on `a343520` returned **CHANGES_REQUIRED** (P1 only). Implementation fix SHA: `75d71a4b164283e3dafae64b9c3f9a70aa35e918`.
+
+Round-12 P1s addressed in `75d71a4`:
+
+1. Checkout return extracts/falls back to the order id and polls `getOrder` even when the browser URI claims `success=true`. URI markers are never payment truth and no longer short-circuit polling.
+2. Authoritative `getEntitlement` `Ok(null)` invalidates the Keystore credential, trusted metadata, HotFox origin, and fulfilled local order. Transient backend errors do not.
+3. Entitlement parse rejects inverted intervals and grace-before-expiry. Time before `startsAt` is non-usable (`PROVISIONING`).
+4. Manifest identity hashes VLESS UUID (`password`) and TLS/Reality client fingerprint plus other config-generation fields.
+
+Local engineering evidence for `75d71a4`:
+
+- debug APK build: PASS;
+- unit tests: PASS (137);
+- Android lint: PASS;
+- unsigned release compile: PASS;
+- HotFox static/overlay verifiers: PASS;
+- overlay secret scan: PASS.
+
+GitHub CI for exact SHA `75d71a4b164283e3dafae64b9c3f9a70aa35e918`:
+
+- Payload integrity: PASS;
+- Reconstruct and build Android app: PASS;
+- remaining bootstrap/Android jobs: PASS (run `34323252775`).
+
 ### Engineering gate status
 
-**IN PROGRESS** — first coherent app/foundation block plus round-11 P1 fulfillment/idempotency/identity/Keystore-thread fixes are implemented and automated gates are green. Phase 2.3 is **not** engineering-complete until a sandbox/test payment proves the full `plan → checkout → backend-verified entitlement → sync → AUTO → 2.2 VPN path` exit.
+**IN PROGRESS** — first coherent app/foundation block plus round-11/12 P1 commerce fixes are implemented and automated gates are green. Phase 2.3 is **not** engineering-complete until a sandbox/test payment proves the full `plan → checkout → backend-verified entitlement → sync → AUTO → 2.2 VPN path` exit.
 
 Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXECUTED**.
 
