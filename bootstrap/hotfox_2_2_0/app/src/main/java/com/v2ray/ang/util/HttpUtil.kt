@@ -25,6 +25,8 @@ object HttpUtil {
         val content: String,
         val userInfoHeader: String?,
         val body: String? = content,
+        val profileTitleHeader: String? = null,
+        val contentDisposition: String? = null,
     )
 
     /**
@@ -205,6 +207,9 @@ object HttpUtil {
                                 response.header(name)
                             },
                             body = content,
+                            profileTitleHeader = response.header("profile-title")
+                                ?: response.header("Profile-Title"),
+                            contentDisposition = response.header("Content-Disposition"),
                         )
                     }
 

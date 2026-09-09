@@ -50,6 +50,7 @@ class TProxyService(
         try {
 //            LogUtil.i(AppConfig.TAG, "TProxyStartService...")
             TProxyStartService(configFile.absolutePath, vpnInterface.fd)
+            com.v2ray.ang.vpn.TunFdEvidence.recordHevReceived()
             return com.v2ray.ang.vpn.VpnReadiness.hevStatsAlive(TProxyGetStats())
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "HevSocks5Tunnel exception: ${e.message}")
@@ -117,6 +118,7 @@ class TProxyService(
         try {
             LogUtil.i(AppConfig.TAG, "TProxyStopService...")
             TProxyStopService()
+            com.v2ray.ang.vpn.TunFdEvidence.recordHevStopped()
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to stop hev-socks5-tunnel", e)
         }

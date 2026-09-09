@@ -15,6 +15,7 @@ class HotfoxVpnRecoveryTest {
         VpnProtectEvidence.resetForTests()
         HotfoxSocksIsolation.resetForTests()
         HotfoxOutboundCompare.resetForTests()
+        TunFdEvidence.resetForTests()
     }
 
     @Test
@@ -286,5 +287,43 @@ class HotfoxVpnRecoveryTest {
             server.close()
             worker.join(2_000)
         }
+    }
+
+    @Test
+    fun subscriptionTitleNeverUsesUrlOrToken() {
+        assertEquals("Amsterdam", HotfoxSubscriptionTitle.fromImport("Amsterdam"))
+        assertEquals("Подписка", HotfoxSubscriptionTitle.fromImport(null))
+        assertEquals("Подписка", HotfoxSubscriptionTitle.fromImport("https://provider.example/sub/sUq75ktDSV7LmQuB"))
+        val titled = HotfoxSubscriptionTitle.resolve(
+            fragment = null,
+            profileTitle = "base64:" + java.util.Base64.getEncoder().encodeToString("FoxNet".toByteArray()),
+            contentDisposition = null,
+            current = "import sub",
+        )
+        assertEquals("FoxNet", titled)
+        val fromFile = HotfoxSubscriptionTitle.resolve(
+            fragment = null,
+            profileTitle = null,
+            contentDisposition = "attachment; filename=\"Home VPN\"",
+            current = "import sub",
+        )
+        assertEquals("Home VPN", fromFile)
+        assertTrue(HotfoxSubscriptionTitle.shouldReplace("import sub"))
+        assertFalse(HotfoxSubscriptionTitle.shouldReplace("Amsterdam"))
+    }
+
+    @Test
+    fun tunFdEvidenceRequiresHevHandoffBeforeClose() {
+        TunFdEvidence.resetForTests()
+        TunFdEvidence.recordEstablish()
+        assertTrue(TunFdEvidence.established)
+        assertFalse(TunFdEvidence.hevReceived)
+        TunFdEvidence.recordHevReceived()
+        assertTrue(TunFdEvidence.hevReceived)
+        TunFdEvidence.recordHevStopped()
+        assertTrue(TunFdEvidence.hevStoppedBeforeClose)
+        TunFdEvidence.recordClosed()
+        assertTrue(TunFdEvidence.closed)
+        assertTrue(TunFdEvidence.summary().contains("hevReceivedFd=true"))
     }
 }

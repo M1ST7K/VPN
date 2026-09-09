@@ -620,6 +620,14 @@ object AngConfigManager {
                 it.subscription.totalBytes = info.totalBytes
                 it.subscription.expireAtEpochSeconds = info.expireAtEpochSeconds
             }
+            if (com.v2ray.ang.vpn.HotfoxSubscriptionTitle.shouldReplace(it.subscription.remarks)) {
+                it.subscription.remarks = com.v2ray.ang.vpn.HotfoxSubscriptionTitle.resolve(
+                    fragment = null,
+                    profileTitle = response?.profileTitleHeader,
+                    contentDisposition = response?.contentDisposition,
+                    current = it.subscription.remarks,
+                )
+            }
             MmkvManager.encodeSubscription(it.guid, it.subscription)
             HotfoxManifestRefresh.restoreAfterSuccess(snapshot)
             CommercePreferences.recordManifestSuccess()
@@ -706,7 +714,7 @@ object AngConfigManager {
         }
         val uri = URI(Utils.fixIllegalUrl(url))
         val subItem = SubscriptionItem()
-        subItem.remarks = uri.fragment ?: "import sub"
+        subItem.remarks = com.v2ray.ang.vpn.HotfoxSubscriptionTitle.fromImport(uri.fragment)
         subItem.url = url
         MmkvManager.encodeSubscription("", subItem)
         return 1

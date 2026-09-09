@@ -333,6 +333,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         try {
             if (::mInterface.isInitialized) {
                 mInterface.close()
+                com.v2ray.ang.vpn.TunFdEvidence.recordClosed()
             }
         } catch (e: Exception) {
             LogUtil.w(AppConfig.TAG, "Failed to close old interface", e)
@@ -344,6 +345,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         // Create a new interface using the builder and save the parameters
         try {
             mInterface = builder.establish()!!
+            com.v2ray.ang.vpn.TunFdEvidence.recordEstablish()
             isRunning = true
             return true
         } catch (e: Exception) {
@@ -573,6 +575,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             try {
                 if (::mInterface.isInitialized) {
                     mInterface.close()
+                    com.v2ray.ang.vpn.TunFdEvidence.recordClosed()
                     LogUtil.i(AppConfig.TAG, "StartCore-VPN: VPN interface closed")
                 }
             } catch (e: Exception) {

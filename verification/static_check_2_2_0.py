@@ -575,6 +575,16 @@ def main() -> int:
         "HEV SOCKS target drifted",
         "HEV SOCKS target must match Xray inbound",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxSubscriptionTitle.kt",
+        "object HotfoxSubscriptionTitle",
+        "2.9 subscription title is not the secret URL",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/TunFdEvidence.kt",
+        "object TunFdEvidence",
+        "2.9 TUN fd lifetime evidence",
+    )
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")

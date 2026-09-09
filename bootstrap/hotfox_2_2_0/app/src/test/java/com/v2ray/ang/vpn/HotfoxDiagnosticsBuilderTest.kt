@@ -13,6 +13,7 @@ class HotfoxDiagnosticsBuilderTest {
         VpnProtectEvidence.resetForTests()
         HotfoxSocksIsolation.resetForTests()
         HotfoxOutboundCompare.resetForTests()
+        TunFdEvidence.resetForTests()
     }
 
     @Test
@@ -50,6 +51,8 @@ class HotfoxDiagnosticsBuilderTest {
         assertTrue(report.contains("autopilot="))
         assertTrue(report.contains("protectCalled="))
         assertTrue(report.contains("bindAttempted="))
+        assertTrue(report.contains("tunEstablished="))
+        assertTrue(report.contains("hevReceivedFd="))
         assertTrue(report.contains("socksHttps=none") || report.contains("socksHttps="))
         assertFalse(report.contains("hev=true"))
         assertFalse(Regex("ipv6Captured=true").containsMatchIn(report))

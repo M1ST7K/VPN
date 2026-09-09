@@ -197,6 +197,10 @@ grep -q 'object HotfoxImportUiRefresh' "$PROJECT/app/src/main/java/com/v2ray/ang
   || fail "2.9 import UI refresh helper missing"
 grep -q 'HEV SOCKS target drifted' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
   || fail "HEV SOCKS target is not checked against Xray inbound"
+grep -q 'object HotfoxSubscriptionTitle' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxSubscriptionTitle.kt" \
+  || fail "2.9 subscription title must not use the secret URL"
+grep -q 'object TunFdEvidence' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/TunFdEvidence.kt" \
+  || fail "2.9 TUN fd lifetime evidence missing"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then
