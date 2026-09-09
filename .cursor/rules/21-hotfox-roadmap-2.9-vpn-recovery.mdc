@@ -1,0 +1,155 @@
+---
+description: Owner override inserting HotFox 2.9 VPN recovery before Premium UI
+alwaysApply: true
+---
+
+# HOTFOX — OWNER ROADMAP OVERRIDE: 2.9 VPN RECOVERY
+
+This rule is **ALWAYS ACTIVE** and represents an explicit owner change to the canonical roadmap.
+
+It intentionally does **not** interrupt the roadmap phase already in progress when this rule is received.
+
+If this rule conflicts with the older numbering in `.cursor/rules/20-hotfox-roadmap-progression.mdc` or the legacy 2.9/3.0 headings in `docs/HOTFOX_ROADMAP.md`, **this owner override wins for phase numbering and phase order from 2.9 onward**.
+
+Detailed 2.9 implementation and acceptance contract:
+
+`docs/HOTFOX_2_9_VPN_RECOVERY.md`
+
+## 1. Do not interrupt the current phase
+
+Finish the currently active roadmap phase through its normal engineering-exit flow.
+
+Do not abandon an active build, CI run, phase-exit candidate, reviewer loop, or current implementation merely because this override was added.
+
+Continue the already-planned sequence normally through 2.8.
+
+The new recovery work starts only when the roadmap reaches 2.9.
+
+## 2. Canonical sequence after this owner change
+
+The canonical engineering order is now:
+
+`2.4 Smart Connection`
+→ `2.5 Privacy Controls / Smart Routing`
+→ `2.6 HotFox Shadow / Stealth & Resilience`
+→ `2.7 Operations / Release Infrastructure`
+→ `2.8 HotFox Autopilot / Adaptive Protection`
+→ `2.9 VPN Core Recovery / Real Connection Fix`
+→ `3.0 Premium Android Experience`
+→ `3.1 Mature HotFox Platform / Pre-release Engineering`
+→ `FINAL RELEASE DEVICE GATE`
+
+The previous roadmap sections are renumbered conceptually as follows:
+
+- legacy `2.9 Premium Android Experience` becomes **3.0 Premium Android Experience**;
+- legacy `3.0 Mature HotFox Platform` becomes **3.1 Mature HotFox Platform / Pre-release Engineering**;
+- the final physical release gate occurs only after **3.1 ENGINEERING COMPLETE**, unless the owner explicitly cuts an earlier release candidate.
+
+Do not delete or discard the existing Premium UI or Mature Platform requirements. They are shifted, not removed.
+
+## 3. 2.9 is a correctness milestone, not a polish milestone
+
+2.9 exists because real E2E testing demonstrated that HotFox can start `VpnService`, create `tun0`, start HEV and Xray, yet still fail to carry real Internet traffic through the VPN.
+
+The owner has also confirmed that the same subscription/server access works in another VPN client. Therefore 2.9 must treat the HotFox client implementation as the primary investigation target unless contrary evidence proves a remote-server fault.
+
+Do not close 2.9 on build success, TUN creation, Android VPN icon, local SOCKS readiness, Xray startup, HEV startup, or UI state alone.
+
+## 4. Required 2.9 source of truth
+
+Before implementing 2.9, read in full:
+
+`docs/HOTFOX_2_9_VPN_RECOVERY.md`
+
+Then inspect the actual current code because earlier phases may have changed implementation details.
+
+Do not blindly apply old line numbers or old assumptions from a previous E2E report.
+
+## 5. Preserve fail-closed truth
+
+The current truthful behavior that refuses to show `CONNECTED` / `Защищено` when the protected path is not verified must remain.
+
+Never fix 2.9 by:
+
+- forcing `CONNECTED`;
+- removing readiness verification;
+- routing test traffic direct;
+- weakening TLS/REALITY;
+- disabling DNS/IPv6 safety;
+- replacing the VPN with a mock;
+- hiding failures behind longer arbitrary timeouts.
+
+## 6. 2.9 engineering exit gate
+
+2.9 may be marked `ENGINEERING COMPLETE` only when the available engineering environment proves the real path, including at minimum:
+
+- working subscription import without embedding the private URL;
+- correct selected-server config generation;
+- Xray outbound independently proven through its local SOCKS path;
+- working `VpnService`/TUN/HEV/Xray full chain;
+- runtime loop-prevention / underlying-network behavior proven rather than inferred only from source;
+- DNS works according to policy;
+- real HTTPS from Android succeeds through VPN;
+- Android browser/device-wide traffic succeeds through VPN in the available emulator/device environment;
+- public IP during VPN is measured when the test environment permits it;
+- disconnect restores normal networking;
+- at least three connect/disconnect/reconnect cycles succeed;
+- no false protected state;
+- no secret subscription URL/credentials are committed or logged;
+- build/CI and relevant regression tests pass;
+- final `[hotfox-phase-exit]` review has no substantiated P0/P1 findings.
+
+A physical handset is still reserved for the final release device gate unless the owner explicitly requests an earlier physical-device run. However, **available emulator/runtime E2E is mandatory for 2.9** because this phase exists specifically to repair an observed runtime datapath failure.
+
+## 7. After 2.9
+
+Only after 2.9 is genuinely complete:
+
+`2.9 ENGINEERING COMPLETE`
+→ immediately start `3.0 Premium Android Experience`.
+
+Premium UI must polish the truthful working VPN, not conceal an unresolved networking defect.
+
+After 3.0:
+
+→ start `3.1 Mature HotFox Platform / Pre-release Engineering`.
+
+After 3.1:
+
+→ `FINAL RELEASE DEVICE GATE`.
+
+## 8. Review and reporting
+
+For 2.9, every claimed fix must include:
+
+- symptom;
+- reproduction;
+- root cause;
+- changed files/symbols;
+- why the fix is correct;
+- exact retest;
+- regression tests;
+- remaining uncertainty;
+- commit SHA.
+
+Do not call a symptom such as `tun-not-forwarded` the root cause until the exact broken layer is isolated.
+
+## 9. Secret handling
+
+The owner-provided test subscription is a runtime secret.
+
+Never commit or print its full URL/token, UUIDs, passwords, private keys, Reality credentials, or raw sensitive Xray configuration.
+
+Use sanitized structural config evidence only.
+
+## 10. Automatic progression behavior
+
+When the current phase and 2.8 are complete, Cursor must not jump directly to the old Premium UI section.
+
+At the transition from 2.8, the next phase is explicitly:
+
+`2.9 VPN Core Recovery / Real Connection Fix`
+
+Only after 2.9 passes its gate may Cursor begin:
+
+`3.0 Premium Android Experience`.
