@@ -344,10 +344,6 @@ object HotfoxRoutingPolicy {
 
     fun sanitizeRule(rule: RoutingRule): RoutingRule? {
         return when (rule.kind) {
-            RoutingRuleKind.APP -> {
-                val pkg = rule.value.trim()
-                if (pkg.isBlank() || pkg.contains(' ')) null else rule.copy(value = pkg)
-            }
             RoutingRuleKind.DOMAIN_EXACT, RoutingRuleKind.DOMAIN_SUFFIX -> {
                 val host = DomainRouting.normalize(rule.value) ?: return null
                 rule.copy(value = host)
