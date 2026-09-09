@@ -38,6 +38,7 @@ import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxAutoFailover
 import com.v2ray.ang.vpn.HotfoxRoutingRestart
 import com.v2ray.ang.vpn.HotfoxRoutingStore
+import com.v2ray.ang.vpn.HotfoxShadowStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.HotfoxXrayConfigInjector
 import com.v2ray.ang.vpn.FailoverAction
@@ -668,6 +669,7 @@ object CoreServiceManager {
             isReloading = true
             if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
             HotfoxServerSelection.invalidateForNetworkChange()
+            HotfoxShadowStore.invalidateNetwork(HotfoxServerSelection.health.networkContext)
             when (val resolved = HotfoxServerSelection.resolveForHandover()) {
                 is HotfoxServerSelection.ResolveResult.Failure -> {
                     LogUtil.e(AppConfig.TAG, "StartCore-Manager: handover server resolve failed: ${resolved.message}")

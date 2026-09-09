@@ -2,7 +2,7 @@
 
 Status: **CANONICAL**
 
-Current engineering phase: **2.5 — Privacy Controls / Smart Routing**
+Current engineering phase: **2.6 — HotFox Shadow / Stealth & Resilience**
 
 This document defines the sequential HotFox engineering roadmap from the already completed truthful core and commercial foundation through the mature 3.0 platform.
 
@@ -402,7 +402,7 @@ Physical Android validation is not required for this transition.
 
 # 2.5 — PRIVACY CONTROLS / SMART ROUTING
 
-Status: **IN PROGRESS**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -570,7 +570,7 @@ No physical Android test is required between 2.5 and 2.6.
 
 # 2.6 — HOTFOX SHADOW / STEALTH & RESILIENCE
 
-Status: **PLANNED**
+Status: **IN PROGRESS**
 
 ## Purpose
 

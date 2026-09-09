@@ -1,6 +1,6 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **2.5 — Privacy Controls / Smart Routing**.
+Current milestone: **2.6 — HotFox Shadow / Stealth & Resilience**.
 
 This file is trusted reviewer context from `main`. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md` and is not sent in full to every checkpoint.
 
@@ -40,75 +40,57 @@ Preserve its guarantees:
 - hysteresis/stickiness and bounded failover;
 - stale/old-network health cannot overwrite a newer generation.
 
-## Current goal — 2.5 Privacy Controls / Smart Routing
+### 2.5 — Privacy Controls / Smart Routing
 
-Give the user real control over which traffic uses the VPN while preserving truthful routing, DNS and IPv6 guarantees.
+Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE — physical release validation deferred** after checkpoint round 7 (`APPROVED`, no substantiated P0/P1) on SHA `18518d2` / implementation `72471ab`.
 
-2.5 should answer:
+Preserve its guarantees:
 
-> Which traffic should go through HotFox, which traffic may go direct, and which traffic should be blocked?
+- routing modes map to deterministic Android/Xray policy;
+- EXCLUDE/INCLUDE miss stay outside TUN (DIRECT, including ads);
+- captured-traffic precedence `BLOCK > APP > DOMAIN > CIDR > GLOBAL`;
+- Xray rules bucketed `BLOCK / exact / suffix / CIDR`;
+- routing reconnect is bound to `VpnRestartGate`;
+- DNS through VPN; LAN explicit; IPv6 fail-closed unless policy says otherwise.
 
-Do not prematurely expand 2.5 into HotFox Shadow / multi-transport work reserved for 2.6.
+## Current goal — 2.6 HotFox Shadow / Stealth & Resilience
 
-## Highest-priority review targets for 2.5
+Make HotFox resilient when the default path is unavailable without weakening TLS/REALITY.
 
-1. **Truthful modes** — Smart / Global / include-apps / exclude-apps / Custom map to deterministic Android/Xray policy, not decorative toggles.
-2. **Split tunneling** — include/exclude use `VpnService` app policy; missing/uninstalled packages must not break the session or poison remaining rules.
-3. **Empty include fails closed** — empty selected-app include does not create an empty allow-list that leaks all apps off-VPN; per-app stays disabled until a usable set exists.
-4. **Deterministic precedence** — `BLOCK > APP > DOMAIN > CIDR > GLOBAL MODE`; never hash-map / race order.
-5. **No silent DIRECT bypass** — SMART/GLOBAL must not keep preset `geosite:cn` / private DIRECT rules that contradict the UI.
-6. **LAN is explicit** — GLOBAL never bypasses LAN; other modes bypass RFC1918 only when the user enabled LAN access.
-7. **DNS through VPN** — no silent system-DNS / ISP fallback while protection is claimed.
-8. **IPv6** — capture remains fail-closed (`::/0` + Xray blackhole) unless IPv6 proxying is enabled; Smart routing must not create an IPv6 leak.
-9. **Malformed CIDR** — never becomes `0.0.0.0/0` or `::/0` DIRECT.
-10. **Reconfiguration** — routing changes while connected are generation-scoped; a stale restart must not overwrite a newer policy.
-11. **Optional ads BLOCK** — geosite ads failure must not corrupt core VPN routing.
-12. **No 2.2/2.3/2.4 regression** — TUN/HEV/Xray path, canonical session truth, entitlement, AUTO mode.
+2.6 should answer:
+
+> Which server + transport + route is the best usable protected path in the current network environment?
+
+Do not prematurely expand 2.6 into operations/Autopilot/premium UX reserved for 2.7+.
+
+## Highest-priority review targets for 2.6
+
+1. **Path model** — server + transport + security + optional entry/exit, not a second VPN state machine.
+2. **Capability filtering** — unsupported transports are rejected, not advertised.
+3. **PathScore** — deterministic; never hash-map order.
+4. **Bounded fallback** — preferred → alternate transport → alternate server → Shadow route; finite cap; cancel on disconnect/`VpnRestartGate`.
+5. **Manual sticky** — Shadow AUTO does not rewrite a manual selection.
+6. **Network cache** — TTL + network-context invalidation; no SSID/BSSID tracking.
+7. **Shadow AUTO UX** — `Подбираем защищённый маршрут…`, not protocol dumps.
+8. **Multihop validity** — no same-node loops; no TLS/REALITY downgrade.
+9. **Self-heal** — threshold + cooldown; not a single noisy probe.
+10. **Connection Doctor** — categories + real AUTO_FIX, no secrets.
+11. **DNS bootstrap** — cached addresses with TTL; not a leak around THROUGH_VPN.
+12. **IPv4/IPv6** — dead IPv6 must not hide working IPv4; IPv6 still fail-closes on TUN unless policy routes it.
+13. **No 2.2–2.5 regression**.
 
 ## Scope discipline
 
-Do **not** turn unimplemented 2.6/2.7/2.8/2.9/3.0 roadmap items into P0/P1 during 2.5 review.
+Do **not** turn unimplemented 2.7/2.8/2.9/3.0 roadmap items into P0/P1 during 2.6 review.
 
-Review regressions in completed guarantees and concrete defects in implemented 2.5 routing code.
+## Exit gate for 2.6 engineering
 
-The detailed roadmap for later phases is in `docs/HOTFOX_ROADMAP.md`.
+Then run one final `[hotfox-phase-exit]`. If P0=0 and P1=0:
 
-## Exit gate for 2.5 engineering
+`2.6 ENGINEERING COMPLETE — physical release validation deferred.`
 
-Required engineering evidence should include, as applicable:
-
-- app include/exclude;
-- missing package handling;
-- domain VPN/DIRECT/BLOCK and conflicting rules;
-- DNS policy;
-- IPv4/IPv6 policy logic;
-- LAN allow/deny;
-- persistence/migration;
-- generation-scoped reconfiguration;
-- build/CI checks required by the repository.
-
-Then run one final `[hotfox-phase-exit]` (orchestrator dispatches the AI review after green CI).
-
-If:
-
-- P0 = 0
-- P1 = 0
-
-record:
-
-`2.5 ENGINEERING COMPLETE — physical release validation deferred.`
-
-Then immediately move to:
-
-`2.6 HotFox Shadow / Stealth & Resilience`
+Then immediately move to `2.7 Operations / Release Infrastructure`.
 
 ## Physical-device policy
 
-Physical Android validation is **NOT** a blocker for closing 2.5 or for progressing through 2.6, 2.7, 2.8, 2.9 and 3.0 engineering phases.
-
-Do not request a physical device test merely to advance the roadmap.
-
-Physical-device acceptance is consolidated into the single `FINAL RELEASE DEVICE GATE` defined in `docs/HOTFOX_ROADMAP.md`.
-
-Never claim physical validation as PASS unless it actually ran.
-Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.
+Physical Android validation is **NOT** a blocker for closing 2.6 or later engineering phases. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.

@@ -441,6 +441,31 @@ def main() -> int:
         "2.4 truthful AUTO selecting label",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt",
+        "fun fallback",
+        "2.6 Shadow bounded fallback",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
+        "HotfoxShadowFailover.considerLive",
+        "VPN failover uses Shadow/path policy",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt",
+        "Подбираем защищённый маршрут",
+        "Shadow AUTO selecting label",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/ConnectionDoctor.kt",
+        "object ConnectionDoctor",
+        "2.6 Connection Doctor",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/DnsBootstrapCache.kt",
+        "class DnsBootstrapCache",
+        "2.6 DNS bootstrap cache",
+    )
+    must_contain(
         "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
         "invalidateForNetworkChange",
         "handover invalidates previous-network health",

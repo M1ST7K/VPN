@@ -8,6 +8,7 @@ package com.v2ray.ang.vpn
  */
 object HotfoxResolvedTargetDisplay {
     const val SELECTING_COPY = "Подбираем сервер…"
+    const val SHADOW_SELECTING_COPY = HotfoxShadowPolicy.SELECTING_COPY
 
     enum class Phase {
         AUTO_IDLE,
@@ -37,10 +38,11 @@ object HotfoxResolvedTargetDisplay {
         stage: VpnConnectionStage = VpnConnectionStage.IDLE,
         idleFallback: String = "Сервер не выбран",
         autoPrefix: (String) -> String = { "Авто · $it" },
+        shadowAuto: Boolean = false,
     ): String {
         val remark = city?.takeIf { it.isNotBlank() && it != "—" }
         return when (phase(auto, connecting, remark, stage)) {
-            Phase.SELECTING -> SELECTING_COPY
+            Phase.SELECTING -> if (shadowAuto) SHADOW_SELECTING_COPY else SELECTING_COPY
             Phase.RESOLVED -> if (auto) autoPrefix(remark!!) else remark!!
             Phase.MANUAL -> remark ?: idleFallback
             Phase.AUTO_IDLE -> remark?.let(autoPrefix) ?: idleFallback

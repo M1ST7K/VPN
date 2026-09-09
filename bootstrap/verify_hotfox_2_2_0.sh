@@ -131,8 +131,18 @@ grep -q 'fun outsideVpnCapture' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/Ho
   || fail "TUN capture membership is not explicit in routing policy"
 grep -q 'blocked + exact + suffix + cidr' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayRouting.kt" \
   || fail "Xray field rules are not bucketed to match decide() precedence"
-grep -q 'fun invalidateForNetworkChange' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt" \
-  || fail "network-context health invalidation missing"
+grep -q 'object HotfoxShadowPolicy' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt" \
+  || fail "HotFox 2.6 Shadow policy missing"
+grep -q 'fun fallback' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt" \
+  || fail "Shadow bounded fallback missing"
+grep -q 'HotfoxShadowFailover.considerLive' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "connected failover is not Shadow/path aware"
+grep -q 'Подбираем защищённый маршрут' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt" \
+  || fail "Shadow AUTO selecting label missing"
+grep -q 'object ConnectionDoctor' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ConnectionDoctor.kt" \
+  || fail "Connection Doctor missing"
+grep -q 'class DnsBootstrapCache' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/DnsBootstrapCache.kt" \
+  || fail "DNS bootstrap cache missing"
 grep -q 'ENTITLEMENT_BLOCKED' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \
   || fail "AUTO eligibility filter missing"
 grep -q 'fun candidateFrom' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt" \

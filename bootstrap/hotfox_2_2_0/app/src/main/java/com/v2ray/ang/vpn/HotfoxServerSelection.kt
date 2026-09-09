@@ -344,6 +344,9 @@ object HotfoxServerSelection {
             requiresEntitlement = eligibility.requiresEntitlement(profile.subscriptionId),
             entitlementUsable = eligibility.entitlementUsable,
             delayNetworkScoped = false,
+            network = profile.network,
+            security = profile.security,
+            ipv6 = false,
         )
     }
 
@@ -385,6 +388,9 @@ object HotfoxServerSelection {
          * ping must not be relabeled as health for a new network context.
          */
         val delayNetworkScoped: Boolean = true,
+        val network: String? = "tcp",
+        val security: String? = "reality",
+        val ipv6: Boolean = false,
     ) {
         fun healthHint(nowEpochMs: Long, networkContext: Long): ServerHealth {
             if (!delayNetworkScoped) {

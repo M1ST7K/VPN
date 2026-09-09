@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.5. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.6. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -365,6 +365,22 @@ GitHub CI for exact SHA `72471ab9cc2baea5a72be2e628812e4ddd806099` (run `3437743
 - Publish HotFox Dev Latest: PASS
 - Emulator UI smoke: skipped (not VPN E2E)
 
-Round 6 `CHANGES_REQUIRED` on `d830dec` is addressed in `72471ab`. This head is a 2.5 `[hotfox-phase-exit]` candidate. Do not record `2.5 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+Round 6 `CHANGES_REQUIRED` on `d830dec` is addressed in `72471ab`.
+
+### Engineering gate status
+
+**ENGINEERING COMPLETE — physical release validation deferred.**
+
+Trusted checkpoint **round 7** returned `APPROVED` (P0 = 0, P1 = 0) on head `18518d2` / implementation `72471ab`. Physical-device VPN E2E remains **NOT EXECUTED** and is not a 2.5→2.6 blocker.
+
+### Release gate status
+
+**DEFERRED / NOT VERIFIED** — consolidated into `FINAL RELEASE DEVICE GATE` after 3.0.
+
+## Phase 2.6 — HotFox Shadow / Stealth & Resilience
+
+**IN PROGRESS.** 2.5 engineering gate is closed (round 7 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.6 engineering or progression to 2.7.
+
+Do not record `2.6 ENGINEERING COMPLETE` until implementation, green full CI, and phase-exit `APPROVED` (P0=0, P1=0). Physical-device VPN E2E remains **NOT EXECUTED**.
 
 

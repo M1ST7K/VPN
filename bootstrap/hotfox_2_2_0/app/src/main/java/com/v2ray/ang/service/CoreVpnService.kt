@@ -28,6 +28,9 @@ import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.DuplicateStartDisposition
 import com.v2ray.ang.vpn.FailoverAction
 import com.v2ray.ang.vpn.HotfoxAutoFailover
+import com.v2ray.ang.vpn.HotfoxShadowFailover
+import com.v2ray.ang.vpn.HotfoxShadowStore
+import com.v2ray.ang.vpn.HotfoxSelfHeal
 import com.v2ray.ang.vpn.HotfoxRoutingStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.VpnConnectionStage
@@ -229,6 +232,8 @@ class CoreVpnService : VpnService(), ServiceControl {
             return
         }
         HotfoxAutoFailover.reset()
+        HotfoxShadowFailover.reset()
+        HotfoxShadowStore.notePathSuccess()
         MmkvManager.getSelectServer()?.let { HotfoxServerSelection.rememberLastGoodAuto(it) }
         RootLanSharing.startClientSharing(this)
         CoreServiceManager.notifyTunnelReady(this)
@@ -481,7 +486,7 @@ class CoreVpnService : VpnService(), ServiceControl {
 
     private fun tryAutoFailover(attempt: Long, code: String): Boolean {
         if (!VpnSessionCoordinator.isCurrent(attempt)) return false
-        val decision = HotfoxAutoFailover.considerLive(code)
+        val decision = HotfoxShadowFailover.considerLive(code)
         if (decision.action != FailoverAction.SWITCH) return false
         if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: AUTO failover ${decision.reason} next=${decision.guid}")
@@ -493,8 +498,21 @@ class CoreVpnService : VpnService(), ServiceControl {
     private fun handleConnectedAutoFailover() {
         if (VpnSessionCoordinator.currentState() != VpnSessionState.CONNECTED) return
         if (!HotfoxServerSelection.isAutoMode()) return
-        val decision = HotfoxAutoFailover.considerLive("HF-VPN-006")
+        val now = System.currentTimeMillis()
+        HotfoxShadowStore.notePathDeath(now)
+        if (!HotfoxSelfHeal.shouldHeal(
+                HotfoxShadowStore.selfHeal,
+                pathVerifiedDeath = true,
+                nowEpochMs = now,
+                connected = true,
+                generationCurrent = true,
+            )
+        ) {
+            return
+        }
+        val decision = HotfoxShadowFailover.considerLive("HF-VPN-006")
         if (decision.action != FailoverAction.SWITCH) return
+        HotfoxShadowStore.noteHeal(now)
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: AUTO connected failover ${decision.reason} next=${decision.guid}")
         CoreServiceManager.requestConnectedReload()
     }

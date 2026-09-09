@@ -60,6 +60,8 @@ import com.v2ray.ang.vpn.HotfoxResolvedTargetDisplay
 import com.v2ray.ang.vpn.HotfoxRoutingApply
 import com.v2ray.ang.vpn.HotfoxRoutingMode
 import com.v2ray.ang.vpn.HotfoxRoutingStore
+import com.v2ray.ang.vpn.HotfoxShadowPolicy
+import com.v2ray.ang.vpn.HotfoxShadowStore
 import com.v2ray.ang.vpn.HotfoxServerPresentation
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.HotfoxSubscriptionPresentation
@@ -1080,7 +1082,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             },
         )
         val lan = if (snapshot.bypassLanOnTun()) "LAN" else "без LAN"
-        binding.tvRoutingInline.text = "${snapshot.uiLabel()} · $lan · DNS VPN"
+        val shadow = if (HotfoxShadowStore.isShadowAuto()) HotfoxShadowPolicy.MODE_LABEL else "Shadow: выкл"
+        binding.tvRoutingInline.text = "${snapshot.uiLabel()} · $lan · DNS VPN · $shadow"
     }
 
     private fun animateRoutingCard() {
@@ -1124,6 +1127,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             stage = VpnSessionCoordinator.lastStage(),
             idleFallback = getString(R.string.hotfox_server_not_selected),
             autoPrefix = { getString(R.string.hotfox_auto_prefix, it) },
+            shadowAuto = HotfoxShadowStore.isShadowAuto(),
         )
         binding.tvAutoMode.text = if (HotfoxServerSelection.isAutoMode()) {
             getString(R.string.hotfox_auto_server)

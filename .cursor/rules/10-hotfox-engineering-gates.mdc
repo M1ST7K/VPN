@@ -49,11 +49,11 @@ Revisit an earlier phase only if:
 
 Current engineering phase is:
 
-`2.5 Privacy Controls / Smart Routing`
+`2.6 HotFox Shadow / Stealth & Resilience`
 
-2.4 is **ENGINEERING COMPLETE — physical release validation deferred**.
+2.5 is **ENGINEERING COMPLETE — physical release validation deferred**.
 
-Do not restart 2.4 work unless one of the legitimate regression conditions above applies.
+Do not restart 2.5 work unless one of the legitimate regression conditions above applies.
 
 ## 4. Standard engineering exit gate for 2.4 through 3.0
 
