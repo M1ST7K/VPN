@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.6 «HotFox Shadow / Stealth & Resilience»
 
-Status: **IN PROGRESS** (2.5 is ENGINEERING COMPLETE — physical release validation deferred)
+Status: **ENGINEERING-EXIT CANDIDATE** (implementation `0854e17`, full CI PASS; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 

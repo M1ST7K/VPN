@@ -379,8 +379,32 @@ Trusted checkpoint **round 7** returned `APPROVED` (P0 = 0, P1 = 0) on head `185
 
 ## Phase 2.6 — HotFox Shadow / Stealth & Resilience
 
-**IN PROGRESS.** 2.5 engineering gate is closed (round 7 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.6 engineering or progression to 2.7.
+**IN PROGRESS / engineering-exit candidate.** 2.5 engineering gate is closed (round 7 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.6 engineering or progression to 2.7.
 
-Do not record `2.6 ENGINEERING COMPLETE` until implementation, green full CI, and phase-exit `APPROVED` (P0=0, P1=0). Physical-device VPN E2E remains **NOT EXECUTED**.
+Implementation SHA for the 2.6 completion block: `0854e17fd8157a0aa81548a94cf6a1db3a94e408`.
+
+Included in this block:
+
+1. First-class `ConnectionPath` (server + transport + security + optional entry/exit). Unsupported transports (kcp/quic/…) are rejected.
+2. Deterministic `PathScore` and bounded fallback: preferred → alternate transport → alternate server → Shadow route.
+3. Network capability cache and DNS bootstrap cache with TTL and network-context invalidation.
+4. Self-heal with failure threshold and cooldown; cancelled by disconnect/`VpnRestartGate`.
+5. Connection Doctor categories and real `AUTO_FIX` recovery without dumping secrets.
+6. Shadow AUTO UX: `Shadow: Авто` / `Подбираем защищённый маршрут…`.
+7. Fallback never downgrades TLS/REALITY; same-node Shadow loops are rejected.
+
+GitHub CI for exact SHA `0854e17fd8157a0aa81548a94cf6a1db3a94e408` (run `34381602697`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Static check: PASS
+- debug APK build: PASS
+- unit tests: PASS
+- Android lint: PASS
+- unsigned release compile: PASS
+- Publish HotFox Dev Latest: PASS
+- Emulator UI smoke: skipped (not VPN E2E)
+
+This head is a 2.6 `[hotfox-phase-exit]` candidate. Do not record `2.6 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
 
 
