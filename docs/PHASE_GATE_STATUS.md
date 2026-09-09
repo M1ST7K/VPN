@@ -160,18 +160,38 @@ GitHub CI for exact SHA `75d71a4b164283e3dafae64b9c3f9a70aa35e918`:
 
 Round-13 trusted checkpoint on `bdae55b` returned **APPROVED** with no substantiated P0/P1.
 
-Sandbox/test payment E2E (this PR, pending checkpoint):
+Sandbox/test payment E2E implementation SHA: `5be5f346243f3f5acaeb232ecf81190c4611db10`.
 
-- Deterministic CI fixture (`SandboxPaymentE2e`, `WebhookReconciliation`, `HostedCheckoutFixture`) proves catalog → idempotent order → hosted-checkout handoff → HMAC webhook reconciliation → entitlement claim → Keystore credential → transactional manifest sync → AUTO + 2.2 `HotfoxServerSelection.pick` handoff → restore.
-- Browser `success=true` is never payment truth.
-- No payment-provider private key or paid subscription credential is embedded. `HOTFOX_SANDBOX_COMMERCE` / `HOTFOX_PAYMENT_BACKEND_URL` are environment-injected.
-- Exact remaining manual step: a real provider sandbox hosted checkout against a server that holds provider keys (`docs/phases/2.3-sandbox-payment-e2e.md`).
+Included in this block:
+
+1. Deterministic CI fixture (`SandboxPaymentE2e`, `WebhookReconciliation`, `HostedCheckoutFixture`) proves catalog → idempotent order → hosted-checkout handoff → HMAC webhook reconciliation → entitlement claim → Keystore credential → transactional manifest sync → AUTO + 2.2 `HotfoxServerSelection.pick` handoff → restore.
+2. Browser `success=true` is never payment truth and still polls `getOrder`.
+3. No payment-provider private key or paid subscription credential is embedded. `HOTFOX_SANDBOX_COMMERCE` / `HOTFOX_PAYMENT_BACKEND_URL` are environment-injected.
+4. Checkout return / restore on the Subscription screen refresh entitlement and preserve AUTO without publishing `CONNECTED`.
+5. Exact remaining manual step: a live provider sandbox hosted checkout against a server that holds provider keys (`docs/phases/2.3-sandbox-payment-e2e.md`).
+
+Local engineering evidence for `5be5f34`:
+
+- debug APK build: PASS;
+- unit tests: PASS (152);
+- Android lint: PASS;
+- unsigned release compile: PASS;
+- HotFox static/overlay verifiers: PASS;
+- overlay secret scan: PASS.
+
+GitHub CI for exact SHA `5be5f346243f3f5acaeb232ecf81190c4611db10`:
+
+- Payload integrity: PASS;
+- Reconstruct and build Android app: PASS;
+- remaining bootstrap/Android jobs: PASS (run `34332785857`).
+
+Round-14 trusted checkpoint is requested on the commit that contains `[hotfox-review]`. Do not mark 2.3 engineering-complete until that checkpoint returns **APPROVED**.
 
 See `docs/phases/2.3-sandbox-payment-e2e.md` for proven vs manual.
 
 ### Engineering gate status
 
-**IN PROGRESS** — sandbox/test payment E2E is implemented as a CI fixture. Phase 2.3 is **not** engineering-complete until this block’s `[hotfox-review]` checkpoint is **APPROVED**. A green CI fixture is not a live provider sandbox and is not physical-device VPN E2E.
+**IN PROGRESS** — sandbox/test payment E2E is implemented and GitHub reconstruct is green. Phase 2.3 is **not** engineering-complete until this block’s `[hotfox-review]` checkpoint is **APPROVED**. A green CI fixture is not a live provider sandbox and is not physical-device VPN E2E.
 
 Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXECUTED**.
 
