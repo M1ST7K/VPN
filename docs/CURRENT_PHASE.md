@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.3 «Commercial Foundation»
 
-Status: **IN PROGRESS** (round-14 P0/P1 fixed on `2fd6dbe`, GitHub reconstruct **PASS** `34337272139`, requesting round-15 `[hotfox-review]`)
+Status: **IN PROGRESS** (round-15 P1 fixed on `e6c9e3c`, GitHub reconstruct **PASS** `34340006767`, requesting `[hotfox-review]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
