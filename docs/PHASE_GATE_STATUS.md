@@ -305,3 +305,12 @@ Round-2 trusted checkpoint on `4c6f2a7` returned **CHANGES_REQUIRED** (three P1,
 1. `workflow_run` orchestrator already lives on default `main`; dispatch now re-checks the open PR head SHA, passes `expected_sha`, and does not fail closed on a comment 403 after a successful dispatch.
 2. Trusted reviewer requires `expected_sha` in `phase_exit` mode and refuses SHA mismatch / missing `[hotfox-phase-exit]` marker.
 3. Roadmap continuation job runs only when `approved == true`, `verdict == APPROVED`, and `reviewed_sha == expected_sha`. `CHANGES_REQUIRED` does not post an engineering-complete handoff.
+
+GitHub CI for exact SHA `47fbaad0d829f141f08f8d4b8c309f57a87a011e` (run `34366000496`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- debug APK / unit tests / lint / unsigned release / Publish Dev Latest: PASS
+- Emulator UI smoke: skipped (not VPN E2E)
+
+This head is the next 2.4 `[hotfox-phase-exit]` candidate. Do not record `2.4 ENGINEERING COMPLETE` until APPROVED (P0=0, P1=0).
