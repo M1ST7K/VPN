@@ -1,0 +1,124 @@
+name: HotFox AI Checkpoint Reviewer
+
+on:
+  # Ordinary PR pushes run only the tiny checkpoint gate. OpenAI is not called,
+  # and OPENAI_API_KEY is not exposed to a job, unless the final head commit
+  # explicitly contains [hotfox-review].
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull request number to review now"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: hotfox-ai-review-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  checkpoint-gate:
+    name: Check whether this head requests AI review
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.user.login == github.repository_owner &&
+       startsWith(github.event.pull_request.head.ref, 'cursor/hotfox-'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      requested: ${{ steps.gate.outputs.requested }}
+    steps:
+      - id: gate
+        name: Detect explicit checkpoint token
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "requested=true" >> "$GITHUB_OUTPUT"
+            echo "Manual workflow_dispatch requests a checkpoint review."
+            exit 0
+          fi
+
+          message="$(python3 - <<'PY'
+          import json, os, urllib.request
+          repo = os.environ['REPO']
+          sha = os.environ['HEAD_SHA']
+          token = os.environ['GH_TOKEN']
+          req = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/commits/{sha}',
+              headers={
+                  'Accept': 'application/vnd.github+json',
+                  'Authorization': f'Bearer {token}',
+                  'User-Agent': 'hotfox-ai-checkpoint-gate/1.0',
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as response:
+              data = json.load(response)
+          print(((data.get('commit') or {}).get('message') or '').strip())
+          PY
+          )"
+
+          if grep -Fqi '[hotfox-review]' <<< "$message"; then
+            echo "requested=true" >> "$GITHUB_OUTPUT"
+            echo "Checkpoint token found; senior AI review will run."
+          else
+            echo "requested=false" >> "$GITHUB_OUTPUT"
+            echo "Ordinary push; OpenAI review skipped."
+          fi
+
+  review:
+    name: GPT-5.6 checkpoint review → Cursor only for P0/P1
+    needs: checkpoint-gate
+    if: needs.checkpoint-gate.outputs.requested == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # pull_request_target intentionally checks out ONLY trusted main.
+      # Never checkout or execute PR-head code in a job that can access OPENAI_API_KEY.
+      - name: Checkout trusted reviewer code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Validate OpenAI secret is configured
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY is not configured in repository Actions secrets." >&2
+            exit 2
+          fi
+
+      - name: Run trusted checkpoint review
+        env:
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Cost-balanced default. Reserve Sol/manual deep review for exceptional
+          # phase-exit/security cases instead of every normal checkpoint.
+          OPENAI_REVIEW_MODEL: gpt-5.6-terra
+          HOTFOX_REVIEW_TRIGGER: "[hotfox-review]"
+          MAX_REVIEW_ROUNDS: "20"
+          # The reviewer already prioritizes VPN/security/commerce-sensitive patches.
+          # Keeping a bounded diff prevents giant historical PR context from being
+          # resent on every checkpoint.
+          MAX_REVIEW_DIFF_CHARS: "120000"
+          # 6k previously proved too tight for reasoning+visible output; 12k keeps
+          # enough headroom while cutting the old 30k ceiling substantially.
+          OPENAI_REVIEW_MAX_OUTPUT_TOKENS: "12000"
+        run: python3 .github/scripts/hotfox_ai_review.py
