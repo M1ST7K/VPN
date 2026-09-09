@@ -147,6 +147,25 @@ grep -q 'object ConnectionDoctor' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/
   || fail "Connection Doctor missing"
 grep -q 'class DnsBootstrapCache' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/DnsBootstrapCache.kt" \
   || fail "DNS bootstrap cache missing"
+grep -q 'object HotfoxUpdatePolicy' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxUpdate.kt" \
+  || fail "HotFox 2.7 update policy missing"
+grep -q 'fun maySilentlyInstall' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxUpdate.kt" \
+  || fail "sideload silent install guard missing"
+grep -q 'object HotfoxNodeDrain' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxNodeDrain.kt" \
+  || fail "HotFox 2.7 node drain missing"
+grep -q 'DRAINED' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \
+  || fail "AUTO drain eligibility reason missing"
+grep -q 'HOTFOX_REQUIRE_RELEASE_SIGNING' "$PROJECT/app/build.gradle.kts" \
+  || fail "honest release-signing failure gate missing"
+grep -q 'HOTFOX_GIT_SHA' "$PROJECT/app/build.gradle.kts" \
+  || fail "git SHA BuildConfig field missing"
+grep -q 'Record APK SHA-256' "$ROOT/.github/workflows/hotfox-bootstrap-ci.yml" \
+  || fail "CI APK SHA-256 recording step missing"
+grep -q 'sha256sum' "$ROOT/.github/workflows/hotfox-bootstrap-ci.yml" \
+  || fail "CI sha256sum of APK artifacts missing"
+if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then
+  fail "release keystore must not be committed in the overlay"
+fi
 grep -q 'ENTITLEMENT_BLOCKED' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \
   || fail "AUTO eligibility filter missing"
 grep -q 'fun candidateFrom' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt" \

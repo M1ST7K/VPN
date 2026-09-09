@@ -68,7 +68,7 @@ object AutoSelectionPolicy {
         lastGoodGuid: String? = null,
         networkContext: Long = 0L,
     ): HotfoxServerSelection.ResolveResult {
-        val eligible = AutoCandidateFilter.eligible(servers)
+        val eligible = AutoCandidateFilter.eligible(servers, excludeDrained = auto)
         if (eligible.isEmpty()) {
             return HotfoxServerSelection.ResolveResult.Failure("HF-VPN-010 Нет серверов")
         }
@@ -101,7 +101,7 @@ object AutoSelectionPolicy {
         networkChanged: Boolean = false,
         networkContext: Long = 0L,
     ): HotfoxServerSelection.ResolveResult {
-        val eligible = AutoCandidateFilter.eligible(servers)
+        val eligible = AutoCandidateFilter.eligible(servers, excludeDrained = auto)
         if (!auto) {
             return pick(
                 eligible,

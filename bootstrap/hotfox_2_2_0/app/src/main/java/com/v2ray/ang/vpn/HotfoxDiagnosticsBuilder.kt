@@ -1,6 +1,5 @@
 package com.v2ray.ang.vpn
 
-import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.util.SecretRedactor
 
 object HotfoxDiagnosticsBuilder {
@@ -24,8 +23,12 @@ object HotfoxDiagnosticsBuilder {
     ): String {
         val state = VpnSessionCoordinator.currentState()
         val raw = buildString {
-            appendLine("HotFox Proxy ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
-            appendLine("distribution=${BuildConfig.DISTRIBUTION}")
+            val identity = com.v2ray.ang.ops.HotfoxBuildIdentity.runningFromBuildConfig()
+            appendLine("HotFox Proxy ${identity.versionName} (${identity.versionCode})")
+            appendLine("distribution=${identity.distribution}")
+            appendLine("channel=${identity.channel.storageValue}")
+            appendLine("gitSha=${identity.gitSha.ifBlank { "unknown" }}")
+            appendLine("artifact=${identity.artifactLabel()}")
             appendLine("android=$androidRelease api=$api abi=$abi")
             appendLine("state=${state.name}")
             appendLine("uiPhase=${state.uiPhase()}")

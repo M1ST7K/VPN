@@ -1,6 +1,6 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **2.6 — HotFox Shadow / Stealth & Resilience**.
+Current milestone: **2.7 — Operations / Release Infrastructure**.
 
 This file is trusted reviewer context from `main`. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md` and is not sent in full to every checkpoint.
 
@@ -53,44 +53,54 @@ Preserve its guarantees:
 - routing reconnect is bound to `VpnRestartGate`;
 - DNS through VPN; LAN explicit; IPv6 fail-closed unless policy says otherwise.
 
-## Current goal — 2.6 HotFox Shadow / Stealth & Resilience
+### 2.6 — HotFox Shadow / Stealth & Resilience
 
-Make HotFox resilient when the default path is unavailable without weakening TLS/REALITY.
+Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE — physical release validation deferred** after checkpoint round 10 (`APPROVED`, no substantiated P0/P1) on SHA `c47a7d0` / implementation `d6fa8b6`.
 
-2.6 should answer:
+Preserve its guarantees:
 
-> Which server + transport + route is the best usable protected path in the current network environment?
+- path model is server + transport + security + optional entry/exit;
+- unsupported transports are rejected;
+- PathScore is deterministic;
+- bounded fallback; Shadow AUTO does not rewrite a manual selection;
+- fallback never downgrades TLS/REALITY;
+- self-heal uses threshold + cooldown and is cancelled by disconnect/`VpnRestartGate`.
 
-Do not prematurely expand 2.6 into operations/Autopilot/premium UX reserved for 2.7+.
+## Current goal — 2.7 Operations / Release Infrastructure
 
-## Highest-priority review targets for 2.6
+Make HotFox buildable, diagnosable, updateable and safely releasable.
 
-1. **Path model** — server + transport + security + optional entry/exit, not a second VPN state machine.
-2. **Capability filtering** — unsupported transports are rejected, not advertised.
-3. **PathScore** — deterministic; never hash-map order.
-4. **Bounded fallback** — preferred → alternate transport → alternate server → Shadow route; finite cap; cancel on disconnect/`VpnRestartGate`.
-5. **Manual sticky** — Shadow AUTO does not rewrite a manual selection.
-6. **Network cache** — TTL + network-context invalidation; no SSID/BSSID tracking.
-7. **Shadow AUTO UX** — `Подбираем защищённый маршрут…`, not protocol dumps.
-8. **Multihop validity** — no same-node loops; no TLS/REALITY downgrade.
-9. **Self-heal** — threshold + cooldown; not a single noisy probe.
-10. **Connection Doctor** — categories + real AUTO_FIX, no secrets.
-11. **DNS bootstrap** — cached addresses with TTL; not a leak around THROUGH_VPN.
-12. **IPv4/IPv6** — dead IPv6 must not hide working IPv4; IPv6 still fail-closes on TUN unless policy routes it.
-13. **No 2.2–2.5 regression**.
+2.7 should answer:
+
+> Can we identify, update and operate HotFox without mixing channels, leaking secrets, or trusting unsigned remote config?
+
+Do not prematurely expand 2.7 into Autopilot/premium UX reserved for 2.8+.
+
+## Highest-priority review targets for 2.7
+
+1. **Channels** — `dev`/`beta`/`stable`; stable cannot mix sandbox commerce.
+2. **Provenance** — versionCode/versionName/git SHA/channel on the artifact and in diagnostics.
+3. **Signing honesty** — missing required keystore fails the build; no silent unsigned-as-signed.
+4. **Update manifest** — HTTPS URL, SHA-256, channel match, expiry, ECDSA when required, reject downgrade/known-bad/hash mismatch.
+5. **No silent install** — AVAILABLE is a user-visible state, not an auto-install.
+6. **Node drain** — signed metadata only; AUTO excludes drained nodes; manual stays sticky.
+7. **Redaction** — diagnostics/logs never emit subscription URLs, tokens, UUIDs, signing passwords.
+8. **Incident banner** — cannot change canonical VPN protection state.
+9. **Remote flags** — allowlisted keys; cannot disable TLS/REALITY or trust checkout `success=true`.
+10. **No 2.2–2.6 regression**.
 
 ## Scope discipline
 
-Do **not** turn unimplemented 2.7/2.8/2.9/3.0 roadmap items into P0/P1 during 2.6 review.
+Do **not** turn unimplemented 2.8/2.9/3.0 roadmap items into P0/P1 during 2.7 review.
 
-## Exit gate for 2.6 engineering
+## Exit gate for 2.7 engineering
 
 Then run one final `[hotfox-phase-exit]`. If P0=0 and P1=0:
 
-`2.6 ENGINEERING COMPLETE — physical release validation deferred.`
+`2.7 ENGINEERING COMPLETE — physical release validation deferred.`
 
-Then immediately move to `2.7 Operations / Release Infrastructure`.
+Then immediately move to `2.8 HotFox Autopilot / Adaptive Protection`.
 
 ## Physical-device policy
 
-Physical Android validation is **NOT** a blocker for closing 2.6 or later engineering phases. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.
+Physical Android validation is **NOT** a blocker for closing 2.7 or later engineering phases. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.

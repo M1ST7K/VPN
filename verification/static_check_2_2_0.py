@@ -476,6 +476,34 @@ def main() -> int:
         "2.6 DNS bootstrap cache",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxUpdate.kt",
+        "object HotfoxUpdatePolicy",
+        "2.7 sideload update policy",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxUpdate.kt",
+        "fun maySilentlyInstall",
+        "2.7 no silent APK install",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxNodeDrain.kt",
+        "object HotfoxNodeDrain",
+        "2.7 signed node drain",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt",
+        "DRAINED",
+        "AUTO excludes drained nodes",
+    )
+    gradle = read("app/build.gradle.kts")
+    if "HOTFOX_REQUIRE_RELEASE_SIGNING" not in gradle:
+        fail("honest release-signing failure gate missing")
+    if "HOTFOX_GIT_SHA" not in gradle:
+        fail("git SHA BuildConfig field missing")
+    workflow = (ROOT / ".github/workflows/hotfox-bootstrap-ci.yml").read_text(encoding="utf-8")
+    if "Record APK SHA-256" not in workflow or "sha256sum" not in workflow:
+        fail("CI must record APK SHA-256")
+    must_contain(
         "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
         "invalidateForNetworkChange",
         "handover invalidates previous-network health",

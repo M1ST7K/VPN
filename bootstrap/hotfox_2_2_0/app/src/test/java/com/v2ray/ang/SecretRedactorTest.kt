@@ -24,4 +24,21 @@ class SecretRedactorTest {
         assertTrue(redacted.contains("<url>"))
         assertTrue(redacted.contains("<redacted>"))
     }
+
+    @Test
+    fun redactsKeystorePasswords() {
+        val raw = "HOTFOX_KEYSTORE_PASSWORD=super-secret-store-pass HOTFOX_KEY_PASSWORD=another-secret-key"
+        val redacted = SecretRedactor.redact(raw)
+        assertFalse(redacted.contains("super-secret-store-pass"))
+        assertFalse(redacted.contains("another-secret-key"))
+        assertTrue(redacted.contains("<signing-secret>"))
+    }
+
+    @Test
+    fun redactsLongTokensAfterSigningSecrets() {
+        val raw = "restoreToken=abcdefghijklmnopqrstuvwx"
+        val redacted = SecretRedactor.redact(raw)
+        assertFalse(redacted.contains("abcdefghijklmnopqrstuvwx"))
+        assertTrue(redacted.contains("<secret>") || redacted.contains("<redacted>"))
+    }
 }

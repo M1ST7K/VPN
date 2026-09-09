@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.6. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.7. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -379,9 +379,11 @@ Trusted checkpoint **round 7** returned `APPROVED` (P0 = 0, P1 = 0) on head `185
 
 ## Phase 2.6 — HotFox Shadow / Stealth & Resilience
 
-**IN PROGRESS / engineering-exit candidate.** 2.5 engineering gate is closed (round 7 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.6 engineering or progression to 2.7.
+**ENGINEERING COMPLETE — physical release validation deferred.** 2.5 engineering gate is closed (round 7 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.6 engineering or progression to 2.7.
 
-Implementation SHA for the 2.6 completion block: `0854e17fd8157a0aa81548a94cf6a1db3a94e408`.
+Implementation SHA for the 2.6 completion block: `d6fa8b6fe6feb4dd459fde7757156a13b9eb5932` (Shadow `0854e17`, APP/LAN data-plane `c9bca6b`, named-arg tests `d6fa8b6`).
+
+Trusted checkpoint **round 10** returned `APPROVED` (P0 = 0, P1 = 0) on head `c47a7d09621942ed1a47dea23f71332b4643ccc1`.
 
 Included in this block:
 
@@ -392,43 +394,31 @@ Included in this block:
 5. Connection Doctor categories and real `AUTO_FIX` recovery without dumping secrets.
 6. Shadow AUTO UX: `Shadow: Авто` / `Подбираем защищённый маршрут…`.
 7. Fallback never downgrades TLS/REALITY; same-node Shadow loops are rejected.
+8. Custom APP/LAN routing rules are rejected; TUN/Xray uses `selectedApps` + `lanAccess`.
 
-GitHub CI for exact SHA `0854e17fd8157a0aa81548a94cf6a1db3a94e408` (run `34381602697`):
+### Engineering gate status
 
-- Payload integrity: PASS
-- Reconstruct and overlay verification: PASS
-- Static check: PASS
-- debug APK build: PASS
-- unit tests: PASS
-- Android lint: PASS
-- unsigned release compile: PASS
-- Publish HotFox Dev Latest: PASS
-- Emulator UI smoke: skipped (not VPN E2E)
+**ENGINEERING COMPLETE — physical release validation deferred.**
 
-Phase-exit `d7d2f2b` CI (`34383089655`) failed at `apt-get update` on a Google Chrome Hash Sum mismatch on the GitHub-hosted runner. That is unrelated to Shadow code. Isolation fix `581967c771cb62f6118aee772f7db7f884d783e6` (run `34383542146`):
+### Release gate status
 
-- Payload integrity: PASS
-- Reconstruct and overlay verification: PASS
-- Static check: PASS
-- debug APK build: PASS
-- unit tests: PASS
-- Android lint: PASS
-- unsigned release compile: PASS
-- Publish HotFox Dev Latest: PASS
-- Emulator UI smoke: skipped (not VPN E2E)
+**DEFERRED / NOT VERIFIED** — consolidated into `FINAL RELEASE DEVICE GATE` after 3.0.
 
-This head is a 2.6 `[hotfox-phase-exit]` candidate. Do not record `2.6 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+## Phase 2.7 — Operations / Release Infrastructure
 
-Round 8 `CHANGES_REQUIRED` on `1acee69` (P1: APP/LAN custom rules evaluated but not enforced) is addressed in `5391a95` / `c9bca6b`: APP/LAN kinds are rejected at sanitize/parse; TUN/Xray enforcement is `selectedApps` + `lanAccess` via `HotfoxRoutingDataPlane`. Round 9 `CHANGES_REQUIRED` on `dc03d3c` (P1: named Kotlin args after `ipv6ProxyEnabled`) is addressed in `d6fa8b6`. GitHub CI for exact SHA `d6fa8b6fe6feb4dd459fde7757156a13b9eb5932` (run `34390188843`):
+**IN PROGRESS.** 2.6 engineering gate is closed (round 10 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.7 engineering or progression to 2.8.
 
-- Payload integrity: PASS
-- Reconstruct and overlay verification: PASS
-- Static check: PASS
-- debug APK build: PASS
-- unit tests: PASS
-- Android lint: PASS
-- unsigned release compile: PASS
-- Publish HotFox Dev Latest: PASS
-- Emulator UI smoke: skipped (not VPN E2E)
+Implementation block in progress:
+
+1. Channels `dev`/`beta`/`stable`; stable cannot enable sandbox commerce; required release signing with incomplete keystore env fails honestly.
+2. Artifact identity: `versionName`/`versionCode`/git SHA/channel in BuildConfig and diagnostics (`artifact=` label).
+3. CI records debug APK SHA-256 and includes checksums in Dev Latest notes. Unsigned `assemblePlaystoreRelease` remains an engineering gate.
+4. Sideload update manifest: HTTPS URL, SHA-256, channel, expiry, ECDSA when required, reject downgrade/known-bad/hash/package/cert mismatch. `maySilentlyInstall()` is always false.
+5. Signed node drain excludes GUIDs from new AUTO picks; manual selection stays sticky; invalid/expired metadata keeps last-known-good.
+6. Service health/incident banner is display-only (no VPN state mutation); titles are plain text.
+7. Remote flags are signed, allowlisted, and cannot set TLS/REALITY/checkout-weakening keys.
+8. Diagnostics redaction includes signing passwords; no keystore files in overlay.
+
+Do not record `2.7 ENGINEERING COMPLETE` until implementation, green full CI, and phase-exit `APPROVED` (P0=0, P1=0). Physical-device VPN E2E remains **NOT EXECUTED**.
 
 

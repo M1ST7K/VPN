@@ -40,6 +40,9 @@ class HotfoxDiagnosticsBuilderTest {
         assertTrue(report.contains("autoEligible="))
         assertTrue(report.contains("autoLastGood=none"))
         assertTrue(report.contains("e2e=${VpnPathVerification.PHYSICAL_E2E_NOT_EXECUTED}"))
+        assertTrue(report.contains("channel="))
+        assertTrue(report.contains("gitSha="))
+        assertTrue(report.contains("artifact="))
         assertFalse(report.contains("hev=true"))
         assertFalse(Regex("ipv6Captured=true").containsMatchIn(report))
     }

@@ -1,11 +1,11 @@
-# CURRENT PHASE — HotFox 2.6 «HotFox Shadow / Stealth & Resilience»
+# CURRENT PHASE — HotFox 2.7 «Operations / Release Infrastructure»
 
-Status: **ENGINEERING-EXIT CANDIDATE** (implementation `d6fa8b6` after Round 9 P1; this head requests `[hotfox-phase-exit]`)
+Status: **IN PROGRESS** (2.6 is ENGINEERING COMPLETE — physical release validation deferred)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
-Linked detailed phase spec: `docs/phases/2.6-shadow.md`
-Previous phase: `docs/phases/2.5-privacy-controls.md`
+Linked detailed phase spec: `docs/phases/2.7-operations.md`
+Previous phase: `docs/phases/2.6-shadow.md`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
 Canonical roadmap: `docs/HOTFOX_ROADMAP.md`
 Review policy: `docs/AI_REVIEW_POLICY.md`
@@ -13,15 +13,15 @@ Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
 ## Goal
 
-Make HotFox resilient when the fastest/default VPN path is unavailable, filtered, unstable or degraded.
+Make HotFox operable as a real service: buildable, diagnosable, updateable and safely releasable without depending on manual ad-hoc developer actions.
 
-2.6 answers:
+2.7 answers:
 
-> Which server + transport + route is the best usable protected path in the current network environment?
+> Can we build, identify, update and operate HotFox without mixing channels, leaking secrets, or trusting unsigned remote config?
 
-This is a technical reliability feature. It is not a license to weaken TLS, REALITY or certificate verification.
+This phase builds release infrastructure. It does **not** perform the final physical release device gate.
 
-Do **not** claim HotFox is a production-ready release. Phases 2.2–2.5 are **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is consolidated into the single `FINAL RELEASE DEVICE GATE` after 3.0 — it does **not** block 2.6 engineering or the 2.6 → 2.7 transition.
+Do **not** claim `RELEASE READY`. Phases 2.2–2.6 are **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is consolidated into the single `FINAL RELEASE DEVICE GATE` after 3.0 — it does **not** block 2.7 engineering or the 2.7 → 2.8 transition.
 
 ## Inherited guarantees (still binding)
 
@@ -32,25 +32,23 @@ Do **not** claim HotFox is a production-ready release. Phases 2.2–2.5 are **en
 - AUTO remains a persisted mode; manual selection stays manual;
 - backend-authoritative entitlement; checkout `success=true` is not payment proof;
 - no secrets in APK/logs;
-- 2.5 routing policy and TUN/Xray honesty.
+- 2.5 routing policy and TUN/Xray honesty;
+- 2.6 Shadow fallback never weakens TLS/REALITY.
 
 ## Work allowed now
 
-- Path model: server + transport + security + optional entry/exit.
-- Capability filtering: only transports the shipped Xray build can configure (TCP/RAW/WS/gRPC/XHTTP).
-- Deterministic `PathScore`.
-- Bounded fallback: preferred path → alternate transport → alternate server → Shadow route.
-- Network capability cache with TTL and network-context invalidation.
-- Shadow AUTO UX: `Shadow: Авто` / `Подбираем защищённый маршрут…`.
-- Entry/exit validity and loop prevention; no synthetic TLS-weakening chain.
-- Self-heal with threshold, hysteresis and cooldown, cancelled by disconnect/`VpnRestartGate`.
-- Connection Doctor categories and real `AUTO_FIX` recovery.
-- DNS bootstrap cache with TTL (not a leak path).
-- IPv4/IPv6 path intelligence: dead IPv6 must not hide working IPv4.
+- Release channels `dev` / `beta` / `stable` with sandbox isolation.
+- Traceable `versionCode` / `versionName` / git SHA / artifact label.
+- CI artifact SHA-256 and unsigned-release compile remaining a gate.
+- Honest failure when release signing is required but keystore env is missing.
+- Signed sideload update manifest: hash, channel, downgrade, known-bad, expiry, ECDSA.
+- Node drain for new AUTO picks from signed metadata; manual stays sticky.
+- Privacy-safe diagnostics with channel/SHA; redaction of signing secrets.
+- Service health / incident banner that cannot change VPN protection state.
+- Allowlisted remote flags that cannot weaken TLS/REALITY/checkout honesty.
 
 ## Not now
 
-- operations/release infrastructure (phase 2.7);
 - Autopilot (phase 2.8);
 - premium Android UX polish as a phase (2.9);
 - claiming `RELEASE READY` / production VPN release.
@@ -61,12 +59,12 @@ Ordinary commits while implementing and while CI is red.
 
 Do **not** put `[hotfox-review]` or `[hotfox-phase-exit]` on intermediate fix commits.
 
-When a coherent 2.6 engineering-exit candidate is ready, make one final commit whose message contains:
+When a coherent 2.7 engineering-exit candidate is ready, make one final commit whose message contains:
 
 `[hotfox-phase-exit]`
 
 After green full CI, the GitHub phase-exit orchestrator dispatches exactly one AI checkpoint review.
 
-## Phase 2.6 exit definition
+## Phase 2.7 exit definition
 
-The client can select a usable protected path (server + transport, and Shadow route when infrastructure supports it) with bounded cancelled fallback, without weakening TLS/REALITY or regressing 2.2–2.5 guarantees.
+HotFox can identify the running artifact, verify a sideload update manifest, isolate channels, redact operational secrets, drain AUTO nodes from signed metadata, and produce CI checksums — without regressing 2.2–2.6 guarantees.

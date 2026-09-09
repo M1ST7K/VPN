@@ -11,6 +11,7 @@ class HotfoxAutoFailoverTest {
     fun reset() {
         HotfoxAutoFailover.reset()
         HotfoxServerSelection.health.resetForTests()
+        com.v2ray.ang.ops.HotfoxNodeDrain.resetForTests()
     }
 
     @Test

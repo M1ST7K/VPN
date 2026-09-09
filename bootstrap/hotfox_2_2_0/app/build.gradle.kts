@@ -23,7 +23,9 @@ android {
         multiDexEnabled = true
 
         fun buildConfigString(propertyName: String): String {
-            val value = providers.gradleProperty(propertyName).orElse("").get()
+            val value = providers.gradleProperty(propertyName)
+                .orElse(providers.environmentVariable(propertyName).orElse(""))
+                .get()
             return "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
         }
 
@@ -31,6 +33,22 @@ android {
         buildConfigField("String", "PAYMENT_TARIFFS_JSON", buildConfigString("HOTFOX_PAYMENT_TARIFFS_JSON"))
         buildConfigField("String", "PAYMENT_BACKEND_URL", buildConfigString("HOTFOX_PAYMENT_BACKEND_URL"))
         buildConfigField("String", "VPN_PANEL_API_URL", buildConfigString("HotFox_Proxy_PANEL_API_URL"))
+        buildConfigField("String", "HOTFOX_GIT_SHA", buildConfigString("HOTFOX_GIT_SHA"))
+        val channelRaw = providers.gradleProperty("HOTFOX_CHANNEL")
+            .orElse(providers.environmentVariable("HOTFOX_CHANNEL").orElse("dev"))
+            .get()
+            .trim()
+            .ifBlank { "dev" }
+            .lowercase()
+        val channel = when (channelRaw) {
+            "beta", "stable" -> channelRaw
+            else -> "dev"
+        }
+        if (channel == "stable" && hotfoxSandboxCommerceRequested) {
+            error("stable channel cannot enable sandbox commerce")
+        }
+        buildConfigField("String", "HOTFOX_CHANNEL", "\"$channel\"")
+        buildConfigField("String", "HOTFOX_UPDATE_PUBLIC_KEY", buildConfigString("HOTFOX_UPDATE_PUBLIC_KEY"))
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -75,6 +93,15 @@ android {
                 enableV4Signing = true
             }
         }
+    }
+
+    val requireReleaseSigning = System.getenv("HOTFOX_REQUIRE_RELEASE_SIGNING")
+        .equals("true", ignoreCase = true)
+    // Documented 2.7 contract: required signing with incomplete keystore env fails
+    // the configuration. Unsigned assemblePlaystoreRelease remains an engineering
+    // gate when this flag is unset. Keystore files/passwords stay outside git.
+    if (requireReleaseSigning && signingConfigs.findByName("hotfoxRelease") == null) {
+        error("HOTFOX_REQUIRE_RELEASE_SIGNING is set but keystore env is incomplete")
     }
 
     buildTypes {

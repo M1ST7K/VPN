@@ -2,7 +2,7 @@
 
 Status: **CANONICAL**
 
-Current engineering phase: **2.6 — HotFox Shadow / Stealth & Resilience**
+Current engineering phase: **2.7 — Operations / Release Infrastructure**
 
 This document defines the sequential HotFox engineering roadmap from the already completed truthful core and commercial foundation through the mature 3.0 platform.
 
@@ -570,7 +570,7 @@ No physical Android test is required between 2.5 and 2.6.
 
 # 2.6 — HOTFOX SHADOW / STEALTH & RESILIENCE
 
-Status: **IN PROGRESS**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -830,7 +830,7 @@ No physical Android test is required between 2.6 and 2.7.
 
 # 2.7 — OPERATIONS / RELEASE INFRASTRUCTURE
 
-Status: **PLANNED**
+Status: **IN PROGRESS**
 
 ## Purpose
 

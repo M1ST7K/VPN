@@ -21,6 +21,7 @@ class HotfoxAutoSelectionTest {
     fun resetHealth() {
         HotfoxServerSelection.health.resetForTests()
         HotfoxServerSelection.resetLastGoodForTests()
+        com.v2ray.ang.ops.HotfoxNodeDrain.resetForTests()
     }
 
     @Test

@@ -47,6 +47,8 @@ jobs:
     timeout-minutes: 60
     env:
       NDK_VERSION: 29.0.14206865
+      HOTFOX_GIT_SHA: ${{ github.sha }}
+      HOTFOX_CHANNEL: dev
     steps:
       - uses: actions/checkout@v4
 
@@ -145,6 +147,22 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Record APK SHA-256
+        if: success()
+        run: |
+          set -euo pipefail
+          sha256sum V2rayNG/app/build/outputs/apk/playstore/debug/*.apk | tee apk-sha256.txt
+          test -s apk-sha256.txt
+
+      - name: Upload APK SHA-256
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-playstore-debug-apk-sha256
+          path: apk-sha256.txt
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Upload lint reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -203,8 +221,8 @@ jobs:
           shopt -s nullglob
           apks=(dist/*.apk)
           [[ ${#apks[@]} -gt 0 ]] || { echo "no APKs to publish"; exit 1; }
-          notes="$(printf 'Debug APK from %s (%s).\nUI/install artifact only. Not physical-device VPN E2E.\n' \
-            "${GITHUB_SHA}" "${GITHUB_REF_NAME}")"
+          notes="$(printf 'Debug APK from %s (%s).\nUI/install artifact only. Not physical-device VPN E2E.\nSHA-256:\n%s\n' \
+            "${GITHUB_SHA}" "${GITHUB_REF_NAME}" "$(sha256sum "${apks[@]}" | awk '{print $1, $2}')")"
           gh release view hotfox-dev-latest >/dev/null 2>&1 && \
             gh release delete hotfox-dev-latest --cleanup-tag --yes
           gh release create hotfox-dev-latest \
