@@ -55,7 +55,7 @@ Only when a coherent 2.3 block is complete and applicable automated gates are gr
 
 Do not put `[hotfox-review]` on every intermediate commit.
 
-The trusted reviewer round cap on this PR is currently 10. A later 2.3 checkpoint may need the cap raised on `main` before another OpenAI review can run.
+The trusted reviewer scope on `main` has been moved to 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
 ## Phase 2.3 exit definition
 

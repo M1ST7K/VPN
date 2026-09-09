@@ -52,7 +52,7 @@ P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move b
 
 Phase 2.3 Commercial Foundation is now the active engineering phase in `docs/CURRENT_PHASE.md`. Do not claim a production VPN release.
 
-The trusted reviewer round cap on this PR is 10. Raise it on `main` before requesting another OpenAI checkpoint.
+The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
 ### Release gate status
 
@@ -80,3 +80,41 @@ When the trusted checkpoint for 2.2 returns `APPROVED` with no P0/P1 blockers:
 4. continue roadmap development without claiming HotFox is release-verified.
 
 If a checkpoint reports P0/P1 blockers, 2.2 remains engineering-incomplete until those findings are fixed and a later checkpoint is approved.
+
+## Phase 2.3 — Commercial Foundation
+
+First coherent block implementation SHA: `6a0eef8f4b9007d097539078f7840d95c75f855e`.
+
+Included in this block:
+
+1. Explicit commercial presentation states (`NO_ACCESS` … `RESTORE_REQUIRED`).
+2. HotFox Premium no-access onboarding from backend/cached plan data; manual HTTPS import remains usable when the commercial backend is down.
+3. Provider-agnostic `/v1` client (`plans`, orders, entitlement, restore, manifest, optional promo) plus a deterministic sandbox fixture. Browser `success=true` is never payment truth.
+4. Keystore-backed `SecretStore` for entitlement/subscription/restore credentials; corrupt/invalidated ciphertext surfaces as restore-required rather than a crash.
+5. Transactional subscription manifest refresh that preserves last-known-good inventory, favorites, manual selection, and AUTO.
+6. Failure-class unit tests for idempotent orders, fake checkout returns, backend-down + manual import, keystore corruption, empty/malformed manifest, and AUTO preservation.
+
+Local engineering evidence for `6a0eef8`:
+
+- debug APK build: PASS;
+- unit tests: PASS (128);
+- Android lint: PASS;
+- unsigned release compile: PASS;
+- HotFox static/overlay verifiers: PASS;
+- overlay secret scan: PASS.
+
+GitHub CI for exact SHA `6a0eef8f4b9007d097539078f7840d95c75f855e`:
+
+- Payload integrity: PASS;
+- Reconstruct and build Android app: PASS;
+- remaining bootstrap/Android jobs: PASS (run `34319308050`).
+
+### Engineering gate status
+
+**IN PROGRESS** — first coherent app/foundation block is implemented and automated gates are green. Phase 2.3 is **not** engineering-complete until a sandbox/test payment proves the full `plan → checkout → backend-verified entitlement → sync → AUTO → 2.2 VPN path` exit.
+
+Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXECUTED**.
+
+### Release gate status
+
+**NOT STARTED** — 2.3 does not satisfy the 2.2 physical-device release gate.
