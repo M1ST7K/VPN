@@ -14,7 +14,12 @@ data class XrayFieldRule(
  * Deterministic Xray field rules derived from the HotFox routing snapshot.
  *
  * App-split and LAN are applied at the Android VpnService/TUN layer, not here.
- * Domain/CIDR/BLOCK and optional geosite ads use Xray first-match rules.
+ * These rules apply only to captured traffic. EXCLUDE selected / INCLUDE miss
+ * never reach Xray, so BLOCK/ads cannot apply to them.
+ *
+ * First-match buckets match [HotfoxRoutingPolicy.decide] for captured traffic:
+ * `BLOCK, exact-domain, suffix-domain, CIDR`. User order is kept only inside
+ * a bucket.
  *
  * Tags match `AppConfig.TAG_PROXY` / `TAG_DIRECT` / `TAG_BLOCKED`.
  */
@@ -26,7 +31,9 @@ object HotfoxXrayRouting {
 
     fun rules(snapshot: RoutingPolicySnapshot): List<XrayFieldRule> {
         val blocked = ArrayList<XrayFieldRule>()
-        val rest = ArrayList<XrayFieldRule>()
+        val exact = ArrayList<XrayFieldRule>()
+        val suffix = ArrayList<XrayFieldRule>()
+        val cidr = ArrayList<XrayFieldRule>()
         if (snapshot.adsBlocked) {
             blocked.add(
                 XrayFieldRule(
@@ -38,9 +45,15 @@ object HotfoxXrayRouting {
         }
         snapshot.rules.mapNotNull(HotfoxRoutingPolicy::sanitizeRule).forEach { rule ->
             val xray = toXray(rule) ?: return@forEach
-            if (rule.action == RouteAction.BLOCK) blocked.add(xray) else rest.add(xray)
+            when {
+                rule.action == RouteAction.BLOCK -> blocked.add(xray)
+                rule.kind == RoutingRuleKind.DOMAIN_EXACT -> exact.add(xray)
+                rule.kind == RoutingRuleKind.DOMAIN_SUFFIX -> suffix.add(xray)
+                rule.kind == RoutingRuleKind.CIDR -> cidr.add(xray)
+                else -> Unit
+            }
         }
-        return blocked + rest
+        return blocked + exact + suffix + cidr
     }
 
     private fun toXray(rule: RoutingRule): XrayFieldRule? {

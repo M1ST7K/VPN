@@ -36,6 +36,7 @@ import com.v2ray.ang.util.ErrorMessageMapper
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxAutoFailover
+import com.v2ray.ang.vpn.HotfoxRoutingRestart
 import com.v2ray.ang.vpn.HotfoxRoutingStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.HotfoxXrayConfigInjector
@@ -599,6 +600,37 @@ object CoreServiceManager {
             }
             if (!started) {
                 LogUtil.i(AppConfig.TAG, "StartCore-Manager: restart cancelled request=$request")
+            }
+        }
+    }
+
+    /**
+     * Re-applies routing while connected. Stop does not go through
+     * [stopVService] so this request stays live; explicit user disconnect
+     * still [VpnRestartGate.invalidate]s and cancels [restartSupervisor].
+     */
+    fun restartForRouting(context: Context) {
+        val plan = HotfoxRoutingRestart.begin()
+        val app = context.applicationContext
+        restartScope.launch {
+            val session = VpnSessionCoordinator.currentState()
+            val wasActive = isRunning() || session.isServiceActive() || session.isBusy()
+            if (!wasActive) return@launch
+            val control = serviceControl?.get()
+            if (control != null) {
+                runCatching { control.stopService() }
+            } else {
+                MessageUtil.sendMsg2Service(app, AppConfig.MSG_STATE_STOP, "")
+            }
+            VpnSessionCoordinator.awaitIdle()
+            val started = HotfoxRoutingRestart.tryDispatch(plan) {
+                startVServiceAfterAuthorizedRestart(app)
+            }
+            if (!started) {
+                LogUtil.i(
+                    AppConfig.TAG,
+                    "StartCore-Manager: routing restart cancelled request=${plan.restartRequest} gen=${plan.routingGeneration}",
+                )
             }
         }
     }

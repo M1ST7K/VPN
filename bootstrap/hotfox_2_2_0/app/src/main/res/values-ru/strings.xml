@@ -33,9 +33,9 @@
     <string name="hotfox_route_global">Весь трафик</string>
     <string name="hotfox_route_global_summary">Весь захваченный трафик через VPN, включая LAN</string>
     <string name="hotfox_route_include">Только выбранные приложения</string>
-    <string name="hotfox_route_include_summary">Через VPN идут только выбранные приложения</string>
+    <string name="hotfox_route_include_summary">Через VPN идут только выбранные приложения. Остальные минуют туннель, включая рекламу и BLOCK-правила</string>
     <string name="hotfox_route_exclude">Исключить приложения</string>
-    <string name="hotfox_route_exclude_summary">Выбранные приложения идут напрямую, остальное — VPN</string>
+    <string name="hotfox_route_exclude_summary">Выбранные приложения идут напрямую, минуя VPN, рекламу и BLOCK. Остальное — через VPN</string>
     <string name="hotfox_route_custom">Мои правила</string>
     <string name="hotfox_route_custom_summary">Правила подписки и редактора плюс политика HotFox</string>
     <string name="hotfox_route_changed">Маршрут изменён</string>

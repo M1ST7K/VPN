@@ -406,6 +406,31 @@ def main() -> int:
         "routing reconfiguration generation",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "fun restartForRouting",
+        "routing restart is generation-scoped",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "HotfoxRoutingRestart.tryDispatch",
+        "routing restart is bound to VpnRestartGate",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingStore.kt",
+        "PREF_SMART_ROUTING_MODE",
+        "legacy smart-routing mode is migrated",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt",
+        "fun outsideVpnCapture",
+        "TUN capture membership is explicit",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayRouting.kt",
+        "blocked + exact + suffix + cidr",
+        "Xray rules are bucketed to match decide() precedence",
+    )
+    must_contain(
         "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",
         "HotfoxRoutingStore.load()",
         "routing UI is derived from the active policy snapshot",

@@ -161,7 +161,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                         4 -> {
                             val enabled = HotfoxRoutingStore.load().adsBlocked
                             MaterialAlertDialogBuilder(this).setTitle("Фильтр рекламы")
-                                .setMessage("Блокировка рекламных доменов по geosite. Сейчас: " + if (enabled) "включена" else "выключена")
+                                .setMessage("Блокировка рекламных доменов по geosite для трафика внутри VPN. Приложения, исключённые из туннеля, идут напрямую, включая рекламу. Сейчас: " + if (enabled) "включена" else "выключена")
                                 .setPositiveButton(if (enabled) "Выключить" else "Включить") { _, _ ->
                                     HotfoxRoutingStore.saveAds(!enabled)
                                     if (mainViewModel.isRunning.value == true) restartV2RayForRouting()
@@ -819,18 +819,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun restartV2RayForRouting() {
-        val generation = HotfoxRoutingApply.current()
-        lifecycleScope.launch {
-            val session = VpnSessionCoordinator.currentState()
-            if (mainViewModel.isRunning.value == true || session.isServiceActive() || session.isBusy()) {
-                CoreServiceManager.stopVService(this@MainActivity)
-                VpnSessionCoordinator.awaitIdle()
-            }
-            if (generation > 0L && !HotfoxRoutingApply.tryApply(generation)) {
-                return@launch
-            }
-            startV2Ray()
-        }
+        CoreServiceManager.restartForRouting(this)
     }
 
     private fun setTestState(content: String?) {

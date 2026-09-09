@@ -41,6 +41,26 @@ class HotfoxXrayRoutingTest {
     }
 
     @Test
+    fun bucketsIgnoreReversedUserOrderForConflictingKinds() {
+        val snap = smart.copy(
+            rules = listOf(
+                RoutingRule("cidr", RoutingRuleKind.CIDR, "1.2.3.0/24", RouteAction.DIRECT),
+                RoutingRule("suffix", RoutingRuleKind.DOMAIN_SUFFIX, "example.com", RouteAction.VPN),
+                RoutingRule("exact", RoutingRuleKind.DOMAIN_EXACT, "app.example.com", RouteAction.VPN),
+                RoutingRule("block", RoutingRuleKind.DOMAIN_EXACT, "tracker.example.com", RouteAction.BLOCK),
+            ),
+        )
+        val rules = HotfoxXrayRouting.rules(snap)
+        assertEquals(listOf("full:tracker.example.com"), rules[0].domain)
+        assertEquals(HotfoxXrayRouting.TAG_BLOCKED, rules[0].outboundTag)
+        assertEquals(listOf("full:app.example.com"), rules[1].domain)
+        assertEquals(HotfoxXrayRouting.TAG_PROXY, rules[1].outboundTag)
+        assertEquals(listOf("domain:example.com"), rules[2].domain)
+        assertEquals(listOf("1.2.3.0/24"), rules[3].ip)
+        assertEquals(HotfoxXrayRouting.TAG_DIRECT, rules[3].outboundTag)
+    }
+
+    @Test
     fun appAndLanRulesAreNotEmittedToXray() {
         val snap = smart.copy(
             rules = listOf(

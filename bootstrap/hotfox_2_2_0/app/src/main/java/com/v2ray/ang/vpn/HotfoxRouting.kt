@@ -3,7 +3,11 @@ package com.v2ray.ang.vpn
 /**
  * 2.5 Privacy Controls / Smart Routing.
  *
- * Precedence (deterministic, never hash-map order):
+ * Traffic that Android leaves outside TUN (EXCLUDE selected apps, INCLUDE miss)
+ * is DIRECT at the VpnService layer, including ads/trackers. BLOCK/domain/CIDR
+ * apply only to captured traffic.
+ *
+ * Precedence for captured traffic (deterministic, never hash-map order):
  * `BLOCK > APP-SPECIFIC > DOMAIN-SPECIFIC > CIDR > GLOBAL MODE`
  *
  * LAN is an explicit user policy, not a silent private-range bypass.
@@ -216,6 +220,21 @@ data class RoutingPolicySnapshot(
         }
     }
 
+    /**
+     * True when [packageName] is intentionally left off TUN. That traffic never
+     * reaches Xray, so BLOCK/ads/domain/CIDR cannot apply to it.
+     */
+    fun outsideVpnCapture(packageName: String?, selfPackage: String = ""): Boolean {
+        if (packageName.isNullOrBlank()) return false
+        val plan = perAppPlan(selfPackage)
+        if (!plan.enabled) return false
+        return if (plan.bypassSelected) {
+            packageName in plan.packages
+        } else {
+            packageName !in plan.packages
+        }
+    }
+
     fun bypassLanOnTun(): Boolean {
         if (mode == HotfoxRoutingMode.GLOBAL) return false
         return lanAccess
@@ -256,7 +275,36 @@ object HotfoxRoutingPolicy {
     const val PREF_RULES = "pref_hotfox_routing_rules_json"
     const val PREF_DNS_VPN = "pref_hotfox_dns_through_vpn"
 
+    data class StoredMode(
+        val mode: HotfoxRoutingMode,
+        val persistCanonical: Boolean,
+    )
+
+    /**
+     * Canonical key wins. If it is empty, migrate the 2.1 overlay key
+     * (`AppConfig.PREF_SMART_ROUTING_MODE` / selected/bypass aliases).
+     */
+    fun resolveStoredMode(canonical: String?, legacy: String?): StoredMode {
+        val canonicalValue = canonical?.takeIf { it.isNotBlank() }
+        if (canonicalValue != null) {
+            return StoredMode(HotfoxRoutingMode.fromStorage(canonicalValue), persistCanonical = false)
+        }
+        val legacyValue = legacy?.takeIf { it.isNotBlank() }
+        if (legacyValue != null) {
+            return StoredMode(HotfoxRoutingMode.fromStorage(legacyValue), persistCanonical = true)
+        }
+        return StoredMode(HotfoxRoutingMode.SMART, persistCanonical = false)
+    }
+
     fun decide(snapshot: RoutingPolicySnapshot, query: RoutingQuery): RoutingDecision {
+        if (snapshot.outsideVpnCapture(query.packageName)) {
+            val reason = when (snapshot.mode) {
+                HotfoxRoutingMode.INCLUDE_APPS -> "include_apps_miss"
+                HotfoxRoutingMode.EXCLUDE_APPS -> "exclude_apps"
+                else -> "outside_tun"
+            }
+            return RoutingDecision(RouteAction.DIRECT, reason)
+        }
         val blocked = matching(snapshot.rules, query, RouteAction.BLOCK)
         if (blocked != null) {
             return RoutingDecision(RouteAction.BLOCK, "block:${blocked.kind}:${blocked.id}")
@@ -269,22 +317,10 @@ object HotfoxRoutingPolicy {
                 return RoutingDecision(app.action, "app:${app.id}")
             }
             when (snapshot.mode) {
-                HotfoxRoutingMode.INCLUDE_APPS -> {
-                    val allowed = query.packageName in snapshot.selectedApps
-                    return if (allowed) {
-                        RoutingDecision(RouteAction.VPN, "include_apps")
-                    } else {
-                        RoutingDecision(RouteAction.DIRECT, "include_apps_miss")
-                    }
-                }
-                HotfoxRoutingMode.EXCLUDE_APPS -> {
-                    val excluded = query.packageName in snapshot.selectedApps
-                    return if (excluded) {
-                        RoutingDecision(RouteAction.DIRECT, "exclude_apps")
-                    } else {
-                        RoutingDecision(RouteAction.VPN, "exclude_apps_rest")
-                    }
-                }
+                HotfoxRoutingMode.INCLUDE_APPS ->
+                    return RoutingDecision(RouteAction.VPN, "include_apps")
+                HotfoxRoutingMode.EXCLUDE_APPS ->
+                    return RoutingDecision(RouteAction.VPN, "exclude_apps_rest")
                 else -> Unit
             }
         }

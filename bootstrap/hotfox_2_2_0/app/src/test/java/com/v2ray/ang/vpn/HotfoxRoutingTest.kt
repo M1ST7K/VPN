@@ -203,6 +203,83 @@ class HotfoxRoutingTest {
     }
 
     @Test
+    fun resolveStoredModeMigratesLegacyKeyWhenCanonicalEmpty() {
+        assertEquals(
+            HotfoxRoutingMode.GLOBAL,
+            HotfoxRoutingPolicy.resolveStoredMode(canonical = null, legacy = "global").mode,
+        )
+        assertTrue(HotfoxRoutingPolicy.resolveStoredMode(null, "global").persistCanonical)
+        assertEquals(
+            HotfoxRoutingMode.CUSTOM,
+            HotfoxRoutingPolicy.resolveStoredMode("", "custom").mode,
+        )
+        assertEquals(
+            HotfoxRoutingMode.INCLUDE_APPS,
+            HotfoxRoutingPolicy.resolveStoredMode(null, "selected").mode,
+        )
+        assertEquals(
+            HotfoxRoutingMode.EXCLUDE_APPS,
+            HotfoxRoutingPolicy.resolveStoredMode("   ", "bypass").mode,
+        )
+        val canonicalWins = HotfoxRoutingPolicy.resolveStoredMode("smart", "global")
+        assertEquals(HotfoxRoutingMode.SMART, canonicalWins.mode)
+        assertFalse(canonicalWins.persistCanonical)
+        val empty = HotfoxRoutingPolicy.resolveStoredMode(null, null)
+        assertEquals(HotfoxRoutingMode.SMART, empty.mode)
+        assertFalse(empty.persistCanonical)
+    }
+
+    @Test
+    fun excludeSelectedStaysDirectEvenWhenAdsWouldBlock() {
+        val snap = smart.copy(
+            mode = HotfoxRoutingMode.EXCLUDE_APPS,
+            selectedApps = setOf("com.bank.app"),
+            adsBlocked = true,
+            rules = listOf(
+                RoutingRule("ads", RoutingRuleKind.DOMAIN_SUFFIX, "ads.example", RouteAction.BLOCK),
+            ),
+        )
+        val excluded = HotfoxRoutingPolicy.decide(
+            snap,
+            RoutingQuery(packageName = "com.bank.app", domain = "tracker.ads.example"),
+        )
+        assertEquals(RouteAction.DIRECT, excluded.action)
+        assertEquals("exclude_apps", excluded.reason)
+        assertTrue(snap.outsideVpnCapture("com.bank.app"))
+        val captured = HotfoxRoutingPolicy.decide(
+            snap,
+            RoutingQuery(packageName = "org.mozilla.firefox", domain = "tracker.ads.example"),
+        )
+        assertEquals(RouteAction.BLOCK, captured.action)
+        assertFalse(snap.outsideVpnCapture("org.mozilla.firefox"))
+    }
+
+    @Test
+    fun includeMissStaysDirectEvenWhenDomainWouldBlock() {
+        val snap = smart.copy(
+            mode = HotfoxRoutingMode.INCLUDE_APPS,
+            selectedApps = setOf("org.telegram.messenger"),
+            rules = listOf(
+                RoutingRule("ads", RoutingRuleKind.DOMAIN_EXACT, "tracker.example", RouteAction.BLOCK),
+            ),
+        )
+        assertEquals(
+            RouteAction.DIRECT,
+            HotfoxRoutingPolicy.decide(
+                snap,
+                RoutingQuery(packageName = "com.android.vending", domain = "tracker.example"),
+            ).action,
+        )
+        assertEquals(
+            RouteAction.BLOCK,
+            HotfoxRoutingPolicy.decide(
+                snap,
+                RoutingQuery(packageName = "org.telegram.messenger", domain = "tracker.example"),
+            ).action,
+        )
+    }
+
+    @Test
     fun rulesJsonRoundTripDropsMalformedAndDefaultRouteDirect() {
         val rules = listOf(
             RoutingRule("ok", RoutingRuleKind.DOMAIN_SUFFIX, "ads.example", RouteAction.BLOCK),

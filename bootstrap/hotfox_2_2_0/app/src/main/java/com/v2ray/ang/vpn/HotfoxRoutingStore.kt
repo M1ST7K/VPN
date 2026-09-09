@@ -5,8 +5,16 @@ import com.v2ray.ang.handler.MmkvManager
 
 object HotfoxRoutingStore {
     fun load(): RoutingPolicySnapshot {
-        val modeRaw = runCatching { MmkvManager.decodeSettingsString(HotfoxRoutingPolicy.PREF_MODE) }.getOrNull()
-        val mode = HotfoxRoutingMode.fromStorage(modeRaw)
+        val canonical = runCatching {
+            MmkvManager.decodeSettingsString(HotfoxRoutingPolicy.PREF_MODE)
+        }.getOrNull()
+        val legacy = runCatching {
+            MmkvManager.decodeSettingsString(AppConfig.PREF_SMART_ROUTING_MODE)
+        }.getOrNull()
+        val stored = HotfoxRoutingPolicy.resolveStoredMode(canonical, legacy)
+        if (stored.persistCanonical) {
+            persistMode(stored.mode)
+        }
         val lan = runCatching {
             MmkvManager.decodeSettingsBool(HotfoxRoutingPolicy.PREF_LAN, false)
         }.getOrDefault(false)
@@ -21,7 +29,7 @@ object HotfoxRoutingStore {
             runCatching { MmkvManager.decodeSettingsString(HotfoxRoutingPolicy.PREF_RULES) }.getOrNull(),
         )
         return RoutingPolicySnapshot(
-            mode = mode,
+            mode = stored.mode,
             selectedApps = apps.filter { it.isNotBlank() }.toSet(),
             rules = rules,
             lanAccess = lan,
@@ -31,6 +39,11 @@ object HotfoxRoutingStore {
     }
 
     fun saveMode(mode: HotfoxRoutingMode) {
+        persistMode(mode)
+        HotfoxRoutingApply.bump()
+    }
+
+    private fun persistMode(mode: HotfoxRoutingMode) {
         MmkvManager.encodeSettings(HotfoxRoutingPolicy.PREF_MODE, mode.storageValue)
         val perApp = mode == HotfoxRoutingMode.INCLUDE_APPS || mode == HotfoxRoutingMode.EXCLUDE_APPS
         MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, perApp)
@@ -38,7 +51,6 @@ object HotfoxRoutingStore {
             AppConfig.PREF_BYPASS_APPS,
             mode == HotfoxRoutingMode.EXCLUDE_APPS,
         )
-        HotfoxRoutingApply.bump()
     }
 
     fun saveLan(enabled: Boolean) {

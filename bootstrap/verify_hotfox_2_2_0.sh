@@ -121,6 +121,16 @@ grep -q 'HotfoxXrayConfigInjector.apply' "$PROJECT/app/src/main/java/com/v2ray/a
   || fail "Xray config is not injected from HotFox routing policy"
 grep -q 'fun tryApply' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingApply.kt" \
   || fail "routing reconfiguration generation missing"
+grep -q 'fun restartForRouting' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "routing restart is not generation-scoped"
+grep -q 'HotfoxRoutingRestart.tryDispatch' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "routing restart is not bound to VpnRestartGate"
+grep -q 'PREF_SMART_ROUTING_MODE' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingStore.kt" \
+  || fail "legacy smart-routing mode key is not migrated"
+grep -q 'fun outsideVpnCapture' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt" \
+  || fail "TUN capture membership is not explicit in routing policy"
+grep -q 'blocked + exact + suffix + cidr' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayRouting.kt" \
+  || fail "Xray field rules are not bucketed to match decide() precedence"
 grep -q 'fun invalidateForNetworkChange' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt" \
   || fail "network-context health invalidation missing"
 grep -q 'ENTITLEMENT_BLOCKED' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \
