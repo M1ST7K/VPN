@@ -277,4 +277,25 @@ GitHub CI for exact SHA `206990ea0cd3e7f291e2c568ee6c3669ffd1df74` (run `3435538
 - Publish HotFox Dev Latest: PASS
 - Emulator UI smoke: skipped (not VPN E2E)
 
-This is not physical-device VPN E2E and does not yet mark 2.4 engineering-complete. The trusted `[hotfox-review]` checkpoint is requested on this head.
+This is not physical-device VPN E2E and does not yet mark 2.4 engineering-complete.
+
+Round-1 trusted checkpoint on `1359592` returned **CHANGES_REQUIRED** (two P1). Implementation fix SHA: `917a0e98d6b61a4d673bdb4b1b36cf6c77e0c286`.
+
+Round-1 P1s addressed in `917a0e9`:
+
+1. `HotfoxServerSelection.candidates()` / `candidateFrom()` populate eligibility from `ManagedConfigParser.isXrayUsable`, subscription enabled state, and authoritative `AutoCommercialEligibility` (origin / managed subscription / entitlement). Invalid, disabled, and entitlement-blocked profiles are excluded before AUTO ranking. Manual HTTPS remains ungated.
+2. Unscoped MMKV affiliation delays (`delayNetworkScoped = false`) are not relabeled as current-network health after `invalidateForNetworkChange()`. Post-handover ranking uses live/fresh probes; stickiness remains GUID-based (`last-good` / current eligible target).
+
+GitHub CI for exact SHA `917a0e98d6b61a4d673bdb4b1b36cf6c77e0c286` (run `34361778626`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Static check: PASS
+- debug APK build: PASS
+- unit tests: PASS
+- Android lint: PASS
+- unsigned release compile: PASS (reconstruct job)
+- Publish HotFox Dev Latest: PASS
+- Emulator UI smoke: skipped (not VPN E2E)
+
+This head is a 2.4 `[hotfox-phase-exit]` candidate. Do not record `2.4 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.

@@ -78,7 +78,7 @@ Required engineering evidence should include, as applicable:
 - automated/unit/integration coverage for important pure/race-prone logic;
 - build/CI checks required by the repository.
 
-Then run one final `[hotfox-review]`.
+Then run one final `[hotfox-phase-exit]` (orchestrator dispatches the AI review after green CI).
 
 If:
 
