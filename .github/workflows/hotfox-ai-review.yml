@@ -3,7 +3,8 @@ name: HotFox AI Checkpoint Reviewer
 on:
   # Ordinary PR pushes run only the tiny checkpoint gate. OpenAI is not called,
   # and OPENAI_API_KEY is not exposed to a job, unless the final head commit
-  # explicitly contains [hotfox-review].
+  # explicitly contains [hotfox-review]. Phase-exit automation uses
+  # workflow_dispatch only after green CI and passes review_mode=phase_exit.
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
@@ -12,6 +13,14 @@ on:
         description: "Pull request number to review now"
         required: true
         type: string
+      review_mode:
+        description: "manual checkpoint or automatic engineering phase exit"
+        required: false
+        default: "manual"
+        type: choice
+        options:
+          - manual
+          - phase_exit
 
 permissions:
   contents: read
@@ -47,7 +56,7 @@ jobs:
           set -euo pipefail
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "requested=true" >> "$GITHUB_OUTPUT"
-            echo "Manual workflow_dispatch requests a checkpoint review."
+            echo "workflow_dispatch requests a checkpoint review."
             exit 0
           fi
 
@@ -72,7 +81,7 @@ jobs:
 
           if grep -Fqi '[hotfox-review]' <<< "$message"; then
             echo "requested=true" >> "$GITHUB_OUTPUT"
-            echo "Checkpoint token found; senior AI review will run."
+            echo "Manual checkpoint token found; senior AI review will run."
           else
             echo "requested=false" >> "$GITHUB_OUTPUT"
             echo "Ordinary push; OpenAI review skipped."
@@ -86,7 +95,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      # pull_request_target intentionally checks out ONLY trusted main.
+      # pull_request_target/workflow_dispatch intentionally checks out ONLY trusted main.
       # Never checkout or execute PR-head code in a job that can access OPENAI_API_KEY.
       - name: Checkout trusted reviewer code
         uses: actions/checkout@v4
@@ -110,9 +119,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # Cost-balanced default. Reserve Sol/manual deep review for exceptional
-          # phase-exit/security cases instead of every normal checkpoint.
+          # security/release cases instead of every normal checkpoint.
           OPENAI_REVIEW_MODEL: gpt-5.6-terra
-          HOTFOX_REVIEW_TRIGGER: "[hotfox-review]"
+          # In phase_exit mode the script still runs via workflow_dispatch, but this
+          # trigger string is used in any CHANGES_REQUIRED handoff so Cursor retries
+          # only after the next green phase-exit candidate.
+          HOTFOX_REVIEW_TRIGGER: ${{ inputs.review_mode == 'phase_exit' && '[hotfox-phase-exit]' || '[hotfox-review]' }}
           MAX_REVIEW_ROUNDS: "20"
           # The reviewer already prioritizes VPN/security/commerce-sensitive patches.
           # Keeping a bounded diff prevents giant historical PR context from being
@@ -122,3 +134,15 @@ jobs:
           # enough headroom while cutting the old 30k ceiling substantially.
           OPENAI_REVIEW_MAX_OUTPUT_TOKENS: "12000"
         run: python3 .github/scripts/hotfox_ai_review.py
+
+      - name: Wake Cursor and continue roadmap after approved phase exit
+        if: ${{ success() && github.event_name == 'workflow_dispatch' && inputs.review_mode == 'phase_exit' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          body='@cursor Финальный phase-exit review APPROVED: подтверждённых P0/P1 нет. Следуй `.cursor/rules/20-hotfox-roadmap-progression.mdc` и `docs/HOTFOX_ROADMAP.md`: зафиксируй текущий этап как `ENGINEERING COMPLETE — physical release validation deferred`, обнови trusted current-phase context на следующий этап и сразу продолжай следующий roadmap phase. Не запрашивай physical Android test до `FINAL RELEASE DEVICE GATE`. Для следующего этапа используй обычные commits без AI review; только финальный green-CI candidate пометь `[hotfox-phase-exit]`.'
+          gh api -X POST "repos/${REPO}/issues/${PR_NUMBER}/comments" -f body="$body" >/dev/null
