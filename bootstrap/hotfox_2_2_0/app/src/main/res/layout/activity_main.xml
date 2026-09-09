@@ -383,6 +383,110 @@
                     android:paddingEnd="26dp"
                     android:paddingBottom="20dp">
 
+                    <LinearLayout
+                        android:id="@+id/layout_premium_onboarding"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-light"
+                            android:text="@string/hotfox_premium_title"
+                            android:textColor="@color/hotfox_editorial_text"
+                            android:textSize="43sp" />
+                        <TextView
+                            android:id="@+id/tv_premium_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/hotfox_editorial_text_dim"
+                            android:textSize="15sp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:text="@string/hotfox_premium_benefits"
+                            android:textColor="@color/hotfox_editorial_text_dim"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:id="@+id/layout_plan_catalog"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="28dp"
+                            android:orientation="vertical" />
+
+                        <TextView
+                            android:id="@+id/tv_plan_catalog_empty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="@string/hotfox_plan_catalog_unavailable"
+                            android:textColor="@color/hotfox_editorial_text_dim"
+                            android:textSize="12sp"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/action_premium_buy"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="28dp"
+                            android:background="@drawable/hotfox_connect_action_bg"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:text="@string/hotfox_buy"
+                            android:textColor="@color/hotfox_editorial_text"
+                            android:textSize="13sp" />
+                        <TextView
+                            android:id="@+id/action_already_subscribed"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:text="@string/hotfox_already_have_subscription"
+                            android:textColor="@color/hotfox_editorial_text"
+                            android:textSize="12sp" />
+                        <TextView
+                            android:id="@+id/action_restore_access"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:text="@string/hotfox_restore_access"
+                            android:textColor="@color/hotfox_editorial_text_secondary"
+                            android:textSize="12sp" />
+                        <TextView
+                            android:id="@+id/action_enter_promo"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:text="@string/hotfox_enter_promo"
+                            android:textColor="@color/hotfox_editorial_text_dim"
+                            android:textSize="12sp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text="@string/hotfox_checkout_external_note"
+                            android:textColor="@color/hotfox_editorial_text_dim"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_subscription_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="sans-serif-light" android:text="Premium" android:textColor="@color/hotfox_editorial_text" android:textSize="43sp" />
                     <TextView android:id="@+id/tv_subscription_state" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="○ Статус неизвестен" android:textColor="@color/hotfox_editorial_text_dim" android:textSize="15sp" />
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Больше свободы.\nБольше интернета для тебя." android:textColor="@color/hotfox_editorial_text_dim" android:textSize="13sp" />
@@ -413,6 +517,7 @@
                         <TextView android:id="@+id/action_subscription_import" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.15" android:clickable="true" android:focusable="true" android:gravity="center" android:text="Импортировать" android:textColor="@color/hotfox_editorial_text" android:textSize="12sp" />
                         <View android:layout_width="1dp" android:layout_height="28dp" android:layout_gravity="center_vertical" android:background="@color/hotfox_editorial_line" />
                         <TextView android:id="@+id/action_subscription_add" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:text="Добавить" android:textColor="@color/hotfox_editorial_text" android:textSize="12sp" />
+                    </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>

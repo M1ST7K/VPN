@@ -69,6 +69,16 @@ grep -q 'Авто-выбор сервера' "$PROJECT/app/src/main/res/values-r
 grep -q 'disable += "MissingTranslation"' "$PROJECT/app/build.gradle.kts" \
   || fail "MissingTranslation lint disable missing"
 grep -q 'HotFox' "$PROJECT/app/src/main/res/layout/activity_main.xml" || fail "HotFox UI marker missing"
+grep -q 'BACKEND_UNAVAILABLE' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/CommercialPresentationState.kt" \
+  || fail "2.3 commercial presentation states missing"
+grep -q 'fun isPaidProof' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/CheckoutReturnParser.kt" \
+  || fail "checkout return parser missing"
+grep -q 'interface SecretStore' "$PROJECT/app/src/main/java/com/v2ray/ang/commerce/SecretStore.kt" \
+  || fail "SecretStore missing"
+grep -q 'layout_premium_onboarding' "$PROJECT/app/src/main/res/layout/activity_main.xml" \
+  || fail "Premium onboarding layout missing"
+grep -q 'HotfoxManifestRefresh.restoreAfterSuccess' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/AngConfigManager.kt" \
+  || fail "transactional manifest restore missing"
 
 for abi in arm64-v8a armeabi-v7a x86 x86_64; do
   for lib in libhev-socks5-tunnel.so libhevsockstun.so; do

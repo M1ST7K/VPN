@@ -557,4 +557,20 @@
     <string name="hotfox_auto_server">Авто-выбор сервера</string>
     <string name="hotfox_auto_server_hint">Самый быстрый измеренный сервер</string>
     <string name="hotfox_auto_prefix">Авто · %1$s</string>
+    <string name="hotfox_premium_title">HotFox Premium</string>
+    <string name="hotfox_premium_benefits">More freedom.\nMore internet for you.\nServers without pasting a private URL.</string>
+    <string name="hotfox_buy">Buy</string>
+    <string name="hotfox_already_have_subscription">I already have a subscription</string>
+    <string name="hotfox_restore_access">Restore access</string>
+    <string name="hotfox_enter_promo">Enter promo code</string>
+    <string name="hotfox_checkout_external_note">Secure provider checkout opens externally. Returning to the app does not prove payment.</string>
+    <string name="hotfox_plan_catalog_unavailable">Plan catalog unavailable. You can still import an existing HTTPS subscription.</string>
+    <string name="hotfox_plan_recommended">recommended</string>
+    <string name="hotfox_restore_hint">Recovery code or payment id</string>
+    <string name="hotfox_promo_hint">Promo code</string>
+    <string name="hotfox_buy_unavailable">Purchase is unavailable while the commercial service is down</string>
+    <string name="hotfox_checkout_opened">Checkout page opened</string>
+    <string name="hotfox_restore_failed">Could not restore access</string>
+    <string name="hotfox_promo_invalid">Promo code was not accepted</string>
+    <string name="hotfox_promo_applied">Price after promo: %1$s</string>
 </resources>

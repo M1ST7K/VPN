@@ -227,12 +227,51 @@ def main() -> int:
             fail("AGENTS.md still requires vertical/rail navigation")
         if "bottom bar" not in text and "bottom nav" not in text and "bottom destinations" not in text:
             fail("AGENTS.md does not record the phone bottom navigation")
-        if "AUTO_ROW_INDEX" not in text and "first server-list row" not in text:
+        if "first server-list row" not in text:
             fail("AGENTS.md does not require AUTO as the first server row")
         if "Mandatory completion loop" not in text and "Build/test loop" not in text:
             fail("AGENTS.md is missing the mandatory completion loop")
     else:
         fail("AGENTS.md missing")
+
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/CommercialPresentationState.kt",
+        "BACKEND_UNAVAILABLE",
+        "2.3 commercial presentation states",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/CheckoutReturnParser.kt",
+        "fun isPaidProof",
+        "checkout return is never payment proof",
+    )
+    checkout = read("app/src/main/java/com/v2ray/ang/commerce/CheckoutReturnParser.kt")
+    if checkout and "fun isPaidProof" in checkout and "false" not in checkout:
+        fail("isPaidProof must remain unconditionally false")
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/SecretStore.kt",
+        "interface SecretStore",
+        "Keystore-backed SecretStore",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/ManifestRefreshPolicy.kt",
+        "fun shouldCommitSwap",
+        "transactional manifest swap",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/UnavailableCommerceBackend.kt",
+        "manualImportAllowed",
+        "manual import when commercial backend is down",
+    )
+    must_contain(
+        "app/src/main/res/layout/activity_main.xml",
+        "layout_premium_onboarding",
+        "HotFox Premium no-access onboarding",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/handler/AngConfigManager.kt",
+        "HotfoxManifestRefresh.restoreAfterSuccess",
+        "AUTO/favorites restored after validated manifest swap",
+    )
 
     secret_re = re.compile(r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}")
     skip_dirs = {"build", "test", "androidTest"}

@@ -32,6 +32,12 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
+import com.v2ray.ang.commerce.CommerceAccessResolver
+import com.v2ray.ang.commerce.CommerceCoordinator
+import com.v2ray.ang.commerce.CommercePlan
+import com.v2ray.ang.commerce.CommercePreferences
+import com.v2ray.ang.commerce.CommerceResult
+import com.v2ray.ang.commerce.CommercialPresentationState
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.databinding.ActivityMainBinding
 import com.v2ray.ang.enums.EConfigType
@@ -79,6 +85,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     private var lastFabTapElapsed = 0L
     private var subscriptionUrlForCopy: String? = null
     private var currentSection = UiSection.CONNECTION
+    private var selectedPlanId: String? = null
+    private var visiblePlans: List<CommercePlan> = emptyList()
+    private var lastPromoCode: String? = null
 
     private enum class UiSection {
         CONNECTION,
@@ -196,6 +205,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.actionSubscriptionImport.setOnClickListener { showAddDialog() }
         binding.actionSubscriptionAdd.setOnClickListener { showAddDialog() }
         binding.tvSubscriptionUrl.setOnClickListener { copySubscriptionUrl() }
+        binding.actionPremiumBuy.setOnClickListener { startHotfoxCheckout() }
+        binding.actionAlreadySubscribed.setOnClickListener { showAddDialog() }
+        binding.actionRestoreAccess.setOnClickListener { showRestoreDialog() }
+        binding.actionEnterPromo.setOnClickListener { showPromoDialog() }
 
         showSection(UiSection.CONNECTION)
     }
@@ -216,6 +229,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             UiSection.SUBSCRIPTION -> "Доступ\nбез ограничений"
         }
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
+        if (section == UiSection.SUBSCRIPTION) refreshCommercialCatalog()
     }
 
     private fun showCountryFilterDialog() {
@@ -263,6 +277,202 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             }
             toast(message)
         }
+    }
+
+    private fun applyCommercialOnboarding(state: CommercialPresentationState) {
+        val onboarding = CommerceAccessResolver.showPremiumOnboarding(state)
+        binding.layoutPremiumOnboarding.isVisible = onboarding
+        binding.layoutSubscriptionDetails.isVisible = !onboarding
+        binding.tvPremiumState.text = CommerceAccessResolver.labelKey(state)
+        binding.actionPremiumBuy.isEnabled = visiblePlans.isNotEmpty() &&
+            state != CommercialPresentationState.BACKEND_UNAVAILABLE
+        binding.actionPremiumBuy.alpha = if (binding.actionPremiumBuy.isEnabled) 1f else 0.45f
+        renderPlanCatalog(visiblePlans)
+    }
+
+    private fun bindCommercialStatus(state: CommercialPresentationState, expiryKnown: Boolean) {
+        binding.tvSubscriptionState.text = commercialStatusLabel(state, null)
+        binding.tvSubscriptionState.setTextColor(
+            ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim),
+        )
+        if (!expiryKnown) {
+            binding.tvSubscriptionRemaining.text = getString(R.string.hotfox_expiry_unknown)
+        }
+    }
+
+    private fun commercialStatusLabel(
+        state: CommercialPresentationState,
+        expiry: SubscriptionPresentation.Status?,
+    ): String {
+        return when (state) {
+            CommercialPresentationState.HOTFOX_ACTIVE -> "● HotFox Premium"
+            CommercialPresentationState.EXTERNAL_ACTIVE -> "● Активна"
+            CommercialPresentationState.EXPIRING_SOON -> "● Скоро истекает"
+            CommercialPresentationState.EXPIRED -> "● Истекла"
+            CommercialPresentationState.PAYMENT_PENDING -> "○ Оплата ожидается"
+            CommercialPresentationState.PAYMENT_FAILED -> "○ Оплата не прошла"
+            CommercialPresentationState.PAYMENT_CANCELLED -> "○ Оплата отменена"
+            CommercialPresentationState.ENTITLEMENT_PROVISIONING -> "○ Выдаём доступ"
+            CommercialPresentationState.ENTITLEMENT_ACTIVE_SYNC_FAILED -> "● Доступ есть, синхронизация не удалась"
+            CommercialPresentationState.BACKEND_UNAVAILABLE -> "○ Коммерческий сервис недоступен"
+            CommercialPresentationState.RESTORE_REQUIRED -> "○ Нужно восстановить доступ"
+            CommercialPresentationState.NO_ACCESS -> "○ Нет доступа"
+        }.takeIf { expiry == null || state != CommercialPresentationState.NO_ACCESS }
+            ?: when (expiry) {
+                SubscriptionPresentation.Status.ACTIVE -> "● Активна"
+                SubscriptionPresentation.Status.EXPIRED -> "● Истекла"
+                SubscriptionPresentation.Status.UNKNOWN -> "○ Срок не указан"
+                SubscriptionPresentation.Status.MISSING -> "○ Нет доступа"
+                null -> CommerceAccessResolver.labelKey(state)
+            }
+    }
+
+    private fun refreshCommercialCatalog() {
+        lifecycleScope.launch {
+            val plans = withContext(Dispatchers.IO) { CommerceCoordinator.get(this@MainActivity).loadPlans() }
+            visiblePlans = plans
+            if (selectedPlanId == null) {
+                selectedPlanId = plans.firstOrNull { it.isRecommended }?.id ?: plans.firstOrNull()?.id
+            }
+            renderPlanCatalog(plans)
+            refreshDashboard()
+        }
+    }
+
+    private fun renderPlanCatalog(plans: List<CommercePlan>) {
+        binding.layoutPlanCatalog.removeAllViews()
+        binding.tvPlanCatalogEmpty.isVisible = plans.isEmpty()
+        plans.forEach { plan ->
+            val row = android.widget.TextView(this).apply {
+                val badge = when {
+                    !plan.badge.isNullOrBlank() -> " · ${plan.badge}"
+                    plan.isRecommended -> " · ${getString(R.string.hotfox_plan_recommended)}"
+                    else -> ""
+                }
+                text = "${plan.displayName}  ·  ${formatPlanPrice(plan)}$badge"
+                setTextColor(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        if (plan.id == selectedPlanId) R.color.hotfox_editorial_text else R.color.hotfox_editorial_text_secondary,
+                    ),
+                )
+                textSize = 14f
+                setPadding(0, 14, 0, 14)
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    selectedPlanId = plan.id
+                    renderPlanCatalog(visiblePlans)
+                }
+            }
+            binding.layoutPlanCatalog.addView(row)
+        }
+    }
+
+    private fun formatPlanPrice(plan: CommercePlan): String {
+        val major = plan.priceMinor / 100L
+        val remainder = plan.priceMinor % 100L
+        val amount = if (remainder == 0L) major.toString() else "%d.%02d".format(major, remainder)
+        return if (plan.currency.equals("RUB", true)) "$amount ₽" else "$amount ${plan.currency}"
+    }
+
+    private fun startHotfoxCheckout() {
+        val planId = selectedPlanId
+        if (planId.isNullOrBlank() || visiblePlans.isEmpty()) {
+            toast(getString(R.string.hotfox_buy_unavailable))
+            return
+        }
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                CommerceCoordinator.get(this@MainActivity).startCheckout(planId, lastPromoCode)
+            }
+            when (result) {
+                is CommerceResult.Ok -> {
+                    val url = result.value.checkoutUrl
+                    if (url.isNullOrBlank()) {
+                        toast(getString(R.string.hotfox_buy_unavailable))
+                    } else {
+                        toast(getString(R.string.hotfox_checkout_opened))
+                        Utils.openUri(this@MainActivity, url)
+                    }
+                }
+                is CommerceResult.Err -> toast(getString(R.string.hotfox_buy_unavailable))
+            }
+            refreshDashboard()
+        }
+    }
+
+    private fun handlePossibleCheckoutReturn() {
+        val uri = intent?.data
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                CommerceCoordinator.get(this@MainActivity).handleCheckoutReturn(uri?.toString())
+            }
+            refreshDashboard()
+        }
+    }
+
+    private fun showRestoreDialog() {
+        val field = android.widget.EditText(this).apply {
+            hint = getString(R.string.hotfox_restore_hint)
+            setSingleLine(true)
+            setPadding(36, 24, 36, 24)
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.hotfox_restore_access)
+            .setView(field)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val value = field.text.toString().trim()
+                lifecycleScope.launch {
+                    val result = withContext(Dispatchers.IO) {
+                        CommerceCoordinator.get(this@MainActivity).restoreAccess(value, value)
+                    }
+                    if (result is CommerceResult.Ok) {
+                        CommercePreferences.setAccessOrigin(CommercePreferences.ORIGIN_HOTFOX)
+                    } else {
+                        toast(getString(R.string.hotfox_restore_failed))
+                    }
+                    refreshDashboard()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showPromoDialog() {
+        val field = android.widget.EditText(this).apply {
+            hint = getString(R.string.hotfox_promo_hint)
+            setSingleLine(true)
+            setPadding(36, 24, 36, 24)
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.hotfox_enter_promo)
+            .setView(field)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val code = field.text.toString().trim()
+                val planId = selectedPlanId
+                if (code.isBlank() || planId.isNullOrBlank()) return@setPositiveButton
+                lifecycleScope.launch {
+                    val quote = withContext(Dispatchers.IO) {
+                        CommerceCoordinator.get(this@MainActivity).quotePromo(planId, code)
+                    }
+                    if (quote == null || !quote.valid) {
+                        toast(getString(R.string.hotfox_promo_invalid))
+                    } else {
+                        lastPromoCode = code
+                        val fakePlan = visiblePlans.firstOrNull { it.id == planId }
+                            ?: return@launch
+                        toast(
+                            getString(
+                                R.string.hotfox_promo_applied,
+                                formatPlanPrice(fakePlan.copy(priceMinor = quote.finalPriceMinor)),
+                            ),
+                        )
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun copySubscriptionUrl() {
@@ -779,6 +989,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         refreshSmartRouting()
         startLogoAnimation()
         applyRunningState(false, mainViewModel.isRunning.value == true)
+        handlePossibleCheckoutReturn()
     }
 
     fun refreshDashboard() {
@@ -821,6 +1032,20 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         } else {
             MmkvManager.decodeAllServerList().size
         }
+        val commercialState = CommerceCoordinator.get(this).presentation()
+        applyCommercialOnboarding(commercialState)
+
+        if (subscription == null && CommerceAccessResolver.showPremiumOnboarding(commercialState)) {
+            subscriptionUrlForCopy = null
+            binding.tvSubscriptionTraffic.setText(R.string.hotfox_traffic_unknown)
+            binding.tvSubscriptionExpire.text = "—"
+            binding.tvSubscriptionRemaining.text = getString(R.string.hotfox_expiry_unknown)
+            binding.tvSubscriptionUrl.text = "—"
+            binding.tvSubscriptionServers.text = serverCount.toString()
+            binding.tvSubscriptionSnapshot.text = ""
+            return
+        }
+
         if (subscription == null) {
             subscriptionUrlForCopy = null
             binding.tvSubscriptionTraffic.setText(R.string.hotfox_traffic_unknown)
@@ -828,8 +1053,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.tvSubscriptionRemaining.text = getString(R.string.hotfox_expiry_unknown)
             binding.tvSubscriptionUrl.text = "—"
             binding.tvSubscriptionServers.text = serverCount.toString()
-            binding.tvSubscriptionState.text = "○ Не синхронизирована"
-            binding.tvSubscriptionState.setTextColor(ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim))
+            bindCommercialStatus(commercialState, expiryKnown = false)
             binding.tvSubscriptionSnapshot.text = ""
             return
         }
@@ -842,18 +1066,24 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             expireAtEpochSeconds = subscription.expireAtEpochSeconds,
             serverCount = serverCount,
         )
-        binding.tvSubscriptionState.text = when (shown.status) {
-            SubscriptionPresentation.Status.ACTIVE -> "● Активна"
-            SubscriptionPresentation.Status.EXPIRED -> "● Истекла"
-            SubscriptionPresentation.Status.UNKNOWN -> "○ Статус неизвестен"
-            SubscriptionPresentation.Status.MISSING -> "○ Не синхронизирована"
-        }
+        binding.tvSubscriptionState.text = commercialStatusLabel(commercialState, shown.status)
         binding.tvSubscriptionState.setTextColor(
             ContextCompat.getColor(
                 this,
-                when (shown.status) {
-                    SubscriptionPresentation.Status.ACTIVE -> R.color.hotfox_success_bright
-                    SubscriptionPresentation.Status.EXPIRED -> R.color.hotfox_orange
+                when (commercialState) {
+                    CommercialPresentationState.HOTFOX_ACTIVE,
+                    CommercialPresentationState.EXTERNAL_ACTIVE,
+                    -> R.color.hotfox_success_bright
+                    CommercialPresentationState.EXPIRED,
+                    CommercialPresentationState.PAYMENT_FAILED,
+                    CommercialPresentationState.PAYMENT_CANCELLED,
+                    CommercialPresentationState.RESTORE_REQUIRED,
+                    -> R.color.hotfox_orange
+                    CommercialPresentationState.EXPIRING_SOON,
+                    CommercialPresentationState.ENTITLEMENT_ACTIVE_SYNC_FAILED,
+                    CommercialPresentationState.PAYMENT_PENDING,
+                    CommercialPresentationState.ENTITLEMENT_PROVISIONING,
+                    -> R.color.hotfox_orange
                     else -> R.color.hotfox_editorial_text_dim
                 },
             )

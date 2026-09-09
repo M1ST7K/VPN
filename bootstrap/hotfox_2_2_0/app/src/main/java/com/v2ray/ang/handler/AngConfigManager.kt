@@ -28,6 +28,9 @@ import com.v2ray.ang.util.QRCodeDecoder
 import com.v2ray.ang.util.SubscriptionFormatDetector
 import com.v2ray.ang.util.SubscriptionUserInfoParser
 import com.v2ray.ang.util.Utils
+import com.v2ray.ang.commerce.CommercePreferences
+import com.v2ray.ang.commerce.HotfoxManifestRefresh
+import com.v2ray.ang.commerce.ManifestRefreshPolicy
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import java.net.URI
 
@@ -192,6 +195,9 @@ object AngConfigManager {
         }
         if (countSub > 0) {
             updateConfigViaSubAll()
+        }
+        if (count > 0 || countSub > 0) {
+            CommercePreferences.markExternalIfNeeded()
         }
 
         return count to countSub
@@ -538,6 +544,9 @@ object AngConfigManager {
                 return SubscriptionUpdateResult(skipCount = 1)
             }
 
+            val snapshot = HotfoxManifestRefresh.captureSnapshot()
+            CommercePreferences.recordManifestAttempt()
+
             // Validate subscription info
             if (TextUtils.isEmpty(it.guid)
                 || TextUtils.isEmpty(it.subscription.remarks)
@@ -548,9 +557,11 @@ object AngConfigManager {
 
             val url = HttpUtil.toIdnUrl(it.subscription.url)
             if (!Utils.isValidUrl(url)) {
+                CommercePreferences.recordManifestError("invalid_url")
                 return SubscriptionUpdateResult(failureCount = 1)
             }
             if (!Utils.isValidSubUrl(url)) {
+                CommercePreferences.recordManifestError("invalid_sub_url")
                 return SubscriptionUpdateResult(failureCount = 1)
             }
             LogUtil.i(AppConfig.TAG, "Subscription update request prepared")
@@ -588,32 +599,37 @@ object AngConfigManager {
                 }
             }
             val configText = response?.content.orEmpty()
-            if (configText.isEmpty()) {
+            val emptyPayload = configText.isEmpty()
+            val count = if (emptyPayload) 0 else parseConfigViaSub(configText, it.guid, false)
+            val decision = ManifestRefreshPolicy.decide(
+                parsedCount = count,
+                malformed = !emptyPayload && count <= 0,
+                emptyPayload = emptyPayload,
+            )
+            if (!decision.commit) {
+                CommercePreferences.recordManifestError(decision.error ?: "manifest_rejected")
                 return SubscriptionUpdateResult(failureCount = 1)
             }
 
-            val count = parseConfigViaSub(configText, it.guid, false)
-            if (count > 0) {
-                it.subscription.lastUpdated = System.currentTimeMillis()
-                SubscriptionUserInfoParser.parse(response?.userInfoHeader, response?.body ?: configText)?.let { info ->
-                    it.subscription.uploadBytes = info.uploadBytes
-                    it.subscription.downloadBytes = info.downloadBytes
-                    it.subscription.totalBytes = info.totalBytes
-                    it.subscription.expireAtEpochSeconds = info.expireAtEpochSeconds
-                }
-                MmkvManager.encodeSubscription(it.guid, it.subscription)
-                HotfoxServerSelection.ensureValidSelection()
-                LogUtil.i(AppConfig.TAG, "Subscription updated: ${it.subscription.remarks}, $count configs")
-                return SubscriptionUpdateResult(
-                    configCount = count,
-                    successCount = 1
-                )
-            } else {
-                // Got response but no valid configs parsed
-                return SubscriptionUpdateResult(failureCount = 1)
+            it.subscription.lastUpdated = System.currentTimeMillis()
+            SubscriptionUserInfoParser.parse(response?.userInfoHeader, response?.body ?: configText)?.let { info ->
+                it.subscription.uploadBytes = info.uploadBytes
+                it.subscription.downloadBytes = info.downloadBytes
+                it.subscription.totalBytes = info.totalBytes
+                it.subscription.expireAtEpochSeconds = info.expireAtEpochSeconds
             }
+            MmkvManager.encodeSubscription(it.guid, it.subscription)
+            HotfoxManifestRefresh.restoreAfterSuccess(snapshot)
+            CommercePreferences.recordManifestSuccess()
+            CommercePreferences.markExternalIfNeeded()
+            LogUtil.i(AppConfig.TAG, "Subscription updated: ${it.subscription.remarks}, $count configs")
+            return SubscriptionUpdateResult(
+                configCount = count,
+                successCount = 1
+            )
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to update config via subscription", e)
+            CommercePreferences.recordManifestError("exception")
             return SubscriptionUpdateResult(failureCount = 1)
         }
     }
