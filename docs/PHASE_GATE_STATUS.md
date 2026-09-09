@@ -406,9 +406,21 @@ Included in this block:
 
 ## Phase 2.7 — Operations / Release Infrastructure
 
-**IN PROGRESS.** 2.6 engineering gate is closed (round 10 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.7 engineering or progression to 2.8.
+**ENGINEERING-EXIT CANDIDATE.** 2.6 engineering gate is closed (round 10 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.7 engineering or progression to 2.8.
 
-Implementation block in progress:
+Implementation candidate `9665716ecfc85faa4203015365a96d9d46b13193` (`073889a` operations + named-arg/`gitSha` CI fixes). GitHub CI for exact SHA `9665716ecfc85faa4203015365a96d9d46b13193` (run `34396015668`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Unit tests: PASS
+- Android lint: PASS
+- Unsigned release compile: PASS
+- Record APK SHA-256: PASS
+- Publish HotFox Dev Latest: PASS
+
+This head is a 2.7 `[hotfox-phase-exit]` candidate. Do not record `2.7 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+
+Implementation in this candidate:
 
 1. Channels `dev`/`beta`/`stable`; stable cannot enable sandbox commerce; required release signing with incomplete keystore env fails honestly.
 2. Artifact identity: `versionName`/`versionCode`/git SHA/channel in BuildConfig and diagnostics (`artifact=` label).
@@ -418,7 +430,5 @@ Implementation block in progress:
 6. Service health/incident banner is display-only (no VPN state mutation); titles are plain text.
 7. Remote flags are signed, allowlisted, and cannot set TLS/REALITY/checkout-weakening keys.
 8. Diagnostics redaction includes signing passwords; no keystore files in overlay.
-
-Do not record `2.7 ENGINEERING COMPLETE` until implementation, green full CI, and phase-exit `APPROVED` (P0=0, P1=0). Physical-device VPN E2E remains **NOT EXECUTED**.
 
 

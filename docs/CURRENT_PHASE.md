@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.7 «Operations / Release Infrastructure»
 
-Status: **IN PROGRESS** (2.6 is ENGINEERING COMPLETE — physical release validation deferred)
+Status: **ENGINEERING-EXIT CANDIDATE** (implementation `9665716ecfc85faa4203015365a96d9d46b13193`; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
