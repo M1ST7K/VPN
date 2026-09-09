@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is now the active engineering phase in `docs/CURRENT_PHASE.md`. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 is **NOT STARTED** until 2.2 physical-device E2E exists. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -234,16 +234,22 @@ GitHub CI for exact SHA `e6c9e3c78e04abc75c76e24492e6dbf505838a68`:
 - Reconstruct and build Android app: PASS;
 - remaining bootstrap/Android jobs: PASS (run `34340006767`).
 
-Round-16 trusted checkpoint is requested on the commit that contains `[hotfox-review]`. Do not mark 2.3 engineering-complete until that checkpoint returns **APPROVED**.
+Round-16 trusted checkpoint on `afeb63a` returned **APPROVED** with no substantiated P0/P1.
 
 See `docs/phases/2.3-sandbox-payment-e2e.md` for proven vs manual.
 
 ### Engineering gate status
 
-**IN PROGRESS** — sandbox/test payment E2E plus round-14/15 P0/P1 fixes are implemented and GitHub reconstruct is green. Phase 2.3 is **not** engineering-complete until this block’s `[hotfox-review]` checkpoint is **APPROVED**. A green CI fixture is not a live provider sandbox and is not physical-device VPN E2E.
+**ENGINEERING COMPLETE** — trusted checkpoint **round 16** returned `APPROVED` with no substantiated P0/P1 (head `afeb63a`, implementation `e6c9e3c`).
+
+A green CI sandbox fixture is not a live provider sandbox and is not physical-device VPN E2E.
 
 Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXECUTED**.
 
 ### Release gate status
 
 **NOT STARTED** — 2.3 does not satisfy the 2.2 physical-device release gate.
+
+## Phase 2.4 — Smart Connection
+
+**NOT STARTED / BLOCKED.** `docs/phases/2.4-smart-connection.md` requires 2.2 physical-device verification before engineering starts. Physical-device VPN E2E is still **NOT EXECUTED**.
