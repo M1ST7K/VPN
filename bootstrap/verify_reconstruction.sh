@@ -41,7 +41,7 @@ grep -q 'System.loadLibrary("hev-socks5-tunnel")' "$PROJECT/app/src/main/java/co
 grep -q 'HotFox' "$PROJECT/app/src/main/res/layout/activity_main.xml" || fail "HotFox UI marker missing"
 [[ -s "$PROJECT/app/src/main/res/drawable/hotfox_logo.xml" ]] || fail "drawable/hotfox_logo.xml missing"
 
-if grep -R -I -n -E "https://nox\\.hotto-fox\\.st/|vless://[^[:space:]\"]{20,}" --exclude-dir=build --exclude-dir=test --exclude-dir=androidTest --exclude="*.md" --exclude="*.txt" "$PROJECT" >/tmp/hotfox-secret-scan.txt 2>/dev/null; then
+if grep -R -I -n -E "https://nox\\.hotto-fox\\.st/|vless://[^[:space:]\"]{20,}|sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|rk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+" --exclude-dir=build --exclude-dir=test --exclude-dir=androidTest --exclude="*.md" --exclude="*.txt" "$PROJECT" >/tmp/hotfox-secret-scan.txt 2>/dev/null; then
   cat /tmp/hotfox-secret-scan.txt >&2
   fail "possible personal subscription/VLESS secret found in source tree"
 fi

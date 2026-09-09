@@ -268,12 +268,22 @@ def main() -> int:
         "HotFox Premium no-access onboarding",
     )
     must_contain(
-        "app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceBackend.kt",
-        "fun claimEntitlement",
-        "paid order entitlement claim",
+        "app/src/main/java/com/v2ray/ang/commerce/WebhookReconciliation.kt",
+        "fun apply",
+        "webhook reconciliation",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/commerce/SandboxPaymentE2e.kt",
+        "object SandboxPaymentE2e",
+        "sandbox payment E2E orchestrator",
     )
 
-    secret_re = re.compile(r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}")
+    secret_re = re.compile(
+        r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}|"
+        r"sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|rk_live_[A-Za-z0-9]+|"
+        r"whsec_[A-Za-z0-9]+|yookassa[_-]?secret",
+        re.IGNORECASE,
+    )
     skip_dirs = {"build", "test", "androidTest"}
     for path in PROJECT.rglob("*"):
         if not path.is_file():

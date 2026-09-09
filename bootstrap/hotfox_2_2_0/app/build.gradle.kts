@@ -25,6 +25,14 @@ android {
         buildConfigField("String", "PAYMENT_TARIFFS_JSON", buildConfigString("HOTFOX_PAYMENT_TARIFFS_JSON"))
         buildConfigField("String", "PAYMENT_BACKEND_URL", buildConfigString("HOTFOX_PAYMENT_BACKEND_URL"))
         buildConfigField("String", "VPN_PANEL_API_URL", buildConfigString("HotFox_Proxy_PANEL_API_URL"))
+        val sandboxCommerce = providers.gradleProperty("HOTFOX_SANDBOX_COMMERCE")
+            .orElse(providers.environmentVariable("HOTFOX_SANDBOX_COMMERCE").orElse("false"))
+            .get()
+        buildConfigField(
+            "boolean",
+            "HOTFOX_SANDBOX_COMMERCE",
+            if (sandboxCommerce.equals("true", ignoreCase = true)) "true" else "false",
+        )
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {

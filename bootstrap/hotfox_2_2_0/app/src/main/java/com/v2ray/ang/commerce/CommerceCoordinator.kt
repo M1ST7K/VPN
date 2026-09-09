@@ -39,20 +39,22 @@ class CommerceCoordinator(
     suspend fun loadPlans(): List<CommercePlan> {
         return when (val result = backend.listPlans()) {
             is CommerceResult.Ok -> {
-                CommercePreferences.setBackendAvailable(true)
-                CommercePreferences.cachePlansJson(JsonUtil.toJson(result.value))
+                runCatching { CommercePreferences.setBackendAvailable(true) }
+                runCatching { CommercePreferences.cachePlansJson(JsonUtil.toJson(result.value)) }
                 result.value
             }
             is CommerceResult.Err -> {
-                CommercePreferences.setBackendAvailable(false)
-                CommercePreferences.recordError(result.kind.name)
+                runCatching {
+                    CommercePreferences.setBackendAvailable(false)
+                    CommercePreferences.recordError(result.kind.name)
+                }
                 cachedPlans()
             }
         }
     }
 
     fun cachedPlans(): List<CommercePlan> {
-        val json = CommercePreferences.cachedPlansJson() ?: return emptyList()
+        val json = runCatching { CommercePreferences.cachedPlansJson() }.getOrNull() ?: return emptyList()
         return JsonUtil.fromJsonSafeList(json)
     }
 
@@ -196,6 +198,50 @@ class CommerceCoordinator(
         }
     }
 
+    suspend fun syncManagedManifest(
+        snapshot: ManifestRefreshPolicy.InventorySnapshot,
+    ): CommerceResult<CommerceSubscriptionSync.Outcome> {
+        val credential = when (val stored = secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL)) {
+            is SecretGetResult.Value -> stored.utf8()
+            is SecretGetResult.Missing -> return CommerceResult.Err(CommerceError.UNAUTHORIZED, "missing_credential")
+            is SecretGetResult.Corrupt, is SecretGetResult.KeystoreInvalidated -> {
+                return CommerceResult.Err(CommerceError.UNAUTHORIZED, "RESTORE_REQUIRED")
+            }
+        }
+        runCatching { CommercePreferences.recordManifestAttempt() }
+        return when (val manifest = backend.fetchManifest(credential)) {
+            is CommerceResult.Ok -> {
+                val subscriptionUrl = manifest.value.subscriptionUrl
+                if (!subscriptionUrl.isNullOrBlank()) {
+                    when (secrets.putUtf8(SecretKeys.SUBSCRIPTION_TOKEN, subscriptionUrl)) {
+                        SecretPutResult.Ok -> Unit
+                        SecretPutResult.KeystoreInvalidated ->
+                            return CommerceResult.Err(CommerceError.UNAUTHORIZED, "RESTORE_REQUIRED")
+                        SecretPutResult.Failed ->
+                            return CommerceResult.Err(CommerceError.REJECTED, "keystore_write_failed")
+                    }
+                }
+                val outcome = CommerceSubscriptionSync.apply(snapshot, manifest.value)
+                if (outcome.decision.commit) {
+                    runCatching { CommercePreferences.recordManifestSuccess() }
+                    CommerceResult.Ok(outcome)
+                } else if (!subscriptionUrl.isNullOrBlank() && outcome.decision.error == "empty_manifest") {
+                    // Opaque HTTPS subscription token is Keystore-backed. Inventory swap stays
+                    // on the existing 2.2 updater; this is not a failed HotFox-managed sync.
+                    runCatching { CommercePreferences.recordManifestSuccess() }
+                    CommerceResult.Ok(outcome)
+                } else {
+                    runCatching { CommercePreferences.recordManifestError(outcome.decision.error ?: "sync_failed") }
+                    CommerceResult.Err(CommerceError.REJECTED, outcome.decision.error ?: "sync_failed")
+                }
+            }
+            is CommerceResult.Err -> {
+                runCatching { CommercePreferences.recordManifestError(manifest.message) }
+                manifest
+            }
+        }
+    }
+
     fun persistEntitlement(entitlement: CommerceEntitlement): CommerceResult<CommerceEntitlement> {
         val effective = entitlement.copy(
             status = EntitlementParser.effectiveStatus(entitlement, nowEpochSeconds()),
@@ -205,6 +251,7 @@ class CommerceCoordinator(
         }
         return when (secrets.putUtf8(SecretKeys.ENTITLEMENT_CREDENTIAL, entitlement.entitlementId)) {
             SecretPutResult.Ok -> {
+                secrets.putUtf8(SecretKeys.RESTORE_SECRET, entitlement.entitlementId)
                 metadata.write(EntitlementParser.metadataOf(effective))
                 localOrigin = CommercePreferences.ORIGIN_HOTFOX
                 runCatching { CommercePreferences.setAccessOrigin(CommercePreferences.ORIGIN_HOTFOX) }

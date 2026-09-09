@@ -38,6 +38,7 @@ import com.v2ray.ang.commerce.CommercePlan
 import com.v2ray.ang.commerce.CommercePreferences
 import com.v2ray.ang.commerce.CommerceResult
 import com.v2ray.ang.commerce.CommercialPresentationState
+import com.v2ray.ang.commerce.HotfoxManifestRefresh
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.databinding.ActivityMainBinding
 import com.v2ray.ang.enums.EConfigType
@@ -432,16 +433,43 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handlePossibleCheckoutReturn()
+    }
+
     private fun handlePossibleCheckoutReturn() {
         val uri = intent?.data
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                val coordinator = CommerceCoordinator.get(this@MainActivity)
-                coordinator.handleCheckoutReturn(uri?.toString())
-                coordinator.refreshPresentation()
+                reconcileManagedAccess(uri?.toString())
             }
+            mainViewModel.reloadServerList()
             refreshDashboard()
         }
+    }
+
+    /**
+     * Resume/return path: poll the backend, never trust the URI, then sync inventory.
+     * AUTO is restored from the pre-sync snapshot; CONNECTED is still owned by the 2.2 path.
+     */
+    private suspend fun reconcileManagedAccess(uriString: String?) {
+        val coordinator = CommerceCoordinator.get(this)
+        coordinator.handleCheckoutReturn(uriString)
+        val entitlement = coordinator.refreshEntitlement()
+        if (entitlement is CommerceResult.Ok && entitlement.value != null) {
+            val snapshot = runCatching { HotfoxManifestRefresh.captureSnapshot() }.getOrNull()
+            if (snapshot != null) {
+                val synced = coordinator.syncManagedManifest(snapshot)
+                if (synced is CommerceResult.Ok && synced.value.decision.commit) {
+                    runCatching { HotfoxManifestRefresh.restoreAfterSuccess(snapshot) }
+                } else if (snapshot.autoMode) {
+                    runCatching { HotfoxServerSelection.setAutoMode(true) }
+                }
+            }
+        }
+        coordinator.refreshPresentation()
     }
 
     private fun showRestoreDialog() {
@@ -459,7 +487,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                     val result = withContext(Dispatchers.IO) {
                         val coordinator = CommerceCoordinator.get(this@MainActivity)
                         val restored = coordinator.restoreAccess(value, value)
-                        coordinator.refreshPresentation()
+                        if (restored is CommerceResult.Ok) {
+                            reconcileManagedAccess(null)
+                        } else {
+                            coordinator.refreshPresentation()
+                        }
                         restored
                     }
                     if (result is CommerceResult.Ok) {
@@ -467,6 +499,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                     } else {
                         toast(getString(R.string.hotfox_restore_failed))
                     }
+                    mainViewModel.reloadServerList()
                     refreshDashboard()
                 }
             }

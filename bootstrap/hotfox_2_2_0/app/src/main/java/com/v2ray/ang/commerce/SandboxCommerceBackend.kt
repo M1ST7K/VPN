@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class SandboxCommerceBackend(
     private val clock: () -> Long = { System.currentTimeMillis() / 1000L },
+    private val webhookHmacSecret: String = CI_WEBHOOK_HMAC,
 ) : HotfoxCommerceBackend {
     override val available: Boolean = true
     override val manualImportAllowed: Boolean = true
@@ -21,6 +22,10 @@ class SandboxCommerceBackend(
     private val entitlements = ConcurrentHashMap<String, CommerceEntitlement>()
     private val createCount = AtomicInteger(0)
     private val getOrderCount = AtomicInteger(0)
+    private val seenWebhookEventIds = ConcurrentHashMap.newKeySet<String>()
+    private val paymentOwners = ConcurrentHashMap<String, String>()
+    @Volatile var autoFulfill: Boolean = true
+    @Volatile var forceManifestFailure: Boolean = false
 
     val catalog: List<CommercePlan> = listOf(
         CommercePlan(
@@ -97,36 +102,91 @@ class SandboxCommerceBackend(
         val order = orderId?.let { ordersById[it] } ?: return null
         if (order.state == OrderState.CREATED) {
             val opened = OrderStateMachine.transition(order, OrderState.CHECKOUT_OPEN)
-            ordersById[order.id] = opened
-            ordersByIdempotency[opened.idempotencyKey] = opened
+            persistOrder(opened)
             return opened
         }
         return order
+    }
+
+    fun cancelCheckout(orderId: String): CommerceOrder? {
+        val order = ordersById[orderId] ?: return null
+        if (OrderStateMachine.isPaidTruth(order.state)) return order
+        if (!OrderStateMachine.canTransition(order.state, OrderState.CANCELLED)) return order
+        val cancelled = OrderStateMachine.transition(order, OrderState.CANCELLED)
+        persistOrder(cancelled)
+        return cancelled
+    }
+
+    /**
+     * Server-side webhook ingest. Browser returns must not call this.
+     */
+    fun ingestWebhook(event: ProviderWebhookEvent): WebhookApplyResult {
+        val current = ordersById[event.orderId] ?: return WebhookApplyResult.Rejected("unknown_order")
+        val signed = WebhookSignature.verify(webhookHmacSecret, event)
+        val result = WebhookReconciliation.apply(
+            current = current,
+            event = event,
+            seenEventIds = seenWebhookEventIds,
+            paymentOwners = paymentOwners,
+            signed = signed,
+        )
+        when (result) {
+            is WebhookApplyResult.Applied -> {
+                persistOrder(result.order)
+                if (event.type == WebhookEventType.PAID && autoFulfill) {
+                    completeFulfillment(orderId = result.order.id)
+                }
+            }
+            is WebhookApplyResult.Duplicate, is WebhookApplyResult.Rejected -> Unit
+        }
+        return result
+    }
+
+    fun signedEvent(
+        orderId: String,
+        type: WebhookEventType,
+        providerPaymentId: String,
+        eventId: String,
+        occurredAtEpochSeconds: Long = clock(),
+    ): ProviderWebhookEvent {
+        val unsigned = ProviderWebhookEvent(
+            eventId = eventId,
+            orderId = orderId,
+            providerPaymentId = providerPaymentId,
+            type = type,
+            occurredAtEpochSeconds = occurredAtEpochSeconds,
+            signature = "",
+        )
+        return unsigned.copy(signature = WebhookSignature.sign(webhookHmacSecret, unsigned))
     }
 
     /**
      * Test stand-in for a verified backend webhook. Not callable from a browser return parser.
      */
     fun markPaidFromVerifiedWebhook(orderId: String, providerPaymentId: String): CommerceOrder {
-        val current = ordersById[orderId] ?: error("unknown order")
-        if (OrderStateMachine.isPaidTruth(current.state)) {
-            return current
-        }
-        var next = current
-        if (next.state == OrderState.CREATED) {
-            next = OrderStateMachine.transition(next, OrderState.CHECKOUT_OPEN)
-        }
-        if (next.state == OrderState.CHECKOUT_OPEN) {
-            next = OrderStateMachine.transition(next, OrderState.PENDING)
-        }
-        next = OrderStateMachine.transition(next, OrderState.PAID).copy(
-            paidAtEpochSeconds = clock(),
+        val event = signedEvent(
+            orderId = orderId,
+            type = WebhookEventType.PAID,
             providerPaymentId = providerPaymentId,
+            eventId = "evt_$providerPaymentId",
         )
-        next = OrderStateMachine.transition(next, OrderState.ENTITLEMENT_PROVISIONING)
-        next = OrderStateMachine.transition(next, OrderState.FULFILLED)
-        ordersById[orderId] = next
-        ordersByIdempotency[next.idempotencyKey] = next
+        return when (val result = ingestWebhook(event)) {
+            is WebhookApplyResult.Applied -> ordersById[orderId] ?: result.order
+            is WebhookApplyResult.Duplicate -> result.order
+            is WebhookApplyResult.Rejected -> error("webhook rejected: ${result.reason}")
+        }
+    }
+
+    fun completeFulfillment(orderId: String): CommerceOrder {
+        val current = ordersById[orderId] ?: error("unknown order")
+        var next = current
+        if (next.state == OrderState.PAID) {
+            next = OrderStateMachine.transition(next, OrderState.ENTITLEMENT_PROVISIONING)
+        }
+        if (next.state == OrderState.ENTITLEMENT_PROVISIONING) {
+            next = OrderStateMachine.transition(next, OrderState.FULFILLED)
+        }
+        persistOrder(next)
         if (fulfilledOrderIds.add(orderId)) {
             val plan = catalog.first { it.id == next.planId }
             val now = clock()
@@ -143,6 +203,11 @@ class SandboxCommerceBackend(
             entitlements[entitlement.entitlementId] = entitlement
         }
         return next
+    }
+
+    private fun persistOrder(order: CommerceOrder) {
+        ordersById[order.id] = order
+        ordersByIdempotency[order.idempotencyKey] = order
     }
 
     fun forgetEntitlement(credential: String) {
@@ -184,16 +249,15 @@ class SandboxCommerceBackend(
     }
 
     override suspend fun fetchManifest(credential: String): CommerceResult<CommerceManifest> {
-        val entitlement = entitlements[credential] ?: entitlements.values.firstOrNull()
+        val entitlement = entitlements[credential]
+            ?: entitlements.values.firstOrNull { it.entitlementId == credential }
         if (entitlement == null || entitlement.status != EntitlementStatus.ACTIVE) {
             return CommerceResult.Err(CommerceError.UNAUTHORIZED)
         }
-        return CommerceResult.Ok(
-            CommerceManifest(
-                format = "opaque",
-                payload = "hotfox-sandbox-manifest-not-a-paid-proof",
-            ),
-        )
+        if (forceManifestFailure) {
+            return CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE, "manifest_unavailable")
+        }
+        return CommerceResult.Ok(SandboxManifest.encode(SandboxManifest.sandboxInventory()))
     }
 
     override suspend fun validatePromo(code: String, planId: String): CommerceResult<PromoQuote> {
@@ -208,5 +272,9 @@ class SandboxCommerceBackend(
         return CommerceResult.Ok(
             PromoQuote(code, planId, plan.priceMinor / 2, plan.currency, valid = true),
         )
+    }
+
+    companion object {
+        const val CI_WEBHOOK_HMAC = "hotfox-ci-webhook-hmac-not-a-provider-secret"
     }
 }

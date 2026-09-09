@@ -1,10 +1,11 @@
 # CURRENT PHASE — HotFox 2.3 «Commercial Foundation»
 
-Status: **IN PROGRESS** (round-13 checkpoint **APPROVED** on `bdae55b`; sandbox/test payment E2E still required)
+Status: **IN PROGRESS** (round-13 checkpoint **APPROVED** on `bdae55b`; sandbox/test payment E2E implemented as a CI fixture, still awaiting `[hotfox-review]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
 Linked detailed phase spec: `docs/phases/2.3-commercial-foundation.md`
+Sandbox/test payment E2E: `docs/phases/2.3-sandbox-payment-e2e.md`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
 Review policy: `docs/AI_REVIEW_POLICY.md`
 Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
