@@ -1,5 +1,8 @@
 package com.v2ray.ang.vpn
 
+import com.v2ray.ang.commerce.ManagedConfigParser
+import com.v2ray.ang.commerce.CommercePreferences
+import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.handler.MmkvManager
 
 /**
@@ -243,9 +246,7 @@ object HotfoxServerSelection {
         return servers.associate { candidate ->
             val live = stored[candidate.guid]
             val merged = when {
-                live == null ->
-                    ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, currentContext)
-                live.networkContext != currentContext ->
+                live != null && live.networkContext != currentContext ->
                     live.copy(
                         latestLatencyMs = null,
                         ewmaLatencyMs = null,
@@ -254,10 +255,8 @@ object HotfoxServerSelection {
                         probeInFlight = false,
                         networkContext = currentContext,
                     )
-                live.isMeasured() || live.probeInFlight || live.availability == ServerAvailability.UNKNOWN ->
-                    live
-                else ->
-                    ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, currentContext)
+                live != null -> live
+                else -> candidate.healthHint(nowEpochMs, currentContext)
             }
             candidate.guid to merged
         }
@@ -329,13 +328,49 @@ object HotfoxServerSelection {
             guid != AUTO_GUID && MmkvManager.decodeServerConfig(guid) != null
         }
 
-    private fun candidates(): List<Candidate> =
-        MmkvManager.decodeAllServerList().mapNotNull { guid ->
+    fun candidateFrom(
+        guid: String,
+        profile: ProfileItem,
+        delayMs: Long,
+        subscriptionEnabled: Boolean,
+        eligibility: AutoCommercialEligibility.Snapshot,
+    ): Candidate {
+        return Candidate(
+            guid = guid,
+            remarks = profile.remarks,
+            delay = delayMs,
+            hasConfig = ManagedConfigParser.isXrayUsable(profile),
+            disabled = !subscriptionEnabled,
+            requiresEntitlement = eligibility.requiresEntitlement(profile.subscriptionId),
+            entitlementUsable = eligibility.entitlementUsable,
+            delayNetworkScoped = false,
+        )
+    }
+
+    private fun candidates(): List<Candidate> {
+        val eligibility = runCatching { AutoCommercialEligibility.live() }.getOrElse {
+            AutoCommercialEligibility.Snapshot(
+                accessOrigin = CommercePreferences.ORIGIN_NONE,
+                managedSubscriptionId = null,
+                entitlementUsable = false,
+                hasCredential = false,
+            )
+        }
+        return MmkvManager.decodeAllServerList().mapNotNull { guid ->
             if (guid == AUTO_GUID) return@mapNotNull null
             val profile = MmkvManager.decodeServerConfig(guid) ?: return@mapNotNull null
             val delay = MmkvManager.decodeServerAffiliationInfo(guid)?.testDelayMillis ?: 0L
-            Candidate(guid, profile.remarks, delay)
+            val subscriptionEnabled = runCatching {
+                val subId = profile.subscriptionId
+                if (subId.isBlank()) {
+                    true
+                } else {
+                    MmkvManager.decodeSubscription(subId)?.enabled ?: true
+                }
+            }.getOrDefault(true)
+            candidateFrom(guid, profile, delay, subscriptionEnabled, eligibility)
         }
+    }
 
     data class Candidate(
         val guid: String,
@@ -345,7 +380,19 @@ object HotfoxServerSelection {
         val disabled: Boolean = false,
         val requiresEntitlement: Boolean = false,
         val entitlementUsable: Boolean = true,
-    )
+        /**
+         * Test/explicit current-network delay may rank. Unscoped MMKV affiliation
+         * ping must not be relabeled as health for a new network context.
+         */
+        val delayNetworkScoped: Boolean = true,
+    ) {
+        fun healthHint(nowEpochMs: Long, networkContext: Long): ServerHealth {
+            if (!delayNetworkScoped) {
+                return ServerHealth(guid = guid, networkContext = networkContext)
+            }
+            return ServerHealthMath.fromCachedDelay(guid, delay, nowEpochMs, networkContext)
+        }
+    }
 
     data class PersistedSelection(val auto: Boolean, val selectedGuid: String?)
 

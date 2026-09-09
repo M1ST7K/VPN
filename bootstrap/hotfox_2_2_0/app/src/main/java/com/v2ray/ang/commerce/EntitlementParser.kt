@@ -86,6 +86,22 @@ object EntitlementParser {
         )
     }
 
+    fun effectiveStatus(metadata: EntitlementMetadata, nowEpochSeconds: Long): EntitlementStatus =
+        effectiveStatus(
+            CommerceEntitlement(
+                entitlementId = "meta",
+                customerId = "",
+                source = EntitlementSource.HOTFOX,
+                planId = metadata.planId,
+                status = metadata.status,
+                startsAtEpochSeconds = metadata.startsAtEpochSeconds,
+                expiresAtEpochSeconds = metadata.expiresAtEpochSeconds,
+                orderId = metadata.orderId,
+                graceUntilEpochSeconds = metadata.graceUntilEpochSeconds,
+            ),
+            nowEpochSeconds,
+        )
+
     fun effectiveStatus(entitlement: CommerceEntitlement, nowEpochSeconds: Long): EntitlementStatus {
         if (entitlement.status == EntitlementStatus.REVOKED) return EntitlementStatus.REVOKED
         if (entitlement.status == EntitlementStatus.EXPIRED) return EntitlementStatus.EXPIRED

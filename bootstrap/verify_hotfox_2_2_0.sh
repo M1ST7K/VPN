@@ -115,6 +115,10 @@ grep -q 'fun invalidateForNetworkChange' "$PROJECT/app/src/main/java/com/v2ray/a
   || fail "network-context health invalidation missing"
 grep -q 'ENTITLEMENT_BLOCKED' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \
   || fail "AUTO eligibility filter missing"
+grep -q 'fun candidateFrom' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt" \
+  || fail "AUTO candidates are not built from config/entitlement state"
+grep -q 'delayNetworkScoped' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt" \
+  || fail "unscoped persisted delay ranking guard missing"
 grep -q 'Подбираем сервер' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxResolvedTargetDisplay.kt" \
   || fail "AUTO selecting label missing"
 grep -q 'invalidateForNetworkChange' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \

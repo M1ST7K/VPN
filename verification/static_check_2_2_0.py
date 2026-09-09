@@ -373,6 +373,21 @@ def main() -> int:
         "2.4 AUTO eligibility filter",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt",
+        "fun candidateFrom",
+        "AUTO candidates built from config and entitlement state",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt",
+        "delayNetworkScoped",
+        "unscoped persisted delay must not rank as current-network health",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/AutoCommercialEligibility.kt",
+        "fun requiresEntitlement",
+        "AUTO commercial eligibility snapshot",
+    )
+    must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/HotfoxResolvedTargetDisplay.kt",
         "Подбираем сервер",
         "2.4 truthful AUTO selecting label",

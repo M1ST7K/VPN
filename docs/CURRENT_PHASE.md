@@ -55,11 +55,13 @@ Emulator UI smoke is not that proof.
 
 Ordinary commits while implementing and while CI is red.
 
-Only when a coherent 2.4 block is complete and applicable automated gates are green, make one final commit whose message contains:
+Do **not** put `[hotfox-review]` or `[hotfox-phase-exit]` on intermediate fix commits.
 
-`[hotfox-review]`
+When a coherent 2.4 engineering-exit candidate is ready, make one final commit whose message contains:
 
-Do not put `[hotfox-review]` on every intermediate commit.
+`[hotfox-phase-exit]`
+
+After green full CI, the GitHub phase-exit orchestrator dispatches exactly one AI checkpoint review. Do not duplicate that review manually.
 
 ## Phase 2.4 exit definition
 

@@ -138,7 +138,7 @@ object AutoSelectionPolicy {
             networkContext = networkContext,
         )
         val currentHealth = healthByGuid[current.guid]
-            ?: ServerHealthMath.fromCachedDelay(current.guid, current.delay, nowEpochMs, networkContext)
+            ?: current.healthHint(nowEpochMs, networkContext)
         val currentUsable = currentHealth.availability == ServerAvailability.HEALTHY ||
             currentHealth.availability == ServerAvailability.DEGRADED
         if (currentUsable) {
@@ -232,7 +232,7 @@ object AutoSelectionPolicy {
     ): List<Scored> {
         return servers.mapNotNull { candidate ->
             val health = healthByGuid[candidate.guid]
-                ?: ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, networkContext)
+                ?: candidate.healthHint(nowEpochMs, networkContext)
             val value = score(health, nowEpochMs, networkContext) ?: return@mapNotNull null
             Scored(candidate.guid, value, health, "score")
         }
@@ -245,7 +245,7 @@ object AutoSelectionPolicy {
         networkContext: Long,
     ): Boolean {
         val health = healthByGuid[candidate.guid]
-            ?: ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs, networkContext)
+            ?: candidate.healthHint(nowEpochMs, networkContext)
         return score(health, nowEpochMs, networkContext) != null
     }
 
@@ -265,7 +265,8 @@ object AutoSelectionPolicy {
 
     private fun isDead(candidate: HotfoxServerSelection.Candidate, healthByGuid: Map<String, ServerHealth>): Boolean {
         val health = healthByGuid[candidate.guid]
-        return health?.availability == ServerAvailability.DEAD || candidate.delay < 0L
+        if (health?.availability == ServerAvailability.DEAD) return true
+        return candidate.delayNetworkScoped && candidate.delay < 0L
     }
 }
 

@@ -1,5 +1,6 @@
 package com.v2ray.ang.commerce
 
+import com.v2ray.ang.vpn.AutoCommercialEligibility
 import com.v2ray.ang.vpn.HotfoxServerSelection
 
 /**
@@ -66,6 +67,11 @@ object SandboxPaymentE2e {
         val connect = VpnConnectHandoff.resolve(
             store = inventory,
             delaysByRemarks = mapOf("Amsterdam" to 42L, "Frankfurt" to 18L),
+            eligibility = AutoCommercialEligibility.fromFacts(
+                facts = coordinator.collectFacts(),
+                accessOrigin = CommercePreferences.ORIGIN_HOTFOX,
+                managedSubscriptionId = null,
+            ),
         )
         val emptySecrets = InMemorySecretStore()
         val emptyMetadata = InMemoryEntitlementMetadataStore()

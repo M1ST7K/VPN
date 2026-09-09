@@ -1,5 +1,8 @@
 package com.v2ray.ang.vpn
 
+import com.v2ray.ang.commerce.CommercePreferences
+import com.v2ray.ang.commerce.EntitlementMetadata
+import com.v2ray.ang.commerce.EntitlementStatus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -551,5 +554,131 @@ class HotfoxAutoSelectionTest {
         assertFalse(
             ConnectionUiMapper.isProtectedHeadline(VpnSessionState.PREPARING),
         )
+    }
+
+    @Test
+    fun candidateFromUsesRealConfigAndEntitlementState() {
+        val now = 1_700_000_000L
+        val blocked = AutoCommercialEligibility.from(
+            accessOrigin = CommercePreferences.ORIGIN_HOTFOX,
+            managedSubscriptionId = "hotfox-sub",
+            hasCredential = false,
+            metadata = null,
+            nowEpochSeconds = now,
+        )
+        val usable = AutoCommercialEligibility.from(
+            accessOrigin = CommercePreferences.ORIGIN_HOTFOX,
+            managedSubscriptionId = "hotfox-sub",
+            hasCredential = true,
+            metadata = EntitlementMetadata(
+                status = EntitlementStatus.ACTIVE,
+                startsAtEpochSeconds = now - 10,
+                expiresAtEpochSeconds = now + 86_400L,
+                planId = "plan_1m",
+                orderId = "ord-1",
+            ),
+            nowEpochSeconds = now,
+        )
+        val invalid = vlessProfile("bad", server = "", subscriptionId = "hotfox-sub")
+        val disabled = vlessProfile("off", subscriptionId = "hotfox-sub")
+        val paid = vlessProfile("Paid", subscriptionId = "hotfox-sub")
+        val ok = vlessProfile("Ok", subscriptionId = "hotfox-sub")
+        val manual = vlessProfile("Manual", subscriptionId = "https-manual")
+        val servers = listOf(
+            HotfoxServerSelection.candidateFrom("bad", invalid, 12L, subscriptionEnabled = true, eligibility = usable),
+            HotfoxServerSelection.candidateFrom("off", disabled, 15L, subscriptionEnabled = false, eligibility = usable),
+            HotfoxServerSelection.candidateFrom("paid", paid, 18L, subscriptionEnabled = true, eligibility = blocked),
+            HotfoxServerSelection.candidateFrom("ok", ok, 40L, subscriptionEnabled = true, eligibility = usable),
+            HotfoxServerSelection.candidateFrom("manual", manual, 33L, subscriptionEnabled = true, eligibility = blocked),
+        )
+        assertFalse(servers[0].hasConfig)
+        assertTrue(servers[1].disabled)
+        assertTrue(servers[2].requiresEntitlement)
+        assertFalse(servers[2].entitlementUsable)
+        assertTrue(servers[3].hasConfig)
+        assertTrue(servers[3].requiresEntitlement)
+        assertTrue(servers[3].entitlementUsable)
+        assertFalse(servers[4].requiresEntitlement)
+        val result = HotfoxServerSelection.pick(servers, auto = true, selectedGuid = "paid")
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("ok", true), result)
+        val counts = AutoCandidateFilter.filteredCounts(servers)
+        assertEquals(2, counts[AutoFilterReason.ELIGIBLE])
+        assertEquals(1, counts[AutoFilterReason.MISSING_CONFIG])
+        assertEquals(1, counts[AutoFilterReason.DISABLED])
+        assertEquals(1, counts[AutoFilterReason.ENTITLEMENT_BLOCKED])
+    }
+
+    @Test
+    fun unscopedPersistedDelayDoesNotSelectChallengerAfterNetworkChange() {
+        val servers = listOf(
+            HotfoxServerSelection.Candidate("current", "Current", 90L, delayNetworkScoped = false),
+            HotfoxServerSelection.Candidate("wifi-fast", "Fast", 12L, delayNetworkScoped = false),
+        )
+        HotfoxServerSelection.health.record(
+            ProbeSample("current", success = true, latencyMs = 90L, observedAtEpochMs = 1_000L, generation = 1L),
+        )
+        HotfoxServerSelection.health.record(
+            ProbeSample("wifi-fast", success = true, latencyMs = 12L, observedAtEpochMs = 1_000L, generation = 1L),
+        )
+        HotfoxServerSelection.invalidateForNetworkChange()
+        val snapshot = HotfoxServerSelection.healthSnapshot(servers, nowEpochMs = 2_000L)
+        assertEquals(ServerAvailability.UNKNOWN, snapshot.getValue("wifi-fast").availability)
+        assertNull(snapshot.getValue("wifi-fast").latestLatencyMs)
+        assertNull(AutoSelectionPolicy.score(snapshot.getValue("wifi-fast"), 2_000L, networkContext = 1L))
+        val ranked = HotfoxServerSelection.pick(
+            servers,
+            auto = true,
+            selectedGuid = "current",
+            healthByGuid = snapshot,
+            nowEpochMs = 2_000L,
+            lastGoodGuid = "current",
+            networkContext = HotfoxServerSelection.health.networkContext,
+        )
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("current", true), ranked)
+        val sticky = HotfoxServerSelection.resolveForHandover(
+            servers,
+            auto = true,
+            selectedGuid = "current",
+            healthByGuid = snapshot,
+            nowEpochMs = 2_000L,
+            lastGoodGuid = "current",
+            networkChanged = true,
+            networkContext = HotfoxServerSelection.health.networkContext,
+        )
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("current", true), sticky)
+        val emptyRepo = HotfoxServerSelection.healthSnapshot(
+            servers,
+            nowEpochMs = 2_000L,
+            stored = emptyMap(),
+        )
+        assertEquals(ServerAvailability.UNKNOWN, emptyRepo.getValue("wifi-fast").availability)
+        assertNull(emptyRepo.getValue("wifi-fast").latestLatencyMs)
+        val notByStaleDelay = HotfoxServerSelection.pick(
+            servers,
+            auto = true,
+            selectedGuid = null,
+            healthByGuid = emptyRepo,
+            nowEpochMs = 2_000L,
+            lastGoodGuid = "current",
+            networkContext = HotfoxServerSelection.health.networkContext,
+        )
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("current", true), notByStaleDelay)
+    }
+
+    private fun vlessProfile(
+        remarks: String,
+        server: String = "vpn.example",
+        subscriptionId: String,
+    ): com.v2ray.ang.dto.entities.ProfileItem {
+        return com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.VLESS).apply {
+            this.remarks = remarks
+            this.server = server
+            this.serverPort = "443"
+            this.password = "credential-a"
+            this.security = "reality"
+            this.publicKey = "pubkey"
+            this.network = "tcp"
+            this.subscriptionId = subscriptionId
+        }
     }
 }

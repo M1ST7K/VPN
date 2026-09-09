@@ -401,6 +401,8 @@ class CommerceCoordinator(
             }
         }
 
+        fun peek(): CommerceCoordinator? = instance
+
         fun replaceForTests(coordinator: CommerceCoordinator?) {
             instance = coordinator
         }
