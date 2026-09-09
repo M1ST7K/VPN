@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.4 «Smart Connection»
 
-Status: **IN PROGRESS** (2.3 engineering gate closed: round 16 `APPROVED`, P0 = 0, P1 = 0, implementation `e6c9e3c`)
+Status: **IN PROGRESS** (2.3 engineering gate closed: round 16 `APPROVED`, P0 = 0, P1 = 0, implementation `e6c9e3c`; 2.4 completion block `206990e`, GitHub reconstruct PASS, trusted checkpoint requested)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 

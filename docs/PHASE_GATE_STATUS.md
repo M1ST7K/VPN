@@ -253,3 +253,28 @@ Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXE
 ## Phase 2.4 — Smart Connection
 
 **IN PROGRESS.** 2.3 engineering gate is closed (round 16 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.4 engineering or progression to 2.5.
+
+Implementation SHA for the 2.4 completion block: `206990ea0cd3e7f291e2c568ee6c3669ffd1df74`.
+
+Included in this block:
+
+1. `ServerHealthRepository.invalidateForNetworkChange()` drops previous-network latency; last-success timestamps remain for last-good bias.
+2. Cold-start AUTO prefers last-good eligible GUID when no fresh health exists.
+3. `AutoCandidateFilter` excludes invalid/entitlement-blocked entries without poisoning remaining candidates. Manual HTTPS is not entitlement-gated.
+4. Truthful resolved-target labels (`Подбираем сервер…` / `Авто · city`). `Защищено` still comes only from `VpnSessionCoordinator`.
+5. Safe AUTO diagnostics: candidate/eligible/filtered counts, network context, last-good present/none. No subscription URLs or credentials.
+
+GitHub CI for exact SHA `206990ea0cd3e7f291e2c568ee6c3669ffd1df74` (run `34355382189`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Static check: PASS
+- debug APK build: PASS
+- `:app:testPlaystoreDebugUnitTest`: PASS
+- Android lint: PASS
+- unsigned release compile: PASS
+- sandbox debug BuildConfig: PASS
+- Publish HotFox Dev Latest: PASS
+- Emulator UI smoke: skipped (not VPN E2E)
+
+This is not physical-device VPN E2E and does not yet mark 2.4 engineering-complete. The trusted `[hotfox-review]` checkpoint is requested on this head.
