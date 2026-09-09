@@ -55,6 +55,9 @@ import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
 import com.v2ray.ang.vpn.ConnectionUiMapper
+import com.v2ray.ang.vpn.HotfoxAutopilotLabels
+import com.v2ray.ang.vpn.HotfoxAutopilotRuntime
+import com.v2ray.ang.vpn.HotfoxAutopilotStore
 import com.v2ray.ang.vpn.HotfoxLatencyDisplay
 import com.v2ray.ang.vpn.HotfoxResolvedTargetDisplay
 import com.v2ray.ang.vpn.HotfoxRoutingApply
@@ -153,6 +156,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                     "Блокировка рекламы",
                     getString(R.string.hotfox_always_on_title),
                     "Диагностика",
+                    "Пауза защиты",
+                    "Уровень защиты",
+                    "Доверенная сеть",
+                    "Автопилот",
                     "О приложении",
                 )) { _, i ->
                     when (i) {
@@ -171,7 +178,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                         }
                         5 -> showAlwaysOnGuidance()
                         6 -> copyDiagnostics()
-                        7 -> startActivity(Intent(this, AboutActivity::class.java))
+                        7 -> showAutopilotPauseDialog()
+                        8 -> showProtectionLevelDialog()
+                        9 -> showTrustedNetworkDialog()
+                        10 -> showAutopilotPolicyDialog()
+                        11 -> startActivity(Intent(this, AboutActivity::class.java))
                     }
                 }.show()
         }
@@ -198,6 +209,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }
+        applyAutopilotOnProcessStart()
+    }
+
+    private fun applyAutopilotOnProcessStart() {
+        HotfoxAutopilotRuntime.ensureStarted(this)
+        HotfoxAutopilotRuntime.apply(this, com.v2ray.ang.vpn.HotfoxAutopilotSource.PROCESS_START)
+    }
+
+    private fun currentAutopilotNetworkKind(): com.v2ray.ang.vpn.HotfoxNetworkKind {
+        return HotfoxAutopilotRuntime.classify(this)
     }
 
     private fun setupEditorialNavigation() {
@@ -584,6 +605,109 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             .show()
     }
 
+    private fun showAutopilotPauseDialog() {
+        val kinds = arrayOf(
+            com.v2ray.ang.vpn.HotfoxPauseKind.MINUTES_5,
+            com.v2ray.ang.vpn.HotfoxPauseKind.MINUTES_15,
+            com.v2ray.ang.vpn.HotfoxPauseKind.HOUR_1,
+            com.v2ray.ang.vpn.HotfoxPauseKind.UNTIL_NETWORK_CHANGE,
+        )
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Пауза защиты")
+            .setItems(kinds.map { HotfoxAutopilotLabels.pauseLabel(it) }.toTypedArray()) { _, i ->
+                HotfoxAutopilotStore.startPause(kinds[i], System.currentTimeMillis())
+                HotfoxAutopilotRuntime.apply(this, com.v2ray.ang.vpn.HotfoxAutopilotSource.PAUSE)
+                toast(HotfoxAutopilotStore.lastDecision()?.uiLabel() ?: HotfoxAutopilotLabels.pauseLabel(kinds[i]))
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showProtectionLevelDialog() {
+        val levels = arrayOf(
+            com.v2ray.ang.vpn.HotfoxProtectionLevel.SPEED,
+            com.v2ray.ang.vpn.HotfoxProtectionLevel.BALANCE,
+            com.v2ray.ang.vpn.HotfoxProtectionLevel.MAX_PROTECTION,
+        )
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Уровень защиты")
+            .setItems(levels.map { HotfoxAutopilotLabels.protectionLabel(it) }.toTypedArray()) { _, i ->
+                val level = levels[i]
+                HotfoxAutopilotStore.setProtectionLevel(level)
+                val defaults = com.v2ray.ang.vpn.HotfoxProtectionProfiles.defaults(
+                    level,
+                    currentAutopilotNetworkKind(),
+                )
+                HotfoxRoutingStore.saveMode(defaults.routingMode)
+                HotfoxRoutingStore.saveLan(defaults.lanAccess)
+                HotfoxRoutingStore.saveAds(defaults.adsBlocked)
+                HotfoxShadowStore.setShadowAuto(defaults.shadowAuto)
+                if (mainViewModel.isRunning.value == true) restartV2RayForRouting()
+                toast(HotfoxAutopilotLabels.protectionLabel(level))
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showTrustedNetworkDialog() {
+        val identity = com.v2ray.ang.vpn.HotfoxNetworkIdentity.current(this)
+        val kind = currentAutopilotNetworkKind()
+        val labeled = when (kind) {
+            com.v2ray.ang.vpn.HotfoxNetworkKind.TRUSTED_HOME -> "дом"
+            com.v2ray.ang.vpn.HotfoxNetworkKind.TRUSTED_OFFICE -> "офис"
+            com.v2ray.ang.vpn.HotfoxNetworkKind.CELLULAR -> "сотовая"
+            com.v2ray.ang.vpn.HotfoxNetworkKind.CAPTIVE_PORTAL -> "требует авторизации"
+            com.v2ray.ang.vpn.HotfoxNetworkKind.UNKNOWN_WIFI -> "неизвестная Wi‑Fi"
+            com.v2ray.ang.vpn.HotfoxNetworkKind.NONE -> "нет сети"
+        }
+        if (identity.opaqueId.isBlank() || identity.transport != com.v2ray.ang.vpn.HotfoxTransportKind.WIFI) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Доверенная сеть")
+                .setMessage("Сейчас: $labeled. Пометить можно только текущую Wi‑Fi, если система отдаёт идентификатор сети.")
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+            return
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Доверенная сеть")
+            .setMessage("Сейчас: $labeled. Пометить эту Wi‑Fi как доверенную (оставаться выключенным по политике).")
+            .setItems(arrayOf("Дом", "Офис", "Снять пометку")) { _, i ->
+                when (i) {
+                    0 -> HotfoxAutopilotStore.markTrusted(identity.opaqueId, com.v2ray.ang.vpn.HotfoxNetworkKind.TRUSTED_HOME)
+                    1 -> HotfoxAutopilotStore.markTrusted(identity.opaqueId, com.v2ray.ang.vpn.HotfoxNetworkKind.TRUSTED_OFFICE)
+                    2 -> HotfoxAutopilotStore.clearTrusted(identity.opaqueId)
+                }
+                HotfoxAutopilotRuntime.apply(this, com.v2ray.ang.vpn.HotfoxAutopilotSource.NETWORK)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showAutopilotPolicyDialog() {
+        val policy = HotfoxAutopilotStore.policy()
+        val options = arrayOf(
+            if (policy.enabled) "Выключить автопилот" else "Включить автопилот",
+            if (policy.connectUnknownWifi) "Не подключаться в неизвестной Wi‑Fi" else "Подключаться в неизвестной Wi‑Fi",
+            if (policy.connectCellular) "Не подключаться в сотовой сети" else "Подключаться в сотовой сети",
+            if (policy.remainOffOnTrusted) "Подключаться и в доверенной сети" else "Оставаться выкл. в доверенной сети",
+        )
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Автопилот")
+            .setItems(options) { _, i ->
+                HotfoxAutopilotStore.setPolicy(
+                    when (i) {
+                        0 -> policy.copy(enabled = !policy.enabled)
+                        1 -> policy.copy(connectUnknownWifi = !policy.connectUnknownWifi)
+                        2 -> policy.copy(connectCellular = !policy.connectCellular)
+                        else -> policy.copy(remainOffOnTrusted = !policy.remainOffOnTrusted)
+                    },
+                )
+                HotfoxAutopilotRuntime.apply(this, com.v2ray.ang.vpn.HotfoxAutopilotSource.NETWORK)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private fun copyDiagnostics() {
         lifecycleScope.launch {
             val socksPort = SettingsManager.getSocksPort()
@@ -752,6 +876,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.fab.postDelayed({ if (!isFinishing && !binding.fab.isEnabled) applyRunningState(false, mainViewModel.isRunning.value == true) }, 15_000)
 
         if (mainViewModel.isRunning.value == true) {
+            HotfoxAutopilotStore.noteUserDisconnect()
             CoreServiceManager.stopVService(this)
         } else if (SettingsManager.isVpnMode()) {
             val intent = VpnService.prepare(this)
@@ -778,6 +903,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun startV2Ray() {
+        HotfoxAutopilotStore.noteUserConnect()
         when (val resolved = HotfoxServerSelection.resolveForConnect()) {
             is HotfoxServerSelection.ResolveResult.Failure -> {
                 toast(resolved.message)
@@ -906,7 +1032,23 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.tvConnectionStage.visibility = View.VISIBLE
             binding.tvConnectionStage.text = stage.code
         } else {
-            binding.tvConnectionStage.visibility = View.GONE
+            val autopilot = HotfoxAutopilotStore.lastDecision()
+            val autopilotCopy = when (autopilot?.intent) {
+                com.v2ray.ang.vpn.HotfoxConnectionIntent.WAIT_FOR_CAPTIVE_PORTAL,
+                com.v2ray.ang.vpn.HotfoxConnectionIntent.PAUSED,
+                com.v2ray.ang.vpn.HotfoxConnectionIntent.WAIT_FOR_NETWORK,
+                com.v2ray.ang.vpn.HotfoxConnectionIntent.BLOCKED_PERMISSION,
+                com.v2ray.ang.vpn.HotfoxConnectionIntent.BLOCKED_ENTITLEMENT,
+                com.v2ray.ang.vpn.HotfoxConnectionIntent.NO_TARGET,
+                -> autopilot.uiLabel()
+                else -> null
+            }
+            if (!autopilotCopy.isNullOrBlank()) {
+                binding.tvConnectionStage.visibility = View.VISIBLE
+                binding.tvConnectionStage.text = autopilotCopy
+            } else {
+                binding.tvConnectionStage.visibility = View.GONE
+            }
         }
     }
 

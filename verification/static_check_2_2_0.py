@@ -495,6 +495,29 @@ def main() -> int:
         "DRAINED",
         "AUTO excludes drained nodes",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt",
+        "object ConnectionIntentEngine",
+        "2.8 ConnectionIntentEngine",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt",
+        "WAIT_FOR_CAPTIVE_PORTAL",
+        "2.8 captive portal intent",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "startVServiceFromAutopilot",
+        "Autopilot start uses VpnRestartGate",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotBootReceiver.kt",
+        "class HotfoxAutopilotBootReceiver",
+        "2.8 boot Autopilot receiver",
+    )
+    bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
+    if "apply_hotfox_android_manifest.py" not in bootstrap:
+        fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")
     gradle = read("app/build.gradle.kts")
     if "HOTFOX_REQUIRE_RELEASE_SIGNING" not in gradle:
         fail("honest release-signing failure gate missing")

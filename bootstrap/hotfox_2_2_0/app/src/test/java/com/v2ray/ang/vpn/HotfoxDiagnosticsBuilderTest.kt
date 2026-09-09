@@ -9,6 +9,7 @@ class HotfoxDiagnosticsBuilderTest {
     @Before
     fun reset() {
         VpnSessionCoordinator.resetForTests()
+        HotfoxAutopilotStore.resetForTests()
     }
 
     @Test
@@ -43,6 +44,7 @@ class HotfoxDiagnosticsBuilderTest {
         assertTrue(report.contains("channel="))
         assertTrue(report.contains("gitSha="))
         assertTrue(report.contains("artifact="))
+        assertTrue(report.contains("autopilot="))
         assertFalse(report.contains("hev=true"))
         assertFalse(Regex("ipv6Captured=true").containsMatchIn(report))
     }

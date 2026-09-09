@@ -163,6 +163,16 @@ grep -q 'Record APK SHA-256' "$ROOT/.github/workflows/hotfox-bootstrap-ci.yml" \
   || fail "CI APK SHA-256 recording step missing"
 grep -q 'sha256sum' "$ROOT/.github/workflows/hotfox-bootstrap-ci.yml" \
   || fail "CI sha256sum of APK artifacts missing"
+grep -q 'object ConnectionIntentEngine' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt" \
+  || fail "HotFox 2.8 ConnectionIntentEngine missing"
+grep -q 'WAIT_FOR_CAPTIVE_PORTAL' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt" \
+  || fail "captive portal Autopilot intent missing"
+grep -q 'startVServiceFromAutopilot' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "Autopilot start is not bound to VpnRestartGate"
+grep -q 'class HotfoxAutopilotBootReceiver' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotBootReceiver.kt" \
+  || fail "Autopilot boot receiver missing"
+grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
+  || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then
   fail "release keystore must not be committed in the overlay"
 fi

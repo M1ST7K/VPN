@@ -36,6 +36,11 @@ import com.v2ray.ang.util.ErrorMessageMapper
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxAutoFailover
+import com.v2ray.ang.vpn.HotfoxAutopilotApply
+import com.v2ray.ang.vpn.HotfoxAutopilotRuntime
+import com.v2ray.ang.vpn.HotfoxAutopilotSource
+import com.v2ray.ang.vpn.HotfoxAutopilotStore
+import com.v2ray.ang.vpn.HotfoxNetworkKind
 import com.v2ray.ang.vpn.HotfoxRoutingRestart
 import com.v2ray.ang.vpn.HotfoxRoutingStore
 import com.v2ray.ang.vpn.HotfoxShadowStore
@@ -136,6 +141,32 @@ object CoreServiceManager {
     fun startVService(context: Context, guid: String? = null) {
         VpnRestartGate.invalidate()
         startVServiceBody(context, guid)
+    }
+
+    /**
+     * Autopilot start. Does not invalidate a live restart generation the way
+     * an explicit user [startVService] does; dispatch stays under [VpnRestartGate].
+     */
+    fun startVServiceFromAutopilot(context: Context): Boolean {
+        val request = VpnRestartGate.nextRequest()
+        val app = context.applicationContext
+        return VpnRestartGate.tryDispatchStart(request) {
+            startVServiceAfterAuthorizedRestart(app)
+        }
+    }
+
+    fun applyAutopilot(context: Context, decision: com.v2ray.ang.vpn.HotfoxIntentDecision) {
+        if (decision.wantsStart) {
+            com.v2ray.ang.vpn.HotfoxAutopilotApply.applyProfileIfCompatible(decision.profile)
+        }
+        val protectedNow = VpnSessionCoordinator.currentState().isProtected()
+        if (com.v2ray.ang.vpn.HotfoxAutopilotApply.shouldDispatchStop(decision, protectedNow)) {
+            stopVService(context)
+            return
+        }
+        if (com.v2ray.ang.vpn.HotfoxAutopilotApply.shouldDispatchStart(decision, protectedNow)) {
+            startVServiceFromAutopilot(context)
+        }
     }
 
     /**
@@ -641,6 +672,7 @@ object CoreServiceManager {
     private fun startNetworkMonitor(service: Service) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
         if (networkMonitor != null) return
+        HotfoxAutopilotRuntime.ensureStarted(service)
         val connectivity = service.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
         networkMonitor = NetworkMonitor(
             connectivity = connectivity,
@@ -660,6 +692,14 @@ object CoreServiceManager {
         val service = getService()
         if (service == null || !isRunning()) {
             VpnSessionCoordinator.endReload()
+            return false
+        }
+        HotfoxAutopilotRuntime.ensureStarted(service)
+        val autopilot = considerHandoverAutopilot(service)
+        if (autopilot != null && HotfoxAutopilotApply.shouldDispatchStop(autopilot, sessionProtected = true)) {
+            LogUtil.i(AppConfig.TAG, "StartCore-Manager: autopilot stop on handover ${autopilot.reason}")
+            VpnSessionCoordinator.endReload()
+            stopVService(service)
             return false
         }
 
@@ -778,6 +818,26 @@ object CoreServiceManager {
             isReloading = false
             VpnSessionCoordinator.endReload()
         }
+    }
+
+    private fun considerHandoverAutopilot(service: Service): com.v2ray.ang.vpn.HotfoxIntentDecision? {
+        return HotfoxAutopilotStore.consider(
+            HotfoxAutopilotStore.snapshot(
+                network = currentAutopilotNetworkKind(service),
+                sessionProtected = true,
+                sessionBusy = false,
+                vpnPermissionGranted = true,
+                entitlementUsable = HotfoxAutopilotRuntime.entitlementUsable(),
+                hasUsableTarget = HotfoxServerSelection.firstUsableGuid() != null,
+                autoMode = HotfoxServerSelection.isAutoMode(),
+                nowEpochMs = System.currentTimeMillis(),
+                source = HotfoxAutopilotSource.NETWORK,
+            ),
+        )
+    }
+
+    private fun currentAutopilotNetworkKind(service: Service): HotfoxNetworkKind {
+        return HotfoxAutopilotRuntime.classify(service)
     }
 
     private fun failHandover(service: Service, attempt: Long, code: String, message: String): Boolean {

@@ -158,6 +158,11 @@ if [[ -d "$ROOT/bootstrap/hotfox_2_2_0" ]]; then
     || fail "2.2.0 overlay did not install VpnSessionCoordinator"
   grep -q 'versionName = "2.2.0"' "$ROOT/V2rayNG/app/build.gradle.kts" \
     || fail "2.2.0 overlay did not bump versionName"
+  if [[ -f "$ROOT/bootstrap/apply_hotfox_android_manifest.py" ]]; then
+    python3 "$ROOT/bootstrap/apply_hotfox_android_manifest.py" \
+      "$ROOT/V2rayNG/app/src/main/AndroidManifest.xml" \
+      || fail "HotFox AndroidManifest patch failed"
+  fi
 fi
 
 cat <<'MSG'
