@@ -14,33 +14,39 @@ A later phase may begin after the previous phase reaches **ENGINEERING COMPLETE*
 ## Phase 2.2 — Truthful Core
 
 Round-8 implementation SHA: `2bd2b9eacbfbb513207d4c165dbc529ede62e9ab`.
-Green GitHub reconstruct SHA including later CI-only follow-ups: `b32622683a6908b5faf48221ac8181c86eedef60`.
+Round-9 restart-race fix SHA: `75839a5689cc034e7e568b5cbe4f9c5fced96381`.
 
 Round-8 P0/P1 were addressed in `2bd2b9e`:
 
 1. Loop-prevention bind failure is fail-closed on startup and handover (`HF-VPN-012`).
 2. Repeated-stop join vs mint is decided under `lifecycleLock` (no pre-lock worker snapshot).
 3. Handover does not launch a replacement until the old-core shutdown is drained (`HF-VPN-013` on timeout).
-4. `MSG_STATE_RESTART` is generation-owned (`VpnRestartGate`) and invalidated by a later stop/start.
+4. `MSG_STATE_RESTART` became generation-owned and invalidated by later stop/start intent.
 
-Local engineering evidence for `2bd2b9e`:
+Round 9 found no P0 and one remaining P1: restart authorization was still a check-then-start TOCTOU race. `75839a5` fixes that by making authorization and dispatch atomic with stop invalidation via `VpnRestartGate.tryDispatchStart()`.
+
+Local engineering evidence for `75839a5`:
 
 - debug APK build: PASS;
-- unit tests: PASS (117);
+- unit tests: PASS (120);
 - Android lint: PASS;
 - unsigned release compile: PASS;
 - HotFox static/overlay verifiers: PASS.
 
-GitHub on `b326226`:
+GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 - Payload integrity: PASS;
 - Reconstruct and build Android app: PASS;
+- Unit tests: PASS;
+- Android lint: PASS;
+- unsigned release compile: PASS;
+- debug APK artifact upload: PASS;
 - Publish HotFox Dev Latest: PASS;
-- Emulator UI smoke: skipped on push (manual `workflow_dispatch` only; not VPN E2E).
+- Emulator UI smoke: manual-only and not part of the engineering gate.
 
 ### Engineering gate status
 
-**CHECKPOINT REVIEW REQUESTED** after the round-8 fix block.
+**FINAL CHECKPOINT REQUESTED** after the round-9 fix block.
 
 Do not mark 2.2 Engineering Complete until this checkpoint returns `APPROVED` with no substantiated P0/P1. Do not start 2.3 until that happens. Physical-device E2E remains a separate release gate.
 
