@@ -419,4 +419,16 @@ Phase-exit `d7d2f2b` CI (`34383089655`) failed at `apt-get update` on a Google C
 
 This head is a 2.6 `[hotfox-phase-exit]` candidate. Do not record `2.6 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
 
+Round 8 `CHANGES_REQUIRED` on `1acee69` (P1: APP/LAN custom rules evaluated but not enforced) is addressed in `5391a95` / `c9bca6b`: APP/LAN kinds are rejected at sanitize/parse; TUN/Xray enforcement is `selectedApps` + `lanAccess` via `HotfoxRoutingDataPlane`. GitHub CI for exact SHA `c9bca6b1cc6eee469bf7ebeb49c4b79a97959c0f` (run `34387365482`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Static check: PASS
+- debug APK build: PASS
+- unit tests: PASS
+- Android lint: PASS
+- unsigned release compile: PASS
+- Publish HotFox Dev Latest: PASS
+- Emulator UI smoke: skipped (not VPN E2E)
+
 
