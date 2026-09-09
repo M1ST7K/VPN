@@ -339,20 +339,21 @@ Trusted checkpoint **round 4** returned `APPROVED` (P0 = 0, P1 = 0) on head `f9c
 
 **IN PROGRESS / engineering-exit candidate.** 2.4 engineering gate is closed (round 4 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains the single later `FINAL RELEASE DEVICE GATE` and does **not** block 2.5 engineering or progression to 2.6.
 
-Implementation SHA for the 2.5 completion block: `9a09798525bb03de91d3ebad9141d0d65ec24059`.
+Implementation SHA for the 2.5 completion block: `72471ab9cc2baea5a72be2e628812e4ddd806099`.
 
 Included in this block:
 
-1. Routing modes Smart / Global / include-apps / exclude-apps / Custom with documented precedence `BLOCK > APP > DOMAIN > CIDR > GLOBAL`.
+1. Routing modes Smart / Global / include-apps / exclude-apps / Custom. Captured-traffic precedence `BLOCK > APP > DOMAIN > CIDR > GLOBAL`. EXCLUDE selected / INCLUDE miss are outside TUN (DIRECT, including ads).
 2. `VpnService` per-app plan and LAN TUN routes come from `HotfoxRoutingStore` snapshot. Empty include does not enable an empty allow-list. GLOBAL never bypasses LAN.
 3. DNS is installed on the VPN interface; 2.5 does not offer a silent system-DNS bypass while protection is claimed.
 4. IPv6 capture remains `::/0` fail-closed unless IPv6 proxying and explicit LAN bypass are both on.
-5. Xray injector prepends HotFox domain/CIDR/BLOCK (and optional geosite ads) and drops preset `direct` rules except in Custom.
+5. Xray injector prepends HotFox rules in buckets `BLOCK / exact-domain / suffix-domain / CIDR` and drops preset `direct` rules except in Custom.
 6. IDN hosts normalize to punycode. Malformed CIDR cannot become `0.0.0.0/0` or `::/0` DIRECT.
-7. Generation-scoped reconnect so a stale routing restart cannot overwrite a newer policy.
-8. Truthful UI labels from the active snapshot; Always-on / kill switch is Android system guidance, not a silent enable.
+7. Routing reconnect is bound to `VpnRestartGate`; explicit disconnect cancels a pending routing restart. Stale routing generation cannot overwrite a newer policy.
+8. Legacy `AppConfig.PREF_SMART_ROUTING_MODE` migrates when the canonical key is empty.
+9. Truthful UI labels from the active snapshot; Always-on / kill switch is Android system guidance, not a silent enable.
 
-GitHub CI for exact SHA `9a09798525bb03de91d3ebad9141d0d65ec24059` (run `34372840573`):
+GitHub CI for exact SHA `72471ab9cc2baea5a72be2e628812e4ddd806099` (run `34377430185`):
 
 - Payload integrity: PASS
 - Reconstruct and overlay verification: PASS
@@ -364,6 +365,6 @@ GitHub CI for exact SHA `9a09798525bb03de91d3ebad9141d0d65ec24059` (run `3437284
 - Publish HotFox Dev Latest: PASS
 - Emulator UI smoke: skipped (not VPN E2E)
 
-This head is a 2.5 `[hotfox-phase-exit]` candidate. Do not record `2.5 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+Round 6 `CHANGES_REQUIRED` on `d830dec` is addressed in `72471ab`. This head is a 2.5 `[hotfox-phase-exit]` candidate. Do not record `2.5 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
 
 

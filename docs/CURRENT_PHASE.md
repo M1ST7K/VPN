@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.5 «Privacy Controls / Smart Routing»
 
-Status: **ENGINEERING-EXIT CANDIDATE** (implementation `9a09798`, full CI PASS; this head requests `[hotfox-phase-exit]`)
+Status: **ENGINEERING-EXIT CANDIDATE** (implementation `72471ab`, full CI PASS after Round 6 P0/P1 fixes; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
@@ -38,7 +38,9 @@ Do **not** claim HotFox is a production-ready release. Phases 2.2, 2.3 and 2.4 a
 - Routing modes: Smart / Global / include-apps / exclude-apps / Custom.
 - Android `VpnService` include/exclude split tunneling; missing packages must not poison the session.
 - Domain exact/suffix and CIDR rules with VPN / DIRECT / BLOCK.
-- Deterministic precedence: `BLOCK > APP-SPECIFIC > DOMAIN-SPECIFIC > CIDR > GLOBAL MODE`.
+- Deterministic precedence for **captured** traffic: `BLOCK > APP-SPECIFIC > DOMAIN-SPECIFIC > CIDR > GLOBAL MODE`. EXCLUDE selected / INCLUDE miss stay outside TUN (DIRECT, including ads).
+- Routing reconnect is bound to `VpnRestartGate`; explicit disconnect cancels a pending routing restart.
+- Legacy `AppConfig.PREF_SMART_ROUTING_MODE` migrates when the canonical key is empty.
 - Explicit LAN policy; GLOBAL never bypasses LAN.
 - DNS through VPN by default; no silent ISP fallback while protected.
 - Preserve 2.2 IPv6 fail-closed capture.
