@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.8 «HotFox Autopilot / Adaptive Protection»
 
-Status: **IN PROGRESS** (2.7 is ENGINEERING COMPLETE — physical release validation deferred)
+Status: **ENGINEERING-EXIT CANDIDATE** (implementation `15ebc311e1ed0bc395952fdcc91ee9d6fad3d994`; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 

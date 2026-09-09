@@ -431,6 +431,29 @@ Implementation included:
 
 ## Phase 2.8 — HotFox Autopilot / Adaptive Protection
 
-**IN PROGRESS.** 2.7 engineering gate is closed (round 11 `APPROVED`, P0 = 0, P1 = 0). Owner roadmap after 2.8 is `2.9 VPN Core Recovery`, then `3.0 Premium Android Experience`, then `3.1 Mature HotFox Platform`. Physical-device VPN E2E remains the later `FINAL RELEASE DEVICE GATE` and does **not** block 2.8 engineering. Do not record `2.8 ENGINEERING COMPLETE` until implementation, green full CI, and phase-exit `APPROVED` (P0=0, P1=0).
+**ENGINEERING-EXIT CANDIDATE.** 2.7 engineering gate is closed (round 11 `APPROVED`, P0 = 0, P1 = 0). Owner roadmap after 2.8 is `2.9 VPN Core Recovery`, then `3.0 Premium Android Experience`, then `3.1 Mature HotFox Platform`. Physical-device VPN E2E remains the later `FINAL RELEASE DEVICE GATE` and does **not** block 2.8 engineering.
+
+Implementation candidate `15ebc311e1ed0bc395952fdcc91ee9d6fad3d994`. GitHub CI for exact SHA `15ebc311e1ed0bc395952fdcc91ee9d6fad3d994` (run `34401817242`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Unit tests: PASS
+- Android lint: PASS
+- Unsigned release compile: PASS
+- Record APK SHA-256: PASS
+- Publish HotFox Dev Latest: PASS
+
+This head is a 2.8 `[hotfox-phase-exit]` candidate. Do not record `2.8 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
+
+Implementation in this candidate:
+
+1. `ConnectionIntentEngine` maps network / policy / entitlement / pause / session to one serialized intent.
+2. Autopilot start/stop goes through `VpnRestartGate` / `CoreServiceManager.startVServiceFromAutopilot` (no second session controller).
+3. Trusted home/office Wi‑Fi uses hashed opaque ids; unknown Wi‑Fi and cellular follow explicit connect policy; remain-off on trusted networks.
+4. Pause 5/15/60 minutes (AlarmManager resume, no polling) or until network change; distinct from permanent disable.
+5. Captive portal wait/release with `Сеть требует авторизации`.
+6. Boot/process-start recovers policy without resurrecting a stale session id; event-driven `NetworkCallback`.
+7. Protection profiles `Скорость` / `Баланс` / `Максимальная защита` map to routing/LAN/ads/Shadow defaults.
+8. User disconnect suppresses auto-reconnect until network change; manual selection is not rewritten to AUTO; reconnect gap is bounded.
 
 
