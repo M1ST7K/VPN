@@ -515,6 +515,16 @@ def main() -> int:
         "class HotfoxAutopilotBootReceiver",
         "2.8 boot Autopilot receiver",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotPauseReceiver.kt",
+        "class HotfoxAutopilotPauseReceiver",
+        "2.8 timed pause resume receiver",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt",
+        "fun expiryEpochMs",
+        "2.8 pause expiry is alarm-driven",
+    )
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")

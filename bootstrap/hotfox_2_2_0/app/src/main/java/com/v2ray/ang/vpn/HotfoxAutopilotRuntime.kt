@@ -1,6 +1,9 @@
 package com.v2ray.ang.vpn
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -86,11 +89,39 @@ object HotfoxAutopilotRuntime {
                 nowEpochMs = System.currentTimeMillis(),
                 source = source,
             ),
-        ) ?: return
+        ) ?: run {
+            syncPauseAlarm(app)
+            return
+        }
         if (decision.wantsStart) {
             HotfoxAutopilotApply.applyProfileIfCompatible(decision.profile)
         }
         CoreServiceManager.applyAutopilot(app, decision)
+        syncPauseAlarm(app)
+    }
+
+    fun syncPauseAlarm(context: Context) {
+        val app = context.applicationContext
+        val now = System.currentTimeMillis()
+        val until = HotfoxAutopilotAlarms.expiryEpochMs(HotfoxAutopilotStore.currentPause(now), now)
+        val am = app.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+        val pi = pausePendingIntent(app)
+        if (until == null) {
+            am.cancel(pi)
+            pi.cancel()
+            return
+        }
+        am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, until, pi)
+    }
+
+    private fun pausePendingIntent(app: Context): PendingIntent {
+        val intent = Intent(app, HotfoxAutopilotPauseReceiver::class.java)
+        return PendingIntent.getBroadcast(
+            app,
+            2808,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
     private fun onNetworkEvent(app: Context) {
@@ -110,40 +141,40 @@ data class HotfoxNetworkIdentity(
     val transport: HotfoxTransportKind,
     val captive: Boolean,
     val opaqueId: String,
-)
-
-object HotfoxNetworkIdentity {
-    fun current(context: Context): HotfoxNetworkIdentity {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            ?: return HotfoxNetworkIdentity(HotfoxTransportKind.NONE, captive = false, opaqueId = "")
-        val network = cm.activeNetwork
-            ?: return HotfoxNetworkIdentity(HotfoxTransportKind.NONE, captive = false, opaqueId = "")
-        val caps = cm.getNetworkCapabilities(network)
-            ?: return HotfoxNetworkIdentity(HotfoxTransportKind.NONE, captive = false, opaqueId = "")
-        val captive = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
-        val transport = when {
-            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> HotfoxTransportKind.WIFI
-            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> HotfoxTransportKind.CELLULAR
-            else -> HotfoxTransportKind.NONE
+) {
+    companion object {
+        fun current(context: Context): HotfoxNetworkIdentity {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                ?: return HotfoxNetworkIdentity(HotfoxTransportKind.NONE, captive = false, opaqueId = "")
+            val network = cm.activeNetwork
+                ?: return HotfoxNetworkIdentity(HotfoxTransportKind.NONE, captive = false, opaqueId = "")
+            val caps = cm.getNetworkCapabilities(network)
+                ?: return HotfoxNetworkIdentity(HotfoxTransportKind.NONE, captive = false, opaqueId = "")
+            val captive = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
+            val transport = when {
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> HotfoxTransportKind.WIFI
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> HotfoxTransportKind.CELLULAR
+                else -> HotfoxTransportKind.NONE
+            }
+            val ssid = ssidHint(context, caps)
+            val opaque = if (ssid.isNotBlank()) HotfoxTrustedNetworks.opaqueId(ssid) else ""
+            return HotfoxNetworkIdentity(transport, captive, opaque)
         }
-        val ssid = ssidHint(context, caps)
-        val opaque = if (ssid.isNotBlank()) HotfoxTrustedNetworks.opaqueId(ssid) else ""
-        return HotfoxNetworkIdentity(transport, captive, opaque)
-    }
 
-    fun usableSsid(raw: String): Boolean {
-        val ssid = raw.trim().trim('"')
-        return ssid.isNotBlank() && ssid != "<unknown ssid>" && ssid != "0x" && !ssid.equals("unknown", ignoreCase = true)
-    }
-
-    private fun ssidHint(context: Context, caps: NetworkCapabilities): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val info = caps.transportInfo as? android.net.wifi.WifiInfo
-            val ssid = info?.ssid.orEmpty()
-            if (usableSsid(ssid)) return ssid.trim().trim('"')
+        fun usableSsid(raw: String): Boolean {
+            val ssid = raw.trim().trim('"')
+            return ssid.isNotBlank() && ssid != "<unknown ssid>" && ssid != "0x" && !ssid.equals("unknown", ignoreCase = true)
         }
-        val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return ""
-        val ssid = runCatching { wm.connectionInfo?.ssid.orEmpty() }.getOrDefault("")
-        return if (usableSsid(ssid)) ssid.trim().trim('"') else ""
+
+        private fun ssidHint(context: Context, caps: NetworkCapabilities): String {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val info = caps.transportInfo as? android.net.wifi.WifiInfo
+                val ssid = info?.ssid.orEmpty()
+                if (usableSsid(ssid)) return ssid.trim().trim('"')
+            }
+            val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return ""
+            val ssid = runCatching { wm.connectionInfo?.ssid.orEmpty() }.getOrDefault("")
+            return if (usableSsid(ssid)) ssid.trim().trim('"') else ""
+        }
     }
 }

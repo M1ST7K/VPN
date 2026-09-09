@@ -188,6 +188,19 @@ object HotfoxProtectionProfiles {
     }
 }
 
+/**
+ * Timed pause resume is alarm-driven (not a polling loop).
+ * [HotfoxPauseKind.UNTIL_NETWORK_CHANGE] is cleared by [HotfoxAutopilotStore.noteNetworkChange].
+ */
+object HotfoxAutopilotAlarms {
+    fun expiryEpochMs(pause: HotfoxPauseState?, nowEpochMs: Long): Long? {
+        if (pause == null) return null
+        if (pause.kind == HotfoxPauseKind.UNTIL_NETWORK_CHANGE) return null
+        if (nowEpochMs >= pause.untilEpochMs) return null
+        return pause.untilEpochMs
+    }
+}
+
 object HotfoxTrustedNetworks {
     fun classify(
         transport: HotfoxTransportKind,

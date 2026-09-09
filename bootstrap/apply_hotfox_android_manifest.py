@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-RECEIVER = """
+BOOT_RECEIVER = """
         <receiver
             android:name="com.v2ray.ang.vpn.HotfoxAutopilotBootReceiver"
             android:enabled="true"
@@ -16,7 +16,22 @@ RECEIVER = """
         </receiver>
 """
 
+PAUSE_RECEIVER = """
+        <receiver
+            android:name="com.v2ray.ang.vpn.HotfoxAutopilotPauseReceiver"
+            android:enabled="true"
+            android:exported="false" />
+"""
+
 PERMISSION = '    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n'
+
+
+def _insert_before_application_end(text: str, snippet: str) -> str:
+    marker = "</application>"
+    idx = text.rfind(marker)
+    if idx < 0:
+        raise SystemExit("no </application> in manifest")
+    return text[:idx] + snippet + "    " + text[idx:]
 
 
 def patch(manifest: Path) -> None:
@@ -30,11 +45,10 @@ def patch(manifest: Path) -> None:
         text = text[:idx] + PERMISSION + text[idx:]
         changed = True
     if "HotfoxAutopilotBootReceiver" not in text:
-        marker = "</application>"
-        idx = text.rfind(marker)
-        if idx < 0:
-            raise SystemExit(f"no </application> in {manifest}")
-        text = text[:idx] + RECEIVER + "    " + text[idx:]
+        text = _insert_before_application_end(text, BOOT_RECEIVER)
+        changed = True
+    if "HotfoxAutopilotPauseReceiver" not in text:
+        text = _insert_before_application_end(text, PAUSE_RECEIVER)
         changed = True
     if changed:
         manifest.write_text(text, encoding="utf-8")

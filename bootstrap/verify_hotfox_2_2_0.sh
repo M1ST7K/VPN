@@ -171,6 +171,10 @@ grep -q 'startVServiceFromAutopilot' "$PROJECT/app/src/main/java/com/v2ray/ang/c
   || fail "Autopilot start is not bound to VpnRestartGate"
 grep -q 'class HotfoxAutopilotBootReceiver' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotBootReceiver.kt" \
   || fail "Autopilot boot receiver missing"
+grep -q 'class HotfoxAutopilotPauseReceiver' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotPauseReceiver.kt" \
+  || fail "Autopilot timed-pause receiver missing"
+grep -q 'fun expiryEpochMs' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt" \
+  || fail "Autopilot pause alarm expiry helper missing"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then
