@@ -36,7 +36,9 @@ import com.v2ray.ang.util.ErrorMessageMapper
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxAutoFailover
+import com.v2ray.ang.vpn.HotfoxRoutingStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
+import com.v2ray.ang.vpn.HotfoxXrayConfigInjector
 import com.v2ray.ang.vpn.FailoverAction
 import com.v2ray.ang.vpn.VpnRestartGate
 import com.v2ray.ang.vpn.VpnLoopPrevention
@@ -364,6 +366,8 @@ object CoreServiceManager {
         if (!result.status) {
             error(result.errorMessage.ifBlank { "Failed to get V2Ray config" })
         }
+        val routingSnapshot = HotfoxRoutingStore.load()
+        val coreConfigJson = HotfoxXrayConfigInjector.apply(result.content, routingSnapshot)
 
         currentConfig = config
         var tunFd = vpnInterface?.fd ?: 0
@@ -378,7 +382,7 @@ object CoreServiceManager {
 
         NotificationManager.showNotification(currentConfig)
         CoreNativeManager.reconcileBrowserDialer(dialerAddr)
-        coreController.startLoop(result.content, tunFd)
+        coreController.startLoop(coreConfigJson, tunFd)
 
         if (!coreController.isRunning) {
             error("Core failed to start")

@@ -28,6 +28,7 @@ import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.DuplicateStartDisposition
 import com.v2ray.ang.vpn.FailoverAction
 import com.v2ray.ang.vpn.HotfoxAutoFailover
+import com.v2ray.ang.vpn.HotfoxRoutingStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.VpnConnectionStage
 import com.v2ray.ang.vpn.VpnLoopPrevention
@@ -329,13 +330,15 @@ class CoreVpnService : VpnService(), ServiceControl {
      */
     private fun configureNetworkSettings(builder: Builder) {
         val vpnConfig = SettingsManager.getCurrentVpnInterfaceAddressConfig()
-        val bypassLan = SettingsManager.routingRulesetsBypassLan()
+        val routing = HotfoxRoutingStore.load()
+        val bypassLan = routing.bypassLanOnTun()
 
         // Configure IPv4 settings
         builder.setMtu(SettingsManager.getVpnMtu())
         builder.addAddress(vpnConfig.ipv4Client, 30)
 
-        // Configure routing rules
+        // Configure routing rules. GLOBAL never bypasses LAN; other modes honor
+        // the explicit LAN preference only — never SettingsManager geosite inference.
         if (bypassLan) {
             AppConfig.ROUTED_IP_LIST.forEach {
                 val addr = it.split('/')
@@ -357,10 +360,8 @@ class CoreVpnService : VpnService(), ServiceControl {
             builder.addRoute("::", 0)
         }
 
-        // Configure DNS servers
-        //if (MmkvManager.decodeSettingsBool(AppConfig.PREF_LOCAL_DNS_ENABLED) == true) {
-        //  builder.addDnsServer(PRIVATE_VLAN4_ROUTER)
-        //} else {
+        // DNS is always installed on the VPN interface. 2.5 does not allow a
+        // silent system-DNS bypass while protection is claimed.
         SettingsManager.getVpnDnsServers().forEach {
             if (Utils.isPureIpAddress(it)) {
                 builder.addDnsServer(it)
@@ -397,33 +398,27 @@ class CoreVpnService : VpnService(), ServiceControl {
      */
     private fun configurePerAppProxy(builder: Builder) {
         val selfPackageName = BuildConfig.APPLICATION_ID
+        val plan = HotfoxRoutingStore.load().perAppPlan(selfPackageName)
 
-        // Per-app off: do not exclude HotFox. Loop prevention is bindProcessToUnderlying
-        // (this libv2ray has no protect() callback). Remaining on TUN lets injectThroughVpn
-        // actually traverse TUN → HEV → SOCKS → Xray.
-        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_PER_APP_PROXY) == false) {
+        // Per-app off (or empty include/exclude): do not exclude HotFox.
+        // Loop prevention is bindProcessToUnderlying (this libv2ray has no protect()
+        // callback). Remaining on TUN lets injectThroughVpn traverse TUN → HEV → SOCKS → Xray.
+        if (!plan.enabled) {
             return
         }
 
-        val apps = MmkvManager.decodeSettingsStringSet(AppConfig.PREF_PER_APP_PROXY_SET)
-        if (apps.isNullOrEmpty()) {
-            return
-        }
+        val apps = plan.packages.toMutableSet()
+        if (plan.bypassSelected) apps.remove(selfPackageName) else apps.add(selfPackageName)
 
-        val bypassApps = MmkvManager.decodeSettingsBool(AppConfig.PREF_BYPASS_APPS)
-        if (bypassApps) apps.remove(selfPackageName) else apps.add(selfPackageName)
-
-        apps.forEach {
+        apps.forEach { pkg ->
             try {
-                if (bypassApps) {
-                    // In bypass mode, disallow the selected apps
-                    builder.addDisallowedApplication(it)
+                if (plan.bypassSelected) {
+                    builder.addDisallowedApplication(pkg)
                 } else {
-                    // In proxy mode, only allow the selected apps
-                    builder.addAllowedApplication(it)
+                    builder.addAllowedApplication(pkg)
                 }
             } catch (e: PackageManager.NameNotFoundException) {
-                LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to configure app", e)
+                LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to configure app $pkg", e)
             }
         }
     }

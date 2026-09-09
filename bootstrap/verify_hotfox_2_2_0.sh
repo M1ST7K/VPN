@@ -111,6 +111,16 @@ grep -q 'class ServerHealthRepository' "$PROJECT/app/src/main/java/com/v2ray/ang
   || fail "ServerHealthRepository missing"
 grep -q 'fun significantlyBetter' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt" \
   || fail "AUTO hysteresis missing"
+grep -q 'object HotfoxRoutingPolicy' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt" \
+  || fail "HotFox 2.5 routing policy missing"
+grep -q 'fun bypassLanOnTun' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt" \
+  || fail "explicit LAN TUN policy missing"
+grep -q 'HotfoxRoutingStore.load().perAppPlan' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "VpnService per-app plan is not bound to HotFox routing"
+grep -q 'HotfoxXrayConfigInjector.apply' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "Xray config is not injected from HotFox routing policy"
+grep -q 'fun tryApply' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingApply.kt" \
+  || fail "routing reconfiguration generation missing"
 grep -q 'fun invalidateForNetworkChange' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt" \
   || fail "network-context health invalidation missing"
 grep -q 'ENTITLEMENT_BLOCKED' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \

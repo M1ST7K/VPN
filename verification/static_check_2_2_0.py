@@ -383,9 +383,32 @@ def main() -> int:
         "unscoped persisted delay must not rank as current-network health",
     )
     must_contain(
-        "app/src/main/java/com/v2ray/ang/vpn/AutoCommercialEligibility.kt",
-        "fun requiresEntitlement",
-        "AUTO commercial eligibility snapshot",
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt",
+        "fun bypassLanOnTun",
+        "2.5 explicit LAN TUN policy",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
+        "HotfoxRoutingStore.load().perAppPlan",
+        "VpnService per-app plan uses HotFox routing snapshot",
+    )
+    vpn_routing = read("app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt")
+    if vpn_routing and "SettingsManager.routingRulesetsBypassLan()" in vpn_routing:
+        fail("CoreVpnService must not infer LAN bypass from geosite presets")
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "HotfoxXrayConfigInjector.apply",
+        "Xray routing injection from HotFox policy",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingApply.kt",
+        "fun tryApply",
+        "routing reconfiguration generation",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",
+        "HotfoxRoutingStore.load()",
+        "routing UI is derived from the active policy snapshot",
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/HotfoxResolvedTargetDisplay.kt",

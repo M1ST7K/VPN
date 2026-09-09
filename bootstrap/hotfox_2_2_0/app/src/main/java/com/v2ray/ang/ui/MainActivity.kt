@@ -43,7 +43,6 @@ import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.databinding.ActivityMainBinding
 import com.v2ray.ang.enums.EConfigType
 import com.v2ray.ang.enums.PermissionType
-import com.v2ray.ang.enums.SmartRoutingMode
 import com.v2ray.ang.extension.toast
 import com.v2ray.ang.extension.toastError
 import com.v2ray.ang.handler.AngConfigManager
@@ -58,6 +57,9 @@ import com.v2ray.ang.viewmodel.MainViewModel
 import com.v2ray.ang.vpn.ConnectionUiMapper
 import com.v2ray.ang.vpn.HotfoxLatencyDisplay
 import com.v2ray.ang.vpn.HotfoxResolvedTargetDisplay
+import com.v2ray.ang.vpn.HotfoxRoutingApply
+import com.v2ray.ang.vpn.HotfoxRoutingMode
+import com.v2ray.ang.vpn.HotfoxRoutingStore
 import com.v2ray.ang.vpn.HotfoxServerPresentation
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.HotfoxSubscriptionPresentation
@@ -112,8 +114,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         else applyRunningState(false, false)
     }
     private val requestActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        refreshSmartRouting()
         if (SettingsChangeManager.consumeRestartService() && mainViewModel.isRunning.value == true) {
-            restartV2Ray()
+            HotfoxRoutingApply.bump()
+            restartV2RayForRouting()
         }
         if (SettingsChangeManager.consumeSetupGroupTab()) {
             setupGroupTab()
@@ -146,12 +150,12 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                         2 -> requestActivityLauncher.launch(Intent(this, RoutingSettingActivity::class.java))
                         3 -> requestActivityLauncher.launch(Intent(this, SubSettingActivity::class.java))
                         4 -> {
-                            val enabled = MmkvManager.decodeSettingsBool("hotfox_block_ads", false)
+                            val enabled = HotfoxRoutingStore.load().adsBlocked
                             MaterialAlertDialogBuilder(this).setTitle("Фильтр рекламы")
                                 .setMessage("Блокировка рекламных доменов по geosite. Сейчас: " + if (enabled) "включена" else "выключена")
                                 .setPositiveButton(if (enabled) "Выключить" else "Включить") { _, _ ->
-                                    MmkvManager.encodeSettings("hotfox_block_ads", !enabled)
-                                    if (mainViewModel.isRunning.value == true) restartV2Ray()
+                                    HotfoxRoutingStore.saveAds(!enabled)
+                                    if (mainViewModel.isRunning.value == true) restartV2RayForRouting()
                                 }.setNegativeButton(android.R.string.cancel, null).show()
                         }
                         5 -> copyDiagnostics()
@@ -558,8 +562,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             val socksPort = SettingsManager.getSocksPort()
             val socksReady = withContext(Dispatchers.IO) { com.v2ray.ang.vpn.VpnReadiness.probe(socksPort) }
             val selected = MmkvManager.getSelectServer()?.let(MmkvManager::decodeServerConfig)
+            val routing = HotfoxRoutingStore.load()
             val ipv6 = MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED)
-            val routing = MmkvManager.decodeSettingsString(AppConfig.PREF_SMART_ROUTING_MODE).orEmpty()
             val traffic = mainViewModel.tunnelTraffic.value
             val path = VpnSessionCoordinator.lastPath()
             val report = com.v2ray.ang.vpn.HotfoxDiagnosticsBuilder.build(
@@ -572,7 +576,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 ipv4Captured = null,
                 ipv6Captured = null,
                 ipv6Policy = if (ipv6) "proxy" else "fail-closed-blackhole",
-                routingMode = routing.ifBlank { "smart" },
+                routingMode = routing.mode.storageValue,
                 serverRemark = selected?.remarks,
                 uploaded = traffic?.first,
                 downloaded = traffic?.second,
@@ -789,6 +793,21 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
+    private fun restartV2RayForRouting() {
+        val generation = HotfoxRoutingApply.current()
+        lifecycleScope.launch {
+            val session = VpnSessionCoordinator.currentState()
+            if (mainViewModel.isRunning.value == true || session.isServiceActive() || session.isBusy()) {
+                CoreServiceManager.stopVService(this@MainActivity)
+                VpnSessionCoordinator.awaitIdle()
+            }
+            if (generation > 0L && !HotfoxRoutingApply.tryApply(generation)) {
+                return@launch
+            }
+            startV2Ray()
+        }
+    }
+
     private fun setTestState(content: String?) {
         binding.tvTestState.text = content
     }
@@ -984,53 +1003,70 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun showSmartRoutingDialog() {
-        val modes = SmartRoutingMode.entries
+        val snapshot = HotfoxRoutingStore.load()
+        val modes = arrayOf(
+            HotfoxRoutingMode.SMART,
+            HotfoxRoutingMode.GLOBAL,
+            HotfoxRoutingMode.INCLUDE_APPS,
+            HotfoxRoutingMode.EXCLUDE_APPS,
+            HotfoxRoutingMode.CUSTOM,
+        )
         val labels = arrayOf(
             getString(R.string.hotfox_route_smart),
             getString(R.string.hotfox_route_global),
+            getString(R.string.hotfox_route_include),
+            getString(R.string.hotfox_route_exclude),
             getString(R.string.hotfox_route_custom),
         )
-        val current = SmartRoutingMode.fromStorage(
-            MmkvManager.decodeSettingsString(AppConfig.PREF_SMART_ROUTING_MODE)
-        )
+        val current = snapshot.mode
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.hotfox_smart_routing_title)
             .setSingleChoiceItems(labels, modes.indexOf(current)) { dialog, which ->
                 val selected = modes[which]
                 if (selected != current) {
-                    MmkvManager.encodeSettings(AppConfig.PREF_SMART_ROUTING_MODE, selected.storageValue)
+                    HotfoxRoutingStore.saveMode(selected)
                     refreshSmartRouting()
                     animateRoutingCard()
                     toast(R.string.hotfox_route_changed)
-                    if (mainViewModel.isRunning.value == true) restartV2Ray()
+                    if (mainViewModel.isRunning.value == true) restartV2RayForRouting()
+                    if (selected == HotfoxRoutingMode.INCLUDE_APPS || selected == HotfoxRoutingMode.EXCLUDE_APPS) {
+                        requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java))
+                    }
+                    if (selected == HotfoxRoutingMode.CUSTOM) {
+                        requestActivityLauncher.launch(Intent(this, RoutingSettingActivity::class.java))
+                    }
                 }
                 dialog.dismiss()
             }
-            .setNeutralButton("Правила") { _, _ -> requestActivityLauncher.launch(Intent(this, RoutingSettingActivity::class.java)) }
+            .setNeutralButton(R.string.hotfox_route_rules) { _, _ ->
+                requestActivityLauncher.launch(Intent(this, RoutingSettingActivity::class.java))
+            }
+            .setPositiveButton(
+                if (snapshot.lanAccess) R.string.hotfox_route_lan_on else R.string.hotfox_route_lan_off,
+            ) { _, _ ->
+                HotfoxRoutingStore.saveLan(!snapshot.lanAccess)
+                refreshSmartRouting()
+                toast(R.string.hotfox_route_changed)
+                if (mainViewModel.isRunning.value == true) restartV2RayForRouting()
+            }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
     private fun refreshSmartRouting() {
-        when (SmartRoutingMode.fromStorage(
-            MmkvManager.decodeSettingsString(AppConfig.PREF_SMART_ROUTING_MODE)
-        )) {
-            SmartRoutingMode.SMART -> {
-                binding.tvSmartRoutingMode.setText(R.string.hotfox_route_smart)
-                binding.tvSmartRoutingSummary.setText(R.string.hotfox_route_smart_summary)
-                binding.tvRoutingInline.text = "Умная маршрутизация · Auto"
-            }
-            SmartRoutingMode.GLOBAL -> {
-                binding.tvSmartRoutingMode.setText(R.string.hotfox_route_global)
-                binding.tvSmartRoutingSummary.setText(R.string.hotfox_route_global_summary)
-                binding.tvRoutingInline.text = "Маршрутизация · Global"
-            }
-            SmartRoutingMode.CUSTOM -> {
-                binding.tvSmartRoutingMode.setText(R.string.hotfox_route_custom)
-                binding.tvSmartRoutingSummary.setText(R.string.hotfox_route_custom_summary)
-                binding.tvRoutingInline.text = "Маршрутизация · Custom"
-            }
-        }
+        val snapshot = HotfoxRoutingStore.load()
+        binding.tvSmartRoutingMode.text = snapshot.uiLabel()
+        binding.tvSmartRoutingSummary.setText(
+            when (snapshot.mode) {
+                HotfoxRoutingMode.SMART -> R.string.hotfox_route_smart_summary
+                HotfoxRoutingMode.GLOBAL -> R.string.hotfox_route_global_summary
+                HotfoxRoutingMode.INCLUDE_APPS -> R.string.hotfox_route_include_summary
+                HotfoxRoutingMode.EXCLUDE_APPS -> R.string.hotfox_route_exclude_summary
+                HotfoxRoutingMode.CUSTOM -> R.string.hotfox_route_custom_summary
+            },
+        )
+        val lan = if (snapshot.bypassLanOnTun()) "LAN" else "без LAN"
+        binding.tvRoutingInline.text = "${snapshot.uiLabel()} · $lan · DNS VPN"
     }
 
     private fun animateRoutingCard() {
