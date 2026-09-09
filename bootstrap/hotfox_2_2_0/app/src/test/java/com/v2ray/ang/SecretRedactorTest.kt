@@ -41,4 +41,11 @@ class SecretRedactorTest {
         assertFalse(redacted.contains("abcdefghijklmnopqrstuvwx"))
         assertTrue(redacted.contains("<secret>") || redacted.contains("<redacted>"))
     }
+
+    @Test
+    fun doesNotSwallowGitShaDiagnosticLabel() {
+        val raw = "gitSha=0123456789abcdef0123456789abcdef01234567"
+        val redacted = SecretRedactor.redact(raw)
+        assertTrue(redacted.contains("gitSha="))
+    }
 }

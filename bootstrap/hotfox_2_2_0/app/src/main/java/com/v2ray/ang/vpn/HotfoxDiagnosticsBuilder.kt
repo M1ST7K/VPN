@@ -27,7 +27,7 @@ object HotfoxDiagnosticsBuilder {
             appendLine("HotFox Proxy ${identity.versionName} (${identity.versionCode})")
             appendLine("distribution=${identity.distribution}")
             appendLine("channel=${identity.channel.storageValue}")
-            appendLine("gitSha=${identity.gitSha.ifBlank { "unknown" }}")
+            appendLine("gitSha=${identity.gitSha.take(12).ifBlank { "unknown" }}")
             appendLine("artifact=${identity.artifactLabel()}")
             appendLine("android=$androidRelease api=$api abi=$abi")
             appendLine("state=${state.name}")

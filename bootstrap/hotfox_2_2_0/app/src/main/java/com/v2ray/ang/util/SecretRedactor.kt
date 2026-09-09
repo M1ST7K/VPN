@@ -11,7 +11,7 @@ object SecretRedactor {
     private val authorization = Regex("(?i)(authorization\\s*[:=]\\s*)\\S+")
     private val uuid = Regex("(?i)\\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\\b")
     private val keystore = Regex("(?i)(?:HOTFOX_KEYSTORE_PASSWORD|HOTFOX_KEY_PASSWORD|storePassword|keyPassword)\\s*[=:]\\s*\\S+")
-    private val longToken = Regex("(?i)\\b[0-9a-z_+/=-]{24,}\\b")
+    private val longToken = Regex("(?i)\\b[0-9a-z_/+-]{24,}={0,2}\\b")
 
     fun redact(value: String): String = value
         .replace(proxyUri, "<secret-uri>")
