@@ -89,4 +89,31 @@ class HotfoxDiagnosticsBuilderTest {
         assertFalse(report.contains("11111111-2222-3333-4444-555555555555"))
         assertTrue(report.contains("pathVerified=true"))
     }
+
+    @Test
+    fun reportsConfiguredInboundPortsNotProductDefaults() {
+        val report = HotfoxDiagnosticsBuilder.build(
+            androidRelease = "14",
+            api = 34,
+            abi = "arm64-v8a",
+            socksPort = 11808,
+            socksReady = true,
+            hevRunning = false,
+            ipv4Captured = null,
+            ipv6Captured = null,
+            ipv6Policy = "fail-closed-blackhole",
+            routingMode = "smart",
+            serverRemark = "Amsterdam",
+            uploaded = null,
+            downloaded = null,
+            lastError = null,
+            serverCount = 1,
+            path = null,
+            httpPort = 11809,
+        )
+        assertTrue(report.contains("socksPort=11808"))
+        assertTrue(report.contains("httpPort=11809"))
+        assertFalse(report.contains("socksPort=10808"))
+        assertFalse(report.contains("httpPort=10809"))
+    }
 }

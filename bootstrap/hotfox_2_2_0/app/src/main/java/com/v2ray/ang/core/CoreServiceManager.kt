@@ -801,6 +801,7 @@ object CoreServiceManager {
                 socksPort = socksPort,
                 socksUser = socksUser,
                 socksPassword = socksPassword,
+                httpPort = SettingsManager.getHttpPort(),
                 tunPresent = tunInterface != null,
                 hevPresent = SettingsManager.isUsingHevTun(),
             )

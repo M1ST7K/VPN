@@ -75,6 +75,7 @@ class CoreProxyOnlyService : Service(), ServiceControl {
                 socksPort = socksPort,
                 socksUser = SettingsManager.getSocksUsername(),
                 socksPassword = SettingsManager.getSocksPassword(),
+                httpPort = SettingsManager.getHttpPort(),
                 tunPresent = false,
                 hevPresent = false,
             )

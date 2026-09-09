@@ -734,6 +734,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 lastError = VpnSessionCoordinator.lastError(),
                 serverCount = MmkvManager.decodeAllServerList().size,
                 path = path,
+                httpPort = SettingsManager.getHttpPort(),
             )
             val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
             clipboard.setPrimaryClip(android.content.ClipData.newPlainText("HotFox diagnostics", report))

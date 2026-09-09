@@ -20,6 +20,7 @@ object HotfoxDiagnosticsBuilder {
         lastError: String?,
         serverCount: Int,
         path: VpnPathVerification? = VpnSessionCoordinator.lastPath(),
+        httpPort: Int = HotfoxInboundIsolation.HTTP_PORT,
     ): String {
         val state = VpnSessionCoordinator.currentState()
         val raw = buildString {
@@ -64,8 +65,8 @@ object HotfoxDiagnosticsBuilder {
             appendLine(TunFdEvidence.summary())
             appendLine(HotfoxSocksIsolation.last?.summary() ?: "socksHttps=none httpInbound=none")
             appendLine(HotfoxOutboundCompare.last?.summary() ?: "generatedPresent=false mismatches=0 blocking=false")
-            appendLine("socksPort=${HotfoxInboundIsolation.SOCKS_PORT}")
-            appendLine("httpPort=${HotfoxInboundIsolation.HTTP_PORT}")
+            appendLine("socksPort=$socksPort")
+            appendLine("httpPort=$httpPort")
             appendLine("e2e=${VpnPathVerification.PHYSICAL_E2E_NOT_EXECUTED}")
             appendLine("uploaded=${uploaded ?: "—"} downloaded=${downloaded ?: "—"}")
             appendLine("servers=$serverCount")
