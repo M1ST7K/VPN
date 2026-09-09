@@ -79,7 +79,7 @@ jobs:
           fi
 
   review:
-    name: GPT-5.6 Sol checkpoint review → Cursor only for P0/P1
+    name: GPT-5.6 checkpoint review → Cursor only for P0/P1
     needs: checkpoint-gate
     if: needs.checkpoint-gate.outputs.requested == 'true'
     runs-on: ubuntu-latest
@@ -109,9 +109,16 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_REVIEW_MODEL: gpt-5.6-sol
+          # Cost-balanced default. Reserve Sol/manual deep review for exceptional
+          # phase-exit/security cases instead of every normal checkpoint.
+          OPENAI_REVIEW_MODEL: gpt-5.6-terra
           HOTFOX_REVIEW_TRIGGER: "[hotfox-review]"
           MAX_REVIEW_ROUNDS: "20"
-          MAX_REVIEW_DIFF_CHARS: "280000"
-          OPENAI_REVIEW_MAX_OUTPUT_TOKENS: "30000"
+          # The reviewer already prioritizes VPN/security/commerce-sensitive patches.
+          # Keeping a bounded diff prevents giant historical PR context from being
+          # resent on every checkpoint.
+          MAX_REVIEW_DIFF_CHARS: "120000"
+          # 6k previously proved too tight for reasoning+visible output; 12k keeps
+          # enough headroom while cutting the old 30k ceiling substantially.
+          OPENAI_REVIEW_MAX_OUTPUT_TOKENS: "12000"
         run: python3 .github/scripts/hotfox_ai_review.py
