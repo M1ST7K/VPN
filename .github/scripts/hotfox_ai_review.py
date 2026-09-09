@@ -51,6 +51,7 @@ MAX_ROUNDS = int(os.environ.get("MAX_REVIEW_ROUNDS", "10"))
 MAX_DIFF_CHARS = int(os.environ.get("MAX_REVIEW_DIFF_CHARS", "280000"))
 MAX_OUTPUT_TOKENS = int(os.environ.get("OPENAI_REVIEW_MAX_OUTPUT_TOKENS", "30000"))
 REVIEW_TRIGGER = os.environ.get("HOTFOX_REVIEW_TRIGGER", "[hotfox-review]").strip() or "[hotfox-review]"
+PHASE_EXIT_MARKER = "[hotfox-phase-exit]"
 EVENT_NAME = os.environ.get("GITHUB_EVENT_NAME", "").strip()
 REVIEW_MODE = os.environ.get("HOTFOX_REVIEW_MODE", "").strip() or "manual"
 EXPECTED_SHA = os.environ.get("EXPECTED_SHA", "").strip().lower()
@@ -352,13 +353,14 @@ def main() -> int:
             write_outputs(approved=False, sha=current, verdict_name="SHA_MISMATCH")
             print(f"PR head {current} != expected {EXPECTED_SHA}; refusing review.")
             return 1
-        if REVIEW_TRIGGER.lower() not in head_commit_message(current).lower():
+        if PHASE_EXIT_MARKER.lower() not in head_commit_message(current).lower():
             write_outputs(approved=False, sha=current, verdict_name="MISSING_PHASE_EXIT_MARKER")
-            print(f"expected SHA lacks {REVIEW_TRIGGER!r}; refusing review.")
+            print(f"expected SHA lacks {PHASE_EXIT_MARKER!r}; refusing review.")
             return 1
 
     # Cost gate: ordinary Cursor pushes/build-fix commits intentionally stop here.
-    if not checkpoint_requested(current):
+    # Phase-exit candidates were already authenticated by expected_sha + [hotfox-phase-exit].
+    if not PHASE_EXIT and not checkpoint_requested(current):
         write_outputs(approved=False, sha=current, verdict_name="NOT_REQUESTED")
         return 0
 
@@ -418,7 +420,7 @@ def main() -> int:
             "Read `AGENTS.md` and `docs/CURRENT_PHASE.md`; read only the linked/relevant master-roadmap sections needed for these findings. "
             "Do not weaken VPN/security functionality or suppress meaningful checks just to get green. "
             "You may use multiple ordinary commits while fixing and while CI is red; those commits must NOT request another AI review. "
-            f"After all findings in this checkpoint are fixed and applicable build/tests/lint/static gates are green, make the FINAL checkpoint commit include `{REVIEW_TRIGGER}` in its commit message. "
+            f"After all findings in this checkpoint are fixed and applicable build/tests/lint/static gates are green, make the FINAL checkpoint commit include `{PHASE_EXIT_MARKER if PHASE_EXIT else REVIEW_TRIGGER}` in its commit message. "
             "Never claim physical-device E2E unless it actually ran.\n\n"
         )
         post_comment(header + handoff + review)
