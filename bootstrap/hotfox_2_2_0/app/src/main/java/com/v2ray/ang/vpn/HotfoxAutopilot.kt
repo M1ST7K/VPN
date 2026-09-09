@@ -344,10 +344,11 @@ object ConnectionIntentEngine {
             }
         }
 
-        if (snap.lastConnectIntentAtEpochMs > 0L &&
-            snap.nowEpochMs - snap.lastConnectIntentAtEpochMs < ConnectionIntentEngine.MIN_CONNECT_GAP_MS
-        ) {
-            return out(HotfoxConnectionIntent.KEEP_CURRENT, "reconnect_gap")
+        if (snap.lastConnectIntentAtEpochMs > 0L) {
+            val elapsed = snap.nowEpochMs - snap.lastConnectIntentAtEpochMs
+            if (elapsed in 0L until ConnectionIntentEngine.MIN_CONNECT_GAP_MS) {
+                return out(HotfoxConnectionIntent.KEEP_CURRENT, "reconnect_gap")
+            }
         }
 
         val reconnect = snap.source == HotfoxAutopilotSource.NETWORK && snap.policy.reconnectOnRestore

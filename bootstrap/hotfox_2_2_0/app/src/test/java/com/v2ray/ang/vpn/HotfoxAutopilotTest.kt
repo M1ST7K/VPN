@@ -69,8 +69,9 @@ class HotfoxAutopilotTest {
         assertEquals(HotfoxConnectionIntent.PAUSED, until.intent)
         assertNull(HotfoxAutopilotAlarms.expiryEpochMs(HotfoxAutopilotStore.pause(), 99_000L))
         HotfoxAutopilotStore.noteNetworkChange()
+        val afterNow = 1_000L + 5 * 60_000L + 1 + ConnectionIntentEngine.MIN_CONNECT_GAP_MS + 1
         val after = decide(
-            now = 100_000L,
+            now = afterNow,
             network = HotfoxNetworkKind.UNKNOWN_WIFI,
             source = HotfoxAutopilotSource.NETWORK,
         )
@@ -177,7 +178,11 @@ class HotfoxAutopilotTest {
         val manual = decide(network = HotfoxNetworkKind.UNKNOWN_WIFI, autoMode = false)
         assertTrue(manual.preserveManualSelection)
         assertEquals(HotfoxConnectionIntent.CONNECT, manual.intent)
-        val auto = decide(network = HotfoxNetworkKind.UNKNOWN_WIFI, autoMode = true)
+        val auto = decide(
+            now = 1_000L + ConnectionIntentEngine.MIN_CONNECT_GAP_MS + 1,
+            network = HotfoxNetworkKind.UNKNOWN_WIFI,
+            autoMode = true,
+        )
         assertFalse(auto.preserveManualSelection)
         assertEquals(HotfoxConnectionIntent.CONNECT, auto.intent)
     }
