@@ -377,7 +377,7 @@ class HotfoxRoutingTest {
             lanAccess = true,
             rules = listOf(RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.BLOCK)),
         )
-        val lanTun = HotfoxRoutingDataPlane.tunEnforcement(lanOn, ipv6ProxyEnabled = false, self)
+        val lanTun = HotfoxRoutingDataPlane.tunEnforcement(lanOn, ipv6ProxyEnabled = false, selfPackage = self)
         assertFalse(lanTun.captureIpv4Default)
         assertTrue(lanTun.captureIpv6Default)
         assertFalse(lanTun.perApp.enabled)
@@ -388,7 +388,7 @@ class HotfoxRoutingTest {
             lanAccess = true,
             rules = listOf(RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.DIRECT)),
         )
-        val globalTun = HotfoxRoutingDataPlane.tunEnforcement(globalLan, ipv6ProxyEnabled = true, self)
+        val globalTun = HotfoxRoutingDataPlane.tunEnforcement(globalLan, ipv6ProxyEnabled = true, selfPackage = self)
         assertTrue(globalTun.captureIpv4Default)
         assertTrue(globalTun.captureIpv6Default)
 
@@ -399,7 +399,7 @@ class HotfoxRoutingTest {
                 RoutingRule("app", RoutingRuleKind.APP, "org.mozilla.firefox", RouteAction.DIRECT),
             ),
         )
-        val splitTun = HotfoxRoutingDataPlane.tunEnforcement(split, ipv6ProxyEnabled = false, self)
+        val splitTun = HotfoxRoutingDataPlane.tunEnforcement(split, ipv6ProxyEnabled = false, selfPackage = self)
         assertTrue(splitTun.perApp.enabled)
         assertTrue(splitTun.perApp.bypassSelected)
         assertEquals(setOf("com.bank.app"), splitTun.perApp.packages)
