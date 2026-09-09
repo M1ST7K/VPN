@@ -185,13 +185,37 @@ GitHub CI for exact SHA `5be5f346243f3f5acaeb232ecf81190c4611db10`:
 - Reconstruct and build Android app: PASS;
 - remaining bootstrap/Android jobs: PASS (run `34332785857`).
 
-Round-14 trusted checkpoint is requested on the commit that contains `[hotfox-review]`. Do not mark 2.3 engineering-complete until that checkpoint returns **APPROVED**.
+Round-14 trusted checkpoint on `cd29573` returned **CHANGES_REQUIRED** (one P0, three P1). Implementation fix SHA: `2fd6dbe913d5894f695a12ef7646e0b51be0c570`.
+
+Round-14 P0/P1s addressed in `2fd6dbe`:
+
+1. Sandbox commerce is debug/test-only. Release Gradle fails if `HOTFOX_SANDBOX_COMMERCE=true`. Release cannot instantiate `SandboxCommerceBackend`.
+2. Authenticated manifests apply through `ManagedManifestApplicator` + `ManagedServerStore` (MMKV/`ProfileItem` in production). AUTO is restored after the swap. URL manifests fetch from a Keystore token and do not write the URL to MMKV. AUTO connect uses persisted GUIDs.
+3. `completeFulfillment` issues an entitlement only after a successful transition to `FULFILLED`. Unpaid/cancelled orders cannot create or claim an entitlement.
+4. A second PAID webhook with a different provider payment ID is `payment_id_conflict`. `paymentOwners` is mutated only after paid-state checks.
+
+Local engineering evidence for `2fd6dbe`:
+
+- debug APK build: PASS;
+- unit tests: PASS (155);
+- Android lint: PASS;
+- unsigned release compile: PASS;
+- HotFox static/overlay verifiers: PASS;
+- overlay secret scan: PASS.
+
+GitHub CI for exact SHA `2fd6dbe913d5894f695a12ef7646e0b51be0c570`:
+
+- Payload integrity: PASS;
+- Reconstruct and build Android app: PASS;
+- remaining bootstrap/Android jobs: PASS (run `34337272139`).
+
+Round-15 trusted checkpoint is requested on the commit that contains `[hotfox-review]`. Do not mark 2.3 engineering-complete until that checkpoint returns **APPROVED**.
 
 See `docs/phases/2.3-sandbox-payment-e2e.md` for proven vs manual.
 
 ### Engineering gate status
 
-**IN PROGRESS** — sandbox/test payment E2E is implemented and GitHub reconstruct is green. Phase 2.3 is **not** engineering-complete until this block’s `[hotfox-review]` checkpoint is **APPROVED**. A green CI fixture is not a live provider sandbox and is not physical-device VPN E2E.
+**IN PROGRESS** — sandbox/test payment E2E plus round-14 P0/P1 fixes are implemented and GitHub reconstruct is green. Phase 2.3 is **not** engineering-complete until this block’s `[hotfox-review]` checkpoint is **APPROVED**. A green CI fixture is not a live provider sandbox and is not physical-device VPN E2E.
 
 Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXECUTED**.
 
