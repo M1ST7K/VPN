@@ -105,6 +105,30 @@ object VpnReadiness {
         }
     }
 
+    /**
+     * HTTP proxy inbound on [port] (product default 10809). Independent of SOCKS 10808.
+     * HTTP FAIL with SOCKS PASS does not mean the Xray outbound is broken.
+     */
+    fun probeHttpProxy(port: Int): Boolean {
+        return try {
+            Socket().use { socket ->
+                socket.soTimeout = 400
+                socket.connect(InetSocketAddress(AppConfig.LOOPBACK, port), 250)
+                val out = socket.getOutputStream()
+                val input = socket.getInputStream()
+                out.write("HEAD http://example.com/ HTTP/1.0\r\nHost: example.com\r\n\r\n".toByteArray())
+                out.flush()
+                val buf = ByteArray(24)
+                val n = input.read(buf)
+                if (n < 8) return false
+                val head = buf.decodeToString(0, n).trimStart()
+                head.startsWith("HTTP/")
+            }
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     fun hevStatsAlive(stats: LongArray?): Boolean {
         if (stats == null || stats.size != 4) return false
         return stats.all { it >= 0L }

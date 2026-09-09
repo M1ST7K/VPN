@@ -163,6 +163,11 @@ if [[ -d "$ROOT/bootstrap/hotfox_2_2_0" ]]; then
       "$ROOT/V2rayNG/app/src/main/AndroidManifest.xml" \
       || fail "HotFox AndroidManifest patch failed"
   fi
+  if [[ -f "$ROOT/bootstrap/apply_hotfox_utils_isxray.py" ]]; then
+    python3 "$ROOT/bootstrap/apply_hotfox_utils_isxray.py" \
+      "$ROOT/V2rayNG/app/src/main/java/com/v2ray/ang/util/Utils.kt" \
+      || fail "HotFox Utils.isXray patch failed"
+  fi
 fi
 
 cat <<'MSG'

@@ -258,7 +258,10 @@ class CoreVpnService : VpnService(), ServiceControl {
     }
 
     override fun vpnProtect(socket: Int): Boolean {
-        return protect(socket)
+        val ok = protect(socket)
+        com.v2ray.ang.vpn.VpnProtectEvidence.record(ok)
+        LogUtil.i(AppConfig.TAG, "StartCore-VPN: vpnProtect socket=$socket result=$ok")
+        return ok
     }
 
     override fun setUnderlyingNetworks(networks: Array<Network>?): Boolean {

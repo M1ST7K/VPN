@@ -525,9 +525,26 @@ def main() -> int:
         "fun expiryEpochMs",
         "2.8 pause expiry is alarm-driven",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayCapability.kt",
+        "object HotfoxXrayCapability",
+        "2.9 Xray capability is package-independent",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+        "fun probeHttpProxy",
+        "2.9 HTTP inbound probed separately from SOCKS",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/VpnProtectEvidence.kt",
+        "object VpnProtectEvidence",
+        "2.9 protect runtime evidence",
+    )
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")
+    if "apply_hotfox_utils_isxray.py" not in bootstrap:
+        fail("bootstrap must patch Utils.isXray for HotFox package")
     gradle = read("app/build.gradle.kts")
     if "HOTFOX_REQUIRE_RELEASE_SIGNING" not in gradle:
         fail("honest release-signing failure gate missing")

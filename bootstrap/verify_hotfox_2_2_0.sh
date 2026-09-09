@@ -175,6 +175,14 @@ grep -q 'class HotfoxAutopilotPauseReceiver' "$PROJECT/app/src/main/java/com/v2r
   || fail "Autopilot timed-pause receiver missing"
 grep -q 'fun expiryEpochMs' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt" \
   || fail "Autopilot pause alarm expiry helper missing"
+grep -q 'object HotfoxXrayCapability' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayCapability.kt" \
+  || fail "2.9 Xray capability helper missing"
+grep -q 'apply_hotfox_utils_isxray.py' "$ROOT/bootstrap/bootstrap_source.sh" \
+  || fail "Utils.isXray bootstrap patch is not applied"
+grep -q 'fun probeHttpProxy' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt" \
+  || fail "HTTP inbound probe must be independent of SOCKS"
+grep -q 'object VpnProtectEvidence' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnProtectEvidence.kt" \
+  || fail "2.9 protect runtime evidence missing"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then
