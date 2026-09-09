@@ -58,15 +58,23 @@ class HotfoxAutopilotTest {
         val timed = HotfoxAutopilotStore.pause()
         assertEquals(1_000L + 5 * 60_000L, HotfoxAutopilotAlarms.expiryEpochMs(timed, 2_000L))
         assertNull(HotfoxAutopilotAlarms.expiryEpochMs(timed, 1_000L + 5 * 60_000L))
-        val expired = decide(now = 1_000L + 5 * 60_000L + 1, network = HotfoxNetworkKind.UNKNOWN_WIFI)
+        val expired = decide(
+            now = 1_000L + 5 * 60_000L + 1,
+            network = HotfoxNetworkKind.UNKNOWN_WIFI,
+            source = HotfoxAutopilotSource.PAUSE,
+        )
         assertEquals(HotfoxConnectionIntent.CONNECT, expired.intent)
         HotfoxAutopilotStore.startPause(HotfoxPauseKind.UNTIL_NETWORK_CHANGE, nowEpochMs = 10L)
         val until = decide(now = 99_000L, network = HotfoxNetworkKind.UNKNOWN_WIFI)
         assertEquals(HotfoxConnectionIntent.PAUSED, until.intent)
         assertNull(HotfoxAutopilotAlarms.expiryEpochMs(HotfoxAutopilotStore.pause(), 99_000L))
         HotfoxAutopilotStore.noteNetworkChange()
-        val after = decide(now = 100_000L, network = HotfoxNetworkKind.UNKNOWN_WIFI)
-        assertEquals(HotfoxConnectionIntent.CONNECT, after.intent)
+        val after = decide(
+            now = 100_000L,
+            network = HotfoxNetworkKind.UNKNOWN_WIFI,
+            source = HotfoxAutopilotSource.NETWORK,
+        )
+        assertEquals(HotfoxConnectionIntent.RECONNECT, after.intent)
     }
 
     @Test
@@ -288,7 +296,9 @@ class HotfoxAutopilotTest {
         hasUsableTarget: Boolean = true,
         autoMode: Boolean = true,
         now: Long = 1_000L,
-        source: HotfoxAutopilotSource = HotfoxAutopilotSource.NETWORK,
+        // PROCESS_START is the first apply after policy/state change.
+        // NETWORK is reconnect-after-restore (Runtime always uses it after noteNetworkChange).
+        source: HotfoxAutopilotSource = HotfoxAutopilotSource.PROCESS_START,
     ): HotfoxIntentDecision {
         val snap = HotfoxAutopilotStore.snapshot(
             network = network,
