@@ -68,8 +68,28 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends xz-utils rsync binutils
+          # GitHub-hosted runners ship Google Chrome's apt source. A Hash Sum
+          # mismatch on that unrelated repo fails `apt-get update` and aborts
+          # the Android reconstruct job. Chrome is not a build dependency.
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list \
+                     /etc/apt/sources.list.d/google-chrome.list.save \
+                     /etc/apt/sources.list.d/google-chrome.sources
+          if [ -f /etc/apt/sources.list ]; then
+            sudo sed -i '/dl\.google\.com\/linux\/chrome/d' /etc/apt/sources.list
+          fi
+          apt_ok=0
+          for attempt in 1 2 3; do
+            if sudo apt-get update && sudo apt-get install -y --no-install-recommends xz-utils rsync binutils; then
+              apt_ok=1
+              break
+            fi
+            echo "apt-get attempt ${attempt} failed; retrying..." >&2
+            sleep $((attempt * 4))
+          done
+          if [ "${apt_ok}" -ne 1 ]; then
+            echo "apt-get failed after 3 attempts" >&2
+            exit 1
+          fi
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
           # Android 17 / API 37 is published as a minor-versioned platform package.
           # Plain platforms;android-37 does not exist during this release cycle.
