@@ -66,9 +66,17 @@ class HttpHotfoxCommerceBackend(
 
     override suspend fun getEntitlement(credential: String?): CommerceResult<CommerceEntitlement?> {
         if (credential.isNullOrBlank()) return CommerceResult.Ok(null)
-        return get("/v1/entitlement", credential) { body ->
-            if (body.isBlank() || body == "null") null else parseEntitlement(body)
+        return when (val result = get("/v1/entitlement", credential) { parseEntitlement(it) }) {
+            is CommerceResult.Ok -> CommerceResult.Ok(result.value)
+            is CommerceResult.Err -> result
         }
+    }
+
+    override suspend fun claimEntitlement(orderId: String, installId: String): CommerceResult<CommerceEntitlement> {
+        val payload = JSONObject()
+            .put("orderId", orderId)
+            .put("installId", installId)
+        return post("/v1/entitlement/claim", payload.toString()) { parseEntitlement(it) }
     }
 
     override suspend fun restore(request: RestoreRequest): CommerceResult<CommerceEntitlement> {
@@ -121,17 +129,22 @@ class HttpHotfoxCommerceBackend(
 
     private fun parseEntitlement(body: String): CommerceEntitlement {
         val root = JSONObject(body)
-        return CommerceEntitlement(
-            entitlementId = root.getString("entitlementId"),
-            customerId = root.optString("customerId"),
-            source = EntitlementSource.valueOf(root.optString("source", EntitlementSource.HOTFOX.name)),
-            planId = root.optString("planId"),
-            status = EntitlementStatus.valueOf(root.optString("status", EntitlementStatus.ACTIVE.name)),
-            startsAtEpochSeconds = root.optLong("startsAtEpochSeconds"),
-            expiresAtEpochSeconds = root.optLong("expiresAtEpochSeconds"),
+        val parsed = EntitlementParser.fromFields(
+            entitlementId = root.optString("entitlementId").takeIf { it.isNotBlank() },
+            customerId = root.optString("customerId").takeIf { it.isNotBlank() },
+            source = root.optString("source").takeIf { it.isNotBlank() },
+            planId = root.optString("planId").takeIf { it.isNotBlank() },
+            status = root.optString("status").takeIf { it.isNotBlank() },
+            startsAtEpochSeconds = root.optLong("startsAtEpochSeconds").takeIf { root.has("startsAtEpochSeconds") },
+            expiresAtEpochSeconds = root.optLong("expiresAtEpochSeconds").takeIf { root.has("expiresAtEpochSeconds") },
             orderId = root.optString("orderId").takeIf { it.isNotBlank() },
             credentialVersion = root.optInt("credentialVersion", 1),
+            graceUntilEpochSeconds = root.optLong("graceUntilEpochSeconds").takeIf { root.has("graceUntilEpochSeconds") },
         )
+        return when (parsed) {
+            is CommerceResult.Ok -> parsed.value
+            is CommerceResult.Err -> throw IllegalArgumentException(parsed.message)
+        }
     }
 
     private fun <T> get(
@@ -182,6 +195,9 @@ class HttpHotfoxCommerceBackend(
                     else -> CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE)
                 }
             }
+        } catch (error: IllegalArgumentException) {
+            LogUtil.e("HotFoxCommerce", SecretRedactor.redact(error.message.orEmpty()))
+            CommerceResult.Err(CommerceError.INVALID)
         } catch (error: Exception) {
             LogUtil.e("HotFoxCommerce", SecretRedactor.redact(error.message.orEmpty()))
             CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE)

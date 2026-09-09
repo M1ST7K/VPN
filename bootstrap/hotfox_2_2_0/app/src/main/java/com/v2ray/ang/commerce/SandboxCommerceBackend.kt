@@ -143,9 +143,22 @@ class SandboxCommerceBackend(
 
     override suspend fun getEntitlement(credential: String?): CommerceResult<CommerceEntitlement?> {
         if (credential.isNullOrBlank()) return CommerceResult.Ok(null)
-        val match = entitlements.values.firstOrNull { it.entitlementId == credential }
-            ?: entitlements.values.maxByOrNull { it.startsAtEpochSeconds }
+        val match = entitlements[credential]
+            ?: entitlements.values.firstOrNull { it.entitlementId == credential }
         return CommerceResult.Ok(match)
+    }
+
+    override suspend fun claimEntitlement(orderId: String, installId: String): CommerceResult<CommerceEntitlement> {
+        if (orderId.isBlank() || installId.isBlank()) {
+            return CommerceResult.Err(CommerceError.INVALID)
+        }
+        val order = ordersById[orderId] ?: return CommerceResult.Err(CommerceError.NOT_FOUND)
+        if (!OrderStateMachine.isPaidTruth(order.state)) {
+            return CommerceResult.Err(CommerceError.REJECTED, "order_not_paid")
+        }
+        val entitlement = entitlements.values.firstOrNull { it.orderId == orderId }
+            ?: return CommerceResult.Err(CommerceError.NOT_FOUND, "entitlement_not_ready")
+        return CommerceResult.Ok(entitlement)
     }
 
     override suspend fun restore(request: RestoreRequest): CommerceResult<CommerceEntitlement> {

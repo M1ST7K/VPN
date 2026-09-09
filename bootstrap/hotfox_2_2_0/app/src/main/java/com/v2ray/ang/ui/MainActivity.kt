@@ -88,6 +88,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     private var selectedPlanId: String? = null
     private var visiblePlans: List<CommercePlan> = emptyList()
     private var lastPromoCode: String? = null
+    private var checkoutInFlight = false
 
     private enum class UiSection {
         CONNECTION,
@@ -173,6 +174,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         refreshDashboard()
         refreshSmartRouting()
         runEntranceAnimations()
+        refreshCommercialState()
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }
@@ -229,7 +231,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             UiSection.SUBSCRIPTION -> "Доступ\nбез ограничений"
         }
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
-        if (section == UiSection.SUBSCRIPTION) refreshCommercialCatalog()
+        if (section == UiSection.SUBSCRIPTION) {
+            refreshCommercialCatalog()
+            refreshCommercialState()
+        }
     }
 
     private fun showCountryFilterDialog() {
@@ -285,6 +290,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.layoutSubscriptionDetails.isVisible = !onboarding
         binding.tvPremiumState.text = CommerceAccessResolver.labelKey(state)
         binding.actionPremiumBuy.isEnabled = visiblePlans.isNotEmpty() &&
+            !checkoutInFlight &&
             state != CommercialPresentationState.BACKEND_UNAVAILABLE
         binding.actionPremiumBuy.alpha = if (binding.actionPremiumBuy.isEnabled) 1f else 0.45f
         renderPlanCatalog(visiblePlans)
@@ -327,9 +333,22 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             }
     }
 
+    private fun refreshCommercialState() {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                CommerceCoordinator.get(this@MainActivity).refreshPresentation()
+            }
+            refreshDashboard()
+        }
+    }
+
     private fun refreshCommercialCatalog() {
         lifecycleScope.launch {
-            val plans = withContext(Dispatchers.IO) { CommerceCoordinator.get(this@MainActivity).loadPlans() }
+            val plans = withContext(Dispatchers.IO) {
+                val coordinator = CommerceCoordinator.get(this@MainActivity)
+                coordinator.refreshPresentation()
+                coordinator.loadPlans()
+            }
             visiblePlans = plans
             if (selectedPlanId == null) {
                 selectedPlanId = plans.firstOrNull { it.isRecommended }?.id ?: plans.firstOrNull()?.id
@@ -382,23 +401,34 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             toast(getString(R.string.hotfox_buy_unavailable))
             return
         }
+        if (checkoutInFlight || !binding.actionPremiumBuy.isEnabled) return
+        checkoutInFlight = true
+        binding.actionPremiumBuy.isEnabled = false
+        binding.actionPremiumBuy.alpha = 0.45f
         lifecycleScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                CommerceCoordinator.get(this@MainActivity).startCheckout(planId, lastPromoCode)
-            }
-            when (result) {
-                is CommerceResult.Ok -> {
-                    val url = result.value.checkoutUrl
-                    if (url.isNullOrBlank()) {
-                        toast(getString(R.string.hotfox_buy_unavailable))
-                    } else {
-                        toast(getString(R.string.hotfox_checkout_opened))
-                        Utils.openUri(this@MainActivity, url)
-                    }
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    val coordinator = CommerceCoordinator.get(this@MainActivity)
+                    val created = coordinator.startCheckout(planId, lastPromoCode)
+                    coordinator.refreshPresentation()
+                    created
                 }
-                is CommerceResult.Err -> toast(getString(R.string.hotfox_buy_unavailable))
+                when (result) {
+                    is CommerceResult.Ok -> {
+                        val url = result.value.checkoutUrl
+                        if (url.isNullOrBlank()) {
+                            toast(getString(R.string.hotfox_buy_unavailable))
+                        } else {
+                            toast(getString(R.string.hotfox_checkout_opened))
+                            Utils.openUri(this@MainActivity, url)
+                        }
+                    }
+                    is CommerceResult.Err -> toast(getString(R.string.hotfox_buy_unavailable))
+                }
+            } finally {
+                checkoutInFlight = false
+                refreshDashboard()
             }
-            refreshDashboard()
         }
     }
 
@@ -406,7 +436,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val uri = intent?.data
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                CommerceCoordinator.get(this@MainActivity).handleCheckoutReturn(uri?.toString())
+                val coordinator = CommerceCoordinator.get(this@MainActivity)
+                coordinator.handleCheckoutReturn(uri?.toString())
+                coordinator.refreshPresentation()
             }
             refreshDashboard()
         }
@@ -425,7 +457,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 val value = field.text.toString().trim()
                 lifecycleScope.launch {
                     val result = withContext(Dispatchers.IO) {
-                        CommerceCoordinator.get(this@MainActivity).restoreAccess(value, value)
+                        val coordinator = CommerceCoordinator.get(this@MainActivity)
+                        val restored = coordinator.restoreAccess(value, value)
+                        coordinator.refreshPresentation()
+                        restored
                     }
                     if (result is CommerceResult.Ok) {
                         CommercePreferences.setAccessOrigin(CommercePreferences.ORIGIN_HOTFOX)
@@ -1032,7 +1067,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         } else {
             MmkvManager.decodeAllServerList().size
         }
-        val commercialState = CommerceCoordinator.get(this).presentation()
+        val commercialState = CommerceCoordinator.get(this).presentationSnapshot()
         applyCommercialOnboarding(commercialState)
 
         if (subscription == null && CommerceAccessResolver.showPremiumOnboarding(commercialState)) {

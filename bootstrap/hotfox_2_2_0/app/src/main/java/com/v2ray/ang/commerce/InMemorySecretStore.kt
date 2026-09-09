@@ -12,9 +12,11 @@ class InMemorySecretStore : SecretStore {
 
     private val slots = ConcurrentHashMap<String, Slot>()
     @Volatile var globallyInvalidated: Boolean = false
+    @Volatile var failPuts: Boolean = false
 
     override fun put(key: String, plaintext: ByteArray): SecretPutResult {
         if (globallyInvalidated) return SecretPutResult.KeystoreInvalidated
+        if (failPuts) return SecretPutResult.Failed
         slots[key] = Slot(SlotKind.VALUE, plaintext.copyOf())
         return SecretPutResult.Ok
     }

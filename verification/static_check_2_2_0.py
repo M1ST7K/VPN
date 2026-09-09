@@ -268,9 +268,9 @@ def main() -> int:
         "HotFox Premium no-access onboarding",
     )
     must_contain(
-        "app/src/main/java/com/v2ray/ang/handler/AngConfigManager.kt",
-        "HotfoxManifestRefresh.restoreAfterSuccess",
-        "AUTO/favorites restored after validated manifest swap",
+        "app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceBackend.kt",
+        "fun claimEntitlement",
+        "paid order entitlement claim",
     )
 
     secret_re = re.compile(r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}")

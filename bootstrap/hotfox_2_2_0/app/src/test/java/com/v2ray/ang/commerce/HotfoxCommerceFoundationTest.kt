@@ -1,5 +1,6 @@
 package com.v2ray.ang.commerce
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -180,6 +181,10 @@ class HotfoxCommerceFoundationTest {
             CommerceAccessResolver.resolve(unusedFacts().copy(lastOrderState = OrderState.PAID)),
         )
         assertEquals(
+            CommercialPresentationState.ENTITLEMENT_PROVISIONING,
+            CommerceAccessResolver.resolve(unusedFacts().copy(lastOrderState = OrderState.FULFILLED)),
+        )
+        assertEquals(
             CommercialPresentationState.ENTITLEMENT_ACTIVE_SYNC_FAILED,
             CommerceAccessResolver.resolve(
                 unusedFacts().copy(
@@ -200,6 +205,246 @@ class HotfoxCommerceFoundationTest {
                 ),
             ),
         )
+    }
+
+    @Test
+    fun verifiedPaidOrderFulfillsIntoPersistedEntitlement() = runBlocking {
+        val backend = SandboxCommerceBackend()
+        val secrets = InMemorySecretStore()
+        val intents = InMemoryCheckoutIntentStore()
+        val metadata = InMemoryEntitlementMetadataStore()
+        val coordinator = testCoordinator(backend, secrets, intents, metadata)
+        val order = (coordinator.startCheckout("plan_1m") as CommerceResult.Ok).value
+        backend.markPaidFromVerifiedWebhook(order.id, "pay_verified")
+        val fakeReturn = "https://hotfox.example/return?success=true&orderId=${order.id}"
+        assertFalse(CheckoutReturnParser.isPaidProof(fakeReturn))
+        val handled = coordinator.handleCheckoutReturn(fakeReturn)
+        assertTrue(handled is CommerceResult.Ok)
+        assertTrue(secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL) is SecretGetResult.Value)
+        assertEquals(EntitlementStatus.ACTIVE, metadata.read()?.status)
+        assertEquals(
+            CommercialPresentationState.HOTFOX_ACTIVE,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+
+        val secrets2 = InMemorySecretStore()
+        val metadata2 = InMemoryEntitlementMetadataStore()
+        val intents2 = InMemoryCheckoutIntentStore().apply {
+            save(
+                CheckoutIntent(
+                    planId = order.planId,
+                    idempotencyKey = order.idempotencyKey,
+                    state = OrderState.CREATED,
+                    orderId = order.id,
+                ),
+            )
+        }
+        val second = testCoordinator(backend, secrets2, intents2, metadata2)
+        val refreshed = second.refreshEntitlement()
+        assertTrue(refreshed is CommerceResult.Ok)
+        assertTrue(secrets2.get(SecretKeys.ENTITLEMENT_CREDENTIAL) is SecretGetResult.Value)
+        assertEquals(EntitlementStatus.ACTIVE, metadata2.read()?.status)
+        assertEquals(
+            CommercialPresentationState.HOTFOX_ACTIVE,
+            CommerceAccessResolver.resolve(second.collectFacts()),
+        )
+    }
+
+    @Test
+    fun keystoreWriteFailureDoesNotClearOrderOrClaimSuccess() = runBlocking {
+        val backend = SandboxCommerceBackend()
+        val secrets = InMemorySecretStore().apply { failPuts = true }
+        val intents = InMemoryCheckoutIntentStore()
+        val metadata = InMemoryEntitlementMetadataStore()
+        val coordinator = testCoordinator(backend, secrets, intents, metadata)
+        val order = (coordinator.startCheckout("plan_1m") as CommerceResult.Ok).value
+        val originalKey = intents.load()?.idempotencyKey
+        backend.markPaidFromVerifiedWebhook(order.id, "pay_persist")
+        val result = coordinator.fulfillPaidOrder((backend.getOrder(order.id) as CommerceResult.Ok).value)
+        assertTrue(result is CommerceResult.Err)
+        assertEquals("keystore_write_failed", (result as CommerceResult.Err).message)
+        assertTrue(secrets.get(SecretKeys.ENTITLEMENT_CREDENTIAL) is SecretGetResult.Missing)
+        assertNull(metadata.read())
+        assertEquals(order.id, intents.load()?.orderId)
+        assertEquals(originalKey, intents.load()?.idempotencyKey)
+        assertEquals(OrderState.ENTITLEMENT_PROVISIONING, intents.load()?.state)
+        assertEquals(
+            CommercialPresentationState.ENTITLEMENT_PROVISIONING,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+        val retry = coordinator.startCheckout("plan_1m") as CommerceResult.Ok
+        assertEquals(originalKey, retry.value.idempotencyKey)
+        assertEquals(1, backend.createdOrderCount())
+    }
+
+    @Test
+    fun expiredRevokedAndMalformedEntitlementResponsesAreRejected() {
+        assertTrue(
+            EntitlementParser.fromFields(
+                entitlementId = "ent_1",
+                customerId = "cust",
+                source = "HOTFOX",
+                planId = "plan_1m",
+                status = null,
+                startsAtEpochSeconds = 100,
+                expiresAtEpochSeconds = 200,
+                orderId = "ord",
+            ) is CommerceResult.Err,
+        )
+        assertTrue(
+            EntitlementParser.fromFields(
+                entitlementId = "ent_2",
+                customerId = "cust",
+                source = "HOTFOX",
+                planId = "plan_1m",
+                status = "ACTIVE",
+                startsAtEpochSeconds = 100,
+                expiresAtEpochSeconds = null,
+                orderId = "ord",
+            ) is CommerceResult.Err,
+        )
+        assertTrue(
+            EntitlementParser.fromFields(
+                entitlementId = "ent_3",
+                customerId = "cust",
+                source = "HOTFOX",
+                planId = "plan_1m",
+                status = "NOT_A_STATUS",
+                startsAtEpochSeconds = 100,
+                expiresAtEpochSeconds = 200,
+                orderId = "ord",
+            ) is CommerceResult.Err,
+        )
+        val expired = (EntitlementParser.fromFields(
+            entitlementId = "ent_exp",
+            customerId = "cust",
+            source = "HOTFOX",
+            planId = "plan_1m",
+            status = "EXPIRED",
+            startsAtEpochSeconds = 1,
+            expiresAtEpochSeconds = 2,
+            orderId = "ord",
+        ) as CommerceResult.Ok).value
+        val coordinator = testCoordinator(
+            secrets = InMemorySecretStore(),
+            metadata = InMemoryEntitlementMetadataStore(),
+        )
+        assertTrue(coordinator.persistEntitlement(expired) is CommerceResult.Ok)
+        assertFalse(EntitlementStateMachine.isUsable(expired.status))
+        assertEquals(
+            CommercialPresentationState.EXPIRED,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+        val revoked = expired.copy(entitlementId = "ent_rev", status = EntitlementStatus.REVOKED)
+        coordinator.persistEntitlement(revoked)
+        assertEquals(
+            CommercialPresentationState.EXPIRED,
+            CommerceAccessResolver.resolve(coordinator.collectFacts()),
+        )
+        assertFalse(EntitlementStateMachine.isUsable(EntitlementStatus.REVOKED))
+        assertFalse(EntitlementStateMachine.isUsable(EntitlementStatus.EXPIRED))
+        assertTrue(EntitlementStateMachine.isUsable(EntitlementStatus.ACTIVE))
+        assertTrue(EntitlementStateMachine.isUsable(EntitlementStatus.GRACE))
+    }
+
+    @Test
+    fun checkoutConcurrencyAndLostResponseReuseTheSameIdempotencyKey() = runBlocking {
+        val backend = SandboxCommerceBackend()
+        val dropping = DropFirstSuccessfulCreate(backend)
+        val intents = InMemoryCheckoutIntentStore()
+        val coordinator = testCoordinator(backend = dropping, intents = intents)
+        val first = coordinator.startCheckout("plan_3m")
+        assertTrue(first is CommerceResult.Err)
+        val persistedKey = intents.load()?.idempotencyKey
+        org.junit.Assert.assertNotNull(persistedKey)
+        val retry = coordinator.startCheckout("plan_3m") as CommerceResult.Ok
+        assertEquals(persistedKey, retry.value.idempotencyKey)
+        assertEquals(1, backend.createdOrderCount())
+
+        val concurrentBackend = SandboxCommerceBackend()
+        val concurrent = testCoordinator(backend = concurrentBackend)
+        val one = async { concurrent.startCheckout("plan_1m") }
+        val two = async { concurrent.startCheckout("plan_1m") }
+        val results = listOf(one.await(), two.await())
+        assertTrue(results.all { it is CommerceResult.Ok })
+        val ids = results.map { (it as CommerceResult.Ok).value.id }.toSet()
+        assertEquals(1, ids.size)
+        assertEquals(1, concurrentBackend.createdOrderCount())
+    }
+
+    @Test
+    fun refreshIdentityDistinguishesSameHostPortDifferentTransportOrCredential() {
+        val grpc = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.VLESS).apply {
+            remarks = "Amsterdam"
+            server = "vpn.example"
+            serverPort = "443"
+            network = "grpc"
+            security = "reality"
+            password = "credential-a"
+        }
+        val xhttp = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.VLESS).apply {
+            remarks = "Amsterdam"
+            server = "vpn.example"
+            serverPort = "443"
+            network = "xhttp"
+            security = "reality"
+            password = "credential-b"
+        }
+        val grpcOtherCredential = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.VLESS).apply {
+            remarks = "Amsterdam"
+            server = "vpn.example"
+            serverPort = "443"
+            network = "grpc"
+            security = "reality"
+            password = "credential-b"
+        }
+        val left = HotfoxManifestRefresh.identityOf(grpc)
+        val right = HotfoxManifestRefresh.identityOf(xhttp)
+        val sameTransportDifferentSecret = HotfoxManifestRefresh.identityOf(grpcOtherCredential)
+        assertNotEquals(left, right)
+        assertNotEquals(left, sameTransportDifferentSecret)
+        assertEquals(left.server, right.server)
+        assertEquals(left.port, right.port)
+        val snapshot = ManifestRefreshPolicy.InventorySnapshot(
+            servers = listOf(left),
+            favoriteIdentities = setOf(left),
+            autoMode = false,
+            selectedIdentity = left,
+        )
+        val restored = ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, listOf(left, right))
+        assertEquals(left, restored.selectedIdentity)
+        assertEquals(setOf(left), restored.favoriteIdentities)
+        assertEquals(right, ManifestRefreshPolicy.restoreAfterSuccessfulSwap(snapshot, listOf(right)).selectedIdentity)
+    }
+
+    private fun testCoordinator(
+        backend: HotfoxCommerceBackend = SandboxCommerceBackend(),
+        secrets: SecretStore = InMemorySecretStore(),
+        intents: CheckoutIntentStore = InMemoryCheckoutIntentStore(),
+        metadata: EntitlementMetadataStore = InMemoryEntitlementMetadataStore(),
+    ) = CommerceCoordinator(
+        backend = backend,
+        secrets = secrets,
+        intents = intents,
+        metadata = metadata,
+        installId = { "install-test" },
+        nowEpochSeconds = { 1_700_000_000L },
+    )
+
+    private class DropFirstSuccessfulCreate(
+        private val inner: SandboxCommerceBackend,
+    ) : HotfoxCommerceBackend by inner {
+        @Volatile
+        var dropped = false
+
+        override suspend fun createOrder(request: CreateOrderRequest): CommerceResult<CommerceOrder> {
+            val result = inner.createOrder(request)
+            if (!dropped && result is CommerceResult.Ok) {
+                dropped = true
+                return CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE)
+            }
+            return result
+        }
     }
 
     private fun unusedFacts() = CommerceFacts(

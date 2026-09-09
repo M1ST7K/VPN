@@ -14,6 +14,7 @@ interface HotfoxCommerceBackend {
     suspend fun createOrder(request: CreateOrderRequest): CommerceResult<CommerceOrder>
     suspend fun getOrder(orderId: String): CommerceResult<CommerceOrder>
     suspend fun getEntitlement(credential: String?): CommerceResult<CommerceEntitlement?>
+    suspend fun claimEntitlement(orderId: String, installId: String): CommerceResult<CommerceEntitlement>
     suspend fun restore(request: RestoreRequest): CommerceResult<CommerceEntitlement>
     suspend fun fetchManifest(credential: String): CommerceResult<CommerceManifest>
     suspend fun validatePromo(code: String, planId: String): CommerceResult<PromoQuote>

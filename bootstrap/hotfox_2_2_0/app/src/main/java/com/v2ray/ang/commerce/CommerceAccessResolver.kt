@@ -22,6 +22,7 @@ object CommerceAccessResolver {
             OrderState.CANCELLED -> return CommercialPresentationState.PAYMENT_CANCELLED
             OrderState.PAID,
             OrderState.ENTITLEMENT_PROVISIONING,
+            OrderState.FULFILLED,
             -> if (!facts.hasHotfoxEntitlement) {
                 return CommercialPresentationState.ENTITLEMENT_PROVISIONING
             }
@@ -71,7 +72,8 @@ object CommerceAccessResolver {
             state == CommercialPresentationState.PAYMENT_PENDING ||
             state == CommercialPresentationState.PAYMENT_FAILED ||
             state == CommercialPresentationState.PAYMENT_CANCELLED ||
-            state == CommercialPresentationState.RESTORE_REQUIRED
+            state == CommercialPresentationState.RESTORE_REQUIRED ||
+            state == CommercialPresentationState.ENTITLEMENT_PROVISIONING
 
     fun labelKey(state: CommercialPresentationState): String = when (state) {
         CommercialPresentationState.NO_ACCESS -> "Нет доступа"

@@ -20,6 +20,9 @@ object UnavailableCommerceBackend : HotfoxCommerceBackend {
     override suspend fun getEntitlement(credential: String?): CommerceResult<CommerceEntitlement?> =
         CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE)
 
+    override suspend fun claimEntitlement(orderId: String, installId: String): CommerceResult<CommerceEntitlement> =
+        CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE)
+
     override suspend fun restore(request: RestoreRequest): CommerceResult<CommerceEntitlement> =
         CommerceResult.Err(CommerceError.BACKEND_UNAVAILABLE)
 

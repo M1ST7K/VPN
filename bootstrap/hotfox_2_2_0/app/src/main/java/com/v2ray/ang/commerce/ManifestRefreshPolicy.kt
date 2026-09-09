@@ -11,6 +11,10 @@ object ManifestRefreshPolicy {
         val remarks: String,
         val server: String,
         val port: String,
+        val protocol: String = "",
+        val network: String = "",
+        val security: String = "",
+        val fingerprint: String = "",
     )
 
     data class InventorySnapshot(
