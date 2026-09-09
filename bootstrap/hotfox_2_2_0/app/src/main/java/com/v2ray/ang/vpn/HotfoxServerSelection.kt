@@ -10,6 +10,12 @@ object HotfoxServerSelection {
     const val AUTO_GUID = "hotfox-auto-server"
     const val PREF_AUTO_SERVER = "pref_hotfox_auto_server"
 
+    val health = ServerHealthRepository()
+
+    @Volatile
+    var lastAutoReason: String = ""
+        private set
+
     fun isAutoMode(): Boolean = MmkvManager.decodeSettingsBool(PREF_AUTO_SERVER, true)
 
     fun setAutoMode(enabled: Boolean) {
@@ -69,27 +75,41 @@ object HotfoxServerSelection {
     }
 
     fun resolveForConnect(): ResolveResult {
+        val servers = candidates()
+        val now = System.currentTimeMillis()
+        val snapshot = healthSnapshot(servers, now)
         return persistResolution(
             pick(
-                servers = candidates(),
+                servers = servers,
                 auto = isAutoMode(),
                 selectedGuid = MmkvManager.getSelectServer(),
-            )
+                healthByGuid = snapshot,
+                nowEpochMs = now,
+            ),
+            snapshot,
+            now,
         )
     }
 
     /**
-     * Network handover: keep the current AUTO target when it is still healthy
-     * (`delay > 0`). Only re-pick when the current target is missing, untested,
-     * or marked unreachable. Manual selection is never replaced by a faster peer.
+     * Network handover: keep the current AUTO target when it remains HEALTHY or
+     * DEGRADED unless another candidate is significantly better. Manual selection
+     * is never replaced by a faster peer.
      */
     fun resolveForHandover(): ResolveResult {
+        val servers = candidates()
+        val now = System.currentTimeMillis()
+        val snapshot = healthSnapshot(servers, now)
         return persistResolution(
             resolveForHandover(
-                servers = candidates(),
+                servers = servers,
                 auto = isAutoMode(),
                 selectedGuid = MmkvManager.getSelectServer(),
-            )
+                healthByGuid = snapshot,
+                nowEpochMs = now,
+            ),
+            snapshot,
+            now,
         )
     }
 
@@ -97,44 +117,84 @@ object HotfoxServerSelection {
         servers: List<Candidate>,
         auto: Boolean,
         selectedGuid: String?,
+        healthByGuid: Map<String, ServerHealth> = emptyMap(),
+        nowEpochMs: Long = 0L,
     ): ResolveResult {
-        if (auto) {
-            val current = servers.firstOrNull { it.guid == selectedGuid }
-            if (current != null && current.delay > 0L) {
-                return ResolveResult.Success(current.guid, resolvedFromAuto = true)
-            }
-        }
-        return pick(servers, auto, selectedGuid)
+        return AutoSelectionPolicy.handover(
+            servers = servers,
+            healthByGuid = healthByGuid,
+            auto = auto,
+            selectedGuid = selectedGuid,
+            nowEpochMs = nowEpochMs,
+        )
     }
 
     fun pick(
         servers: List<Candidate>,
         auto: Boolean,
         selectedGuid: String?,
+        healthByGuid: Map<String, ServerHealth> = emptyMap(),
+        nowEpochMs: Long = 0L,
     ): ResolveResult {
-        if (servers.isEmpty()) {
-            return ResolveResult.Failure("HF-VPN-010 Нет серверов")
-        }
-        if (!auto) {
-            val match = servers.firstOrNull { it.guid == selectedGuid }
-            if (match == null) {
-                val fallback = servers.first()
-                return ResolveResult.Success(fallback.guid, resolvedFromAuto = false)
+        return AutoSelectionPolicy.pick(
+            servers = servers,
+            healthByGuid = healthByGuid,
+            auto = auto,
+            selectedGuid = selectedGuid,
+            nowEpochMs = nowEpochMs,
+        )
+    }
+
+    fun resolveForFailover(attempt: Int): FailoverDecision {
+        val servers = candidates()
+        val now = System.currentTimeMillis()
+        return AutoSelectionPolicy.failover(
+            servers = servers,
+            healthByGuid = healthSnapshot(servers, now),
+            auto = isAutoMode(),
+            selectedGuid = MmkvManager.getSelectServer(),
+            attempt = attempt,
+            nowEpochMs = now,
+        )
+    }
+
+    fun beginProbeCycle(guids: Collection<String>): Long {
+        health.retain(guids.toSet())
+        val generation = health.bumpGeneration()
+        guids.forEach { health.markProbeInFlight(it, generation) }
+        return generation
+    }
+
+    fun ingestProbeResult(guid: String, delayMs: Long, generation: Long, nowEpochMs: Long = System.currentTimeMillis()) {
+        health.record(
+            ProbeSample(
+                guid = guid,
+                success = delayMs > 0L,
+                latencyMs = delayMs.takeIf { it > 0L },
+                observedAtEpochMs = nowEpochMs,
+                generation = generation,
+            )
+        )
+    }
+
+    fun cancelProbeCycle(guids: Collection<String>) {
+        guids.forEach { health.clearInFlight(it) }
+    }
+
+    fun healthSnapshot(
+        servers: List<Candidate>,
+        nowEpochMs: Long = 0L,
+        stored: Map<String, ServerHealth> = health.all(),
+    ): Map<String, ServerHealth> {
+        return servers.associate { candidate ->
+            val live = stored[candidate.guid]
+            val merged = if (live != null && (live.isMeasured() || live.probeInFlight)) {
+                live
+            } else {
+                ServerHealthMath.fromCachedDelay(candidate.guid, candidate.delay, nowEpochMs)
             }
-            if (match.delay < 0L) {
-                return ResolveResult.Failure("HF-VPN-011 Сервер недоступен")
-            }
-            return ResolveResult.Success(match.guid, resolvedFromAuto = false)
+            candidate.guid to merged
         }
-        val healthy = servers.filter { it.delay > 0L }.minByOrNull { it.delay }
-        if (healthy != null) {
-            return ResolveResult.Success(healthy.guid, resolvedFromAuto = true)
-        }
-        val untested = servers.filter { it.delay == 0L }
-        if (untested.isNotEmpty()) {
-            return ResolveResult.Success(untested.first().guid, resolvedFromAuto = true)
-        }
-        return ResolveResult.Failure("HF-VPN-011 Нет доступных серверов")
     }
 
     fun matchImportedKey(
@@ -152,7 +212,12 @@ object HotfoxServerSelection {
         persisted.selectedGuid?.let { MmkvManager.setSelectServer(it) }
     }
 
-    private fun persistResolution(result: ResolveResult): ResolveResult {
+    private fun persistResolution(
+        result: ResolveResult,
+        healthByGuid: Map<String, ServerHealth> = emptyMap(),
+        nowEpochMs: Long = 0L,
+    ): ResolveResult {
+        lastAutoReason = AutoSelectionPolicy.diagnosticReason(result, healthByGuid, nowEpochMs)
         if (result is ResolveResult.Success) {
             MmkvManager.setSelectServer(result.guid)
         }

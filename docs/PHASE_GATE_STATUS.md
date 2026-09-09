@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 is **NOT STARTED** until 2.2 physical-device E2E exists. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.4. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -252,4 +252,4 @@ Do not claim a production VPN release. 2.2 physical-device E2E remains **NOT EXE
 
 ## Phase 2.4 — Smart Connection
 
-**NOT STARTED / BLOCKED.** `docs/phases/2.4-smart-connection.md` requires 2.2 physical-device verification before engineering starts. Physical-device VPN E2E is still **NOT EXECUTED**.
+**IN PROGRESS.** 2.3 engineering gate is closed (round 16 `APPROVED`, P0 = 0, P1 = 0). Physical-device VPN E2E remains a separate later release gate and does **not** block 2.4 engineering.

@@ -1,25 +1,24 @@
-# CURRENT PHASE — HotFox 2.3 «Commercial Foundation»
+# CURRENT PHASE — HotFox 2.4 «Smart Connection»
 
-Status: **ENGINEERING COMPLETE** (trusted checkpoint **round 16** `APPROVED`, no substantiated P0/P1; implementation `e6c9e3c`, checkpoint head `afeb63a`)
+Status: **IN PROGRESS** (2.3 engineering gate closed: round 16 `APPROVED`, P0 = 0, P1 = 0, implementation `e6c9e3c`)
 
-Do **not** start phase 2.4. `docs/phases/2.4-smart-connection.md` requires 2.2 physical-device verification first. Physical-device VPN E2E remains **NOT EXECUTED**.
+This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
-Linked detailed phase spec: `docs/phases/2.3-commercial-foundation.md`
-Sandbox/test payment E2E: `docs/phases/2.3-sandbox-payment-e2e.md`
-Next roadmap phase (blocked): `docs/phases/2.4-smart-connection.md`
+Linked detailed phase spec: `docs/phases/2.4-smart-connection.md`
+Previous phase: `docs/phases/2.3-commercial-foundation.md`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
 Review policy: `docs/AI_REVIEW_POLICY.md`
 Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
-## Goal (closed for engineering)
+## Goal
 
-A new user can obtain HotFox-managed VPN access from the Subscription screen without pasting a private subscription URL, while external/manual subscription support remains.
+Turn `Авто-выбор сервера` from a lowest-cached-ping selector into a real connection reliability engine: health repository, bounded probes, deterministic scoring, hysteresis, bounded AUTO failover, truthful latency UI.
 
-Do **not** claim HotFox is a production-ready release. Phase 2.2 is **engineering-complete** and **release-deferred**. Phase 2.3 is **engineering-complete** and **release-not-started**.
+Do **not** claim HotFox is a production-ready release. Phase 2.2 is **engineering-complete** and **release-deferred**. Phase 2.3 is **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is a **separate later gate** — it does not block 2.4 engineering.
 
-## Inherited 2.2 release gate (still blocking production and 2.4)
+## Inherited 2.2 release gate (still blocking production)
 
-Physical-device VPN E2E is **NOT EXECUTED**. Before any production release, and before 2.4 Smart Connection engineering, an exact SHA must still prove:
+Physical-device VPN E2E is **NOT EXECUTED**. Before any production release, an exact SHA must still prove:
 
 - external IPv4 before VPN != after successful connect;
 - real browser/app traffic through the tunnel;
@@ -31,37 +30,33 @@ Emulator UI smoke is not that proof.
 
 ## Work allowed now
 
-- Record 2.3 engineering-complete / round-16 APPROVED in the phase ledger.
-- Keep fail-closed VPN/DNS/IPv6 behavior; do not weaken it.
-- Fix regressions in the truthful 2.2 VPN core or in implemented 2.3 commerce if they appear.
+- `ServerHealthRepository` and freshness/TTL rules.
+- Bounded parallel probes with cancel, timeouts, backoff; no fake ping (`—` when unmeasured).
+- Deterministic AUTO score (latency/jitter/failure/staleness). Not “AI”.
+- Hysteresis so AUTO does not flap on a few milliseconds.
+- Bounded AUTO failover; manual selection never silently switches.
+- Generation-safe handover: stale probes cannot overwrite a newer network generation.
+- Editorial server-list rows; AUTO remains row 0.
+- Unit tests listed in `docs/phases/2.4-smart-connection.md`.
 
 ## Not now
 
-Do **not** begin:
-
-- phase 2.4 Smart Connection (blocked on 2.2 physical-device E2E);
 - extra ad/tracker product work (phase 2.5);
 - extra Android widgets/automation (phase 2.6);
 - 3.0 architecture cleanup;
 - claiming `автопродление` unless the backend actually owns recurring billing;
-- claiming a production VPN release.
+- claiming `RELEASE READY` / production VPN release.
 
 ## Checkpoint protocol
 
 Ordinary commits while implementing and while CI is red.
 
-Only when a coherent block is complete and applicable automated gates are green, make one final commit whose message contains:
+Only when a coherent 2.4 block is complete and applicable automated gates are green, make one final commit whose message contains:
 
 `[hotfox-review]`
 
 Do not put `[hotfox-review]` on every intermediate commit.
 
-## Phase 2.3 exit definition (met for engineering)
+## Phase 2.4 exit definition
 
-Sandbox/test payment proved in automated tests:
-
-`choose plan -> create order -> hosted checkout -> backend verifies payment -> entitlement issued -> credentials stored safely -> subscription/server sync -> AUTO remains selected -> VPN core still uses the truthful 2.2 path`
-
-without pasting a paid HotFox URL and without embedding payment-provider secrets in the APK.
-
-A live provider sandbox hosted checkout with server-side keys remains a **manual** step. 2.3 does **not** satisfy the 2.2 physical-device release gate.
+AUTO should survive a dead server and ordinary network handover without user intervention, without flapping, without overwriting manual mode, and without displaying invented telemetry.

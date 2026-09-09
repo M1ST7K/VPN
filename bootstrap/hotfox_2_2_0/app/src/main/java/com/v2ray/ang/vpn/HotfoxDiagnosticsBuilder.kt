@@ -44,6 +44,7 @@ object HotfoxDiagnosticsBuilder {
             appendLine("ipv4Captured=${formatTriState(ipv4Captured)}")
             appendLine("ipv6Captured=${formatTriState(ipv6Captured)}")
             appendLine("ipv6Policy $ipv6Policy")
+            appendLine("autoReason=${HotfoxServerSelection.lastAutoReason.ifBlank { "none" }}")
             appendLine("e2e=${VpnPathVerification.PHYSICAL_E2E_NOT_EXECUTED}")
             appendLine("uploaded=${uploaded ?: "—"} downloaded=${downloaded ?: "—"}")
             appendLine("servers=$serverCount")

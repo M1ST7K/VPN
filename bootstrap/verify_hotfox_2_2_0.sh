@@ -103,6 +103,21 @@ if grep -q 'SandboxCommerceBackend()' "$PROJECT/app/src/main/java/com/v2ray/ang/
   fail "main factory must not instantiate SandboxCommerceBackend"
 fi
 
+grep -q 'class ServerHealthRepository' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt" \
+  || fail "ServerHealthRepository missing"
+grep -q 'fun significantlyBetter' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt" \
+  || fail "AUTO hysteresis missing"
+grep -q 'MAX_CONCURRENT' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HealthProbeEngine.kt" \
+  || fail "bounded probe concurrency missing"
+grep -q 'HotfoxLatencyDisplay.format' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt" \
+  || fail "server list does not use truthful latency labels"
+if grep -q '2600L' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt"; then
+  fail "server ping still uses a magic 2600ms delay"
+fi
+if grep -q '"✕"' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt"; then
+  fail "server list still shows ✕ for dead servers"
+fi
+
 for abi in arm64-v8a armeabi-v7a x86 x86_64; do
   for lib in libhev-socks5-tunnel.so libhevsockstun.so; do
     f="$PROJECT/app/libs/$abi/$lib"

@@ -537,7 +537,7 @@
     <string name="hotfox_nav_servers">Серверы</string>
     <string name="hotfox_nav_subscription">Подписка</string>
     <string name="hotfox_auto_server">Авто-выбор сервера</string>
-    <string name="hotfox_auto_server_hint">Самый быстрый измеренный сервер</string>
+    <string name="hotfox_auto_server_hint">Свежая задержка и стабильность</string>
     <string name="hotfox_auto_prefix">Авто · %1$s</string>
     <string name="hotfox_premium_title">HotFox Premium</string>
     <string name="hotfox_premium_benefits">Больше свободы.\nБольше интернета для тебя.\nСерверы без ручного URL.</string>

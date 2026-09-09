@@ -56,6 +56,7 @@ import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
 import com.v2ray.ang.vpn.ConnectionUiMapper
+import com.v2ray.ang.vpn.HotfoxLatencyDisplay
 import com.v2ray.ang.vpn.HotfoxServerPresentation
 import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.HotfoxSubscriptionPresentation
@@ -649,8 +650,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                     status.startsWith("core-ok:") -> {
                         // Core health only proves that Xray can reach the selected server through
                         // its local proxy. It must never overwrite the VpnService/TUN status.
-                        val latency = status.substringAfter(":").toIntOrNull() ?: 0
-                        binding.tvTestState.text = getString(R.string.hotfox_proxy_ok, latency)
+                        val latency = status.substringAfter(":").toLongOrNull()
+                        if (latency != null && latency > 0L) {
+                            binding.tvTestState.text = getString(R.string.hotfox_proxy_ok, latency.toInt())
+                        }
                     }
                     status == "core-failed" -> {
                         binding.tvTestState.setText(R.string.hotfox_proxy_failed)
@@ -732,12 +735,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     private fun handleLayoutTestClick() {
         if (currentSection == UiSection.SERVERS) {
             setTestState("Проверка…")
-            mainViewModel.testAllRealPing()
-            binding.layoutTest.postDelayed({
-                mainViewModel.sortByTestResults()
-                mainViewModel.reloadServerList()
-                setTestState("Пинг")
-            }, 2600L)
+            mainViewModel.testAllRealPing(sortWhenFinished = true)
             return
         }
         if (mainViewModel.isRunning.value == true) {
@@ -1078,10 +1076,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.tvSelectedServer.text = selectedLabel
         val affiliation = selectedGuid?.let(MmkvManager::decodeServerAffiliationInfo)
         val delayMs = affiliation?.testDelayMillis
-        val delayLabel = when {
-            delayMs == null || delayMs <= 0L -> getString(R.string.hotfox_ms_unknown)
-            else -> affiliation.getTestDelayString()
-        }
+        val health = selectedGuid?.let { HotfoxServerSelection.health.snapshot(it) }
+        val delayLabel = HotfoxLatencyDisplay.format(health = health, delayMs = delayMs)
         val countryOrHint = presentation.country
             ?: selected?.description?.takeIf { it.isNotBlank() }
         binding.tvSelectedServerHint.text = listOfNotNull(countryOrHint, delayLabel).joinToString(" · ")

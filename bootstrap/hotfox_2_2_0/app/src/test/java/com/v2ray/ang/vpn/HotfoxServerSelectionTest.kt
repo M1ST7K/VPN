@@ -162,10 +162,20 @@ class HotfoxServerSelectionTest {
     fun handoverKeepsHealthyAutoTarget() {
         val servers = listOf(
             HotfoxServerSelection.Candidate("amsterdam", "Amsterdam", 80L),
-            HotfoxServerSelection.Candidate("frankfurt", "Frankfurt", 20L),
+            HotfoxServerSelection.Candidate("frankfurt", "Frankfurt", 70L),
         )
         val result = HotfoxServerSelection.resolveForHandover(servers, auto = true, selectedGuid = "amsterdam")
         assertEquals(HotfoxServerSelection.ResolveResult.Success("amsterdam", true), result)
+    }
+
+    @Test
+    fun handoverSwitchesWhenChallengerIsSignificantlyBetter() {
+        val servers = listOf(
+            HotfoxServerSelection.Candidate("amsterdam", "Amsterdam", 80L),
+            HotfoxServerSelection.Candidate("frankfurt", "Frankfurt", 20L),
+        )
+        val result = HotfoxServerSelection.resolveForHandover(servers, auto = true, selectedGuid = "amsterdam")
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("frankfurt", true), result)
     }
 
     @Test

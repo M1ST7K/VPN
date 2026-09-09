@@ -347,6 +347,38 @@ def main() -> int:
     if store and "removeServerViaSubid" in store:
         fail("managed replace must not delete live inventory before staging")
 
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt",
+        "class ServerHealthRepository",
+        "2.4 server health repository",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt",
+        "fun significantlyBetter",
+        "AUTO hysteresis thresholds",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HealthProbeEngine.kt",
+        "MAX_CONCURRENT",
+        "bounded health probe concurrency",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxLatencyDisplay.kt",
+        "Недоступен",
+        "truthful dead-server latency label",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt",
+        "HotfoxLatencyDisplay.format",
+        "server list uses truthful latency labels",
+    )
+    adapter = read("app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt")
+    if adapter and '"✕"' in adapter:
+        fail("server list must not show ✕ for dead servers")
+    main_activity = read("app/src/main/java/com/v2ray/ang/ui/MainActivity.kt")
+    if main_activity and "2600L" in main_activity:
+        fail("server ping must not use a magic 2600ms delay")
+
     secret_re = re.compile(
         r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}|"
         r"sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|rk_live_[A-Za-z0-9]+|"

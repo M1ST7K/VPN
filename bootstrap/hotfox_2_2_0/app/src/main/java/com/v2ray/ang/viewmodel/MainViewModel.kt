@@ -29,6 +29,7 @@ import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxServerPresentation
+import com.v2ray.ang.vpn.HotfoxServerSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,6 +46,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val updateListAction by lazy { MutableLiveData<Int>() }
     val updateTestResultAction by lazy { MutableLiveData<String>() }
     val tunnelTraffic by lazy { MutableLiveData<Pair<Long, Long>>() }
+    @Volatile
+    private var sortAfterCurrentTest = false
 
     /**
      * Refer to the official documentation for [registerReceiver](https://developer.android.com/reference/androidx/core/content/ContextCompat#registerReceiver(android.content.Context,android.content.BroadcastReceiver,android.content.IntentFilter,int):
@@ -188,11 +191,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Tests the real ping for all servers.
      */
     fun testAllRealPing() {
+        testAllRealPing(sortWhenFinished = false)
+    }
+
+    /**
+     * Tests the real ping for all servers.
+     * @param sortWhenFinished when true, sort after the batch actually finishes.
+     */
+    fun testAllRealPing(sortWhenFinished: Boolean) {
+        sortAfterCurrentTest = sortWhenFinished
         MessageUtil.sendMsg2TestService(
             getApplication(),
             TestServiceMessage(key = AppConfig.MSG_MEASURE_CONFIG_CANCEL)
         )
         MmkvManager.clearAllTestDelayResults(serversCache.map { it.guid }.toList())
+        HotfoxServerSelection.beginProbeCycle(serversCache.map { it.guid })
         updateListAction.value = -1
 
         viewModelScope.launch(Dispatchers.Default) {
@@ -421,11 +434,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onTestsFinished() {
         viewModelScope.launch(Dispatchers.Default) {
+            val sortRequested = sortAfterCurrentTest
+            sortAfterCurrentTest = false
             if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_REMOVE_INVALID_AFTER_TEST)) {
                 removeInvalidServer()
             }
 
-            if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SORT_AFTER_TEST)) {
+            if (sortRequested || MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SORT_AFTER_TEST)) {
                 sortByTestResults()
             }
 

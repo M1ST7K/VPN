@@ -548,14 +548,14 @@
     <string name="hotfox_favorites_empty">Здесь появятся избранные серверы</string>
     <string name="hotfox_all_countries">Все страны</string>
     <string name="hotfox_countries_unknown">Страна не определена по именам серверов</string>
-    <string name="hotfox_ms_unknown">— ms</string>
+    <string name="hotfox_ms_unknown">—</string>
     <string name="hotfox_expiry_unknown">Срок не указан</string>
     <string name="hotfox_days_left">Осталось %1$d дн.</string>
     <string name="hotfox_nav_connection">Соединение</string>
     <string name="hotfox_nav_servers">Серверы</string>
     <string name="hotfox_nav_subscription">Подписка</string>
     <string name="hotfox_auto_server">Авто-выбор сервера</string>
-    <string name="hotfox_auto_server_hint">Самый быстрый измеренный сервер</string>
+    <string name="hotfox_auto_server_hint">Свежая задержка и стабильность</string>
     <string name="hotfox_auto_prefix">Авто · %1$s</string>
     <string name="hotfox_premium_title">HotFox Premium</string>
     <string name="hotfox_premium_benefits">More freedom.\nMore internet for you.\nServers without pasting a private URL.</string>

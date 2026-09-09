@@ -19,9 +19,11 @@ import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.helper.ItemTouchHelperAdapter
 import com.v2ray.ang.helper.ItemTouchHelperViewHolder
 import com.v2ray.ang.viewmodel.MainViewModel
+import com.v2ray.ang.vpn.HotfoxLatencyDisplay
 import com.v2ray.ang.vpn.HotfoxServerListContract
 import com.v2ray.ang.vpn.HotfoxServerPresentation
 import com.v2ray.ang.vpn.HotfoxServerSelection
+import com.v2ray.ang.vpn.ServerAvailability
 import java.util.Collections
 
 class MainRecyclerAdapter(
@@ -63,11 +65,8 @@ class MainRecyclerAdapter(
 
         val aff = MmkvManager.decodeServerAffiliationInfo(guid)
         val delay = aff?.testDelayMillis ?: 0L
-        holder.itemMainBinding.tvTestResult.text = when {
-            delay < 0L -> "✕"
-            delay == 0L -> "—"
-            else -> aff?.getTestDelayString().orEmpty()
-        }
+        val health = HotfoxServerSelection.health.snapshot(guid)
+        holder.itemMainBinding.tvTestResult.text = HotfoxLatencyDisplay.format(health = health, delayMs = delay)
         holder.itemMainBinding.ivFavorite.alpha = if (aff?.favorite == true) 1f else 0.34f
         holder.itemMainBinding.layoutFavorite.visibility = View.VISIBLE
         holder.itemMainBinding.ivFavorite.setColorFilter(
@@ -91,7 +90,8 @@ class MainRecyclerAdapter(
             ContextCompat.getColor(
                 context,
                 when {
-                    delay < 0L -> R.color.colorPingRed
+                    health.availability == ServerAvailability.DEAD || delay < 0L -> R.color.colorPingRed
+                    health.probeInFlight -> R.color.hotfox_editorial_text_dim
                     delay in 1L..80L -> R.color.hotfox_success_bright
                     else -> R.color.hotfox_editorial_text_dim
                 },
