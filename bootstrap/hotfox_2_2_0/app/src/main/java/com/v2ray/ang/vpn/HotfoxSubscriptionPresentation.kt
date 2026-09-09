@@ -40,7 +40,7 @@ object HotfoxSubscriptionPresentation {
         val expiryInstant = Instant.ofEpochSecond(expireAtEpochSeconds)
         val expiryDate = expiryInstant.atZone(zoneId).toLocalDate()
         val today = now.atZone(zoneId).toLocalDate()
-        val remainingDays = remainingDays(today, expiryDate)
+        val calendarRemaining = remainingDays(today, expiryDate)
         val expired = !now.isBefore(expiryInstant)
         return if (expired) {
             SubscriptionPresentation(
@@ -56,8 +56,8 @@ object HotfoxSubscriptionPresentation {
                 titleIsPremium = true,
                 status = SubscriptionPresentation.Status.ACTIVE,
                 expiryLabel = dateFormat.format(expiryDate),
-                remainingLabel = remainingDays.toString(),
-                remainingDays = remainingDays,
+                remainingLabel = calendarRemaining.toString(),
+                remainingDays = calendarRemaining,
                 timelineFraction = null,
             )
         }

@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** and does not block 2.8. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is an **engineering-exit candidate** (implementation `ed23ee2`, CI `34404710374`). Do not record `2.8 ENGINEERING COMPLETE` until phase-exit `APPROVED`. Physical-device VPN E2E remains **NOT EXECUTED**. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -433,7 +433,7 @@ Implementation included:
 
 **ENGINEERING-EXIT CANDIDATE.** 2.7 engineering gate is closed (round 11 `APPROVED`, P0 = 0, P1 = 0). Owner roadmap after 2.8 is `2.9 VPN Core Recovery`, then `3.0 Premium Android Experience`, then `3.1 Mature HotFox Platform`. Physical-device VPN E2E remains the later `FINAL RELEASE DEVICE GATE` and does **not** block 2.8 engineering.
 
-Implementation candidate `15ebc311e1ed0bc395952fdcc91ee9d6fad3d994`. GitHub CI for exact SHA `15ebc311e1ed0bc395952fdcc91ee9d6fad3d994` (run `34401817242`):
+Implementation candidate `ed23ee2c33dc4be95a27ff545b792b9f23a5dd7b`. GitHub CI for exact SHA `ed23ee2c33dc4be95a27ff545b792b9f23a5dd7b` (run `34404710374`):
 
 - Payload integrity: PASS
 - Reconstruct and overlay verification: PASS
@@ -455,5 +455,6 @@ Implementation in this candidate:
 6. Boot/process-start recovers policy without resurrecting a stale session id; event-driven `NetworkCallback`.
 7. Protection profiles `Скорость` / `Баланс` / `Максимальная защита` map to routing/LAN/ads/Shadow defaults.
 8. User disconnect suppresses auto-reconnect until network change; manual selection is not rewritten to AUTO; reconnect gap is bounded.
+9. Subscription presentation ACTIVE/EXPIRED is decided from the expiry instant (`now >= expiry`); calendar remaining days are display-only and non-negative. Round 12 P1.
 
 
