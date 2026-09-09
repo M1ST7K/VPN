@@ -405,6 +405,21 @@ object CoreServiceManager {
         if (outboundCompare.blockingMismatch) {
             error("Generated Xray outbound drifted from selected profile")
         }
+        val inbounds = com.v2ray.ang.vpn.HotfoxOutboundCompare.inboundPorts(coreConfigJson)
+        val hevTarget = com.v2ray.ang.vpn.HotfoxHevSocksTarget(
+            host = AppConfig.LOOPBACK,
+            port = SettingsManager.getSocksPort(),
+            udp = "udp",
+            mtu = SettingsManager.getVpnMtu(),
+        )
+        if (!com.v2ray.ang.vpn.HotfoxDatapathContract.assertHevMatchesXray(
+                hevTarget,
+                inbounds.socksPort,
+                inbounds.socksListen,
+            )
+        ) {
+            error("HEV SOCKS target drifted from Xray inbound")
+        }
 
         currentConfig = config
         var tunFd = vpnInterface?.fd ?: 0

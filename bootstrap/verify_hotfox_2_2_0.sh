@@ -191,6 +191,12 @@ grep -q 'fun fromGeneratedJson' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/Ho
   || fail "2.9 generated outbound snapshot missing"
 grep -q 'HF-VPN-014' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "SOCKS outbound isolation failure is not fail-closed"
+grep -q 'probeSocksHttps204' "$PROJECT/app/src/main/java/com/v2ray/ang/service/HotfoxHealthMonitor.kt" \
+  || fail "connected health must probe SOCKS outbound, not HTTP 10809"
+grep -q 'object HotfoxImportUiRefresh' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxImportUiRefresh.kt" \
+  || fail "2.9 import UI refresh helper missing"
+grep -q 'HEV SOCKS target drifted' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "HEV SOCKS target is not checked against Xray inbound"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then

@@ -1,11 +1,11 @@
 package com.v2ray.ang.service
 
 import android.content.Context
-import android.os.SystemClock
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.MessageUtil
+import com.v2ray.ang.vpn.VpnReadiness
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,28 +14,17 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import okhttp3.Credentials
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.net.HttpURLConnection
-import java.net.InetSocketAddress
-import java.net.Proxy
-import java.util.concurrent.TimeUnit
 
 /**
- * Checks that Xray itself can reach the Internet through its local HTTP proxy.
+ * Checks that Xray can reach the Internet through local SOCKS 10808.
  *
- * A successful result means "Xray/outbound is healthy"; it is not TUN E2E proof.
- * Repeated core failures may notify AUTO failover. This class does not start VpnService.
+ * HTTP inbound 10809 is not this probe. A successful result means the Xray
+ * outbound may be healthy; it is not TUN E2E proof. Repeated SOCKS HTTPS
+ * failures may notify AUTO failover. This class does not start VpnService.
  */
 class HotfoxHealthMonitor(private val context: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
-
-    private val probeUrls = listOf(
-        "https://www.gstatic.com/generate_204",
-        "https://cp.cloudflare.com/generate_204",
-    )
 
     fun start() {
         start(onRepeatedCoreFailure = null)
@@ -46,10 +35,9 @@ class HotfoxHealthMonitor(private val context: Context) {
         var consecutiveFailures = 0
         var failoverSignaled = false
         job = scope.launch {
-            val client = buildProxyClient()
             delay(800)
             while (isActive) {
-                val elapsed = probe(client)
+                val elapsed = probeSocksOutbound()
                 if (isActive) {
                     val status = elapsed?.let { "core-ok:$it" } ?: "core-failed"
                     MessageUtil.sendMsg2UI(context, AppConfig.MSG_HOTFOX_HEALTH, status)
@@ -68,50 +56,16 @@ class HotfoxHealthMonitor(private val context: Context) {
         }
     }
 
-    private fun buildProxyClient(): OkHttpClient = OkHttpClient.Builder()
-        .proxy(
-            Proxy(
-                Proxy.Type.HTTP,
-                InetSocketAddress(AppConfig.LOOPBACK, SettingsManager.getHttpPort()),
-            ),
+    private fun probeSocksOutbound(): Long? {
+        val elapsed = VpnReadiness.probeSocksHttps204(
+            SettingsManager.getSocksPort(),
+            SettingsManager.getSocksUsername(),
+            SettingsManager.getSocksPassword(),
         )
-        .proxyAuthenticator { _, response ->
-            val user = SettingsManager.getSocksUsername()
-            val password = SettingsManager.getSocksPassword()
-            if (user.isNullOrEmpty() || password.isNullOrEmpty() || response.request.header("Proxy-Authorization") != null) {
-                null
-            } else {
-                response.request.newBuilder()
-                    .header("Proxy-Authorization", Credentials.basic(user, password))
-                    .build()
-            }
+        if (elapsed == null) {
+            LogUtil.w(AppConfig.TAG, "HotFox health: SOCKS outbound HTTPS probe failed")
         }
-        .connectTimeout(6, TimeUnit.SECONDS)
-        .readTimeout(6, TimeUnit.SECONDS)
-        .callTimeout(8, TimeUnit.SECONDS)
-        .followRedirects(false)
-        .retryOnConnectionFailure(false)
-        .build()
-
-    private fun probe(client: OkHttpClient): Long? {
-        for (url in probeUrls) {
-            val started = SystemClock.elapsedRealtime()
-            try {
-                client.newCall(
-                    Request.Builder()
-                        .url(url)
-                        .header("Cache-Control", "no-cache")
-                        .build(),
-                ).execute().use { response ->
-                    if (response.code == HttpURLConnection.HTTP_NO_CONTENT) {
-                        return SystemClock.elapsedRealtime() - started
-                    }
-                }
-            } catch (e: Exception) {
-                LogUtil.w(AppConfig.TAG, "HotFox health: Xray proxy probe failed: ${e.javaClass.simpleName}")
-            }
-        }
-        return null
+        return elapsed
     }
 
     fun stop() {

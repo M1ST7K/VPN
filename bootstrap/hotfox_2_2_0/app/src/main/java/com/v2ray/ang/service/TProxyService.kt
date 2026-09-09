@@ -64,6 +64,13 @@ class TProxyService(
         val vpnConfig = SettingsManager.getCurrentVpnInterfaceAddressConfig()
         val escapedSocksUsername = socksUsername?.replace("'", "''")
         val escapedSocksPassword = socksPassword?.replace("'", "''")
+        val target = com.v2ray.ang.vpn.HotfoxHevSocksTarget(
+            host = AppConfig.LOOPBACK,
+            port = socksPort,
+            udp = "udp",
+            mtu = SettingsManager.getVpnMtu(),
+        )
+        LogUtil.i(AppConfig.TAG, "HevSocks5Tunnel ${target.summary()}")
         return buildString {
             appendLine("tunnel:")
             appendLine("  mtu: ${SettingsManager.getVpnMtu()}")

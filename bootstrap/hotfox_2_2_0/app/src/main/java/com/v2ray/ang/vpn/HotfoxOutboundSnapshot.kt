@@ -71,6 +71,12 @@ object HotfoxOutboundSanitizer {
     fun present(value: String?): Boolean = !value.isNullOrBlank()
 }
 
+data class HotfoxInboundPorts(
+    val socksPort: Int?,
+    val socksListen: String,
+    val httpPort: Int?,
+)
+
 object HotfoxOutboundCompare {
     data class Result(
         val profile: HotfoxOutboundSnapshot?,
@@ -124,6 +130,34 @@ object HotfoxOutboundCompare {
             ipv4 = true,
             ipv6 = false,
         )
+    }
+
+    fun inboundPorts(json: String): HotfoxInboundPorts {
+        return runCatching {
+            val root = JsonParser.parseString(json).asJsonObject
+            val inbounds = root.get("inbounds")?.takeIf { it.isJsonArray }?.asJsonArray
+                ?: return HotfoxInboundPorts(null, "", null)
+            var socksPort: Int? = null
+            var socksListen = ""
+            var httpPort: Int? = null
+            for (element in inbounds) {
+                if (!element.isJsonObject) continue
+                val obj = element.asJsonObject
+                val protocol = obj.get("protocol")?.takeIf { it.isJsonPrimitive }?.asString.orEmpty().lowercase()
+                val port = obj.get("port")?.takeIf { it.isJsonPrimitive }?.asInt
+                val listen = obj.get("listen")?.takeIf { it.isJsonPrimitive }?.asString.orEmpty()
+                when (protocol) {
+                    "socks", "socks4", "socks5" -> {
+                        if (socksPort == null) {
+                            socksPort = port
+                            socksListen = listen
+                        }
+                    }
+                    "http" -> if (httpPort == null) httpPort = port
+                }
+            }
+            HotfoxInboundPorts(socksPort, socksListen, httpPort)
+        }.getOrDefault(HotfoxInboundPorts(null, "", null))
     }
 
     fun fromGeneratedJson(json: String): HotfoxOutboundSnapshot? {

@@ -1581,15 +1581,19 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 delay(500L)
                 withContext(Dispatchers.Main) {
                     when {
-                        count > 0 -> {
-                            toast(getString(R.string.title_import_config_count, count))
+                        com.v2ray.ang.vpn.HotfoxImportUiRefresh.shouldReloadAfterBatch(count, countSub) -> {
+                            if (count > 0) {
+                                toast(getString(R.string.title_import_config_count, count))
+                            }
                             HotfoxServerSelection.ensureValidSelection()
+                            setupGroupTab()
                             mainViewModel.reloadServerList()
                             refreshGroupTabTitles()
                             refreshDashboard()
+                            if (count == 0 && countSub > 0) {
+                                toast(getString(R.string.title_import_config_count, mainViewModel.serversCache.size))
+                            }
                         }
-
-                        countSub > 0 -> { setupGroupTab(); importConfigViaSub() }
                         else -> toastError(R.string.toast_failure)
                     }
                     hideLoading()
@@ -1640,8 +1644,13 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                         )
                     )
                 }
-                if (result.configCount > 0) {
+                if (com.v2ray.ang.vpn.HotfoxImportUiRefresh.shouldReloadAfterSubUpdate(
+                        result.successCount,
+                        result.configCount,
+                    )
+                ) {
                     HotfoxServerSelection.ensureValidSelection()
+                    setupGroupTab()
                     mainViewModel.reloadServerList()
                     refreshGroupTabTitles()
                     refreshDashboard()

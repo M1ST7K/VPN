@@ -222,6 +222,41 @@ class HotfoxVpnRecoveryTest {
     }
 
     @Test
+    fun importUiReloadsAfterSubscriptionUrlEvenIfLaterFetchIsEmpty() {
+        assertTrue(HotfoxImportUiRefresh.shouldReloadAfterBatch(0, 1))
+        assertTrue(HotfoxImportUiRefresh.shouldReloadAfterBatch(3, 0))
+        assertFalse(HotfoxImportUiRefresh.shouldReloadAfterBatch(0, 0))
+        assertTrue(HotfoxImportUiRefresh.shouldReloadAfterSubUpdate(successCount = 1, configCount = 0))
+        assertTrue(HotfoxImportUiRefresh.shouldReloadAfterSubUpdate(successCount = 0, configCount = 4))
+        assertFalse(HotfoxImportUiRefresh.shouldReloadAfterSubUpdate(successCount = 0, configCount = 0))
+    }
+
+    @Test
+    fun hevSocksTargetMustMatchGeneratedXrayInbound() {
+        val json = """
+            {
+              "inbounds": [
+                {"protocol":"socks","listen":"127.0.0.1","port":10808},
+                {"protocol":"http","listen":"127.0.0.1","port":10809}
+              ],
+              "outbounds": [{"protocol":"freedom"}]
+            }
+        """.trimIndent()
+        val ports = HotfoxOutboundCompare.inboundPorts(json)
+        assertEquals(10808, ports.socksPort)
+        assertEquals(10809, ports.httpPort)
+        val hev = HotfoxHevSocksTarget(host = "127.0.0.1", port = 10808, udp = "udp", mtu = 1500)
+        assertTrue(HotfoxDatapathContract.assertHevMatchesXray(hev, ports.socksPort, ports.socksListen))
+        assertFalse(
+            HotfoxDatapathContract.assertHevMatchesXray(
+                hev.copy(port = 10809),
+                ports.socksPort,
+                ports.socksListen,
+            ),
+        )
+    }
+
+    @Test
     fun socksHttpsProbeAgainstHandshakeOnlyListenerIsNull() {
         val server = ServerSocket(0)
         val port = server.localPort

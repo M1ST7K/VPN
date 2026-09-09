@@ -560,6 +560,21 @@ def main() -> int:
         "HF-VPN-014",
         "SOCKS outbound isolation is fail-closed before HEV",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/service/HotfoxHealthMonitor.kt",
+        "probeSocksHttps204",
+        "connected health probes SOCKS outbound not HTTP inbound",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxImportUiRefresh.kt",
+        "object HotfoxImportUiRefresh",
+        "2.9 import UI refresh without process restart",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "HEV SOCKS target drifted",
+        "HEV SOCKS target must match Xray inbound",
+    )
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")
