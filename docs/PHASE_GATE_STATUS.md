@@ -405,6 +405,18 @@ GitHub CI for exact SHA `0854e17fd8157a0aa81548a94cf6a1db3a94e408` (run `3438160
 - Publish HotFox Dev Latest: PASS
 - Emulator UI smoke: skipped (not VPN E2E)
 
+Phase-exit `d7d2f2b` CI (`34383089655`) failed at `apt-get update` on a Google Chrome Hash Sum mismatch on the GitHub-hosted runner. That is unrelated to Shadow code. Isolation fix `581967c771cb62f6118aee772f7db7f884d783e6` (run `34383542146`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Static check: PASS
+- debug APK build: PASS
+- unit tests: PASS
+- Android lint: PASS
+- unsigned release compile: PASS
+- Publish HotFox Dev Latest: PASS
+- Emulator UI smoke: skipped (not VPN E2E)
+
 This head is a 2.6 `[hotfox-phase-exit]` candidate. Do not record `2.6 ENGINEERING COMPLETE` until the phase-exit reviewer returns `APPROVED` with P0 = 0 and P1 = 0. Physical-device VPN E2E remains **NOT EXECUTED**.
 
 
