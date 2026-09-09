@@ -93,21 +93,23 @@ object AutoSelectionPolicy {
         if (!auto) {
             return pick(servers, healthByGuid, auto = false, selectedGuid = selectedGuid, nowEpochMs = nowEpochMs)
         }
-        val current = servers.firstOrNull { it.guid == selectedGuid }
-        val currentHealth = selectedGuid?.let { healthByGuid[it] ?: ServerHealthMath.fromCachedDelay(it, current?.delay ?: 0L, nowEpochMs) }
-        val currentUsable = current != null &&
-            currentHealth != null &&
-            (currentHealth.availability == ServerAvailability.HEALTHY || currentHealth.availability == ServerAvailability.DEGRADED)
-        if (currentUsable && currentHealth != null && selectedGuid != null) {
+        val current = servers.firstOrNull { it.guid == selectedGuid } ?: return pick(
+            servers, healthByGuid, auto = true, selectedGuid = selectedGuid, nowEpochMs = nowEpochMs,
+        )
+        val currentHealth = healthByGuid[current.guid]
+            ?: ServerHealthMath.fromCachedDelay(current.guid, current.delay, nowEpochMs)
+        val currentUsable = currentHealth.availability == ServerAvailability.HEALTHY ||
+            currentHealth.availability == ServerAvailability.DEGRADED
+        if (currentUsable) {
             val currentScore = score(currentHealth, nowEpochMs)
             val scored = scoreHealthy(servers, healthByGuid, nowEpochMs)
             val best = scored.minByOrNull { it.score }
-            if (currentScore != null && best != null && best.guid != selectedGuid &&
+            if (currentScore != null && best != null && best.guid != current.guid &&
                 significantlyBetter(best.score, currentScore)
             ) {
                 return HotfoxServerSelection.ResolveResult.Success(best.guid, resolvedFromAuto = true)
             }
-            return HotfoxServerSelection.ResolveResult.Success(selectedGuid, resolvedFromAuto = true)
+            return HotfoxServerSelection.ResolveResult.Success(current.guid, resolvedFromAuto = true)
         }
         return pick(servers, healthByGuid, auto = true, selectedGuid = selectedGuid, nowEpochMs = nowEpochMs)
     }
