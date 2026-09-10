@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is an **engineering-exit candidate** (implementation `dacfe38`). Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED`. Runtime and physical VPN E2E remain **NOT EXECUTED / deferred** to the final release validation gate. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is an **engineering-exit candidate** (implementation `dacfe38`, SDK/E2E harness fix `37115cd`). Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED`. Runtime and physical VPN E2E remain **NOT EXECUTED / deferred** to the final release validation gate. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -459,7 +459,7 @@ Implementation included:
 
 **ENGINEERING-EXIT CANDIDATE.** 2.8 engineering gate is closed (round 13 `APPROVED`, P0 = 0, P1 = 0). Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`. Validation timing: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`. Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0). Premium UI is 3.0 and must not start until then.
 
-Implementation candidate `dacfe386260b204a562b231ba6f31d81ed5d01e1`. Round 14 P1 (E2E/SDK `platforms;android-37.0` vs compileSdk 37) is fixed in `696254c1519e263b6dd0890b9e4c2fb855280ce2`. GitHub CI for exact SHA `696254c1519e263b6dd0890b9e4c2fb855280ce2` (run `34446690590`):
+Implementation candidate `dacfe386260b204a562b231ba6f31d81ed5d01e1`. Round 14 P1 (integer `platforms;android-37` for compileSdk 37) is in `696254c`. Round 15 P1 (`sdkmanager --channel=3`) is in `37115cda59f6353b12871849cafcbcd02707692a`. GitHub CI for exact SHA `37115cda59f6353b12871849cafcbcd02707692a` (run `34450268659`):
 
 - Payload integrity: PASS
 - Reconstruct and overlay verification: PASS
@@ -483,7 +483,7 @@ Implementation in this candidate:
 8. TUN fd lifetime evidence; TUN inject proves HTTP before UDP DNS; IPv4 HTTPS is independent of IPv6.
 9. Connected health probes SOCKS HTTPS, not HTTP 10809.
 10. Debug engineering-runtime E2E harness (SOCKS-only Test E, then VPN reconnect cycles) is preserved for the final release validation gate.
-11. Secret-gated E2E/SDK install requests `platforms;android-37` and asserts `platforms/android-37` for `compileSdk = 37`, keeping `build-tools;37.0.0` separate; `platforms;android-37.0` remains a fallback with a symlink when Google only publishes the minor-versioned platform.
+11. Secret-gated E2E/SDK install requests `platforms;android-37` and asserts `platforms/android-37` for `compileSdk = 37`, keeping `build-tools;37.0.0` separate; `sdkmanager --channel=3` is required; `platforms;android-37.0` remains a fallback with a symlink when Google only publishes the minor-versioned platform.
 
 
 
