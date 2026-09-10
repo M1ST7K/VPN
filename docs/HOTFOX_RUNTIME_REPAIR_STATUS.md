@@ -36,6 +36,10 @@ Implemented architecture:
    (`HF-VPN-015`).
 4. **Datapath proof** remains `VpnReadiness.injectThroughVpn` on `TRANSPORT_VPN`
    bindSocket — not process-direct HTTPS from the excluded UID.
+5. **lifecycle ownership (round 28)** — pipeline receives the attempt from
+   `onStartCommand`, never `currentAttempt()`. `claimTeardown(owned)` runs
+   before start-lock release. Stale teardown is a no-op on the newer session.
+   Prior pipeline is joined before a replacement attempt is admitted.
 
 ### P1 — bindProcessToNetwork truth
 
@@ -57,6 +61,11 @@ Type-specific expected-plan comparison (round 27):
 - secret-safe transport/security/REALITY fields remain in the compare;
 - missing `expectedJson` fail-closes (`generated:missing-expected-plan`).
 
+AUTO persist captures a selection generation with the request. `selectManual`
+bumps that generation. A late AUTO result is committed only if AUTO mode and
+the generation are unchanged; otherwise the manual GUID wins
+(`stale-auto-superseded`).
+
 ### P1 — canonical tags
 
 `HotfoxXrayTagResolver` maps actual outbound/balancer tags
@@ -67,21 +76,19 @@ GLOBAL/SMART drop legacy `.ru` / `.su` / `.рф` / geosite:cn / geoip:private DI
 
 ## Host CI evidence
 
-Round 27 reviewed `b91db242f8732b5919b28f5c37d950dae18a351f` and rejected the
-`e85af2d` artifact set as SHA-mismatched. Those hashes do **not** cover this
-candidate.
+Historical runs (`e85af2d`, `b91db24`, `3d21a27`) must not be treated as
+evidence for this candidate. Round 28 reviewed `3d21a27` and required a new
+SHA after lifecycle/AUTO fixes.
 
-This head implements the round-27 P1 fixes. Push CI on **this** SHA writes
-`candidate-evidence.txt` with `candidate_sha=${GITHUB_SHA}` plus APK SHA-256
-and publishes `hotfox-dev-latest` only for that same commit.
-
-Do not treat `e85af2d` / `b91db24` APK hashes as evidence for this candidate.
+Push CI on **this** HEAD writes `candidate-evidence.txt` with
+`candidate_sha=${GITHUB_SHA}` plus APK SHA-256. That file is the only
+host-artifact record for the reviewed SHA.
 
 ## Executed vs deferred
 
 | Gate | Status |
 | --- | --- |
-| Overlay unit tests for protect races + container semantics | implemented; host CI on this SHA is the execution record |
+| Overlay unit tests for lifecycle + AUTO races | implemented; host CI on this SHA is the execution record |
 | Host reconstruction / lint / assembleDebug / unsigned release | pending this push CI (`candidate_sha` = this HEAD) |
 | SHA-tied debug APK + `candidate-evidence.txt` | pending this push CI — must match this HEAD exactly |
 | HotFox AI phase-exit review | requested on this coherent head |
