@@ -590,6 +590,11 @@ def main() -> int:
         "object HotfoxTunLayerEvidence",
         "2.9 TUN HTTP and DNS layers are recorded separately",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
+        "PREF_APPEND_HTTP_PROXY, false",
+        "Android HTTP proxy is opt-in; HEV uses SOCKS",
+    )
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")

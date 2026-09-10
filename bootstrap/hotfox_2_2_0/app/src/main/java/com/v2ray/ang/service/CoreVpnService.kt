@@ -415,7 +415,8 @@ class CoreVpnService : VpnService(), ServiceControl {
         // Android Q (API 29) and above: Configure metering and HTTP proxy
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)
-            if (MmkvManager.decodeSettingsBool(AppConfig.PREF_APPEND_HTTP_PROXY)) {
+            if (MmkvManager.decodeSettingsBool(AppConfig.PREF_APPEND_HTTP_PROXY, false)) {
+                // Optional Android HTTP proxy (10809). HEV production path is SOCKS 10808.
                 builder.setHttpProxy(ProxyInfo.buildDirectProxy(LOOPBACK, SettingsManager.getHttpPort()))
             }
         }
