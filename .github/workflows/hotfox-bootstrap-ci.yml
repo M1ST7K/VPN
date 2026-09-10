@@ -92,17 +92,11 @@ jobs:
             echo "apt-get failed after 3 attempts" >&2
             exit 1
           fi
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          # Android 17 / API 37 is published as a minor-versioned platform package.
-          # Plain platforms;android-37 does not exist during this release cycle.
-          sdkmanager --channel=3 \
-            "platforms;android-37.0" \
-            "build-tools;37.0.0" \
-            "platform-tools" \
-            "ndk;${NDK_VERSION}"
-          test -d "${ANDROID_SDK_ROOT}/platforms/android-37.0"
+          # compileSdk=37: platforms;android-37 → platforms/android-37
+          # Keep build-tools;37.0.0 separate from the platform package.
+          bash .github/scripts/install_hotfox_android_sdk.sh
+          test -d "${ANDROID_SDK_ROOT}/platforms/android-37"
           test -x "${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}/ndk-build"
-          echo "NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
 
       - name: Reconstruct HotFox 2.1.0 baseline and apply 2.2.0 overlay
         run: bash bootstrap/bootstrap_source.sh

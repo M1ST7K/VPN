@@ -625,6 +625,17 @@ def main() -> int:
         fail("VPN E2E workflow must invoke ci_run_vpn_e2e.sh")
     if "Connect/IP probes are not implemented yet" in e2e_workflow:
         fail("VPN E2E workflow is still a placeholder")
+    if "install_hotfox_android_sdk.sh" not in e2e_workflow:
+        fail("VPN E2E workflow must install compileSdk 37 via install_hotfox_android_sdk.sh")
+    sdk_install = (ROOT / ".github/scripts/install_hotfox_android_sdk.sh").read_text(
+        encoding="utf-8"
+    )
+    if not re.search(r'"platforms;android-37"', sdk_install):
+        fail("SDK install must request platforms;android-37 for compileSdk 37")
+    if not re.search(r"platforms/android-37(?!\.0)", sdk_install):
+        fail("SDK install must assert platforms/android-37")
+    if "build-tools;37.0.0" not in sdk_install:
+        fail("SDK install must keep build-tools;37.0.0 separate from the platform package")
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")

@@ -217,6 +217,14 @@ grep -q 'object HotfoxEngineeringRuntimeE2e' "$PROJECT/app/src/debug/java/com/v2
   || fail "engineering-runtime VPN E2E harness missing"
 grep -q 'ci_run_vpn_e2e.sh' "$ROOT/.github/workflows/hotfox-vpn-e2e.yml" \
   || fail "VPN E2E workflow is still a placeholder"
+grep -q 'install_hotfox_android_sdk.sh' "$ROOT/.github/workflows/hotfox-vpn-e2e.yml" \
+  || fail "VPN E2E workflow must install compileSdk 37 via install_hotfox_android_sdk.sh"
+grep -q '"platforms;android-37"' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \
+  || fail "SDK install must request platforms;android-37 for compileSdk 37"
+grep -q 'platforms/android-37' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \
+  || fail "SDK install must assert platforms/android-37"
+grep -q 'build-tools;37.0.0' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \
+  || fail "SDK install must keep build-tools;37.0.0 separate from the platform package"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then

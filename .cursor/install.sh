@@ -68,15 +68,10 @@ ensure_android_sdk() {
   local sdk
   sdk="$(sdkmanager_bin)"
   export PATH="$(dirname "$sdk"):$PATH"
-  yes | "$sdk" --licenses >/dev/null 2>&1 || true
   # Do not install emulator here.
-  "$sdk" --channel=3 \
-    "platforms;android-37.0" \
-    "build-tools;37.0.0" \
-    "platform-tools" \
-    "ndk;${NDK_VERSION}"
-  test -d "$ANDROID_HOME/platforms/android-37.0"
-  test -x "$ANDROID_HOME/ndk/${NDK_VERSION}/ndk-build"
+  # compileSdk=37: platforms;android-37 → platforms/android-37
+  # Keep build-tools;37.0.0 separate from the platform package.
+  bash "$ROOT/.github/scripts/install_hotfox_android_sdk.sh"
 }
 
 bootstrap_and_warm() {

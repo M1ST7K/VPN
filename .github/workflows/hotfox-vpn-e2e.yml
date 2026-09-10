@@ -84,14 +84,10 @@ jobs:
             echo "apt-get failed after 3 attempts" >&2
             exit 1
           fi
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager --channel=3 \
-            "platforms;android-37.0" \
-            "build-tools;37.0.0" \
-            "platform-tools" \
-            "ndk;${NDK_VERSION}"
-          test -d "${ANDROID_SDK_ROOT}/platforms/android-37.0"
-          echo "NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+          # compileSdk=37: platforms;android-37 → platforms/android-37
+          # Keep build-tools;37.0.0 separate from the platform package.
+          bash .github/scripts/install_hotfox_android_sdk.sh
+          test -d "${ANDROID_SDK_ROOT}/platforms/android-37"
 
       - name: Reconstruct HotFox 2.1.0 baseline and apply 2.2.0 overlay
         run: bash bootstrap/bootstrap_source.sh
