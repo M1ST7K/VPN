@@ -42,6 +42,7 @@ import com.v2ray.ang.vpn.VpnSessionCoordinator
 import com.v2ray.ang.vpn.VpnSessionState
 import java.lang.ref.SoftReference
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,7 +52,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 @SuppressLint("VpnServicePolicy")
 class CoreVpnService : VpnService(), ServiceControl {
@@ -65,6 +65,7 @@ class CoreVpnService : VpnService(), ServiceControl {
     private var pipelineJob: Job? = null
     @Volatile
     private var protectAttempt: Long = 0L
+    private val admissionEpoch = AtomicLong(0L)
 
     override fun onCreate() {
         super.onCreate()
@@ -119,19 +120,41 @@ class CoreVpnService : VpnService(), ServiceControl {
             return START_STICKY
         }
 
-        joinOwnedJobs()
+        val admission = admissionEpoch.incrementAndGet()
+        serviceScope.launch {
+            admitNewAttempt(admission)
+        }
+        return START_STICKY
+    }
 
+    private suspend fun admitNewAttempt(admission: Long) {
+        val previousPipeline = pipelineJob
+        val previousTraffic = trafficJob
+        pipelineJob = null
+        trafficJob = null
+        previousPipeline?.cancelAndJoin()
+        previousTraffic?.cancelAndJoin()
+        if (admission != admissionEpoch.get()) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: stale admission=$admission")
+            unlockStart()
+            return
+        }
         if (VpnSessionCoordinator.isTeardownActive()) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: start refused; teardown active")
             unlockStart()
-            return START_STICKY
+            return
         }
-
         val attempt = VpnSessionCoordinator.beginAttempt()
         if (attempt == 0L) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: beginAttempt refused")
             unlockStart()
-            return START_STICKY
+            return
+        }
+        if (admission != admissionEpoch.get() || !VpnSessionCoordinator.isCurrent(attempt)) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after beginAttempt=$attempt")
+            com.v2ray.ang.vpn.HotfoxSocketProtect.detach(attempt)
+            unlockStart()
+            return
         }
         protectAttempt = attempt
         VpnSessionCoordinator.setState(attempt, VpnSessionState.ESTABLISHING_TUN)
@@ -142,16 +165,19 @@ class CoreVpnService : VpnService(), ServiceControl {
             VpnSessionCoordinator.markError(attempt, "HF-VPN-002", "Не удалось создать VPN-интерфейс")
             unlockStart()
             stopSelf()
-            return START_NOT_STICKY
+            return
+        }
+        if (admission != admissionEpoch.get() || !pipelineStillCurrent(attempt)) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after TUN establish attempt=$attempt")
+            return
         }
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.TUN_ESTABLISH)
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.LOOP_BIND)
         if (!VpnLoopPrevention.requireBindSuccess(VpnLoopPrevention.bindProcessToUnderlying(this))) {
             failTunnelStart(attempt, "HF-VPN-012", "Не удалось привязать процесс к внешней сети")
-            return START_NOT_STICKY
+            return
         }
         startOwnedPipeline(attempt)
-        return START_STICKY
     }
 
     override fun getService(): Service {
@@ -530,7 +556,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: markError rejected after teardown claim attempt=$attempt")
         }
         MessageUtil.sendMsg2UI(this, AppConfig.MSG_STATE_START_FAILURE, message)
-        stopAllService(detachAttempt = attempt, teardownAlreadyClaimed = true, joinJobs = false)
+        stopAllService(detachAttempt = attempt, teardownAlreadyClaimed = true)
     }
 
     private fun tryAutoFailover(attempt: Long, code: String): Boolean {
@@ -540,7 +566,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: AUTO failover ${decision.reason} next=${decision.guid}")
         CoreServiceManager.scheduleAuthorizedRestart(applicationContext)
-        stopAllService(detachAttempt = attempt, joinJobs = false)
+        stopAllService(detachAttempt = attempt)
         return true
     }
 
@@ -570,8 +596,8 @@ class CoreVpnService : VpnService(), ServiceControl {
         isForced: Boolean = true,
         detachAttempt: Long = protectAttempt,
         teardownAlreadyClaimed: Boolean = false,
-        joinJobs: Boolean = true,
     ) {
+        admissionEpoch.incrementAndGet()
         val claimed = teardownAlreadyClaimed || VpnSessionCoordinator.claimTeardown(detachAttempt)
         unlockStart()
         com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
@@ -583,7 +609,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             return
         }
         isRunning = false
-        finishOwnedJobs(join = joinJobs)
+        cancelOwnedJobs()
         health.stop()
         tun2SocksService?.stopTun2Socks()
         tun2SocksService = null
@@ -608,24 +634,13 @@ class CoreVpnService : VpnService(), ServiceControl {
         CoreServiceManager.stopCoreLoop()
     }
 
-    private fun joinOwnedJobs() {
-        finishOwnedJobs(join = true)
-    }
-
-    private fun finishOwnedJobs(join: Boolean) {
+    private fun cancelOwnedJobs() {
         val pipeline = pipelineJob
         val traffic = trafficJob
         pipelineJob = null
         trafficJob = null
-        if (!join) {
-            pipeline?.cancel()
-            traffic?.cancel()
-            return
-        }
-        runBlocking {
-            pipeline?.cancelAndJoin()
-            traffic?.cancelAndJoin()
-        }
+        pipeline?.cancel()
+        traffic?.cancel()
     }
 
     private fun tryLockStart(): Boolean = isStartingLock.compareAndSet(false, true)

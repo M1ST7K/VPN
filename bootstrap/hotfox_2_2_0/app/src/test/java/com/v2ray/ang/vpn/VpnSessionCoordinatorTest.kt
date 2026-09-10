@@ -333,9 +333,21 @@ class VpnSessionCoordinatorTest {
         assertTrue(live.success)
         assertEquals(second, HotfoxSocketProtect.boundAttemptForTests())
         assertTrue(VpnSessionCoordinator.claimTeardown(second))
+        assertFalse(VpnSessionCoordinator.claimTeardown(second))
         assertTrue(VpnSessionCoordinator.isTeardownActive())
         assertEquals(VpnSessionState.DISCONNECTING, VpnSessionCoordinator.currentState())
         assertEquals(0L, VpnSessionCoordinator.beginAttempt())
         HotfoxSocketProtect.resetForTests()
+    }
+
+    @Test
+    fun secondSameAttemptClaimTeardownIsRejected() {
+        val attempt = VpnSessionCoordinator.beginAttempt()
+        assertTrue(VpnSessionCoordinator.claimTeardown(attempt))
+        assertTrue(VpnSessionCoordinator.isTeardownActive())
+        assertFalse(VpnSessionCoordinator.claimTeardown(attempt))
+        assertTrue(VpnSessionCoordinator.isTeardownActive())
+        assertEquals(VpnSessionState.DISCONNECTING, VpnSessionCoordinator.currentState())
+        assertTrue(VpnSessionCoordinator.isCurrent(attempt))
     }
 }

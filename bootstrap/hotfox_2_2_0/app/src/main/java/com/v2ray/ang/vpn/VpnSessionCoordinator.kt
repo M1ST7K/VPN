@@ -31,6 +31,7 @@ object VpnSessionCoordinator {
     private val lastPath = AtomicReference<VpnPathVerification?>(null)
     private val lastStage = AtomicReference(VpnConnectionStage.IDLE)
     private val teardownActive = AtomicBoolean(false)
+    private val teardownClaimed = AtomicBoolean(false)
     private val lastStopSucceeded = AtomicBoolean(true)
     private val stopEpoch = AtomicLong(0L)
     private val lifecycleLock = ReentrantLock(true)
@@ -76,19 +77,24 @@ object VpnSessionCoordinator {
     fun setTeardownActive(active: Boolean) {
         synchronized(generationLock) {
             teardownActive.set(active)
+            if (!active) teardownClaimed.set(false)
         }
     }
 
     /**
-     * Atomically claim teardown for [ownedAttempt] **before** start admission
-     * is released. A stale attempt cannot mark teardown or move a newer
-     * session to DISCONNECTING.
+     * Exclusive teardown ownership for [ownedAttempt]. The first claimant for
+     * the current attempt wins; a second same-attempt or stale claim fails.
+     * Must be called **before** start admission is released.
      */
     fun claimTeardown(ownedAttempt: Long): Boolean {
         synchronized(generationLock) {
             if (ownedAttempt == 0L || !matches(ownedAttempt)) {
                 return false
             }
+            if (teardownClaimed.get()) {
+                return false
+            }
+            teardownClaimed.set(true)
             teardownActive.set(true)
             val current = state.get()
             if (current != VpnSessionState.ERROR && current != VpnSessionState.RECONNECTING) {
@@ -115,6 +121,7 @@ object VpnSessionCoordinator {
             lastStopSucceeded.set(stopLoopSucceeded)
             if (stopLoopSucceeded) {
                 if (!matches(attempt)) return false
+                teardownClaimed.set(false)
                 teardownActive.set(false)
                 if (state.get() != VpnSessionState.ERROR) {
                     attemptId.incrementAndGet()
@@ -150,6 +157,7 @@ object VpnSessionCoordinator {
         synchronized(generationLock) {
             if (stopEpoch.get() != epoch) return false
             lastStopSucceeded.set(true)
+            teardownClaimed.set(false)
             teardownActive.set(false)
             val current = state.get()
             if (current == VpnSessionState.ERROR ||
@@ -250,6 +258,7 @@ object VpnSessionCoordinator {
             sessionStartElapsed.set(0L)
             traffic.reset()
             lastError.set(null)
+            teardownClaimed.set(false)
             teardownActive.set(false)
             lastStopSucceeded.set(true)
         }
@@ -387,6 +396,7 @@ object VpnSessionCoordinator {
             lastError.set(null)
             lastPath.set(null)
             lastStage.set(VpnConnectionStage.IDLE)
+            teardownClaimed.set(false)
             teardownActive.set(false)
             lastStopSucceeded.set(true)
             stopEpoch.set(0L)
