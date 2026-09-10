@@ -1,6 +1,6 @@
 # CURRENT PHASE — RUNTIME REPAIR GATE (owner opened)
 
-Status: **IN PROGRESS — owner runtime-repair gate**
+Status: **HOST CI GREEN — phase-exit candidate; emulator/physical still NOT EXECUTED**
 
 The owner explicitly opened `docs/HOTFOX_RUNTIME_REPAIR_EXECUTION_PROMPT.md` from HEAD `d723f65`.
 That supersedes the previous no-op / deferred-runtime instruction **for this engineering/runtime repair only**.

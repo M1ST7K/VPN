@@ -52,14 +52,29 @@ outbound; single-node drift (port/protocol/TLS/REALITY) still fail-closed.
 GLOBAL/SMART drop legacy `.ru` / `.su` / `.рф` / geosite:cn / geoip:private DIRECT rules.
 `HotfoxXrayConfigValidator.requireValid` rejects dangling tags (`HF-VPN-016`) before core start.
 
+## Host CI evidence (green)
+
+Push run `34526242362` on SHA `e85af2dff3026be258d66bfa04fafa0fa8fcd2e7`: reconstruct, static, unit, lint, unsigned release, debug APK, publish `hotfox-dev-latest` — SUCCESS.
+
+SHA-256 of that APK set:
+
+- `arm64-v8a` `00dcd4c8d2d367607bb164ba59b4540acda38a1ef745111cf7dc2c29a05ad457`
+- `armeabi-v7a` `e48a1a8a4c0b545e4de660f5959732154570e5c4ce5df13db8ec5673cde20898`
+- `universal` `5aaa0ed3d8f6cbbfd32943f8da7b69199db2ca9c74c1b537f2abdb1b6de3967a`
+- `x86` `558b99e89f8ddc93d3cd57030817ca46f59fecaab5e84951b099b6c34a9ef897`
+- `x86_64` `3aa31256820492847b2cda67cc6ecbd2cd18317319684554d2203052df613b3f`
+
+Download (dev prerelease, not release-ready): https://github.com/M1ST7K/VPN/releases/tag/hotfox-dev-latest
+
 ## Executed vs deferred
 
 | Gate | Status |
 | --- | --- |
-| Overlay unit tests for the matrix above | added; run in reconstruct CI |
-| Host reconstruction / lint / assembleDebug / unsigned release | CI on this SHA |
-| SHA-tied debug APK + `candidate-evidence.txt` | CI artifact |
-| Emulator VPN E2E | **NOT EXECUTED** in this agent (no SDK/KVM). Existing secret-gated workflow only. |
+| Overlay unit tests for the matrix above | PASS on `e85af2d` |
+| Host reconstruction / lint / assembleDebug / unsigned release | PASS on `e85af2d` |
+| SHA-tied debug APK + `candidate-evidence.txt` | PASS on `e85af2d` |
+| HotFox AI phase-exit review | requested on the next coherent head |
+| Emulator VPN E2E | **NOT EXECUTED** (no SDK/KVM here; e2e workflow is secret-gated) |
 | Physical device | **NOT EXECUTED** — still `FINAL RELEASE DEVICE GATE` |
 | `RELEASE READY` | **not claimed** |
 
