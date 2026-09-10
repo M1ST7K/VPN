@@ -1,11 +1,11 @@
-# CURRENT PHASE — HotFox 2.9 «VPN Core Recovery / Real Connection Fix»
+# CURRENT PHASE — HotFox 3.0 «Premium Android Experience»
 
-Status: **ENGINEERING-EXIT CANDIDATE** (implementation `dacfe386260b204a562b231ba6f31d81ed5d01e1`; round-15 P1 `--channel=3` fix `37115cd`; this head requests `[hotfox-phase-exit]`)
+Status: **IN PROGRESS** (2.9 is ENGINEERING COMPLETE — runtime and physical release validation deferred)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
-Linked detailed phase spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`
-Previous phase: `docs/phases/2.8-autopilot.md`
+Previous phase: `docs/phases/2.9-vpn-recovery.md`
+Linked phase spec: `docs/phases/3.0-premium-android.md` and `docs/HOTFOX_ROADMAP.md` (legacy heading «2.9 Premium Android Experience», now 3.0)
 Owner roadmap override: `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc`
 Latest owner validation override: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
@@ -15,54 +15,49 @@ Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
 ## Goal
 
-Implement and harden the complete intended production pipeline:
+Make truthful HotFox behavior feel simple, deliberate and premium without hiding technical failure.
 
-Android application traffic → VpnService → TUN → HEV/tun2socks → local SOCKS `127.0.0.1:10808` → Xray → remote VPN server → Internet → response back to the Android application.
+Canonical visual language remains: charcoal / purple-black canvas, warm cream typography, restrained orange accent, green only for real protected success.
 
-2.9 exists to correct the known HotFox-side datapath defects and to leave the codebase ready for final runtime validation.
+Primary phone navigation remains exactly:
 
-Build success, TUN creation, Xray/HEV start, local SOCKS listen, or the Android VPN icon still do **not** prove runtime VPN success. However, under the latest owner decision, missing emulator/runtime E2E is no longer an intermediate blocker for engineering-roadmap progression.
+`Соединение` / `Серверы` / `Подписка`
 
 ## Inherited guarantees (still binding)
 
-- truthful `VpnService`/TUN → HEV → Xray architecture;
-- `Защищено` only from canonical verified VPN session (fail-closed);
+- truthful `VpnService`/TUN → HEV → SOCKS `127.0.0.1:10808` → Xray;
+- `Защищено` / notification protected / QS ACTIVE only from canonical verified VPN session;
 - DNS cannot silently bypass while protection is claimed;
-- IPv6 routed or fail-closed;
+- IPv6 captured fail-closed with `::/0` (LAN bypass is IPv4-only at TUN; NAT64 stays in TUN);
 - AUTO remains a persisted mode; manual selection stays manual;
 - backend-authoritative entitlement; checkout `success=true` is not payment proof;
-- no secrets in APK/logs;
-- 2.5 routing policy and TUN/Xray honesty;
-- 2.6 Shadow fallback never weakens TLS/REALITY;
-- 2.7 channels, signed updates, drain, redaction, signing honesty;
-- 2.8 Autopilot serialized intent through `VpnRestartGate`.
+- no secrets in APK/logs/notifications;
+- 2.5–2.8 routing, Shadow, operations and Autopilot contracts;
+- 2.9 SOCKS/TUN/runtime E2E harnesses remain intact for the final release validation gate.
 
 ## Work allowed now
 
-- Root-cause isolation from subscription → generated Xray config → SOCKS-only Xray → protect/underlying network → TUN/HEV → DNS → device traffic.
-- SOCKS-only diagnostic path on `127.0.0.1:10808` without VpnService/TUN/HEV.
-- Independent HTTP inbound `127.0.0.1:10809` checks (do not confuse with SOCKS).
-- `Utils.isXray()` / package-name capability detection must not depend on `com.v2ray.ang`.
-- Source/runtime instrumentation required to make later final validation observable and diagnosable.
-- Sanitized field-by-field config compare; credentials `[REDACTED]`.
-- Unit/integration/static/CI coverage for production-path correctness.
-- Keep engineering-runtime E2E harnesses intact for the final release validation gate.
+- Connection-state presentation sequence derived from `VpnSessionState` / `VpnConnectionStage`;
+- truthful AUTO / Shadow labels;
+- error/recovery presentation mapper (never raw `HF-VPN-*` as the headline);
+- subscription, server-list, routing and Autopilot UX polish;
+- first-run onboarding around real permission/access/AUTO/connect requirements;
+- truthful foreground notification and Quick Settings Tile adapters;
+- accessibility, reduced-motion, restrained haptics;
+- screenshot/golden or deterministic ViewState fixtures where maintainable.
 
 ## Not now
 
-- claiming `RELEASE READY` / production VPN release;
-- fake CONNECTED, mock VPN, disabled TLS/REALITY, direct-routing test traffic, or readiness bypass;
-- committing or logging the private subscription URL/credentials.
-
-Premium Android UX remains the next roadmap phase (3.0), followed by 3.1 Mature Platform / pre-release engineering.
+- claiming `RELEASE READY`;
+- fake CONNECTED, fake ping, mock VPN, disabled TLS/REALITY, or readiness bypass;
+- deleting or weakening 2.9 diagnostic/runtime E2E harnesses;
+- starting 3.1 Mature Platform until 3.0 engineering exit is APPROVED.
 
 ## Owner validation timing override
 
 `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc` is authoritative for validation timing.
 
-For 2.9, emulator/runtime VPN E2E and physical-device E2E are deferred to the single final release validation gate after 3.1 engineering completion.
-
-If runtime E2E has not executed, it must be reported as `NOT EXECUTED / deferred`, never as PASS.
+Emulator/runtime VPN E2E and physical-device E2E remain deferred to the single final release validation gate after 3.1. If they have not executed, report `NOT EXECUTED / deferred`, never PASS.
 
 ## Checkpoint protocol
 
@@ -70,27 +65,20 @@ Ordinary commits while implementing and while CI is red.
 
 Do **not** put `[hotfox-review]` or `[hotfox-phase-exit]` on intermediate fix commits.
 
-When a coherent repository-side 2.9 engineering-exit candidate is ready and required build/unit/lint/static/integration CI is green, make one final commit whose message contains:
+When a coherent repository-side 3.0 engineering-exit candidate is ready and required build/unit/lint/static/integration CI is green, make one final commit whose message contains:
 
 `[hotfox-phase-exit]`
 
-Then run the final AI review.
+## Phase 3.0 exit definition
 
-## Phase 2.9 exit definition
+3.0 may close when:
 
-2.9 may close when:
-
-- the intended production VPN architecture and 2.9 fixes are implemented;
-- diagnostic/final-E2E harnesses remain available;
+- Premium UX scope above is implemented without weakening inherited VPN/truth/security guarantees;
 - required CI/build/unit/integration/static checks pass;
-- no secrets are committed/logged;
-- fail-closed truth/security guarantees are preserved;
 - final review has P0=0 / P1=0.
-
-Missing emulator/runtime/physical validation by itself is not a P0/P1 and does not block 2.9 under the latest owner override.
 
 Truthful status wording after approval:
 
-`2.9 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
+`3.0 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
-Then immediately start `3.0 Premium Android Experience`.
+Then immediately start `3.1 Mature HotFox Platform / Pre-release Engineering`.

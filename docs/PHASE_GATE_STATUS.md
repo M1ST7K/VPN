@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is an **engineering-exit candidate** (implementation `dacfe38`, SDK/E2E harness fix `37115cd`). Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED`. Runtime and physical VPN E2E remain **NOT EXECUTED / deferred** to the final release validation gate. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 17 `APPROVED`, P0=0, P1=0) on SHA `4524207` / IPv6 fix `f8de16e` / isolation `dacfe38`. Current phase is **3.0 Premium Android Experience**. Runtime and physical VPN E2E remain **NOT EXECUTED / deferred** to the final release validation gate. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -457,9 +457,7 @@ Implementation included:
 
 ## Phase 2.9 — VPN Core Recovery / Real Connection Fix
 
-**ENGINEERING-EXIT CANDIDATE.** 2.8 engineering gate is closed (round 13 `APPROVED`, P0 = 0, P1 = 0). Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`. Validation timing: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`. Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0). Premium UI is 3.0 and must not start until then.
-
-Implementation candidate `dacfe386260b204a562b231ba6f31d81ed5d01e1`. Round 14 P1 (integer `platforms;android-37` for compileSdk 37) is in `696254c`. Round 15 P1 (`sdkmanager --channel=3`) is in `37115cda59f6353b12871849cafcbcd02707692a`. GitHub CI for exact SHA `37115cda59f6353b12871849cafcbcd02707692a` (run `34450268659`):
+**ENGINEERING COMPLETE — runtime and physical release validation deferred.** 2.9 engineering gate is closed (round 17 `APPROVED`, P0 = 0, P1 = 0) on SHA `45242077fc1e286901b712b31cf7df4915b620f6` / IPv6 fail-closed `f8de16e8fb2fd5e41104c934bc3f8a60fed90488` / isolation implementation `dacfe386260b204a562b231ba6f31d81ed5d01e1`. GitHub CI for exact SHA `45242077fc1e286901b712b31cf7df4915b620f6` (run `34455242313`):
 
 - Payload integrity: PASS
 - Reconstruct and overlay verification: PASS
@@ -469,9 +467,9 @@ Implementation candidate `dacfe386260b204a562b231ba6f31d81ed5d01e1`. Round 14 P1
 - Record APK SHA-256: PASS
 - Publish HotFox Dev Latest: PASS
 
-Runtime VPN E2E remains **NOT EXECUTED / deferred**. Physical-device VPN E2E remains **NOT EXECUTED / deferred**. Neither blocks this engineering-exit candidate. Do not claim `RELEASE READY`.
+Runtime VPN E2E remains **NOT EXECUTED / deferred**. Physical-device VPN E2E remains **NOT EXECUTED / deferred**. Neither blocked 2.9 under the owner validation-timing override. Do not claim `RELEASE READY`.
 
-Implementation in this candidate:
+Implementation included:
 
 1. Xray capability is package-independent (`HotfoxXrayCapability` / `Utils.isXray()` for `com.hotfox.*`).
 2. SOCKS `10808` and HTTP `10809` are isolated; `HF-VPN-014` fail-closes before HEV when SOCKS HTTPS fails.
@@ -484,6 +482,14 @@ Implementation in this candidate:
 9. Connected health probes SOCKS HTTPS, not HTTP 10809.
 10. Debug engineering-runtime E2E harness (SOCKS-only Test E, then VPN reconnect cycles) is preserved for the final release validation gate.
 11. Secret-gated E2E/SDK install requests `platforms;android-37` and asserts `platforms/android-37` for `compileSdk = 37`, keeping `build-tools;37.0.0` separate; `sdkmanager --channel=3` is required; `platforms;android-37.0` remains a fallback with a symlink when Google only publishes the minor-versioned platform.
+12. IPv6 TUN capture is fail-closed `::/0` including NAT64 `64:ff9b::/96`; LAN bypass is IPv4-only at TUN.
 
+## Phase 3.0 — Premium Android Experience
+
+**IN PROGRESS.** 2.9 engineering gate is closed. Canonical scope: `docs/HOTFOX_ROADMAP.md` (legacy «2.9 Premium» heading) and `docs/phases/3.0-premium-android.md`. Do not record `3.0 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0). Mature platform work is 3.1.
+
+Repository-side 3.0 work in progress: truthful SELECTING/VERIFYING headlines, error/notification/QS mappers, first-run onboarding, Autopilot/Routing surfaces, reduced-motion, ViewState fixtures.
+
+Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `RELEASE READY`.
 
 

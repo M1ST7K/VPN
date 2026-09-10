@@ -1,6 +1,6 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **2.9 — VPN Core Recovery / Real Connection Fix**.
+Current milestone: **3.0 — Premium Android Experience**.
 
 This file is trusted reviewer context from `main`/owner policy. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md`.
 
@@ -55,7 +55,7 @@ Preserve its guarantees:
 - captured-traffic precedence `BLOCK > APP > DOMAIN > CIDR > GLOBAL`;
 - Xray rules bucketed `BLOCK / exact / suffix / CIDR`;
 - routing reconnect is bound to `VpnRestartGate`;
-- DNS through VPN; LAN explicit; IPv6 fail-closed unless policy says otherwise.
+- DNS through VPN; LAN IPv4 explicit; IPv6 fail-closed `::/0` including NAT64 (LAN bypass does not omit IPv6 Internet prefixes).
 
 ### 2.6 — HotFox Shadow / Stealth & Resilience
 
@@ -95,55 +95,55 @@ Preserve its guarantees:
 - captive portal wait/release with `Сеть требует авторизации`;
 - reconnect gap is bounded; no second session controller.
 
-## Current goal — 2.9 VPN Core Recovery / Real Connection Fix
+### 2.9 — VPN Core Recovery / Real Connection Fix
 
-Implement and harden the intended real production path and fix the known HotFox-side datapath defects. Canonical detailed spec remains `docs/HOTFOX_2_9_VPN_RECOVERY.md`, with validation timing overridden by `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`.
+Phase 2.9 VPN Core Recovery is **ENGINEERING COMPLETE — runtime and physical release validation deferred** after checkpoint round 17 (`APPROVED`, no substantiated P0/P1) on SHA `4524207` / IPv6 fix `f8de16e` / isolation `dacfe38`.
 
-The intended path remains:
+Preserve its guarantees:
 
-Android app traffic → `VpnService`/TUN → HEV/tun2socks → local SOCKS `127.0.0.1:10808` → Xray → remote VPN server → Internet.
+- SOCKS `10808` is isolated from HTTP `10809`; health probes SOCKS HTTPS;
+- `Utils.isXray()` / Xray capability is package-independent;
+- generated Reality/network/security drift is fail-closed;
+- IPv6 TUN capture is `::/0` including NAT64; LAN bypass is IPv4-only at TUN;
+- runtime E2E harnesses remain for the final release validation gate;
+- no fake CONNECTED.
 
-Do not expand 2.9 into 3.0 Premium UI until the repository-side 2.9 engineering gate closes.
+Do not reopen 2.9 solely because runtime/physical release validation is deferred.
 
-## Highest-priority review targets for 2.9
+## Current goal — 3.0 Premium Android Experience
 
-1. **Isolation architecture** — SOCKS-only `127.0.0.1:10808` without TUN/HEV remains distinct from HTTP `10809`.
-2. **Package-independent Xray** — core capability must not depend on `applicationId` `com.v2ray.ang`.
-3. **Generated config correctness** — sanitized field-by-field mapping; credentials `[REDACTED]`.
-4. **protect / underlying network design** — correct production implementation and diagnostics for later runtime proof.
-5. **No routing loop by design** — Xray remote sockets must have the correct underlying-network/protect path and must not intentionally re-enter TUN.
-6. **Fail-closed UI** — no fake CONNECTED / `Защищено`.
-7. **No security weakening** — no trust-all TLS, no mock VPN, no readiness bypass, no DNS/IPv6 leak acceptance.
-8. **No secret handling regression**.
-9. **No 2.2–2.8 regression**.
-10. **Final runtime harness preserved** — do not delete or weaken the emulator/device E2E instrumentation simply because execution is deferred.
+Polish truthful UX without hiding failure. Canonical scope is the legacy «2.9 Premium Android Experience» heading in `docs/HOTFOX_ROADMAP.md` and `docs/phases/3.0-premium-android.md`.
+
+Do not expand 3.0 into 3.1 Mature Platform until the 3.0 engineering gate closes.
+
+## Highest-priority review targets for 3.0
+
+1. **Truthful headlines** — `Защищено` only from canonical protected session; SELECTING / CONNECTING / VERIFYING remain distinct from CONNECTED.
+2. **Error presentation** — user-facing title/detail/action; diagnostic codes stay in details, not the headline.
+3. **Notification / QS Tile** — protected/ACTIVE only when `VpnSessionState.CONNECTED`.
+4. **AUTO / Shadow copy** — resolved target and recovery state are truthful.
+5. **Navigation** — primary destinations remain `Соединение` / `Серверы` / `Подписка`.
+6. **No fake ping, fake CONNECTED, or secret leakage in UI/notifications**.
+7. **No 2.2–2.9 regression** of VPN path, DNS/IPv6, entitlement, or E2E harnesses.
+8. **Accessibility / reduced-motion** for key connection controls.
 
 ## Scope discipline
 
-Do **not** turn unimplemented 3.0 Premium UI or 3.1 Mature Platform items into P0/P1 during 2.9 review.
+Do **not** turn unimplemented 3.1 Mature Platform items into P0/P1 during 3.0 review.
 
-Missing emulator/runtime/physical execution by itself is **not** a 2.9 P0/P1 under the latest owner validation timing override.
+Missing emulator/runtime/physical execution by itself is **not** a 3.0 P0/P1 under the latest owner validation timing override.
 
-A concrete code defect that would violate the production path, truthful state, security, DNS/IPv6 policy, secret handling, buildability, or phase requirements may still be P0/P1.
-
-## Exit gate for 2.9 engineering
+## Exit gate for 3.0 engineering
 
 Run one final `[hotfox-phase-exit]` when the repository-side implementation is coherent and required build/unit/integration/lint/static/release-compilation checks are green.
 
-If:
+If P0=0 and P1=0, record:
 
-- P0 = 0;
-- P1 = 0;
-- no secrets are committed/logged;
-- fail-closed/security guarantees are preserved;
+`3.0 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
-record:
+Then immediately move to `3.1 Mature HotFox Platform / Pre-release Engineering`.
 
-`2.9 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
-
-Then immediately move to `3.0 Premium Android Experience`.
-
-Do **not** require emulator/runtime VPN E2E to close 2.9 under the latest owner decision. If it did not run, state `NOT EXECUTED / deferred`; never claim PASS.
+If runtime E2E did not run, state `NOT EXECUTED / deferred`; never claim PASS.
 
 ## Final release validation policy
 

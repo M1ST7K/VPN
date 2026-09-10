@@ -9,10 +9,8 @@ This checkpoint exists only to request the next canonical phase-exit review afte
 - Runtime emulator VPN E2E: `NOT EXECUTED / deferred` under the owner validation-timing override.
 - Physical Android VPN E2E: `NOT EXECUTED / deferred` until `FINAL RELEASE VALIDATION GATE`.
 
-Do not claim `2.9 ENGINEERING COMPLETE` until the SHA-bound phase-exit AI review reports P0=0 and P1=0.
-
-If approved, record:
+If approved, this checkpoint closed 2.9 as:
 
 `2.9 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
-Then immediately start `3.0 Premium Android Experience`, followed by `3.1 Mature HotFox Platform / Pre-release Engineering`. Stop only at the final release validation gate.
+Round 17 `APPROVED` (P0=0, P1=0) on SHA `45242077fc1e286901b712b31cf7df4915b620f6`. Current phase is `3.0 Premium Android Experience`.
