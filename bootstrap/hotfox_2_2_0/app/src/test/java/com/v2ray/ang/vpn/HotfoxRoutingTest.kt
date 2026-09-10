@@ -439,4 +439,84 @@ class HotfoxRoutingTest {
             HotfoxRoutingPolicy.decide(split, RoutingQuery(packageName = "org.mozilla.firefox")).action,
         )
     }
+
+    @Test
+    fun includeCapturedAppStaysVpnDespiteDirectDomainAndCidr() {
+        val snap = smart.copy(
+            mode = HotfoxRoutingMode.INCLUDE_APPS,
+            selectedApps = setOf("org.mozilla.firefox"),
+            adsBlocked = true,
+            rules = listOf(
+                RoutingRule("host", RoutingRuleKind.DOMAIN_EXACT, "example.com", RouteAction.DIRECT),
+                RoutingRule("net", RoutingRuleKind.CIDR, "1.2.3.0/24", RouteAction.DIRECT),
+                RoutingRule("block", RoutingRuleKind.DOMAIN_EXACT, "tracker.example", RouteAction.BLOCK),
+                RoutingRule("proxy", RoutingRuleKind.DOMAIN_SUFFIX, "ok.example", RouteAction.VPN),
+            ),
+        )
+        assertTrue(snap.funnelsCapturedTrafficByApp())
+        assertTrue(HotfoxRoutingDataPlane.capturedOnTun(snap, "org.mozilla.firefox"))
+        val captured = HotfoxRoutingPolicy.decide(
+            snap,
+            RoutingQuery(packageName = "org.mozilla.firefox", domain = "example.com", ip = "1.2.3.4"),
+        )
+        assertEquals(RouteAction.VPN, captured.action)
+        assertEquals("include_apps", captured.reason)
+        assertEquals(
+            RouteAction.BLOCK,
+            HotfoxRoutingPolicy.decide(
+                snap,
+                RoutingQuery(packageName = "org.mozilla.firefox", domain = "tracker.example"),
+            ).action,
+        )
+        assertEquals(
+            RouteAction.DIRECT,
+            HotfoxRoutingPolicy.decide(
+                snap,
+                RoutingQuery(packageName = "com.android.vending", domain = "example.com", ip = "1.2.3.4"),
+            ).action,
+        )
+        assertEquals(
+            RouteAction.VPN,
+            HotfoxRoutingPolicy.decide(snap, RoutingQuery(domain = "example.com", ip = "1.2.3.4")).action,
+        )
+        val xray = HotfoxRoutingDataPlane.xrayRules(snap)
+        assertEquals(xray, HotfoxXrayRouting.rules(snap))
+        assertTrue(xray.any { it.source == "ads" && it.outboundTag == HotfoxXrayRouting.TAG_BLOCKED })
+        assertTrue(
+            xray.any {
+                it.outboundTag == HotfoxXrayRouting.TAG_BLOCKED && it.domain == listOf("full:tracker.example")
+            },
+        )
+        assertTrue(xray.none { it.outboundTag == HotfoxXrayRouting.TAG_DIRECT })
+        assertTrue(xray.none { it.outboundTag == HotfoxXrayRouting.TAG_PROXY })
+    }
+
+    @Test
+    fun excludeRestOfAppsStaysVpnDespiteDirectDomainAndCidr() {
+        val snap = smart.copy(
+            mode = HotfoxRoutingMode.EXCLUDE_APPS,
+            selectedApps = setOf("com.bank.app"),
+            rules = listOf(
+                RoutingRule("host", RoutingRuleKind.DOMAIN_EXACT, "example.com", RouteAction.DIRECT),
+                RoutingRule("net", RoutingRuleKind.CIDR, "8.8.8.0/24", RouteAction.DIRECT),
+            ),
+        )
+        assertEquals(
+            RouteAction.VPN,
+            HotfoxRoutingPolicy.decide(
+                snap,
+                RoutingQuery(packageName = "org.mozilla.firefox", domain = "example.com", ip = "8.8.8.8"),
+            ).action,
+        )
+        assertEquals(
+            RouteAction.DIRECT,
+            HotfoxRoutingPolicy.decide(
+                snap,
+                RoutingQuery(packageName = "com.bank.app", domain = "example.com"),
+            ).action,
+        )
+        val xray = HotfoxXrayRouting.rules(snap)
+        assertTrue(xray.isEmpty())
+        assertTrue(xray.none { it.outboundTag == HotfoxXrayRouting.TAG_DIRECT })
+    }
 }

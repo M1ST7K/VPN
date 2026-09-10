@@ -448,6 +448,16 @@ def main() -> int:
         "Xray rules are bucketed to match decide() precedence",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayRouting.kt",
+        "funnelsCapturedTrafficByApp",
+        "app-split modes must not emit non-block DOMAIN/CIDR to Xray",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt",
+        "fun funnelsCapturedTrafficByApp",
+        "APP precedence is explicit for INCLUDE/EXCLUDE",
+    )
+    must_contain(
         "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",
         "HotfoxRoutingStore.load()",
         "routing UI is derived from the active policy snapshot",

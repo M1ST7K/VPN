@@ -133,4 +133,63 @@ class HotfoxXrayRoutingTest {
         assertEquals("block", afterServerChange[0].outboundTag)
         assertEquals("dns-out", afterServerChange.last().outboundTag)
     }
+
+    @Test
+    fun appSplitModesEmitOnlyBlockFieldRules() {
+        val include = smart.copy(
+            mode = HotfoxRoutingMode.INCLUDE_APPS,
+            selectedApps = setOf("org.mozilla.firefox"),
+            adsBlocked = true,
+            rules = listOf(
+                RoutingRule("host", RoutingRuleKind.DOMAIN_EXACT, "example.com", RouteAction.DIRECT),
+                RoutingRule("net", RoutingRuleKind.CIDR, "1.2.3.0/24", RouteAction.DIRECT),
+                RoutingRule("block", RoutingRuleKind.DOMAIN_EXACT, "tracker.example", RouteAction.BLOCK),
+                RoutingRule("proxy", RoutingRuleKind.DOMAIN_SUFFIX, "ok.example", RouteAction.VPN),
+            ),
+        )
+        val rules = HotfoxXrayRouting.rules(include)
+        assertEquals(2, rules.size)
+        assertEquals(listOf(HotfoxXrayRouting.ADS_GEOSITE), rules[0].domain)
+        assertEquals(HotfoxXrayRouting.TAG_BLOCKED, rules[0].outboundTag)
+        assertEquals(listOf("full:tracker.example"), rules[1].domain)
+        assertEquals(HotfoxXrayRouting.TAG_BLOCKED, rules[1].outboundTag)
+        assertTrue(rules.none { it.outboundTag == HotfoxXrayRouting.TAG_DIRECT })
+        assertEquals(
+            RouteAction.VPN,
+            HotfoxRoutingPolicy.decide(
+                include,
+                RoutingQuery(packageName = "org.mozilla.firefox", domain = "example.com", ip = "1.2.3.4"),
+            ).action,
+        )
+        val exclude = include.copy(
+            mode = HotfoxRoutingMode.EXCLUDE_APPS,
+            selectedApps = setOf("com.bank.app"),
+        )
+        assertTrue(HotfoxXrayRouting.rules(exclude).none { it.outboundTag == HotfoxXrayRouting.TAG_DIRECT })
+        assertEquals(
+            RouteAction.VPN,
+            HotfoxRoutingPolicy.decide(
+                exclude,
+                RoutingQuery(packageName = "org.mozilla.firefox", domain = "example.com"),
+            ).action,
+        )
+    }
+
+    @Test
+    fun smartModeStillEmitsDirectDomainAndCidr() {
+        val snap = smart.copy(
+            rules = listOf(
+                RoutingRule("host", RoutingRuleKind.DOMAIN_EXACT, "example.com", RouteAction.DIRECT),
+                RoutingRule("net", RoutingRuleKind.CIDR, "1.2.3.0/24", RouteAction.DIRECT),
+            ),
+        )
+        val rules = HotfoxXrayRouting.rules(snap)
+        assertEquals(2, rules.size)
+        assertEquals(HotfoxXrayRouting.TAG_DIRECT, rules[0].outboundTag)
+        assertEquals(HotfoxXrayRouting.TAG_DIRECT, rules[1].outboundTag)
+        assertEquals(
+            RouteAction.DIRECT,
+            HotfoxRoutingPolicy.decide(snap, RoutingQuery(domain = "example.com")).action,
+        )
+    }
 }

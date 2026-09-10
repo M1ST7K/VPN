@@ -247,6 +247,14 @@ data class RoutingPolicySnapshot(
     fun dnsPolicy(): DnsPolicy = DnsPolicy.THROUGH_VPN
 
     /**
+     * INCLUDE/EXCLUDE capture remaining apps as a whole at VpnService.
+     * After TUN, Xray has no package identity, so non-block DOMAIN/CIDR field
+     * rules cannot preserve `APP > DOMAIN > CIDR` and must not be emitted.
+     */
+    fun funnelsCapturedTrafficByApp(): Boolean =
+        mode == HotfoxRoutingMode.INCLUDE_APPS || mode == HotfoxRoutingMode.EXCLUDE_APPS
+
+    /**
      * IPv6 Internet is always captured with `::/0`.
      *
      * LAN bypass is IPv4-only at the TUN layer. A partial IPv6 capture
@@ -312,22 +320,25 @@ object HotfoxRoutingPolicy {
         if (blocked != null) {
             return RoutingDecision(RouteAction.BLOCK, "block:${blocked.kind}:${blocked.id}")
         }
-        if (!query.packageName.isNullOrBlank()) {
-            when (snapshot.mode) {
-                HotfoxRoutingMode.INCLUDE_APPS ->
-                    return RoutingDecision(RouteAction.VPN, "include_apps")
-                HotfoxRoutingMode.EXCLUDE_APPS ->
-                    return RoutingDecision(RouteAction.VPN, "exclude_apps_rest")
-                else -> Unit
+        if (snapshot.funnelsCapturedTrafficByApp()) {
+            if (!query.packageName.isNullOrBlank()) {
+                val reason = when (snapshot.mode) {
+                    HotfoxRoutingMode.INCLUDE_APPS -> "include_apps"
+                    else -> "exclude_apps_rest"
+                }
+                return RoutingDecision(RouteAction.VPN, reason)
             }
-        }
-        val domainHit = matchingDomain(snapshot.rules, query.domain)
-        if (domainHit != null) {
-            return RoutingDecision(domainHit.action, "domain:${domainHit.kind}:${domainHit.id}")
-        }
-        val cidrHit = matchingCidr(snapshot.rules, query.ip)
-        if (cidrHit != null) {
-            return RoutingDecision(cidrHit.action, "cidr:${cidrHit.id}")
+            // No package identity: DOMAIN/CIDR DIRECT would disagree with the
+            // captured-app VPN path that Xray can actually enforce.
+        } else {
+            val domainHit = matchingDomain(snapshot.rules, query.domain)
+            if (domainHit != null) {
+                return RoutingDecision(domainHit.action, "domain:${domainHit.kind}:${domainHit.id}")
+            }
+            val cidrHit = matchingCidr(snapshot.rules, query.ip)
+            if (cidrHit != null) {
+                return RoutingDecision(cidrHit.action, "cidr:${cidrHit.id}")
+            }
         }
         val lanHit = query.lan ||
             query.ip?.let { CidrRouting.isLanIpv4(it) || CidrRouting.isLanIpv6(it) } == true

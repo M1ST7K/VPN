@@ -21,6 +21,10 @@ data class XrayFieldRule(
  * `BLOCK, exact-domain, suffix-domain, CIDR`. User order is kept only inside
  * a bucket.
  *
+ * INCLUDE/EXCLUDE modes preserve `APP > DOMAIN > CIDR` by emitting only BLOCK
+ * (and ads) field rules. Non-block DOMAIN/CIDR cannot be enforced after TUN
+ * because Xray has no Android package identity.
+ *
  * Tags match `AppConfig.TAG_PROXY` / `TAG_DIRECT` / `TAG_BLOCKED`.
  */
 object HotfoxXrayRouting {
@@ -43,10 +47,12 @@ object HotfoxXrayRouting {
                 ),
             )
         }
+        val appSplit = snapshot.funnelsCapturedTrafficByApp()
         snapshot.rules.mapNotNull(HotfoxRoutingPolicy::sanitizeRule).forEach { rule ->
             val xray = toXray(rule) ?: return@forEach
             when {
                 rule.action == RouteAction.BLOCK -> blocked.add(xray)
+                appSplit -> Unit
                 rule.kind == RoutingRuleKind.DOMAIN_EXACT -> exact.add(xray)
                 rule.kind == RoutingRuleKind.DOMAIN_SUFFIX -> suffix.add(xray)
                 rule.kind == RoutingRuleKind.CIDR -> cidr.add(xray)

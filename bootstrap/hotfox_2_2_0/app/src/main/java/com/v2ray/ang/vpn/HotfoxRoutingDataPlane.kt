@@ -8,6 +8,9 @@ package com.v2ray.ang.vpn
  * `::/0` so NAT64/global prefixes cannot bypass TUN. Custom `RoutingRuleKind.APP`
  * / `LAN` entries are rejected at parse/sanitize because they cannot be enforced
  * here or in Xray without lying about BLOCK/DIRECT.
+ *
+ * In INCLUDE/EXCLUDE, Xray field rules are BLOCK-only so they cannot override
+ * the app-capture decision with DOMAIN/CIDR DIRECT.
  */
 object HotfoxRoutingDataPlane {
     data class Ipv6TunRoute(val address: String, val prefix: Int)

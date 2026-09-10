@@ -138,6 +138,10 @@ grep -q 'fun outsideVpnCapture' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/Ho
   || fail "TUN capture membership is not explicit in routing policy"
 grep -q 'blocked + exact + suffix + cidr' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayRouting.kt" \
   || fail "Xray field rules are not bucketed to match decide() precedence"
+grep -q 'funnelsCapturedTrafficByApp' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayRouting.kt" \
+  || fail "app-split modes must not emit non-block DOMAIN/CIDR to Xray"
+grep -q 'fun funnelsCapturedTrafficByApp' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt" \
+  || fail "APP precedence helper missing from routing policy"
 grep -q 'object HotfoxShadowPolicy' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt" \
   || fail "HotFox 2.6 Shadow policy missing"
 grep -q 'fun fallback' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt" \
