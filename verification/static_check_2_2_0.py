@@ -621,8 +621,8 @@ def main() -> int:
         "2.9 engineering-runtime VPN E2E harness",
     )
     e2e_workflow = (ROOT / ".github/workflows/hotfox-vpn-e2e.yml").read_text(encoding="utf-8")
-    if "emulator_vpn_e2e.sh" not in e2e_workflow:
-        fail("VPN E2E workflow must invoke emulator_vpn_e2e.sh")
+    if "ci_run_vpn_e2e.sh" not in e2e_workflow:
+        fail("VPN E2E workflow must invoke ci_run_vpn_e2e.sh")
     if "Connect/IP probes are not implemented yet" in e2e_workflow:
         fail("VPN E2E workflow is still a placeholder")
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")

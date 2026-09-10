@@ -169,6 +169,7 @@ jobs:
           target: google_apis
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # ci_run_vpn_e2e.sh → emulator_vpn_e2e.sh (secret-gated; never logs the URL)
           script: bash verification/ci_run_vpn_e2e.sh
       - name: Record KVM skip as NOT EXECUTED
         if: steps.kvm.outputs.available != 'true'

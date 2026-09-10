@@ -215,7 +215,7 @@ grep -q 'fun normalizeNetwork' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/Hot
   || fail "tcp/raw network alias missing"
 grep -q 'object HotfoxEngineeringRuntimeE2e' "$PROJECT/app/src/debug/java/com/v2ray/ang/vpn/HotfoxEngineeringRuntimeE2e.kt" \
   || fail "engineering-runtime VPN E2E harness missing"
-grep -q 'emulator_vpn_e2e.sh' "$ROOT/.github/workflows/hotfox-vpn-e2e.yml" \
+grep -q 'ci_run_vpn_e2e.sh' "$ROOT/.github/workflows/hotfox-vpn-e2e.yml" \
   || fail "VPN E2E workflow is still a placeholder"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
