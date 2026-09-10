@@ -1,5 +1,7 @@
 name: HotFox Phase Exit Review Orchestrator
 
+# GitHub evaluates workflow_run using the copy of this file on the default
+# branch only. PR-branch edits do not run until they land on main.
 on:
   workflow_run:
     workflows: ["HotFox bootstrap and Android CI"]
@@ -8,7 +10,7 @@ on:
 permissions:
   actions: write
   contents: read
-  pull-requests: read
+  pull-requests: write
   issues: write
 
 concurrency:
@@ -26,7 +28,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Gate on phase-exit marker, dedupe, and dispatch reviewer
+      - name: Gate on phase-exit marker, SHA, dedupe, and dispatch reviewer
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -56,6 +58,12 @@ jobs:
             exit 1
           fi
 
+          pr_head="$(gh api "repos/${REPO}/pulls/${pr_number}" --jq '.head.sha')"
+          if [[ "$pr_head" != "$HEAD_SHA" ]]; then
+            echo "PR #${pr_number} head moved to ${pr_head}; not reviewing stale green SHA ${HEAD_SHA}."
+            exit 0
+          fi
+
           comments="$(gh api --paginate "repos/${REPO}/issues/${pr_number}/comments?per_page=100" --jq '.[].body' || true)"
           if grep -Fq "HOTFOX_AI_REVIEW head=${HEAD_SHA}" <<< "$comments" || \
              grep -Fq "HOTFOX_PHASE_EXIT_REVIEW_QUEUED head=${HEAD_SHA}" <<< "$comments"; then
@@ -63,13 +71,16 @@ jobs:
             exit 0
           fi
 
-          payload="$(jq -nc --arg pr "$pr_number" '{ref:"main",inputs:{pr_number:$pr,review_mode:"phase_exit"}}')"
+          payload="$(jq -nc --arg pr "$pr_number" --arg sha "$HEAD_SHA" \
+            '{ref:"main",inputs:{pr_number:$pr,expected_sha:$sha,review_mode:"phase_exit"}}')"
           gh api -X POST "repos/${REPO}/actions/workflows/hotfox-ai-review.yml/dispatches" --input - <<< "$payload"
 
           body="<!-- HOTFOX_PHASE_EXIT_REVIEW_QUEUED head=${HEAD_SHA} -->
           ### HotFox phase-exit review queued
 
-          Полный CI для phase-exit candidate завершён успешно. Один AI checkpoint review запущен автоматически. Обычные push не вызывают OpenAI reviewer."
-          gh api -X POST "repos/${REPO}/issues/${pr_number}/comments" -f body="$body" >/dev/null
+          Полный CI для phase-exit candidate \`${HEAD_SHA}\` завершён успешно. Один AI checkpoint review запущен автоматически для этого SHA. Обычные push не вызывают OpenAI reviewer."
+          if ! gh api -X POST "repos/${REPO}/issues/${pr_number}/comments" -f body="$body" >/dev/null; then
+            echo "Review dispatched; queued comment could not be posted." >&2
+          fi
 
           echo "Dispatched phase-exit AI review for PR #${pr_number}, head ${HEAD_SHA}."
