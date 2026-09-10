@@ -87,7 +87,7 @@ Cursor should:
 
 The trusted script keeps a finite checkpoint-round cap (currently 40) **per engineering phase**.
 
-The current phase is the explicit trusted identifier in `docs/AI_REVIEW_PHASE_ID`, supplied to the reviewer as workflow env `HOTFOX_REVIEW_PHASE`. Each review marker records `phase=<id>`.
+The current phase is the explicit trusted identifier in `docs/AI_REVIEW_PHASE_ID`, supplied to the reviewer as workflow env `HOTFOX_REVIEW_PHASE`. It must match the trusted active milestone in `docs/AI_REVIEW_CURRENT_PHASE.md`. Each review marker records `phase=<id>`. PR-head content cannot choose a different phase or reset the cap.
 
 The cap counts only completed reviews whose marker phase equals that identifier, and only when the comment has a canonical verdict line (`VERDICT: APPROVED` or `VERDICT: CHANGES_REQUIRED` as the full line). Historical approvals from other phases, legacy markers without a phase id, automation-paused CAP comments, and `VERDICT:` text that is not a canonical verdict line do not consume or reset the current-phase window.
 
