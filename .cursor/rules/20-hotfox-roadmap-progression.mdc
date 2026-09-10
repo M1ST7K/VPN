@@ -7,148 +7,91 @@ alwaysApply: true
 
 This rule is ALWAYS ACTIVE.
 
-Canonical roadmap:
+Canonical roadmap: `docs/HOTFOX_ROADMAP.md`.
+Current phase MUST be read from `docs/CURRENT_PHASE.md`; never rely on a hardcoded phase in this rule or an older chat summary.
 
-`docs/HOTFOX_ROADMAP.md`
+## 1. Work sequentially
 
-Current phase:
-
-`2.9 VPN Core Recovery / Real Connection Fix`
-
-## 1. Read the roadmap before phase work
-
-Before planning, implementing or closing a roadmap phase, read the corresponding section in `docs/HOTFOX_ROADMAP.md`.
-
-Do not rely on an older chat summary when the repository roadmap is available.
-
-## 2. Preserve historical work
-
-Do not delete, rewrite or invalidate completed 2.2/2.3 work simply because later phases exist.
-
-Preserve earlier code paths and reviewer evidence unless the current phase uncovers a real regression or architectural defect.
-
-## 3. Work sequentially
-
-Canonical sequence:
+Current canonical tail sequence:
 
 `2.9 VPN Core Recovery / Real Connection Fix`
 → `3.0 Premium Android Experience`
 → `3.1 Mature HotFox Platform / Pre-release Engineering`
+→ `FINAL RELEASE VALIDATION GATE`.
 
-Do not skip directly to a later phase.
+Do not skip phases. Preserve all completed guarantees unless a real regression or architectural defect requires a correction.
 
-Do not blend several future phases into one uncontrolled implementation batch.
+## 2. Review markers and cost control
 
-Small prerequisite abstractions are allowed when they are genuinely necessary for the current phase.
+OpenAI checkpoint review is intentionally NOT run on every commit or every CI run.
 
-## 4. Cost-bounded review policy
+`[hotfox-review]` is exceptional/manual only.
+`[hotfox-phase-exit]` is the canonical automatic engineering-exit marker.
 
-OpenAI checkpoint review is intentionally NOT run on every commit, every push or every CI run.
+Intermediate implementation/refactor/test/build-fix commits MUST NOT contain either marker.
 
-Ordinary implementation, refactor, test-fix and build-fix commits MUST NOT contain either review marker:
+The FINAL implementation commit for a phase, or the FINAL commit that fixes all currently substantiated P0/P1 findings from a checkpoint, MUST include `[hotfox-phase-exit]` BEFORE push CI finishes. The marker means “this head is intended as the next engineering-exit candidate”; it is NOT proof that CI has passed.
 
-- `[hotfox-review]`
-- `[hotfox-phase-exit]`
+This ordering is deliberate: the GitHub phase-exit orchestrator already refuses to run the AI reviewer until full push CI is green. Therefore Cursor must never wait for CI to become green and only then make a no-code marker commit.
 
-`[hotfox-review]` is reserved for an explicitly requested exceptional/manual checkpoint.
+If an older reviewer handoff says “wait for build/tests/CI to be green, then add `[hotfox-phase-exit]`”, interpret that timing as superseded by this rule. Fix all known blockers first, put the marker on the final candidate code/docs commit, push it, and let CI decide whether review is allowed.
 
-The canonical automatic engineering-exit marker is:
+## 3. No-idle rule when local Android tooling is unavailable
 
-`[hotfox-phase-exit]`
+Absence of Android SDK/JDK/emulator in the cloud/background Cursor environment is NOT a stop condition for 2.9/3.0/3.1 engineering progression.
 
-Use it only on the final candidate commit for the current roadmap phase, after the phase implementation is believed complete and applicable local/engineering checks are ready for the full repository CI.
+If local reconstruct/debug build cannot run because the agent environment has no Android SDK:
 
-Do not create a separate no-code `[hotfox-review]` commit after CI merely to wake the reviewer. That causes redundant CI/build work and defeats the token/cost-saving design.
+- report local build as `NOT EXECUTED`;
+- do not fabricate PASS;
+- do not wait for the owner to install tooling into the cloud agent;
+- rely on the repository push CI for reconstruction/build/unit/lint/static/release-compilation evidence;
+- if all known P0/P1 fixes are implemented and the head is the intended retry candidate, that same final commit must already contain `[hotfox-phase-exit]` before CI runs.
 
-## 5. Automatic phase-exit review flow
+A status such as “Жду push CI; `[hotfox-phase-exit]` не ставил” is forbidden for a final known-fix candidate because it creates an avoidable dead-end.
 
-Canonical phase closure is:
+## 4. Automatic phase-exit flow
 
-1. finish the required implementation;
-2. run relevant local/unit/integration/static/lint checks where available;
-3. fix real failures rather than disabling meaningful checks;
-4. make the final phase candidate commit include `[hotfox-phase-exit]` exactly once;
-5. push it and allow the normal full HotFox CI to run;
-6. if CI is red, fix the failure with ordinary commits and do NOT invoke OpenAI review;
-7. when a `[hotfox-phase-exit]` candidate receives green full CI, the GitHub phase-exit orchestrator automatically dispatches exactly one AI checkpoint review for that PR head;
-8. do not manually duplicate that review while it is queued/running;
-9. if the reviewer reports P0/P1, fix every substantiated blocker using ordinary commits;
-10. once those fixes and applicable checks are ready, make the next final candidate include `[hotfox-phase-exit]` and let green CI trigger the next review automatically;
-11. if the reviewer reports no substantiated P0/P1, record `<phase> ENGINEERING COMPLETE — physical release validation deferred.`;
-12. update trusted current-phase context to the next roadmap phase;
-13. immediately start the next roadmap phase.
+Canonical phase closure:
+
+1. implement the current phase or all substantiated P0/P1 fixes;
+2. run every relevant local check that is actually available;
+3. make the final intended candidate commit include `[hotfox-phase-exit]`;
+4. push it;
+5. full HotFox push CI runs;
+6. if CI is red, fix the real failure with ordinary commits; when the next coherent candidate is ready, that final commit again includes `[hotfox-phase-exit]`;
+7. if CI is green, the GitHub orchestrator dispatches exactly one SHA-bound AI phase-exit review;
+8. do not duplicate a queued/running review;
+9. CHANGES_REQUIRED: fix every substantiated P0/P1, then repeat from step 2 without waiting for user confirmation;
+10. APPROVED: record `<phase> ENGINEERING COMPLETE — runtime and physical release validation deferred.`, update trusted phase context, and immediately start the next roadmap phase;
+11. stop automatic progression only after `3.1 ENGINEERING COMPLETE`, at `FINAL RELEASE VALIDATION GATE`.
 
 P2-only findings are non-blocking unless explicitly promoted by the owner.
 
-The GitHub automation is designed so expensive reviewer tokens are spent only on green engineering-exit candidates, not on ordinary development churn or known-red builds.
+## 5. Validation timing
 
-## 6. Automatic continuation after APPROVED
+`.cursor/rules/22-hotfox-owner-release-validation-gate.mdc` is authoritative for emulator/runtime/physical validation timing.
 
-For an automatic `phase_exit` review, an APPROVED result posts a single `@cursor` continuation handoff.
+Runtime/emulator/physical VPN E2E that did not actually run must be reported as `NOT EXECUTED / deferred`, never PASS. Missing runtime/device evidence by itself is not P0/P1 during 2.9/3.0/3.1.
 
-Treat that handoff as authorization to:
+Do not claim `RELEASE READY` before the final release validation gate genuinely passes.
 
-- mark the current phase `ENGINEERING COMPLETE — physical release validation deferred`;
-- update the repository's trusted current-phase context;
-- continue immediately with the next roadmap phase.
+## 6. Truthful guarantees always win
 
-Do not wait for a separate user confirmation between roadmap engineering phases.
+Progression must never weaken:
 
-Do not create multiple Cursor agents for the same APPROVED handoff when one is already active.
-
-## 7. Do not stop for physical Android testing between phases
-
-Physical Android testing is not a transition requirement for 2.4 -> 2.5 -> 2.6 -> 2.7 -> 2.8 -> 2.9 -> 3.0.
-
-Do not ask the owner for a physical device test as a prerequisite for continuing this sequence.
-
-Do not wait idle for such a test.
-
-Do not classify the absence of deferred physical testing as a phase P0/P1.
-
-Never fabricate physical test evidence.
-
-## 8. Final physical release gate only
-
-After `3.0 ENGINEERING COMPLETE`, stop automatic engineering phase progression because the canonical engineering roadmap is complete.
-
-At that point the project enters:
-
-`FINAL RELEASE DEVICE GATE`
-
-The real-device acceptance suite in `docs/HOTFOX_ROADMAP.md` must actually pass before claiming:
-
-`RELEASE READY`
-
-The owner may explicitly cut a release candidate earlier and invoke the final release device gate for that release, but Cursor must not assume such a cut on its own.
-
-## 9. Reviewer scope discipline
-
-During each phase, review:
-
-- regressions of completed guarantees;
-- concrete defects in the currently implemented phase;
-- build/test/security issues evidenced by current code.
-
-Do not report unimplemented future roadmap functionality as a current P0/P1.
-
-## 10. Truthful VPN and commerce guarantees always win
-
-Roadmap progression must never weaken:
-
-- real VpnService/TUN -> HEV/tun2socks -> Xray traffic forwarding;
+- real `VpnService/TUN -> HEV/tun2socks -> Xray` forwarding;
 - canonical protected-state truth;
-- DNS and IPv6 leak policy;
-- bounded lifecycle/reconnect behavior;
-- backend-authoritative payment and entitlement;
+- DNS/IPv6 fail-closed policy;
+- lifecycle/reconnect correctness and loop prevention;
+- backend-authoritative payment/entitlement;
 - secret handling;
-- manual subscription compatibility where still in scope;
-- AUTO/manual selection intent.
+- manual subscription compatibility where in scope;
+- AUTO/manual selection intent;
+- TLS/REALITY security.
 
-Do not trade correctness for faster milestone completion.
+Do not disable meaningful checks or fake state to get green.
 
-## 11. Communication
+## 7. Communication
 
-All phase reports, `[hotfox-review]` summaries, automatic phase-exit summaries, P0/P1/P2 explanations and transition notices must follow the HotFox Russian communication rule.
-
-Canonical technical identifiers may remain in English.
+All user-facing progress reports are in Russian. Canonical technical identifiers may remain in English.
