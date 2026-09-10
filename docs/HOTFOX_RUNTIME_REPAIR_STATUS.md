@@ -29,8 +29,11 @@ Implemented architecture:
    (GLOBAL/SMART disallow-self; INCLUDE omit-self from allow-list; EXCLUDE disallow-self).
 2. **Defense-in-depth bind** — `VpnLoopPrevention` records the real Boolean from
    `bindProcessToNetwork`; false / exception / stale Network fail-closed (`HF-VPN-012`).
-3. **protect broker** — `HotfoxSocketProtect` race-safe attach/detach; false / exception /
-   stale service / stale generation fail-closed (`HF-VPN-015`).
+3. **protect broker** — `HotfoxSocketProtect` publishes an immutable
+   `(attempt, protector)` snapshot via `AtomicReference` + CAS detach.
+   `CoreVpnService` keeps an instance `protectAttempt` and tears down only
+   that token, so an older attempt cannot clear or invoke a newer callback
+   (`HF-VPN-015`).
 4. **Datapath proof** remains `VpnReadiness.injectThroughVpn` on `TRANSPORT_VPN`
    bindSocket — not process-direct HTTPS from the excluded UID.
 
@@ -41,8 +44,18 @@ Implemented architecture:
 ### P1 — composite profile semantics
 
 `HotfoxOutboundCompare` does not compare `CUSTOM` / `POLICYGROUP` / `PROXYCHAIN`
-to a generated `vless`/`vmess` protocol string. Containers require a real proxy
-outbound; single-node drift (port/protocol/TLS/REALITY) still fail-closed.
+to a generated `vless`/`vmess` protocol string.
+
+Type-specific expected-plan comparison (round 27):
+
+- CUSTOM derives hops/tags from the supplied raw JSON (`expectedJson` /
+  `MmkvManager.decodeServerRaw`); an unrelated valid proxy or missing source
+  plan is blocking;
+- POLICYGROUP compares the resolved member hop set (missing/changed member
+  is blocking);
+- PROXYCHAIN compares ordered hops (reorder or omitted hop is blocking);
+- secret-safe transport/security/REALITY fields remain in the compare;
+- missing `expectedJson` fail-closes (`generated:missing-expected-plan`).
 
 ### P1 — canonical tags
 
@@ -52,28 +65,26 @@ outbound; single-node drift (port/protocol/TLS/REALITY) still fail-closed.
 GLOBAL/SMART drop legacy `.ru` / `.su` / `.рф` / geosite:cn / geoip:private DIRECT rules.
 `HotfoxXrayConfigValidator.requireValid` rejects dangling tags (`HF-VPN-016`) before core start.
 
-## Host CI evidence (green)
+## Host CI evidence
 
-Push run `34526242362` on SHA `e85af2dff3026be258d66bfa04fafa0fa8fcd2e7`: reconstruct, static, unit, lint, unsigned release, debug APK, publish `hotfox-dev-latest` — SUCCESS.
+Round 27 reviewed `b91db242f8732b5919b28f5c37d950dae18a351f` and rejected the
+`e85af2d` artifact set as SHA-mismatched. Those hashes do **not** cover this
+candidate.
 
-SHA-256 of that APK set:
+This head implements the round-27 P1 fixes. Push CI on **this** SHA writes
+`candidate-evidence.txt` with `candidate_sha=${GITHUB_SHA}` plus APK SHA-256
+and publishes `hotfox-dev-latest` only for that same commit.
 
-- `arm64-v8a` `00dcd4c8d2d367607bb164ba59b4540acda38a1ef745111cf7dc2c29a05ad457`
-- `armeabi-v7a` `e48a1a8a4c0b545e4de660f5959732154570e5c4ce5df13db8ec5673cde20898`
-- `universal` `5aaa0ed3d8f6cbbfd32943f8da7b69199db2ca9c74c1b537f2abdb1b6de3967a`
-- `x86` `558b99e89f8ddc93d3cd57030817ca46f59fecaab5e84951b099b6c34a9ef897`
-- `x86_64` `3aa31256820492847b2cda67cc6ecbd2cd18317319684554d2203052df613b3f`
-
-Download (dev prerelease, not release-ready): https://github.com/M1ST7K/VPN/releases/tag/hotfox-dev-latest
+Do not treat `e85af2d` / `b91db24` APK hashes as evidence for this candidate.
 
 ## Executed vs deferred
 
 | Gate | Status |
 | --- | --- |
-| Overlay unit tests for the matrix above | PASS on `e85af2d` |
-| Host reconstruction / lint / assembleDebug / unsigned release | PASS on `e85af2d` |
-| SHA-tied debug APK + `candidate-evidence.txt` | PASS on `e85af2d` |
-| HotFox AI phase-exit review | requested on the next coherent head |
+| Overlay unit tests for protect races + container semantics | implemented; host CI on this SHA is the execution record |
+| Host reconstruction / lint / assembleDebug / unsigned release | pending this push CI (`candidate_sha` = this HEAD) |
+| SHA-tied debug APK + `candidate-evidence.txt` | pending this push CI — must match this HEAD exactly |
+| HotFox AI phase-exit review | requested on this coherent head |
 | Emulator VPN E2E | **NOT EXECUTED** (no SDK/KVM here; e2e workflow is secret-gated) |
 | Physical device | **NOT EXECUTED** — still `FINAL RELEASE DEVICE GATE` |
 | `RELEASE READY` | **not claimed** |
