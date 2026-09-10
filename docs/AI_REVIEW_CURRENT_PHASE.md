@@ -2,7 +2,11 @@
 
 Current milestone: **2.9 — VPN Core Recovery / Real Connection Fix**.
 
-This file is trusted reviewer context from `main`. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md` and is not sent in full to every checkpoint.
+This file is trusted reviewer context from `main`/owner policy. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md`.
+
+Latest owner validation timing override: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`.
+
+If older 2.9 docs require emulator/runtime E2E as an intermediate phase blocker, the latest owner override wins for **validation timing only**. It does not weaken production VPN correctness, truthful state, security, DNS/IPv6 safety, secret handling, or final release acceptance.
 
 ## Historical status
 
@@ -25,7 +29,7 @@ Preserve its guarantees:
 - manual HTTPS subscription path remains available according to product scope;
 - commercial access returns to the same truthful VPN path.
 
-Do not reopen 2.3 solely because physical-device validation is deferred.
+Do not reopen 2.3 solely because runtime/physical release validation is deferred.
 
 ### 2.4 — Smart Connection
 
@@ -93,37 +97,58 @@ Preserve its guarantees:
 
 ## Current goal — 2.9 VPN Core Recovery / Real Connection Fix
 
-Prove real Internet through the HotFox client path. Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`.
+Implement and harden the intended real production path and fix the known HotFox-side datapath defects. Canonical detailed spec remains `docs/HOTFOX_2_9_VPN_RECOVERY.md`, with validation timing overridden by `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`.
 
-2.9 should answer:
+The intended path remains:
 
-> Can a normal user import a known-working subscription, connect, and use Android Internet through that VPN?
+Android app traffic → `VpnService`/TUN → HEV/tun2socks → local SOCKS `127.0.0.1:10808` → Xray → remote VPN server → Internet.
 
-Do not expand 2.9 into 3.0 Premium UI.
+Do not expand 2.9 into 3.0 Premium UI until the repository-side 2.9 engineering gate closes.
 
 ## Highest-priority review targets for 2.9
 
-1. **Isolation** — SOCKS-only `127.0.0.1:10808` without TUN/HEV is tested separately from HTTP `10809`.
+1. **Isolation architecture** — SOCKS-only `127.0.0.1:10808` without TUN/HEV remains distinct from HTTP `10809`.
 2. **Package-independent Xray** — core capability must not depend on `applicationId` `com.v2ray.ang`.
-3. **Generated config** — sanitized field-by-field compare; credentials `[REDACTED]`.
-4. **protect / underlying network** — runtime evidence, not source presence alone.
-5. **No routing loop** — Xray must not re-enter TUN → HEV → SOCKS → Xray.
+3. **Generated config correctness** — sanitized field-by-field mapping; credentials `[REDACTED]`.
+4. **protect / underlying network design** — correct production implementation and diagnostics for later runtime proof.
+5. **No routing loop by design** — Xray remote sockets must have the correct underlying-network/protect path and must not intentionally re-enter TUN.
 6. **Fail-closed UI** — no fake CONNECTED / `Защищено`.
-7. **No security weakening** — no trust-all TLS, no mock VPN, no readiness bypass.
-8. **No 2.2–2.8 regression**.
+7. **No security weakening** — no trust-all TLS, no mock VPN, no readiness bypass, no DNS/IPv6 leak acceptance.
+8. **No secret handling regression**.
+9. **No 2.2–2.8 regression**.
+10. **Final runtime harness preserved** — do not delete or weaken the emulator/device E2E instrumentation simply because execution is deferred.
 
 ## Scope discipline
 
 Do **not** turn unimplemented 3.0 Premium UI or 3.1 Mature Platform items into P0/P1 during 2.9 review.
 
+Missing emulator/runtime/physical execution by itself is **not** a 2.9 P0/P1 under the latest owner validation timing override.
+
+A concrete code defect that would violate the production path, truthful state, security, DNS/IPv6 policy, secret handling, buildability, or phase requirements may still be P0/P1.
+
 ## Exit gate for 2.9 engineering
 
-Then run one final `[hotfox-phase-exit]`. If P0=0 and P1=0 and engineering-runtime VPN E2E passed:
+Run one final `[hotfox-phase-exit]` when the repository-side implementation is coherent and required build/unit/integration/lint/static/release-compilation checks are green.
 
-`2.9 ENGINEERING COMPLETE — real engineering-runtime VPN E2E passed; final physical release validation deferred.`
+If:
+
+- P0 = 0;
+- P1 = 0;
+- no secrets are committed/logged;
+- fail-closed/security guarantees are preserved;
+
+record:
+
+`2.9 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
 Then immediately move to `3.0 Premium Android Experience`.
 
-## Physical-device policy
+Do **not** require emulator/runtime VPN E2E to close 2.9 under the latest owner decision. If it did not run, state `NOT EXECUTED / deferred`; never claim PASS.
 
-A physical handset is **NOT** required to close 2.9 if emulator/runtime E2E in the available engineering environment passed. Never claim `RELEASE READY` until the final release device gate is genuinely satisfied.
+## Final release validation policy
+
+Runtime validation is consolidated into the final release gate after 3.1 engineering completion.
+
+Before `RELEASE READY`, actual emulator and final physical-device acceptance must prove the real VPN path, real HTTPS/browser traffic, public IP behavior where available, DNS safety, IPv6 route/fail-closed behavior, reconnect cycles, teardown, and no false protected state.
+
+If final runtime validation fails, the project returns to the fix/rebuild/retest loop. Never claim `RELEASE READY` until that final gate genuinely passes.
