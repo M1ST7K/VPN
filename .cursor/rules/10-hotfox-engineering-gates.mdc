@@ -24,8 +24,9 @@ The active sequence is:
 → `2.6 HotFox Shadow / Stealth & Resilience`
 → `2.7 Operations / Release Infrastructure`
 → `2.8 HotFox Autopilot / Adaptive Protection`
-→ `2.9 Premium Android Experience`
-→ `3.0 Mature HotFox Platform`
+→ `2.9 VPN Core Recovery / Real Connection Fix`
+→ `3.0 Premium Android Experience`
+→ `3.1 Mature HotFox Platform / Pre-release Engineering`
 → `FINAL RELEASE DEVICE GATE`
 
 Do not reorder or skip phases unless the owner explicitly changes the roadmap.
@@ -47,13 +48,15 @@ Revisit an earlier phase only if:
 
 ## 3. Current phase
 
-Current engineering phase is:
+Current milestone is:
 
-`2.4 Smart Connection`
+`FINAL RELEASE VALIDATION GATE`
 
-2.4 is already in progress.
+3.1 is **ENGINEERING COMPLETE — runtime and physical release validation deferred**.
 
-Do not restart 2.3 work unless one of the legitimate regression conditions above applies.
+Stop automatic engineering progression. Do not start a new product phase. Do not claim `RELEASE READY`.
+
+Do not restart 3.1 work unless one of the legitimate regression conditions above applies.
 
 ## 4. Standard engineering exit gate for 2.4 through 3.0
 
@@ -101,7 +104,7 @@ Physical Android validation is consolidated into the single final:
 
 `FINAL RELEASE DEVICE GATE`
 
-This gate occurs after `3.0 ENGINEERING COMPLETE`, or after an explicit owner-approved release-candidate cut if the owner chooses to ship before all planned 3.0 platform work.
+This gate occurs after `3.1 ENGINEERING COMPLETE`, or after an explicit owner-approved release-candidate cut if the owner chooses to ship before all planned 3.1 platform work.
 
 Only this final release gate may block the claim:
 
@@ -125,7 +128,7 @@ Examples:
 
 `2.7 ENGINEERING COMPLETE` → start 2.8.
 
-`2.8 ENGINEERING COMPLETE` → start 2.9.
+`2.8 ENGINEERING COMPLETE` → start 2.9 VPN Core Recovery.
 
 `2.9 ENGINEERING COMPLETE` → start 3.0.
 
