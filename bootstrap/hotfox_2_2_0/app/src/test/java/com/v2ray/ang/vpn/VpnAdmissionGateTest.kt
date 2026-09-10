@@ -64,4 +64,41 @@ class VpnAdmissionGateTest {
             ),
         )
     }
+
+    @Test
+    fun commitAndTeardownCannotBothSucceedOnTheSameEpoch() {
+        val admission = VpnAdmissionGate.snapshot()
+        VpnAdmissionGate.withCommitLock {
+            assertTrue(
+                VpnAdmissionGate.tryCommitEstablished(
+                    admission = admission,
+                    pipelineCurrent = true,
+                    cancelled = false,
+                ),
+            )
+            VpnAdmissionGate.invalidateAfterClaim(true)
+            assertFalse(
+                VpnAdmissionGate.tryCommitEstablished(
+                    admission = admission,
+                    pipelineCurrent = true,
+                    cancelled = false,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun teardownUnderCommitLockRejectsLaterCommit() {
+        val admission = VpnAdmissionGate.snapshot()
+        VpnAdmissionGate.withCommitLock {
+            VpnAdmissionGate.invalidateAfterClaim(true)
+            assertFalse(
+                VpnAdmissionGate.tryCommitEstablished(
+                    admission = admission,
+                    pipelineCurrent = true,
+                    cancelled = false,
+                ),
+            )
+        }
+    }
 }

@@ -169,24 +169,30 @@ class CoreVpnService : VpnService(), ServiceControl {
             stopSelf()
             return
         }
-        if (VpnAdmissionGate.shouldAbandonEstablished(
-                admission = admission,
-                currentEpoch = VpnAdmissionGate.snapshot(),
-                pipelineCurrent = pipelineStillCurrent(attempt),
-                cancelled = !coroutineContext.isActive,
-            )
-        ) {
-            LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after TUN establish attempt=$attempt")
-            abandonEstablishedAdmission(attempt)
-            return
-        }
-        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.TUN_ESTABLISH)
-        VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.LOOP_BIND)
         if (!VpnLoopPrevention.requireBindSuccess(VpnLoopPrevention.bindProcessToUnderlying(this))) {
             failTunnelStart(attempt, "HF-VPN-012", "Не удалось привязать процесс к внешней сети")
             return
         }
-        startOwnedPipeline(attempt)
+        val cancelled = !coroutineContext.isActive
+        val committed = VpnAdmissionGate.withCommitLock {
+            if (!VpnAdmissionGate.tryCommitEstablished(
+                    admission = admission,
+                    pipelineCurrent = pipelineStillCurrent(attempt),
+                    cancelled = cancelled,
+                )
+            ) {
+                false
+            } else {
+                VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.TUN_ESTABLISH)
+                VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.LOOP_BIND)
+                startOwnedPipeline(attempt)
+                true
+            }
+        }
+        if (!committed) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after TUN establish attempt=$attempt")
+            abandonEstablishedAdmission(attempt)
+        }
     }
 
     override fun getService(): Service {
@@ -631,11 +637,13 @@ class CoreVpnService : VpnService(), ServiceControl {
             )
             return
         }
-        VpnAdmissionGate.invalidateAfterClaim(true)
-        unlockStart()
-        com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
-        isRunning = false
-        cancelOwnedJobs()
+        VpnAdmissionGate.withCommitLock {
+            VpnAdmissionGate.invalidateAfterClaim(true)
+            unlockStart()
+            com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
+            isRunning = false
+            cancelOwnedJobs()
+        }
         health.stop()
         tun2SocksService?.stopTun2Socks()
         tun2SocksService = null
