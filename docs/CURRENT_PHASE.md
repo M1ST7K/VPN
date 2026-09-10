@@ -41,6 +41,12 @@ Trusted checkpoint **round 19** returned `APPROVED` with no substantiated P0/P1 
 
 Runtime/emulator/physical VPN E2E remains `NOT EXECUTED / deferred`. `RELEASE READY` is not claimed.
 
+## Round 21 note
+
+Push CI for routing P1 fix `844918b` is green. Round 21 did **not** review that head: the PR-lifetime checkpoint cap on `main` paused automation (`MAX_REVIEW_ROUNDS=20`). That is not a product P0/P1 and is not a stuck 3.1 architecture loop: rounds 1–19 closed 2.4–3.0 APPROVED; round 20 was the first 3.1 review (routing P1, now fixed).
+
+Reviewer code is checked out from `main`, so the cap window must land on `main` before another `[hotfox-phase-exit]` is useful. Do not burn another lifetime round while `main` still uses the old cap.
+
 ## Work allowed now
 
 - `HotfoxEngineFacade` so UI re-observes process-scoped engine state; Activity is not a second session owner;

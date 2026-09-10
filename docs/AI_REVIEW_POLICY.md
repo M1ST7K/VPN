@@ -85,11 +85,13 @@ Cursor should:
 
 ## Safety cap
 
-The trusted script keeps a finite checkpoint-round cap (currently 10 across the PR history).
+The trusted script keeps a finite checkpoint-round cap (currently 40) **per engineering phase**.
 
-If the cap is reached, automation pauses rather than spending indefinitely.
+Successful APPROVED closures of earlier phases on a long-lived PR do not consume the current phase's cap. Automation-paused CAP comments are not counted as reviews.
 
-A non-converging review loop should be inspected architecturally before raising the cap.
+If the current-phase cap is reached, automation pauses rather than spending indefinitely.
+
+A non-converging review loop in the current phase should be inspected architecturally before raising the cap.
 
 ## Physical-device boundary
 

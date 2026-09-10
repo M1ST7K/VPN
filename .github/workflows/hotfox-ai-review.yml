@@ -192,7 +192,7 @@ jobs:
           # trigger string is used in any CHANGES_REQUIRED handoff so Cursor retries
           # only after the next green phase-exit candidate.
           HOTFOX_REVIEW_TRIGGER: ${{ inputs.review_mode == 'phase_exit' && '[hotfox-phase-exit]' || '[hotfox-review]' }}
-          MAX_REVIEW_ROUNDS: "20"
+          MAX_REVIEW_ROUNDS: "40"
           # The reviewer already prioritizes VPN/security/commerce-sensitive patches.
           # Keeping a bounded diff prevents giant historical PR context from being
           # resent on every checkpoint.

@@ -155,6 +155,26 @@ def prior_reviews() -> list[dict]:
     return out
 
 
+def completed_checkpoint(body: str) -> bool:
+    return "VERDICT: APPROVED" in body or "VERDICT: CHANGES_REQUIRED" in body
+
+
+def phase_cap_round(old: list[dict]) -> int:
+    """Cap window for the current engineering phase.
+
+    Long-lived PRs accumulate successful 2.4–3.x closures. The safety cap must
+    bound a stuck loop in the *current* phase, not count already-APPROVED
+    historical checkpoints. Automation-paused CAP comments are not reviews.
+    """
+    completed = [item for item in old if completed_checkpoint(item["body"])]
+    last_approved_round = 0
+    for item in completed:
+        if "VERDICT: APPROVED" in item["body"]:
+            last_approved_round = max(last_approved_round, item["round"])
+    phase = [item for item in completed if item["round"] > last_approved_round]
+    return len(phase) + 1
+
+
 def compare(base: str, head: str) -> tuple[str, list[str]]:
     encoded = urllib.parse.quote(base, safe="") + "..." + urllib.parse.quote(head, safe="")
     path = f"/repos/{REPO}/compare/{encoded}"
@@ -372,11 +392,13 @@ def main() -> int:
 
     last = old[-1] if old else None
     round_no = last["round"] + 1 if last else 1
-    if round_no > MAX_ROUNDS:
+    cap_round = phase_cap_round(old)
+    if cap_round > MAX_ROUNDS:
         marker = f"<!-- HOTFOX_AI_REVIEW head={current} round={round_no} -->"
         post_comment(
             marker
-            + f"\n### HotFox AI Review — automation paused\n\nReached the safety cap of {MAX_ROUNDS} checkpoint rounds. "
+            + f"\n### HotFox AI Review — automation paused\n\nReached the safety cap of {MAX_ROUNDS} checkpoint rounds "
+            f"in the current phase (phase round {cap_round}, lifetime marker round {round_no}). "
             "No Cursor handoff was emitted. Inspect the non-converging architecture/review loop before raising the cap."
         )
         write_outputs(approved=False, sha=current, verdict_name="CAP")
