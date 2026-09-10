@@ -1,6 +1,8 @@
 # CURRENT PHASE — HotFox 3.0 «Premium Android Experience»
 
-Status: **IN PROGRESS** (2.9 is ENGINEERING COMPLETE — runtime and physical release validation deferred)
+Status: **ENGINEERING-EXIT CANDIDATE** (round-18 P1 fixed by implementation `a002e012d585e63d1e7498f5eb5a34dcc8a55af0`; push CI `34464117864` passed; this head requests `[hotfox-phase-exit]`).
+
+2.9 is **ENGINEERING COMPLETE — runtime and physical release validation deferred**.
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
@@ -8,6 +10,7 @@ Previous phase: `docs/phases/2.9-vpn-recovery.md`
 Linked phase spec: `docs/phases/3.0-premium-android.md` and `docs/HOTFOX_ROADMAP.md` (legacy heading «2.9 Premium Android Experience», now 3.0)
 Owner roadmap override: `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc`
 Latest owner validation override: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`
+Roadmap progression rule: `.cursor/rules/20-hotfox-roadmap-progression.mdc`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
 Canonical roadmap: `docs/HOTFOX_ROADMAP.md`
 Review policy: `docs/AI_REVIEW_POLICY.md`
@@ -35,6 +38,16 @@ Primary phone navigation remains exactly:
 - 2.5–2.8 routing, Shadow, operations and Autopilot contracts;
 - 2.9 SOCKS/TUN/runtime E2E harnesses remain intact for the final release validation gate.
 
+## Round 18 closure evidence
+
+The round-18 P1 was the `NotificationManager` Android framework type-name collision. Implementation `a002e01` aliases `android.app.NotificationManager` as `AndroidNotificationManager` and adds regression/static coverage.
+
+Push CI for `a002e01` completed successfully (`HotFox bootstrap and Android CI`, run `34464117864`).
+
+The cloud/background agent did not run a local reconstruct/debug build because its environment lacked Android SDK. That local result is truthfully `NOT EXECUTED`; it is not an intermediate stop condition because repository CI provides the required engineering build/unit/lint/static/release-compilation gate.
+
+Runtime/emulator/physical VPN E2E remains `NOT EXECUTED / deferred` under the owner validation override. `RELEASE READY` is not claimed.
+
 ## Work allowed now
 
 - Connection-state presentation sequence derived from `VpnSessionState` / `VpnConnectionStage`;
@@ -59,15 +72,15 @@ Primary phone navigation remains exactly:
 
 Emulator/runtime VPN E2E and physical-device E2E remain deferred to the single final release validation gate after 3.1. If they have not executed, report `NOT EXECUTED / deferred`, never PASS.
 
-## Checkpoint protocol
+## Checkpoint protocol — no idle after CI
 
-Ordinary commits while implementing and while CI is red.
+Intermediate fixes use ordinary commits without review markers.
 
-Do **not** put `[hotfox-review]` or `[hotfox-phase-exit]` on intermediate fix commits.
+When all known phase work or all currently substantiated P0/P1 findings are fixed and a commit is intended as the next engineering-exit candidate, that FINAL candidate commit MUST contain `[hotfox-phase-exit]` **before** waiting for push CI. The marker is review intent, not proof of green CI.
 
-When a coherent repository-side 3.0 engineering-exit candidate is ready and required build/unit/lint/static/integration CI is green, make one final commit whose message contains:
+The GitHub orchestrator itself waits for successful push CI before it dispatches the expensive AI review. Therefore the agent must never stop with “жду push CI; `[hotfox-phase-exit]` не ставил” on a final known-fix candidate.
 
-`[hotfox-phase-exit]`
+If CI is red, repair with ordinary commits and put `[hotfox-phase-exit]` on the next coherent final candidate. If review is CHANGES_REQUIRED, fix every substantiated P0/P1 and repeat automatically. If review is APPROVED, close 3.0 and immediately start 3.1 without waiting for another user message.
 
 ## Phase 3.0 exit definition
 
