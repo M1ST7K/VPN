@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is the active engineering phase. Physical-device VPN E2E remains **NOT EXECUTED** for the final release gate; 2.9 itself requires engineering-runtime VPN E2E. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is an **engineering-exit candidate** (implementation `dacfe38`). Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED`. Runtime and physical VPN E2E remain **NOT EXECUTED / deferred** to the final release validation gate. Do not claim a production VPN release.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -457,9 +457,32 @@ Implementation included:
 
 ## Phase 2.9 — VPN Core Recovery / Real Connection Fix
 
-**IN PROGRESS.** 2.8 engineering gate is closed (round 13 `APPROVED`, P0 = 0, P1 = 0). Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`. Do not record `2.9 ENGINEERING COMPLETE` until engineering-runtime VPN E2E proves real Internet through TUN → HEV → SOCKS → Xray, plus phase-exit `APPROVED` (P0=0, P1=0). Premium UI is 3.0 and must not start now.
+**ENGINEERING-EXIT CANDIDATE.** 2.8 engineering gate is closed (round 13 `APPROVED`, P0 = 0, P1 = 0). Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`. Validation timing: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`. Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0). Premium UI is 3.0 and must not start until then.
 
-Physical-device handset validation remains the later `FINAL RELEASE DEVICE GATE` unless the owner requests an earlier physical run. Emulator/runtime E2E **is** required for 2.9.
+Implementation candidate `dacfe386260b204a562b231ba6f31d81ed5d01e1`. GitHub CI for exact SHA `dacfe386260b204a562b231ba6f31d81ed5d01e1` (run `34424982370`):
+
+- Payload integrity: PASS
+- Reconstruct and overlay verification: PASS
+- Unit tests: PASS
+- Android lint: PASS
+- Unsigned release compile: PASS
+- Record APK SHA-256: PASS
+- Publish HotFox Dev Latest: PASS
+
+Runtime VPN E2E remains **NOT EXECUTED / deferred**. Physical-device VPN E2E remains **NOT EXECUTED / deferred**. Neither blocks this engineering-exit candidate. Do not claim `RELEASE READY`.
+
+Implementation in this candidate:
+
+1. Xray capability is package-independent (`HotfoxXrayCapability` / `Utils.isXray()` for `com.hotfox.*`).
+2. SOCKS `10808` and HTTP `10809` are isolated; `HF-VPN-014` fail-closes before HEV when SOCKS HTTPS fails.
+3. Subscription refresh does not use a dead local HTTP proxy as readiness; Android HTTP proxy is opt-in (`PREF_APPEND_HTTP_PROXY` default false).
+4. Import UI refresh without process restart; subscription title never uses the secret URL.
+5. Sanitized generated-outbound compare; Reality/network/security/`publicKey` drift is fail-closed; `tcp`/`raw` are aliases.
+6. HEV SOCKS target must match the generated Xray inbound.
+7. Loop prevention binds the process to the underlying network; `protect`/bind evidence is recorded.
+8. TUN fd lifetime evidence; TUN inject proves HTTP before UDP DNS; IPv4 HTTPS is independent of IPv6.
+9. Connected health probes SOCKS HTTPS, not HTTP 10809.
+10. Debug engineering-runtime E2E harness (SOCKS-only Test E, then VPN reconnect cycles) is preserved for the final release validation gate.
 
 
 

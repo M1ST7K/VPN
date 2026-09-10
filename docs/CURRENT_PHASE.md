@@ -1,6 +1,6 @@
 # CURRENT PHASE — HotFox 2.9 «VPN Core Recovery / Real Connection Fix»
 
-Status: **IN PROGRESS** (2.8 is ENGINEERING COMPLETE — physical release validation deferred)
+Status: **ENGINEERING-EXIT CANDIDATE** (implementation `dacfe386260b204a562b231ba6f31d81ed5d01e1`; this head requests `[hotfox-phase-exit]`)
 
 This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
 
