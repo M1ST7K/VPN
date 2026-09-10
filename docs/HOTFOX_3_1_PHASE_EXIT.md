@@ -21,8 +21,12 @@ This checkpoint requests the canonical phase-exit review after the first coheren
 - Runtime emulator VPN E2E: `NOT EXECUTED / deferred` under the owner validation-timing override.
 - Physical Android VPN E2E: `NOT EXECUTED / deferred` until `FINAL RELEASE VALIDATION GATE`.
 
-If approved, this checkpoint closes 3.1 as:
+Trusted checkpoint **round 25** returned `APPROVED` (P0=0, P1=0) on exact SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`.
+
+Comment: https://github.com/M1ST7K/VPN/pull/4#issuecomment-5623226541
+
+This checkpoint closed 3.1 as:
 
 `3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
-Then stop at `FINAL RELEASE VALIDATION GATE`. Do not claim `RELEASE READY`.
+Automatic engineering progression stopped at `FINAL RELEASE VALIDATION GATE`. Do not claim `RELEASE READY`.

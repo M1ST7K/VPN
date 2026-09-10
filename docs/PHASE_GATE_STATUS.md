@@ -50,7 +50,7 @@ GitHub CI for exact SHA `75839a5689cc034e7e568b5cbe4f9c5fced96381`:
 
 P2 only: the production-visible `VpnRestartGate.testProbe` seam may later move behind a test-only abstraction. It is unset in production and is not a blocker.
 
-Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 17 `APPROVED`, P0=0, P1=0) on SHA `4524207` / IPv6 fix `f8de16e` / isolation `dacfe38`. Phase 3.0 Premium Android Experience is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 19 `APPROVED`, P0=0, P1=0) on SHA `21f3419`. Current phase is **3.1 Mature HotFox Platform / Pre-release Engineering**. Runtime and physical VPN E2E remain **NOT EXECUTED / deferred** to the final release validation gate. Do not claim a production VPN release.
+Phase 2.3 Commercial Foundation is **ENGINEERING COMPLETE** (round 16 `APPROVED`). Phase 2.4 Smart Connection is **ENGINEERING COMPLETE** (round 4 `APPROVED`). Phase 2.5 Privacy Controls / Smart Routing is **ENGINEERING COMPLETE** (round 7 `APPROVED`). Phase 2.6 HotFox Shadow / Stealth & Resilience is **ENGINEERING COMPLETE** (round 10 `APPROVED`). Phase 2.7 Operations / Release Infrastructure is **ENGINEERING COMPLETE** (round 11 `APPROVED`). Phase 2.8 Autopilot is **ENGINEERING COMPLETE** (round 13 `APPROVED`, P0=0, P1=0) on SHA `33beed7` / implementation `ed23ee2`. Phase 2.9 VPN Core Recovery is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 17 `APPROVED`, P0=0, P1=0) on SHA `4524207` / IPv6 fix `f8de16e` / isolation `dacfe38`. Phase 3.0 Premium Android Experience is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 19 `APPROVED`, P0=0, P1=0) on SHA `21f3419`. Phase 3.1 Mature HotFox Platform is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 25 `APPROVED`, P0=0, P1=0) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`. Current milestone is **FINAL RELEASE VALIDATION GATE**. Automatic engineering progression is stopped. Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `RELEASE READY`.
 
 The trusted reviewer scope on `main` is 2.3 and the checkpoint cap has been raised so a 2.3 review can run.
 
@@ -500,14 +500,36 @@ Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `R
 
 ### Release gate status
 
-**DEFERRED / NOT VERIFIED** — consolidated into `FINAL RELEASE VALIDATION GATE` after 3.1.
+**DEFERRED / NOT VERIFIED** — consolidated into `FINAL RELEASE VALIDATION GATE`.
 
 ## Phase 3.1 — Mature HotFox Platform / Pre-release Engineering
 
-**IN PROGRESS.** 3.0 engineering gate is closed (round 19 `APPROVED`, P0=0, P1=0). Canonical scope: `docs/HOTFOX_ROADMAP.md` (legacy «3.0 Mature» heading) and `docs/phases/3.1-mature-platform.md`.
+Trusted checkpoint **round 25** returned `APPROVED` (P0 = 0, P1 = 0) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`. Comment: https://github.com/M1ST7K/VPN/pull/4#issuecomment-5623226541
 
-Repository-side 3.1 work: `HotfoxEngineFacade`, signed control plane, capacity-aware AUTO, generated device registry, API compatibility, offline/outage policy, privacy-safe telemetry, 2.x migration, remote-flag denylist for fake CONNECTED / DNS / IPv6 weakening. Round 20 P1 (INCLUDE/EXCLUDE Xray vs APP precedence) remains in tree from `844918b`. Round 22 P1 (cap keyed off last `APPROVED`) is addressed in code. Round 23 required the phase-ID file on trusted `main` as `2.4`; owner merged PR #7 (`d516623`). PR-head cannot select `3.1` to reset the cap.
+Repository-side 3.1 work: `HotfoxEngineFacade`, signed control plane, capacity-aware AUTO, generated device registry, API compatibility, offline/outage policy, privacy-safe telemetry, 2.x migration, remote-flag denylist for fake CONNECTED / DNS / IPv6 weakening. Round 20 P1 (INCLUDE/EXCLUDE Xray vs APP precedence) remains in tree from `844918b`. Round 24 P1 (fail-closed expiry epochs + pinned `android-emulator-runner`) is in `7192b04`. Round 23 required the phase-ID file on trusted `main` as `2.4`; owner merged PR #7 (`d516623`). PR-head cannot select `3.1` to reset the cap.
 
-Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `RELEASE READY`. Do not record `3.1 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0).
+Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `RELEASE READY`.
+
+### Engineering gate status
+
+**ENGINEERING COMPLETE — runtime and physical release validation deferred.**
+
+### Release gate status
+
+**DEFERRED / NOT VERIFIED** — consolidated into `FINAL RELEASE VALIDATION GATE`.
+
+## FINAL RELEASE VALIDATION GATE
+
+**WAITING — automatic engineering progression stopped.** 3.1 engineering gate is closed (round 25 `APPROVED`, P0=0, P1=0). Canonical suite: `docs/HOTFOX_ROADMAP.md` (`FINAL RELEASE DEVICE GATE`) and `docs/phases/final-release-validation-gate.md`.
+
+Do not start a new product phase. Do not execute emulator/physical E2E until the owner explicitly starts this gate. Do not claim `RELEASE READY`.
+
+### Engineering gate status
+
+Not a product-engineering phase. 2.2–3.1 engineering gates are closed.
+
+### Release gate status
+
+**NOT EXECUTED / deferred.** Emulator and physical Android VPN E2E have not run. `RELEASE READY` is not claimed.
 
 

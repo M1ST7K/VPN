@@ -172,11 +172,15 @@ Detailed spec: `docs/phases/3.0-premium-android.md`
 
 Purpose: remove remaining inherited-product friction after VPN correctness, commerce, AUTO, routing, Shadow, operations, Autopilot and premium UX are already stable.
 
+Closed as **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 25 `APPROVED`, SHA `7192b04`).
+
 Candidates implemented in-repository: engine/UI facade, signed control-plane metadata, capacity-aware AUTO, generated device registry, API versioning, offline policy, privacy-safe observability, 2.x migration.
 
-Still deferred without evidence: dedicated VPN engine process split, R8/minification, optional account secret sync.
+Still deferred without evidence: dedicated VPN engine process split, R8/minification, optional account secret sync, emulator/physical VPN E2E.
 
 Detailed spec: `docs/phases/3.1-mature-platform.md`
+
+Current milestone: **FINAL RELEASE VALIDATION GATE** (`docs/phases/final-release-validation-gate.md`). Automatic engineering progression is stopped. Do not claim `RELEASE READY`.
 
 # Target product surfaces
 

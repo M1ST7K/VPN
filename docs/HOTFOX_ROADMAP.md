@@ -2,7 +2,7 @@
 
 Status: **CANONICAL**
 
-Current engineering phase: **3.1 — Mature HotFox Platform / Pre-release Engineering**
+Current engineering phase: **FINAL RELEASE VALIDATION GATE** (3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred)
 
 This document defines the sequential HotFox engineering roadmap from the already completed truthful core and commercial foundation through the mature 3.0 platform.
 
@@ -1514,7 +1514,7 @@ Do not request a physical Android test merely to enter 3.0.
 
 # 3.0 — MATURE HOTFOX PLATFORM
 
-Status: **IN PROGRESS (renumbered to 3.1 after owner override)**
+Status: **ENGINEERING COMPLETE — runtime and physical release validation deferred** (3.1 Mature HotFox Platform / Pre-release Engineering; former 3.0 Mature heading; round 25 `APPROVED`, SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`)
 
 ## Purpose
 
@@ -1761,7 +1761,7 @@ Do NOT claim `RELEASE READY` yet if the final physical Android acceptance suite 
 
 # FINAL RELEASE DEVICE GATE
 
-Status: **ONLY AFTER 3.0 ENGINEERING COMPLETE OR OWNER-APPROVED RELEASE CANDIDATE CUT**
+Status: **OPEN AFTER 3.1 ENGINEERING COMPLETE — runtime and physical execution NOT STARTED**
 
 This is the single canonical stage at which physical validation on real Android hardware is required for `RELEASE READY`.
 

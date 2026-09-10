@@ -1,6 +1,8 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **3.1 — Mature HotFox Platform / Pre-release Engineering**.
+Current milestone: **FINAL RELEASE VALIDATION GATE**.
+
+3.1 is historical **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 25 `APPROVED`, P0=0, P1=0) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`. Automatic product-phase progression is stopped. Do not claim `RELEASE READY`.
 
 This file is trusted reviewer context from `main`/owner policy. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md`.
 
@@ -125,46 +127,53 @@ Preserve its guarantees:
 
 Do not reopen 3.0 solely because runtime/physical release validation is deferred.
 
-## Current goal — 3.1 Mature HotFox Platform / Pre-release Engineering
+### 3.1 — Mature HotFox Platform / Pre-release Engineering
 
-Canonical scope is the legacy «3.0 Mature HotFox Platform» heading in `docs/HOTFOX_ROADMAP.md` and `docs/phases/3.1-mature-platform.md`.
+Phase 3.1 Mature HotFox Platform is **ENGINEERING COMPLETE — runtime and physical release validation deferred** after checkpoint round 25 (`APPROVED`, no substantiated P0/P1) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`.
 
-Do not expand 3.1 into `RELEASE READY` or the final device gate until the 3.1 engineering gate closes.
+Preserve its guarantees:
 
-## Highest-priority review targets for 3.1
+- UI/notification/QS observe `HotfoxEngineFacade`; Activity is not a second session owner;
+- signed ECDSA control-plane inventory/capacity/maintenance/weight/region/policy; invalid signature fail-closed; last-known-good + TTL;
+- capacity-aware AUTO uses load/weight plus local health; **manual stays sticky**;
+- generated scoped device IDs only; no hardware fingerprinting;
+- billing outage does not fabricate entitlement; control-plane outage does not wipe servers;
+- remote flags cannot fake CONNECTED or weaken TLS/DNS/IPv6/path verification;
+- INCLUDE/EXCLUDE captured-app modes do not emit non-block DOMAIN/CIDR Xray rules;
+- out-of-range remote expiry epochs fail closed to UNKNOWN/MISSING.
 
-1. **Engine/UI boundary** — UI observes `HotfoxEngineFacade`; Activity death is not a second session owner; `CONNECTED` still comes only from `VpnSessionCoordinator`.
-2. **Signed control plane** — ECDSA inventory/capacity/maintenance/weight/region/policy version; invalid signature fail-closed; last-known-good + TTL; outage does not wipe servers.
-3. **Capacity-aware AUTO** — control-plane load plus local health; do not send everyone to one low-latency overloaded node; **manual stays sticky**.
-4. **Devices** — generated scoped IDs only; register/limit/revoke/rename; no hardware fingerprinting.
-5. **Offline / API** — billing outage does not fabricate entitlement; old clients fail gracefully; remote flags cannot fake CONNECTED or weaken TLS/DNS/IPv6.
-6. **Privacy-safe observability** — no browsing content or secrets.
-7. **2.x migration** — preserve entitlement, manual subscriptions, AUTO/manual, routing.
-8. **No 2.2–3.0 regression** of VPN path, DNS/IPv6, entitlement, NotificationManager alias, or E2E harnesses.
+Do not reopen 3.1 solely because runtime/physical release validation is deferred.
+
+## Current goal — FINAL RELEASE VALIDATION GATE
+
+Canonical suite: `docs/HOTFOX_ROADMAP.md` (`FINAL RELEASE DEVICE GATE`) and `docs/phases/final-release-validation-gate.md`.
+
+This is a validation stop, not a new product phase. Do not start another engineering roadmap phase. Do not execute emulator/physical E2E until the owner explicitly starts the gate.
+
+## Highest-priority review targets after 3.1 close
+
+1. **No 2.2–3.1 regression** of VPN path, DNS/IPv6, entitlement, NotificationManager alias, facade/control-plane, or E2E harnesses.
+2. **No fabricated RELEASE READY** — missing emulator/runtime/physical execution is `NOT EXECUTED / deferred`, never PASS.
+3. **Secrets** — subscription URLs stay runtime-only.
+4. **Truthful state** — no false `CONNECTED` / `Защищено`.
 
 ## Scope discipline
 
-Do **not** turn unimplemented final-release device-gate items into P0/P1 during 3.1 review.
+Do **not** treat unimplemented final-release device-gate execution as a 3.1 P0/P1. That engineering gate is already closed.
 
-Missing emulator/runtime/physical execution by itself is **not** a 3.1 P0/P1 under the latest owner validation timing override.
+Missing emulator/runtime/physical execution by itself is **not** a product P0/P1 under the latest owner validation timing override until the owner starts this gate.
 
-Optional account sync and R8/process-split are out of scope unless product-justified with evidence.
+Optional account sync and R8/process-split remain out of scope unless product-justified with evidence.
 
 ## Exit gate for 3.1 engineering
 
-Run one final `[hotfox-phase-exit]` when the repository-side implementation is coherent and required build/unit/integration/lint/static/release-compilation checks are green.
+Closed. Do not request another `[hotfox-phase-exit]` merely to restate 3.1 completion.
 
-If P0=0 and P1=0, record:
-
-`3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
-
-Then stop at `FINAL RELEASE VALIDATION GATE`.
-
-If runtime E2E did not run, state `NOT EXECUTED / deferred`; never claim PASS.
+`docs/AI_REVIEW_PHASE_ID` on trusted `main` remains `2.4`. Do not retarget it from a feature-branch head.
 
 ## Final release validation policy
 
-Runtime validation is consolidated into the final release gate after 3.1 engineering completion.
+Runtime validation is consolidated into this gate after 3.1 engineering completion.
 
 Before `RELEASE READY`, actual emulator and final physical-device acceptance must prove the real VPN path, real HTTPS/browser traffic, public IP behavior where available, DNS safety, IPv6 route/fail-closed behavior, reconnect cycles, teardown, and no false protected state.
 

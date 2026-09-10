@@ -1,26 +1,26 @@
-# CURRENT PHASE — HotFox 3.1 «Mature HotFox Platform / Pre-release Engineering»
+# CURRENT PHASE — FINAL RELEASE VALIDATION GATE
 
-Status: **IN PROGRESS**
+Status: **WAITING — automatic engineering progression stopped**
 
-3.0 is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (checkpoint round 19 `APPROVED`, P0=0, P1=0) on SHA `21f341980121a49f103bd61eaa588c37f1987c8a`.
+3.1 Mature HotFox Platform / Pre-release Engineering is **ENGINEERING COMPLETE — runtime and physical release validation deferred** (checkpoint round 25 `APPROVED`, P0=0, P1=0) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`.
 
-This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
+This is the single remaining canonical milestone. Agents must **stop automatic product-phase progression**. Do not start a new engineering phase. Do not claim `RELEASE READY`.
 
-Previous phase: `docs/phases/3.0-premium-android.md`
-Linked phase spec: `docs/phases/3.1-mature-platform.md` and `docs/HOTFOX_ROADMAP.md` (legacy heading «3.0 Mature HotFox Platform», now 3.1)
-Owner roadmap override: `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc`
-Latest owner validation override: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`
+Previous phase: `docs/phases/3.1-mature-platform.md`
+Linked gate spec: `docs/phases/final-release-validation-gate.md`
+Owner validation override: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`
 Roadmap progression rule: `.cursor/rules/20-hotfox-roadmap-progression.mdc`
+Engineering gates: `.cursor/rules/10-hotfox-engineering-gates.mdc`
 Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
-Canonical roadmap: `docs/HOTFOX_ROADMAP.md`
+Canonical roadmap: `docs/HOTFOX_ROADMAP.md` (`FINAL RELEASE DEVICE GATE`)
 Review policy: `docs/AI_REVIEW_POLICY.md`
 Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
+`docs/AI_REVIEW_PHASE_ID` on this branch remains `2.4` to match trusted `main`. Do not retarget it to `3.1` from a feature-branch head.
+
 ## Goal
 
-Evolve HotFox from a strong Android VPN app plus backend into a mature, operable platform: engine/UI boundary, signed control plane, capacity-aware AUTO, fleet/device operations, API versioning, offline policy, privacy-safe observability and 2.x migration.
-
-Platform complexity stays behind a controlled interface. Do not split `VpnService` into another process without measured evidence. Do not enable R8 as an aesthetic milestone. Do not fake ping/`CONNECTED`.
+Hold the engineering-complete product until the owner explicitly starts the final release validation gate. That gate requires **actual** emulator and physical Android evidence of the truthful VPN path. Missing runtime/device execution is expected until the owner starts the gate; it is not a new product phase.
 
 ## Inherited guarantees (still binding)
 
@@ -33,72 +33,57 @@ Platform complexity stays behind a controlled interface. Do not split `VpnServic
 - no secrets in APK/logs/notifications;
 - 2.5–2.8 routing, Shadow, operations and Autopilot contracts;
 - 3.0 truthful headlines / error / notification / QS / onboarding / NotificationManager alias;
-- 2.9 SOCKS/TUN/runtime E2E harnesses remain intact for the final release validation gate.
+- 3.1 `HotfoxEngineFacade`, signed control plane, capacity-aware AUTO, device registry, offline policy, remote-flag denylist;
+- 2.9 SOCKS/TUN/runtime E2E harnesses remain intact for this gate.
 
-## 3.0 closure evidence
+## 3.1 closure evidence
 
-Trusted checkpoint **round 19** returned `APPROVED` with no substantiated P0/P1 on exact SHA `21f341980121a49f103bd61eaa588c37f1987c8a`.
+Trusted checkpoint **round 25** returned `APPROVED` with no substantiated P0/P1 on exact SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`.
+
+Comment: https://github.com/M1ST7K/VPN/pull/4#issuecomment-5623226541
 
 Runtime/emulator/physical VPN E2E remains `NOT EXECUTED / deferred`. `RELEASE READY` is not claimed.
 
-## Round 21 / cap-window
-
-Push CI for routing P1 fix `844918b` was green (`34475599536`). Round 21 did **not** review that head: the old PR-lifetime checkpoint cap on `main` paused automation. That is not a product P0/P1 and is not a stuck 3.1 architecture loop: rounds 1–19 closed 2.4–3.0 APPROVED; round 20 was the first 3.1 review (routing P1, now in tree).
-
-Owner merged PR #5. Trusted `main` includes the per-phase cap at `c1cd9ba7f8ccfddd73e2e654933e2a80e851e37c` (`MAX_REVIEW_ROUNDS=40` after last `VERDICT: APPROVED`; CAP comments are ignored). Owner merged PR #6: orchestrator on `main` now passes exact `expected_sha` (`04445e11d4848b339d8c07ecf85b166781ab23d6`). The old lifetime CAP is no longer a blocker.
-
-Owner merged PR #7. Trusted `main` now includes `docs/AI_REVIEW_PHASE_ID` = `2.4` at `d516623c436c4c4ed1a6b010f451917a76c2f30e`, matching `docs/AI_REVIEW_CURRENT_PHASE.md`. The reviewer load step can read the file from `main`.
-
-This head is a **new** `[hotfox-phase-exit]` after round-24 P1 (safe expiry epoch + pinned secret-bearing emulator action). Do not reuse `884b6b8`, `868c3e0`, `e57fed5`, `17a1e92`, `5b2bba1`, `844918b`, `1dda013`, or a CAP-marked SHA.
-
 ## Work allowed now
 
-- `HotfoxEngineFacade` so UI re-observes process-scoped engine state; Activity is not a second session owner;
-- signed control-plane inventory/capacity/maintenance/weight/region/policy version (ECDSA, fail-closed, last-known-good + TTL);
-- capacity-aware AUTO using control-plane load plus local health; manual stays sticky;
-- fleet drain/maintenance/restore through signed metadata;
-- generated scoped device IDs: register / limit / revoke / rename (no hardware fingerprinting);
-- API min-client fail-graceful behavior;
-- offline/outage: cached metadata TTL, entitlement continuity, billing outage does not fabricate entitlement, control-plane outage does not wipe known-good servers;
-- privacy-safe counters (region/transport/billing/update/Shadow) with secret rejection;
-- 2.x → 3.1 persisted-state migration;
-- privacy/security architecture inventory as reviewable code.
+- keep the engineering-complete ledger truthful;
+- fix a newly discovered real P0/P1 regression of an earlier guarantee;
+- describe the final gate requirements when asked.
 
 ## Not now
 
+- starting a new product/engineering phase;
+- executing emulator/runtime VPN E2E unless the owner explicitly starts this gate;
+- requesting a physical Android test as a continuation blocker;
 - claiming `RELEASE READY`;
 - fake CONNECTED, fake ping, mock VPN, disabled TLS/REALITY, or readiness bypass;
 - unsigned remote switches that weaken TLS/DNS/IPv6/checkout honesty;
-- splitting the VPN engine process without evidence;
-- enabling R8/minification as a milestone;
-- requiring an account solely to collect identity;
-- syncing VPN secrets without an explicit secure design;
-- starting `FINAL RELEASE VALIDATION GATE` until 3.1 engineering exit is APPROVED.
+- changing `docs/AI_REVIEW_PHASE_ID` on this feature branch.
 
 ## Owner validation timing override
 
-`.cursor/rules/22-hotfox-owner-release-validation-gate.mdc` is authoritative for validation timing.
+`.cursor/rules/22-hotfox-owner-release-validation-gate.mdc` is authoritative.
 
-Emulator/runtime VPN E2E and physical-device E2E remain deferred to the single final release validation gate after 3.1. If they have not executed, report `NOT EXECUTED / deferred`, never PASS.
+After `3.1 ENGINEERING COMPLETE`, automatic roadmap progression **stops** here. Emulator/runtime VPN E2E and physical-device E2E are the content of this gate. If they have not executed, report `NOT EXECUTED / deferred`, never PASS.
 
-## Checkpoint protocol — no idle after CI
+Do not idle waiting for a device during 2.9/3.0/3.1 (those phases are closed). Do not run this gate unprompted.
 
-Intermediate fixes use ordinary commits without review markers.
+## Final release validation definition
 
-When all known phase work or all currently substantiated P0/P1 findings are fixed and a commit is intended as the next engineering-exit candidate, that FINAL candidate commit MUST contain `[hotfox-phase-exit]` **before** waiting for push CI.
+`RELEASE READY` may be claimed only after actual emulator **and** physical Android acceptance prove at least:
 
-If review is APPROVED, close 3.1 as `3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred` and stop automatic progression at `FINAL RELEASE VALIDATION GATE`. Do not claim `RELEASE READY`.
+- install of the release-candidate artifact;
+- known-working subscription supplied only at runtime (never committed);
+- SOCKS-only Xray egress where applicable;
+- production path: app traffic → `VpnService`/TUN → HEV/tun2socks → local Xray SOCKS `10808` → Xray outbound → remote VPN server → Internet;
+- real HTTPS and browser/device-wide traffic;
+- public IP before/during/after VPN when the environment permits;
+- DNS policy with no silent bypass;
+- IPv6 routed or fail-closed with no leak (`::/0`, including NAT64);
+- disconnect restores normal networking;
+- repeated connect/disconnect/reconnect;
+- no false `CONNECTED` / `Защищено`;
+- sanitized diagnostics without secrets;
+- the physical-device suite in `docs/HOTFOX_ROADMAP.md` (`FINAL RELEASE DEVICE GATE`).
 
-## Phase 3.1 exit definition
-
-3.1 may close when:
-
-- repository-side platform scope above is implemented without weakening inherited VPN/truth/security guarantees;
-- required CI/build/unit/integration/static checks pass;
-- final review has P0=0 / P1=0.
-
-Truthful status wording after approval:
-
-`3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
-
-Then stop at `FINAL RELEASE VALIDATION GATE`. Never claim `RELEASE READY` without real emulator + physical E2E.
+If any of that fails, return to a fix/rebuild/retest loop. Never convert `NOT EXECUTED` into PASS.
