@@ -1,10 +1,10 @@
 # HotFox 3.1 — Mature Platform phase-exit checkpoint
 
-This checkpoint requests the canonical phase-exit review after the first coherent 3.1 platform block, now synced with trusted `main` `04445e11d4848b339d8c07ecf85b166781ab23d6` (PR #6 orchestrator `expected_sha` + PR #5 per-phase cap).
+This checkpoint requests the canonical phase-exit review after the first coherent 3.1 platform block, now synced with trusted `main` `d516623c436c4c4ed1a6b010f451917a76c2f30e` (PR #7 phase-id `2.4` + PR #6 orchestrator `expected_sha` + PR #5 per-phase cap).
 
 - Implementation commit: `0e39e4b`. Compile fix for `HotfoxV31PersistedState.schema` default (`HotfoxStateMigration.SCHEMA`) on `ed9c996`.
 - Round 20 P1 remains in tree from `844918b`: INCLUDE/EXCLUDE no longer emit non-block DOMAIN/CIDR Xray rules, so `BLOCK > APP > DOMAIN > CIDR` matches the enforceable data plane.
-- Round 22/23 P1: cap is bound to trusted `docs/AI_REVIEW_PHASE_ID` / `HOTFOX_REVIEW_PHASE` (must match trusted `AI_REVIEW_CURRENT_PHASE.md`, currently `2.4` on `main`). Canonical `VERDICT:` lines only. The phase-ID file must exist on trusted `main` before the reviewer load step runs.
+- Round 22/23 P1: cap is bound to trusted `docs/AI_REVIEW_PHASE_ID` / `HOTFOX_REVIEW_PHASE` matching `AI_REVIEW_CURRENT_PHASE.md` (`2.4` on `main` after PR #7 `d516623`). Canonical `VERDICT:` lines only. PR-head cannot select a different phase. This is a **new** SHA; do not reuse `868c3e0` / `e57fed5` / `17a1e92` / `5b2bba1`.
 - 3.0 closure: round 19 `APPROVED` on SHA `21f341980121a49f103bd61eaa588c37f1987c8a`.
 - Scope delivered in repository/CI:
   - `HotfoxEngineFacade` — UI/notification/QS re-observe process-scoped engine state; Activity is not a session owner;
