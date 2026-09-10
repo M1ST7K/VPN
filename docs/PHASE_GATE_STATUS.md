@@ -486,9 +486,9 @@ Implementation included:
 
 ## Phase 3.0 — Premium Android Experience
 
-**IN PROGRESS.** 2.9 engineering gate is closed. Canonical scope: `docs/HOTFOX_ROADMAP.md` (legacy «2.9 Premium» heading) and `docs/phases/3.0-premium-android.md`. Do not record `3.0 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0). Mature platform work is 3.1.
+**IN PROGRESS / engineering-exit candidate.** 2.9 engineering gate is closed. Canonical scope: `docs/HOTFOX_ROADMAP.md` (legacy «2.9 Premium» heading) and `docs/phases/3.0-premium-android.md`. Phase-exit request: `docs/HOTFOX_3_0_PHASE_EXIT.md`. Implementation SHA `535f97f`; push CI `34459935364` SUCCESS. Do not record `3.0 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0). Mature platform work is 3.1.
 
-Repository-side 3.0 work in progress: truthful SELECTING/VERIFYING headlines, error/notification/QS mappers, first-run onboarding, Autopilot/Routing surfaces, reduced-motion, ViewState fixtures.
+Repository-side 3.0 work: truthful SELECTING/VERIFYING headlines, error/notification/QS mappers, first-run onboarding, Autopilot/Routing surfaces, reduced-motion, ViewState fixtures.
 
 Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `RELEASE READY`.
 
