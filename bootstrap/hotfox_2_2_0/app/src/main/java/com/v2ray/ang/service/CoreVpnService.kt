@@ -38,11 +38,11 @@ import com.v2ray.ang.vpn.HotfoxServerSelection
 import com.v2ray.ang.vpn.VpnConnectionStage
 import com.v2ray.ang.vpn.VpnLoopPrevention
 import com.v2ray.ang.vpn.VpnReadiness
+import com.v2ray.ang.vpn.VpnAdmissionGate
 import com.v2ray.ang.vpn.VpnSessionCoordinator
 import com.v2ray.ang.vpn.VpnSessionState
 import java.lang.ref.SoftReference
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -63,9 +63,9 @@ class CoreVpnService : VpnService(), ServiceControl {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var trafficJob: Job? = null
     private var pipelineJob: Job? = null
+    private var admissionJob: Job? = null
     @Volatile
     private var protectAttempt: Long = 0L
-    private val admissionEpoch = AtomicLong(0L)
 
     override fun onCreate() {
         super.onCreate()
@@ -89,6 +89,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             stopAllService()
         }
         unlockStart()
+        admissionJob?.cancel()
         pipelineJob?.cancel()
         trafficJob?.cancel()
         serviceScope.cancel()
@@ -120,8 +121,8 @@ class CoreVpnService : VpnService(), ServiceControl {
             return START_STICKY
         }
 
-        val admission = admissionEpoch.incrementAndGet()
-        serviceScope.launch {
+        val admission = VpnAdmissionGate.snapshot()
+        admissionJob = serviceScope.launch {
             admitNewAttempt(admission)
         }
         return START_STICKY
@@ -134,7 +135,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         trafficJob = null
         previousPipeline?.cancelAndJoin()
         previousTraffic?.cancelAndJoin()
-        if (admission != admissionEpoch.get()) {
+        if (!isActive || !VpnAdmissionGate.isCurrent(admission)) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: stale admission=$admission")
             unlockStart()
             return
@@ -150,7 +151,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             unlockStart()
             return
         }
-        if (admission != admissionEpoch.get() || !VpnSessionCoordinator.isCurrent(attempt)) {
+        if (!isActive || !VpnAdmissionGate.isCurrent(admission) || !VpnSessionCoordinator.isCurrent(attempt)) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after beginAttempt=$attempt")
             com.v2ray.ang.vpn.HotfoxSocketProtect.detach(attempt)
             unlockStart()
@@ -167,8 +168,15 @@ class CoreVpnService : VpnService(), ServiceControl {
             stopSelf()
             return
         }
-        if (admission != admissionEpoch.get() || !pipelineStillCurrent(attempt)) {
+        if (VpnAdmissionGate.shouldAbandonEstablished(
+                admission = admission,
+                currentEpoch = VpnAdmissionGate.snapshot(),
+                pipelineCurrent = pipelineStillCurrent(attempt),
+                cancelled = !isActive,
+            )
+        ) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after TUN establish attempt=$attempt")
+            abandonEstablishedAdmission(attempt)
             return
         }
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.TUN_ESTABLISH)
@@ -592,22 +600,39 @@ class CoreVpnService : VpnService(), ServiceControl {
         CoreServiceManager.requestConnectedReload()
     }
 
+    private fun abandonEstablishedAdmission(attempt: Long) {
+        isRunning = false
+        com.v2ray.ang.vpn.HotfoxSocketProtect.detach(attempt)
+        VpnLoopPrevention.unbindProcess(this)
+        try {
+            if (::mInterface.isInitialized) {
+                mInterface.close()
+                com.v2ray.ang.vpn.TunFdEvidence.recordClosed()
+                LogUtil.i(AppConfig.TAG, "StartCore-VPN: abandoned TUN after stale admission attempt=$attempt")
+            }
+        } catch (e: Exception) {
+            LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to abandon TUN", e)
+        }
+        unlockStart()
+    }
+
     private fun stopAllService(
         isForced: Boolean = true,
         detachAttempt: Long = protectAttempt,
         teardownAlreadyClaimed: Boolean = false,
     ) {
-        admissionEpoch.incrementAndGet()
         val claimed = teardownAlreadyClaimed || VpnSessionCoordinator.claimTeardown(detachAttempt)
-        unlockStart()
-        com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
         if (!claimed) {
+            com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
             LogUtil.w(
                 AppConfig.TAG,
                 "StartCore-VPN: stale teardown ignored attempt=$detachAttempt current=${VpnSessionCoordinator.currentAttempt()}",
             )
             return
         }
+        VpnAdmissionGate.invalidateAfterClaim(true)
+        unlockStart()
+        com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
         isRunning = false
         cancelOwnedJobs()
         health.stop()
@@ -635,10 +660,13 @@ class CoreVpnService : VpnService(), ServiceControl {
     }
 
     private fun cancelOwnedJobs() {
+        val admission = admissionJob
         val pipeline = pipelineJob
         val traffic = trafficJob
+        admissionJob = null
         pipelineJob = null
         trafficJob = null
+        admission?.cancel()
         pipeline?.cancel()
         traffic?.cancel()
     }
