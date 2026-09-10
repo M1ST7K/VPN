@@ -51,8 +51,22 @@ MAX_ROUNDS = int(os.environ.get("MAX_REVIEW_ROUNDS", "10"))
 MAX_DIFF_CHARS = int(os.environ.get("MAX_REVIEW_DIFF_CHARS", "280000"))
 MAX_OUTPUT_TOKENS = int(os.environ.get("OPENAI_REVIEW_MAX_OUTPUT_TOKENS", "30000"))
 REVIEW_TRIGGER = os.environ.get("HOTFOX_REVIEW_TRIGGER", "[hotfox-review]").strip() or "[hotfox-review]"
+PHASE_EXIT_MARKER = "[hotfox-phase-exit]"
 EVENT_NAME = os.environ.get("GITHUB_EVENT_NAME", "").strip()
-FORCE_REVIEW = EVENT_NAME == "workflow_dispatch"
+REVIEW_MODE = os.environ.get("HOTFOX_REVIEW_MODE", "").strip() or "manual"
+EXPECTED_SHA = os.environ.get("EXPECTED_SHA", "").strip().lower()
+PHASE_EXIT = REVIEW_MODE == "phase_exit"
+FORCE_REVIEW = EVENT_NAME == "workflow_dispatch" and not PHASE_EXIT
+
+
+def write_outputs(*, approved: bool, sha: str, verdict_name: str) -> None:
+    path = os.environ.get("GITHUB_OUTPUT", "").strip()
+    if not path:
+        return
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(f"approved={'true' if approved else 'false'}\n")
+        handle.write(f"reviewed_sha={sha}\n")
+        handle.write(f"verdict={verdict_name}\n")
 
 
 def request_bytes(
@@ -139,6 +153,26 @@ def prior_reviews() -> list[dict]:
             )
     out.sort(key=lambda item: (item["round"], item["created_at"]))
     return out
+
+
+def completed_checkpoint(body: str) -> bool:
+    return "VERDICT: APPROVED" in body or "VERDICT: CHANGES_REQUIRED" in body
+
+
+def phase_cap_round(old: list[dict]) -> int:
+    """Cap window for the current engineering phase.
+
+    Long-lived PRs accumulate successful 2.4–3.x closures. The safety cap must
+    bound a stuck loop in the *current* phase, not count already-APPROVED
+    historical checkpoints. Automation-paused CAP comments are not reviews.
+    """
+    completed = [item for item in old if completed_checkpoint(item["body"])]
+    last_approved_round = 0
+    for item in completed:
+        if "VERDICT: APPROVED" in item["body"]:
+            last_approved_round = max(last_approved_round, item["round"])
+    phase = [item for item in completed if item["round"] > last_approved_round]
+    return len(phase) + 1
 
 
 def compare(base: str, head: str) -> tuple[str, list[str]]:
@@ -326,27 +360,48 @@ def main() -> int:
     current = ((pr.get("head") or {}).get("sha") or "").strip()
     base = ((pr.get("base") or {}).get("sha") or "").strip()
     if not re.fullmatch(r"[0-9a-f]{40}", current) or not re.fullmatch(r"[0-9a-f]{40}", base):
+        write_outputs(approved=False, sha=current, verdict_name="INVALID_SHA")
         raise RuntimeError("Could not resolve valid PR SHAs")
     print("GitHub API authentication OK.")
 
+    if PHASE_EXIT:
+        if not EXPECTED_SHA:
+            write_outputs(approved=False, sha=current, verdict_name="MISSING_EXPECTED_SHA")
+            print("phase_exit requires EXPECTED_SHA; refusing review.")
+            return 1
+        if current.lower() != EXPECTED_SHA:
+            write_outputs(approved=False, sha=current, verdict_name="SHA_MISMATCH")
+            print(f"PR head {current} != expected {EXPECTED_SHA}; refusing review.")
+            return 1
+        if PHASE_EXIT_MARKER.lower() not in head_commit_message(current).lower():
+            write_outputs(approved=False, sha=current, verdict_name="MISSING_PHASE_EXIT_MARKER")
+            print(f"expected SHA lacks {PHASE_EXIT_MARKER!r}; refusing review.")
+            return 1
+
     # Cost gate: ordinary Cursor pushes/build-fix commits intentionally stop here.
-    if not checkpoint_requested(current):
+    # Phase-exit candidates were already authenticated by expected_sha + [hotfox-phase-exit].
+    if not PHASE_EXIT and not checkpoint_requested(current):
+        write_outputs(approved=False, sha=current, verdict_name="NOT_REQUESTED")
         return 0
 
     old = prior_reviews()
-    if not FORCE_REVIEW and any(item["head"] == current for item in old):
+    if not FORCE_REVIEW and not PHASE_EXIT and any(item["head"] == current for item in old):
         print("This checkpoint head SHA was already reviewed; skipping duplicate event.")
+        write_outputs(approved=False, sha=current, verdict_name="DUPLICATE")
         return 0
 
     last = old[-1] if old else None
     round_no = last["round"] + 1 if last else 1
-    if round_no > MAX_ROUNDS:
+    cap_round = phase_cap_round(old)
+    if cap_round > MAX_ROUNDS:
         marker = f"<!-- HOTFOX_AI_REVIEW head={current} round={round_no} -->"
         post_comment(
             marker
-            + f"\n### HotFox AI Review — automation paused\n\nReached the safety cap of {MAX_ROUNDS} checkpoint rounds. "
+            + f"\n### HotFox AI Review — automation paused\n\nReached the safety cap of {MAX_ROUNDS} checkpoint rounds "
+            f"in the current phase (phase round {cap_round}, lifetime marker round {round_no}). "
             "No Cursor handoff was emitted. Inspect the non-converging architecture/review loop before raising the cap."
         )
+        write_outputs(approved=False, sha=current, verdict_name="CAP")
         return 1
 
     # Incremental by default. Periodic full-PR checkpoints protect against local fixes
@@ -362,7 +417,8 @@ def main() -> int:
         raw_diff, files = compare(diff_base, current)
     if not raw_diff.strip():
         print("No textual diff to review.")
-        return 0
+        write_outputs(approved=False, sha=current, verdict_name="EMPTY_DIFF")
+        return 1 if PHASE_EXIT else 0
 
     diff, trim_note = trim_diff(raw_diff)
     scope = f"Checkpoint round {round_no}; {scope_kind}; {trim_note}."
@@ -377,6 +433,7 @@ def main() -> int:
             + "**REVIEW_FORMAT_ERROR** — required verdict missing, so Cursor was not triggered.\n\n"
             + review
         )
+        write_outputs(approved=False, sha=current, verdict_name="FORMAT_ERROR")
         return 1
 
     if result == "CHANGES_REQUIRED":
@@ -385,11 +442,12 @@ def main() -> int:
             "Read `AGENTS.md` and `docs/CURRENT_PHASE.md`; read only the linked/relevant master-roadmap sections needed for these findings. "
             "Do not weaken VPN/security functionality or suppress meaningful checks just to get green. "
             "You may use multiple ordinary commits while fixing and while CI is red; those commits must NOT request another AI review. "
-            f"After all findings in this checkpoint are fixed and applicable build/tests/lint/static gates are green, make the FINAL checkpoint commit include `{REVIEW_TRIGGER}` in its commit message. "
+            f"After all findings in this checkpoint are fixed and applicable build/tests/lint/static gates are green, make the FINAL checkpoint commit include `{PHASE_EXIT_MARKER if PHASE_EXIT else REVIEW_TRIGGER}` in its commit message. "
             "Never claim physical-device E2E unless it actually ran.\n\n"
         )
         post_comment(header + handoff + review)
         print(f"Checkpoint round {round_no}: CHANGES_REQUIRED; one Cursor handoff posted.")
+        write_outputs(approved=False, sha=current, verdict_name="CHANGES_REQUIRED")
         return 1
 
     post_comment(
@@ -398,6 +456,7 @@ def main() -> int:
         + review
     )
     print(f"Checkpoint round {round_no}: APPROVED.")
+    write_outputs(approved=True, sha=current, verdict_name="APPROVED")
     return 0
 
 
