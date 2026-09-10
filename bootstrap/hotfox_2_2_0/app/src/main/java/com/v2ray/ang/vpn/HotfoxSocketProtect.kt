@@ -1,5 +1,7 @@
 package com.v2ray.ang.vpn
 
+import java.util.concurrent.atomic.AtomicReference
+
 /**
  * Race-safe [android.net.VpnService.protect] broker.
  *
@@ -8,6 +10,10 @@ package com.v2ray.ang.vpn
  * This broker still records every protect() the VpnService can perform
  * (probe sockets, future native hooks) and is fail-closed on stale service,
  * false, or exception.
+ *
+ * Ownership is an immutable `(attempt, protector)` snapshot. Attach/detach
+ * publish or CAS-clear that pair atomically so an older teardown cannot
+ * drop a newer service callback, and [protect] never mixes generations.
  */
 data class HotfoxProtectResult(
     val success: Boolean,
@@ -21,49 +27,53 @@ fun interface HotfoxFdProtector {
     fun protectFd(fd: Int): Boolean
 }
 
-object HotfoxSocketProtect {
-    @Volatile
-    private var generation: Long = 0
+internal data class HotfoxProtectBinding(
+    val attempt: Long,
+    val protector: HotfoxFdProtector,
+)
 
-    @Volatile
-    private var protector: HotfoxFdProtector? = null
+object HotfoxSocketProtect {
+    private val binding = AtomicReference<HotfoxProtectBinding?>(null)
 
     fun resetForTests() {
-        generation = 0
-        protector = null
+        binding.set(null)
         VpnProtectEvidence.resetForTests()
     }
 
     fun attach(attempt: Long, protector: HotfoxFdProtector) {
-        generation = attempt
-        this.protector = protector
+        binding.set(HotfoxProtectBinding(attempt, protector))
     }
 
     fun detach(attempt: Long) {
-        if (generation == attempt) {
-            protector = null
+        while (true) {
+            val current = binding.get() ?: return
+            if (current.attempt != attempt) return
+            if (binding.compareAndSet(current, null)) return
         }
     }
 
-    fun protect(fd: Int, protocol: String, attempt: Long = generation): HotfoxProtectResult {
+    fun boundAttemptForTests(): Long = binding.get()?.attempt ?: 0L
+
+    fun protect(fd: Int, protocol: String, attempt: Long? = null): HotfoxProtectResult {
         if (fd < 0) {
             val result = HotfoxProtectResult(false, "invalid-fd", protocol)
             VpnProtectEvidence.record(false)
             return result
         }
-        if (attempt != generation) {
-            val result = HotfoxProtectResult(false, "stale-generation", protocol)
-            VpnProtectEvidence.record(false)
-            return result
-        }
-        val current = protector
-        if (current == null) {
+        val snapshot = binding.get()
+        if (snapshot == null) {
             val result = HotfoxProtectResult(false, "stale-service", protocol)
             VpnProtectEvidence.record(false)
             return result
         }
+        val expected = attempt ?: snapshot.attempt
+        if (expected != snapshot.attempt) {
+            val result = HotfoxProtectResult(false, "stale-generation", protocol)
+            VpnProtectEvidence.record(false)
+            return result
+        }
         return try {
-            val ok = current.protectFd(fd)
+            val ok = snapshot.protector.protectFd(fd)
             val result = HotfoxProtectResult(ok, if (ok) "ok" else "protect-false", protocol)
             VpnProtectEvidence.record(ok)
             result

@@ -1,5 +1,6 @@
 package com.v2ray.ang.vpn
 
+import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -82,10 +83,45 @@ class HotfoxRuntimeRepairTest {
     }
 
     @Test
+    fun oldAttemptCannotClearOrUseNewerProtector() {
+        val newerHits = AtomicInteger(0)
+        HotfoxSocketProtect.attach(1) { false }
+        HotfoxSocketProtect.attach(2) { fd ->
+            newerHits.incrementAndGet()
+            fd > 0
+        }
+        HotfoxSocketProtect.detach(1)
+        assertEquals(2L, HotfoxSocketProtect.boundAttemptForTests())
+        val live = HotfoxSocketProtect.protect(21, "tcp", 2)
+        assertTrue(live.success)
+        assertEquals(1, newerHits.get())
+        val stale = HotfoxSocketProtect.protect(21, "udp", 1)
+        assertFalse(stale.success)
+        assertEquals("stale-generation", stale.reason)
+        assertEquals(1, newerHits.get())
+        HotfoxSocketProtect.attach(3) { true }
+        HotfoxSocketProtect.detach(2)
+        val third = HotfoxSocketProtect.protect(22, "tcp", 3)
+        assertTrue(third.success)
+        assertEquals(3L, HotfoxSocketProtect.boundAttemptForTests())
+        HotfoxSocketProtect.detach(3)
+        val gone = HotfoxSocketProtect.protect(22, "tcp", 3)
+        assertFalse(gone.success)
+        assertEquals("stale-service", gone.reason)
+    }
+
+    @Test
     fun customAndGroupAreNotRejectedForContainerVsVless() {
         val custom = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.CUSTOM)
         val group = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.POLICYGROUP)
         val chain = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.PROXYCHAIN)
+        val expected = """
+            {
+              "outbounds": [
+                {"protocol":"vless","tag":"provider-proxy","settings":{"vnext":[{"address":"vpn.example","port":443}]}}
+              ]
+            }
+        """.trimIndent()
         val json = """
             {
               "outbounds": [
@@ -95,20 +131,158 @@ class HotfoxRuntimeRepairTest {
               ]
             }
         """.trimIndent()
-        val customResult = HotfoxOutboundCompare.record(custom, json)
+        val customResult = HotfoxOutboundCompare.record(custom, json, expected)
         assertFalse(customResult.mismatches.any { it.startsWith("protocol:") })
         assertFalse(customResult.blockingMismatch)
-        assertFalse(HotfoxOutboundCompare.record(group, json).blockingMismatch)
-        assertFalse(HotfoxOutboundCompare.record(chain, json).blockingMismatch)
+        assertFalse(HotfoxOutboundCompare.record(group, json, expected).blockingMismatch)
+        assertFalse(HotfoxOutboundCompare.record(chain, json, expected).blockingMismatch)
+        val multiExpected = """
+            {
+              "outbounds": [
+                {"protocol":"vless","tag":"a","settings":{"vnext":[{"address":"a.example","port":443}]}},
+                {"protocol":"trojan","tag":"b","settings":{"servers":[{"address":"b.example","port":8443}]}}
+              ]
+            }
+        """.trimIndent()
+        val multiGenerated = """
+            {
+              "outbounds": [
+                {"protocol":"vless","tag":"a","settings":{"vnext":[{"address":"a.example","port":443}]}},
+                {"protocol":"trojan","tag":"b","settings":{"servers":[{"address":"b.example","port":8443}]}},
+                {"protocol":"freedom","tag":"hotfox-direct"}
+              ]
+            }
+        """.trimIndent()
+        assertFalse(HotfoxOutboundCompare.record(custom, multiGenerated, multiExpected).blockingMismatch)
     }
 
     @Test
     fun customMissingProxyOutboundIsBlocking() {
         val custom = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.CUSTOM)
+        val expected = """{"outbounds":[{"protocol":"vless","settings":{"vnext":[{"address":"vpn.example","port":443}]}}]}"""
         val json = """{"outbounds":[{"protocol":"freedom","tag":"direct"}]}"""
-        val result = HotfoxOutboundCompare.record(custom, json)
+        val result = HotfoxOutboundCompare.record(custom, json, expected)
         assertTrue(result.blockingMismatch)
         assertTrue(result.mismatches.any { it.contains("missing-proxy-outbound") })
+    }
+
+    @Test
+    fun customUnrelatedValidProxyIsBlocking() {
+        val custom = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.CUSTOM)
+        val expected = """
+            {"outbounds":[{"protocol":"vless","tag":"intended","settings":{"vnext":[{"address":"vpn.example","port":443}]}}]}
+        """.trimIndent()
+        val generated = """
+            {"outbounds":[{"protocol":"vmess","tag":"other","settings":{"vnext":[{"address":"other.example","port":8443}]}}]}
+        """.trimIndent()
+        val result = HotfoxOutboundCompare.record(custom, generated, expected)
+        assertTrue(result.blockingMismatch)
+        assertTrue(result.mismatches.any { it.contains("custom-unrelated") || it.startsWith("protocol:") || it.startsWith("address:") })
+    }
+
+    @Test
+    fun customMissingExpectedPlanIsBlocking() {
+        val custom = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.CUSTOM)
+        val generated = """
+            {"outbounds":[{"protocol":"vless","settings":{"vnext":[{"address":"vpn.example","port":443}]}}]}
+        """.trimIndent()
+        val result = HotfoxOutboundCompare.record(custom, generated, null)
+        assertTrue(result.blockingMismatch)
+        assertTrue(result.mismatches.any { it.contains("missing-expected-plan") })
+    }
+
+    @Test
+    fun policyGroupMissingOrChangedMemberIsBlocking() {
+        val group = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.POLICYGROUP)
+        val expected = """
+            {
+              "outbounds": [
+                {"protocol":"vless","settings":{"vnext":[{"address":"nl.example","port":443}]}},
+                {"protocol":"vless","settings":{"vnext":[{"address":"us.example","port":443}]}}
+              ]
+            }
+        """.trimIndent()
+        val missing = """
+            {"outbounds":[{"protocol":"vless","settings":{"vnext":[{"address":"nl.example","port":443}]}}]}
+        """.trimIndent()
+        val changed = """
+            {
+              "outbounds": [
+                {"protocol":"vless","settings":{"vnext":[{"address":"nl.example","port":443}]}},
+                {"protocol":"vless","settings":{"vnext":[{"address":"de.example","port":443}]}}
+              ]
+            }
+        """.trimIndent()
+        val missingResult = HotfoxOutboundCompare.record(group, missing, expected)
+        assertTrue(missingResult.blockingMismatch)
+        assertTrue(missingResult.mismatches.any { it.contains("missing-group-member") })
+        val changedResult = HotfoxOutboundCompare.record(group, changed, expected)
+        assertTrue(changedResult.blockingMismatch)
+        assertTrue(
+            changedResult.mismatches.any {
+                it.contains("missing-group-member") || it.contains("unexpected-group-member") || it.startsWith("address:")
+            },
+        )
+    }
+
+    @Test
+    fun proxyChainReorderOrOmittedHopIsBlocking() {
+        val chain = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.PROXYCHAIN)
+        val expected = """
+            {
+              "outbounds": [
+                {"protocol":"vless","settings":{"vnext":[{"address":"entry.example","port":443}]}},
+                {"protocol":"trojan","settings":{"servers":[{"address":"exit.example","port":443}]}}
+              ]
+            }
+        """.trimIndent()
+        val reordered = """
+            {
+              "outbounds": [
+                {"protocol":"trojan","settings":{"servers":[{"address":"exit.example","port":443}]}},
+                {"protocol":"vless","settings":{"vnext":[{"address":"entry.example","port":443}]}}
+              ]
+            }
+        """.trimIndent()
+        val omitted = """
+            {"outbounds":[{"protocol":"vless","settings":{"vnext":[{"address":"entry.example","port":443}]}}]}
+        """.trimIndent()
+        val reorderResult = HotfoxOutboundCompare.record(chain, reordered, expected)
+        assertTrue(reorderResult.blockingMismatch)
+        assertTrue(
+            reorderResult.mismatches.any {
+                it.contains("chain-hop-order") || it.startsWith("address:") || it.startsWith("protocol:")
+            },
+        )
+        val omittedResult = HotfoxOutboundCompare.record(chain, omitted, expected)
+        assertTrue(omittedResult.blockingMismatch)
+        assertTrue(omittedResult.mismatches.any { it.contains("missing-chain-hop") || it.contains("chain-hop-count") })
+        val matching = HotfoxOutboundCompare.record(chain, expected, expected)
+        assertFalse(matching.blockingMismatch)
+    }
+
+    @Test
+    fun policyGroupMatchingMembersPass() {
+        val group = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.POLICYGROUP)
+        val expected = """
+            {
+              "outbounds": [
+                {"protocol":"vless","settings":{"vnext":[{"address":"nl.example","port":443}]}},
+                {"protocol":"vless","settings":{"vnext":[{"address":"us.example","port":443}]}}
+              ]
+            }
+        """.trimIndent()
+        val generated = """
+            {
+              "outbounds": [
+                {"protocol":"vless","tag":"nl","settings":{"vnext":[{"address":"nl.example","port":443}]}},
+                {"protocol":"vless","tag":"us","settings":{"vnext":[{"address":"us.example","port":443}]}},
+                {"protocol":"freedom","tag":"hotfox-direct"}
+              ]
+            }
+        """.trimIndent()
+        val result = HotfoxOutboundCompare.record(group, generated, expected)
+        assertFalse(result.blockingMismatch)
     }
 
     @Test

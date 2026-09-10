@@ -228,13 +228,13 @@ object HotfoxOutboundCompare {
         return if (network == "raw" || network == "tcp") "tcp" else network
     }
 
-    fun record(profile: ProfileItem, generatedJson: String): Result {
+    fun record(profile: ProfileItem, generatedJson: String, expectedJson: String? = null): Result {
         val fromProfile = fromProfile(profile)
         val generated = fromGeneratedJson(generatedJson)
         val diffs = ArrayList<String>()
         val typeName = profile.configType.name
         if (isContainerConfigType(typeName)) {
-            diffs += containerMismatches(typeName, profile, generatedJson, generated)
+            diffs += containerMismatches(typeName, profile, generatedJson, expectedJson)
         } else if (generated == null) {
             diffs += "generated:missing-proxy-outbound"
         } else {
@@ -252,45 +252,203 @@ object HotfoxOutboundCompare {
         return result
     }
 
-    fun proxyOutboundCount(json: String): Int {
+    fun proxyOutboundCount(json: String): Int = proxyHops(json).size
+
+    fun proxyHops(json: String): List<HotfoxOutboundSnapshot> {
         return runCatching {
             val root = JsonParser.parseString(json).asJsonObject
-            val outbounds = root.getAsJsonArray("outbounds") ?: return 0
-            var count = 0
+            val outbounds = root.getAsJsonArray("outbounds") ?: return emptyList()
+            val hops = ArrayList<HotfoxOutboundSnapshot>()
+            val skip = setOf("freedom", "blackhole", "dns", "block", "direct")
             for (element in outbounds) {
                 if (!element.isJsonObject) continue
-                val protocol = element.asJsonObject.get("protocol")?.asString.orEmpty().lowercase()
-                if (protocol.isNotBlank() && protocol !in setOf("freedom", "blackhole", "dns", "block", "direct")) {
-                    count += 1
-                }
+                val obj = element.asJsonObject
+                val protocol = obj.str("protocol").lowercase()
+                if (protocol.isBlank() || protocol in skip) continue
+                hops += snapshotFromOutbound(obj)
             }
-            count
-        }.getOrDefault(0)
+            hops
+        }.getOrDefault(emptyList())
+    }
+
+    fun hopIdentity(snapshot: HotfoxOutboundSnapshot): String {
+        return listOf(
+            snapshot.protocol.trim().lowercase(),
+            snapshot.address.trim().lowercase(),
+            snapshot.port?.toString().orEmpty(),
+            normalizeNetwork(snapshot.network),
+            snapshot.security.trim().lowercase(),
+            if (snapshot.reality) "1" else "0",
+            if (snapshot.publicKeyPresent) "1" else "0",
+        ).joinToString("|")
     }
 
     private fun containerMismatches(
         typeName: String,
         profile: ProfileItem,
         generatedJson: String,
-        generated: HotfoxOutboundSnapshot?,
+        expectedJson: String?,
+    ): List<String> {
+        val source = expectedJson?.trim().orEmpty()
+        if (source.isEmpty()) {
+            return listOf("generated:missing-expected-plan")
+        }
+        val expectedHops = proxyHops(source)
+        val generatedHops = proxyHops(generatedJson)
+        return when (typeName.uppercase()) {
+            "CUSTOM" -> customMismatches(source, generatedJson, expectedHops, generatedHops)
+            "POLICYGROUP" -> groupMismatches(profile, expectedHops, generatedHops)
+            "PROXYCHAIN" -> chainMismatches(expectedHops, generatedHops)
+            else -> emptyList()
+        }
+    }
+
+    private fun customMismatches(
+        expectedJson: String,
+        generatedJson: String,
+        expectedHops: List<HotfoxOutboundSnapshot>,
+        generatedHops: List<HotfoxOutboundSnapshot>,
     ): List<String> {
         val found = ArrayList<String>()
-        val count = proxyOutboundCount(generatedJson)
-        when (typeName.uppercase()) {
-            "CUSTOM" -> if (count < 1) found += "generated:missing-proxy-outbound"
-            "POLICYGROUP" -> if (count < 1) found += "generated:missing-group-member"
-            "PROXYCHAIN" -> if (count < 1) found += "generated:missing-chain-hop"
+        if (expectedHops.isEmpty()) {
+            found += "generated:missing-custom-source"
+            return found
         }
-        if (generated != null) {
-            val expected = fromProfile(profile)
-            if (expected.address.isNotBlank() && generated.address.isNotBlank() &&
-                !expected.address.equals(generated.address, ignoreCase = true)
-            ) {
-                found += "address:${expected.address}!=${generated.address}"
+        if (generatedHops.isEmpty()) {
+            found += "generated:missing-proxy-outbound"
+            return found
+        }
+        val expectedIds = expectedHops.map(::hopIdentity)
+        val generatedIds = generatedHops.map(::hopIdentity)
+        for (id in expectedIds) {
+            if (id !in generatedIds) {
+                found += "generated:custom-unrelated-or-missing-hop"
             }
-            if (expected.port != null && generated.port != null && expected.port != generated.port) {
-                found += "port:${expected.port}!=${generated.port}"
+        }
+        for (id in generatedIds) {
+            if (id !in expectedIds) {
+                found += "generated:custom-unexpected-hop"
             }
+        }
+        if (expectedIds.count { it == expectedIds.first() } != generatedIds.count { it == expectedIds.first() } &&
+            found.none { it.startsWith("generated:") }
+        ) {
+            found += "generated:custom-hop-count:${expectedHops.size}!=${generatedHops.size}"
+        }
+        val expectedFirst = expectedHops.first()
+        val generatedFirst = generatedHops.first()
+        if (hopIdentity(expectedFirst) != hopIdentity(generatedFirst)) {
+            val fieldDiffs = mismatches(expectedFirst, generatedFirst)
+            found += if (fieldDiffs.isNotEmpty()) fieldDiffs else listOf("generated:custom-default-hop-changed")
+        }
+        found += customTagMismatches(expectedJson, generatedJson)
+        return found
+    }
+
+    private fun customTagMismatches(expectedJson: String, generatedJson: String): List<String> {
+        val expectedTags = proxyOutboundTags(expectedJson)
+        if (expectedTags.isEmpty()) return emptyList()
+        val generatedTags = proxyOutboundTags(generatedJson)
+        return expectedTags
+            .filter { tag -> tag.isNotBlank() && tag !in generatedTags }
+            .map { "generated:custom-missing-outbound-tag" }
+    }
+
+    private fun proxyOutboundTags(json: String): List<String> {
+        return runCatching {
+            val root = JsonParser.parseString(json).asJsonObject
+            val outbounds = root.getAsJsonArray("outbounds") ?: return emptyList()
+            val skip = setOf("freedom", "blackhole", "dns", "block", "direct")
+            val tags = ArrayList<String>()
+            for (element in outbounds) {
+                if (!element.isJsonObject) continue
+                val obj = element.asJsonObject
+                val protocol = obj.str("protocol").lowercase()
+                if (protocol.isBlank() || protocol in skip) continue
+                val tag = obj.str("tag")
+                if (tag.isNotBlank()) tags += tag
+            }
+            tags
+        }.getOrDefault(emptyList())
+    }
+
+    private fun groupMismatches(
+        profile: ProfileItem,
+        expectedHops: List<HotfoxOutboundSnapshot>,
+        generatedHops: List<HotfoxOutboundSnapshot>,
+    ): List<String> {
+        val found = ArrayList<String>()
+        if (expectedHops.isEmpty()) {
+            found += "generated:missing-expected-plan"
+            return found
+        }
+        if (generatedHops.isEmpty()) {
+            found += "generated:missing-group-member"
+            return found
+        }
+        val expectedIds = expectedHops.map(::hopIdentity)
+        val generatedIds = generatedHops.map(::hopIdentity)
+        for ((index, id) in expectedIds.withIndex()) {
+            if (id !in generatedIds) {
+                val expected = expectedHops[index]
+                found += "generated:missing-group-member"
+                if (expected.address.isNotBlank()) {
+                    val generatedAddress = generatedHops.getOrNull(index)?.address.orEmpty()
+                    if (generatedAddress.isNotBlank() && !expected.address.equals(generatedAddress, true)) {
+                        found += "address:${expected.address}!=$generatedAddress"
+                    }
+                }
+            }
+        }
+        for (id in generatedIds.distinct()) {
+            if (id !in expectedIds) {
+                found += "generated:unexpected-group-member"
+            }
+        }
+        val selectedAddress = profile.server.orEmpty()
+        if (selectedAddress.isNotBlank()) {
+            val selectedPort = profile.serverPort?.toIntOrNull()
+            val hit = generatedHops.any { hop ->
+                hop.address.equals(selectedAddress, ignoreCase = true) &&
+                    (selectedPort == null || hop.port == null || hop.port == selectedPort)
+            }
+            if (!hit) {
+                found += "address:$selectedAddress!=${generatedHops.first().address}"
+            }
+        }
+        return found
+    }
+
+    private fun chainMismatches(
+        expectedHops: List<HotfoxOutboundSnapshot>,
+        generatedHops: List<HotfoxOutboundSnapshot>,
+    ): List<String> {
+        val found = ArrayList<String>()
+        if (expectedHops.isEmpty()) {
+            found += "generated:missing-expected-plan"
+            return found
+        }
+        if (generatedHops.isEmpty()) {
+            found += "generated:missing-chain-hop"
+            return found
+        }
+        if (expectedHops.size != generatedHops.size) {
+            found += "generated:chain-hop-count:${expectedHops.size}!=${generatedHops.size}"
+        }
+        if (generatedHops.size < expectedHops.size) {
+            found += "generated:missing-chain-hop"
+        }
+        val limit = minOf(expectedHops.size, generatedHops.size)
+        var orderDrift = false
+        for (index in 0 until limit) {
+            val fieldDiffs = mismatches(expectedHops[index], generatedHops[index])
+            found += fieldDiffs
+            if (hopIdentity(expectedHops[index]) != hopIdentity(generatedHops[index])) {
+                orderDrift = true
+            }
+        }
+        if (orderDrift && found.none { it.startsWith("generated:chain-hop") }) {
+            found += "generated:chain-hop-order"
         }
         return found
     }

@@ -62,6 +62,8 @@ class CoreVpnService : VpnService(), ServiceControl {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var trafficJob: Job? = null
     private var pipelineJob: Job? = null
+    @Volatile
+    private var protectAttempt: Long = 0L
 
     override fun onCreate() {
         super.onCreate()
@@ -128,10 +130,12 @@ class CoreVpnService : VpnService(), ServiceControl {
             unlockStart()
             return START_STICKY
         }
+        protectAttempt = attempt
         VpnSessionCoordinator.setState(attempt, VpnSessionState.ESTABLISHING_TUN)
         com.v2ray.ang.vpn.HotfoxSocketProtect.attach(attempt) { fd -> protect(fd) }
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.VPN_PREPARE)
         if (!setupVpnService()) {
+            com.v2ray.ang.vpn.HotfoxSocketProtect.detach(attempt)
             VpnSessionCoordinator.markError(attempt, "HF-VPN-002", "Не удалось создать VPN-интерфейс")
             unlockStart()
             stopSelf()
@@ -277,7 +281,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         val result = com.v2ray.ang.vpn.HotfoxSocketProtect.protect(
             fd = socket,
             protocol = "fd",
-            attempt = VpnSessionCoordinator.currentAttempt(),
+            attempt = protectAttempt,
         )
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: vpnProtect socket=$socket ${result.reason}")
         return result.success
@@ -510,7 +514,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             return
         }
         MessageUtil.sendMsg2UI(this, AppConfig.MSG_STATE_START_FAILURE, message)
-        stopAllService()
+        stopAllService(detachAttempt = attempt)
     }
 
     private fun tryAutoFailover(attempt: Long, code: String): Boolean {
@@ -546,7 +550,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         CoreServiceManager.requestConnectedReload()
     }
 
-    private fun stopAllService(isForced: Boolean = true) {
+    private fun stopAllService(isForced: Boolean = true, detachAttempt: Long = protectAttempt) {
         unlockStart()
         val state = VpnSessionCoordinator.currentState()
         val keepError = state == VpnSessionState.ERROR
@@ -558,7 +562,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             }
             VpnSessionCoordinator.setTeardownActive(true)
         }
-        com.v2ray.ang.vpn.HotfoxSocketProtect.detach(VpnSessionCoordinator.currentAttempt())
+        com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
         isRunning = false
         pipelineJob?.cancel()
         pipelineJob = null
