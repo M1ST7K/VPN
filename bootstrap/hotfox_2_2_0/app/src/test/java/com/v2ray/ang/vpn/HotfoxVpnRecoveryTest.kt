@@ -331,6 +331,7 @@ class HotfoxVpnRecoveryTest {
     @Test
     fun tunHttpPassWithDnsFailStillCountsAsTunInject() {
         assertTrue(HotfoxTunLayerEvidence.injectSucceeded(http = true, dns = false))
+        assertTrue(HotfoxTunLayerEvidence.injectSucceeded(http = true, dns = null))
         assertTrue(HotfoxTunLayerEvidence.injectSucceeded(http = false, dns = true))
         assertFalse(HotfoxTunLayerEvidence.injectSucceeded(http = false, dns = false))
         assertFalse(HotfoxTunLayerEvidence.injectSucceeded(http = null, dns = null))
