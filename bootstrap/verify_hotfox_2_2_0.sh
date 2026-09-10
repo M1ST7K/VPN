@@ -240,6 +240,11 @@ grep -q 'Подбираем маршрут' "$PROJECT/app/src/main/res/values-ru
   || fail "Russian selecting headline missing"
 grep -q 'NotificationUiMapper.from' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt" \
   || fail "foreground notification is not derived from VpnSessionState"
+grep -q 'import android.app.NotificationManager as AndroidNotificationManager' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt" \
+  || fail "android.app.NotificationManager must be aliased away from object NotificationManager"
+if grep -Eq '^import android\.app\.NotificationManager$' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt"; then
+  fail "unaliased android.app.NotificationManager import collides with object NotificationManager"
+fi
 grep -q 'QsTileUiMapper.from' "$PROJECT/app/src/main/java/com/v2ray/ang/service/QSTileService.kt" \
   || fail "QS tile is not derived from VpnSessionState"
 grep -q 'HotfoxOnboardingStore.shouldPrompt' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt" \

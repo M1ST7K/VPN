@@ -2,7 +2,7 @@ package com.v2ray.ang.handler
 
 import android.app.Notification
 import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.NotificationManager as AndroidNotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -39,7 +39,7 @@ object NotificationManager {
     private var lastQueryTime = 0L
     private var mBuilder: NotificationCompat.Builder? = null
     private var speedNotificationJob: Job? = null
-    private var mNotificationManager: NotificationManager? = null
+    private var mNotificationManager: AndroidNotificationManager? = null
 
     /**
      * Starts the speed notification.
@@ -156,10 +156,10 @@ object NotificationManager {
         val channelName = AppConfig.RAY_NG_CHANNEL_NAME
         val chan = NotificationChannel(
             channelId,
-            channelName, NotificationManager.IMPORTANCE_HIGH
+            channelName, AndroidNotificationManager.IMPORTANCE_HIGH
         )
         chan.lightColor = Color.DKGRAY
-        chan.importance = NotificationManager.IMPORTANCE_NONE
+        chan.importance = AndroidNotificationManager.IMPORTANCE_NONE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         getNotificationManager()?.createNotificationChannel(chan)
         return channelId
@@ -192,10 +192,10 @@ object NotificationManager {
      * Gets the notification manager.
      * @return The notification manager.
      */
-    private fun getNotificationManager(): NotificationManager? {
+    private fun getNotificationManager(): AndroidNotificationManager? {
         if (mNotificationManager == null) {
             val service = getService() ?: return null
-            mNotificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            mNotificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE) as AndroidNotificationManager
         }
         return mNotificationManager
     }

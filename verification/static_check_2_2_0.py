@@ -736,6 +736,14 @@ def main() -> int:
         "foreground notification uses session mapper",
     )
     must_contain(
+        "app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt",
+        "import android.app.NotificationManager as AndroidNotificationManager",
+        "Android NotificationManager must be aliased to avoid object name collision",
+    )
+    notification_manager = read("app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt")
+    if re.search(r"^import android\.app\.NotificationManager\s*$", notification_manager, re.M):
+        fail("unaliased android.app.NotificationManager import collides with object NotificationManager")
+    must_contain(
         "app/src/main/java/com/v2ray/ang/service/QSTileService.kt",
         "QsTileUiMapper.from",
         "QS tile uses session mapper",
