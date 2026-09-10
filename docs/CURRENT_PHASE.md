@@ -41,11 +41,13 @@ Trusted checkpoint **round 19** returned `APPROVED` with no substantiated P0/P1 
 
 Runtime/emulator/physical VPN E2E remains `NOT EXECUTED / deferred`. `RELEASE READY` is not claimed.
 
-## Round 21 note
+## Round 21 / cap-window
 
-Push CI for routing P1 fix `844918b` is green. Round 21 did **not** review that head: the PR-lifetime checkpoint cap on `main` paused automation (`MAX_REVIEW_ROUNDS=20`). That is not a product P0/P1 and is not a stuck 3.1 architecture loop: rounds 1–19 closed 2.4–3.0 APPROVED; round 20 was the first 3.1 review (routing P1, now fixed).
+Push CI for routing P1 fix `844918b` was green (`34475599536`). Round 21 did **not** review that head: the old PR-lifetime checkpoint cap on `main` paused automation. That is not a product P0/P1 and is not a stuck 3.1 architecture loop: rounds 1–19 closed 2.4–3.0 APPROVED; round 20 was the first 3.1 review (routing P1, now in tree).
 
-Reviewer code is checked out from `main`, so the cap window must land on `main` before another `[hotfox-phase-exit]` is useful. Do not burn another lifetime round while `main` still uses the old cap.
+Owner merged PR #5. Trusted `main` now includes the per-phase cap at `c1cd9ba7f8ccfddd73e2e654933e2a80e851e37c` (`MAX_REVIEW_ROUNDS=40` after last `VERDICT: APPROVED`; CAP comments are ignored). This 3.1 branch is synced with that `main`. The old lifetime CAP is no longer a blocker.
+
+This head is a **new** `[hotfox-phase-exit]` candidate after the main sync. Do not reuse `844918b`, `1dda013`, or a CAP-marked SHA.
 
 ## Work allowed now
 

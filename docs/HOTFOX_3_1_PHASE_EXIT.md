@@ -1,9 +1,10 @@
 # HotFox 3.1 — Mature Platform phase-exit checkpoint
 
-This checkpoint requests the canonical phase-exit review after the first coherent 3.1 platform block.
+This checkpoint requests the canonical phase-exit review after the first coherent 3.1 platform block, now synced with trusted `main` `c1cd9ba7f8ccfddd73e2e654933e2a80e851e37c` (PR #5 per-phase review cap).
 
-- Implementation commit: `0e39e4b`. Compile fix for `HotfoxV31PersistedState.schema` default (`HotfoxStateMigration.SCHEMA`).
-- Round 20 P1: INCLUDE/EXCLUDE no longer emit non-block DOMAIN/CIDR Xray rules, so `BLOCK > APP > DOMAIN > CIDR` matches the enforceable data plane.
+- Implementation commit: `0e39e4b`. Compile fix for `HotfoxV31PersistedState.schema` default (`HotfoxStateMigration.SCHEMA`) on `ed9c996`.
+- Round 20 P1 remains in tree from `844918b`: INCLUDE/EXCLUDE no longer emit non-block DOMAIN/CIDR Xray rules, so `BLOCK > APP > DOMAIN > CIDR` matches the enforceable data plane.
+- Round 21 did not review `844918b` (old lifetime CAP on `main`). That cap is no longer a blocker after PR #5. This is a **new** SHA; do not treat `844918b` / `1dda013` as this candidate.
 - 3.0 closure: round 19 `APPROVED` on SHA `21f341980121a49f103bd61eaa588c37f1987c8a`.
 - Scope delivered in repository/CI:
   - `HotfoxEngineFacade` — UI/notification/QS re-observe process-scoped engine state; Activity is not a session owner;
