@@ -36,10 +36,11 @@ Implemented architecture:
    (`HF-VPN-015`).
 4. **Datapath proof** remains `VpnReadiness.injectThroughVpn` on `TRANSPORT_VPN`
    bindSocket — not process-direct HTTPS from the excluded UID.
-5. **lifecycle ownership (round 28)** — pipeline receives the attempt from
-   `onStartCommand`, never `currentAttempt()`. `claimTeardown(owned)` runs
-   before start-lock release. Stale teardown is a no-op on the newer session.
-   Prior pipeline is joined before a replacement attempt is admitted.
+5. **lifecycle ownership** — pipeline receives the attempt from
+   `onStartCommand`, never `currentAttempt()`. `claimTeardown(owned)` is
+   exclusive (second same-attempt claim fails) and runs before start-lock
+   release. Replacement admission joins the prior pipeline on `serviceScope`,
+   not via `runBlocking` on Android lifecycle callbacks.
 
 ### P1 — bindProcessToNetwork truth
 
@@ -76,21 +77,21 @@ GLOBAL/SMART drop legacy `.ru` / `.su` / `.рф` / geosite:cn / geoip:private DI
 
 ## Host CI evidence
 
-Historical runs (`e85af2d`, `b91db24`, `3d21a27`) must not be treated as
-evidence for this candidate. Round 28 reviewed `3d21a27` and required a new
-SHA after lifecycle/AUTO fixes.
+Do not cite `e85af2d`, `b91db24`, `3d21a27`, or `bc4e366` as this candidate.
+Those heads are historical.
 
-Push CI on **this** HEAD writes `candidate-evidence.txt` with
-`candidate_sha=${GITHUB_SHA}` plus APK SHA-256. That file is the only
-host-artifact record for the reviewed SHA.
+The required host record for **this** commit is the push-CI artifact
+`candidate-evidence.txt` (`candidate_sha=${GITHUB_SHA}`) plus APK SHA-256 from
+the same run that reconstructed, tested, linted, assembled debug, and compiled
+unsigned release. That workflow is `.github/workflows/hotfox-bootstrap-ci.yml`.
 
 ## Executed vs deferred
 
 | Gate | Status |
 | --- | --- |
-| Overlay unit tests for lifecycle + AUTO races | implemented; host CI on this SHA is the execution record |
-| Host reconstruction / lint / assembleDebug / unsigned release | pending this push CI (`candidate_sha` = this HEAD) |
-| SHA-tied debug APK + `candidate-evidence.txt` | pending this push CI — must match this HEAD exactly |
+| Overlay unit tests for exclusive teardown + async admission | in this HEAD; host CI of this SHA is the execution record |
+| Host reconstruction / lint / assembleDebug / unsigned release | this SHA via `hotfox-bootstrap-ci.yml` (`candidate_sha=${GITHUB_SHA}`) |
+| SHA-tied debug APK + `candidate-evidence.txt` | this SHA via the same workflow artifact |
 | HotFox AI phase-exit review | requested on this coherent head |
 | Emulator VPN E2E | **NOT EXECUTED** (no SDK/KVM here; e2e workflow is secret-gated) |
 | Physical device | **NOT EXECUTED** — still `FINAL RELEASE DEVICE GATE` |
