@@ -522,7 +522,7 @@ Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `R
 
 ## FINAL RELEASE VALIDATION GATE
 
-**WAITING — automatic engineering progression stopped.** 3.1 engineering gate is closed (round 25 `APPROVED` on `7192b04`; ledger confirmed by round 26 `APPROVED` on `23e547a`). Canonical suite: `docs/HOTFOX_ROADMAP.md` (`FINAL RELEASE DEVICE GATE`) and `docs/phases/final-release-validation-gate.md`.
+**OWNER RUNTIME-REPAIR GATE OPEN** from `d723f65` (`docs/HOTFOX_RUNTIME_REPAIR_EXECUTION_PROMPT.md`). 3.1 product-phase engineering remains closed (round 25 `APPROVED` on `7192b04`; ledger confirmed by round 26 on `23e547a`). This is not a new product phase and does not claim `RELEASE READY`. Status: `docs/HOTFOX_RUNTIME_REPAIR_STATUS.md`.
 
 Do not start a new product phase. Do not execute emulator/physical E2E until the owner explicitly starts this gate. Do not claim `RELEASE READY`.
 

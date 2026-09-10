@@ -1,8 +1,10 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **FINAL RELEASE VALIDATION GATE**.
+Current milestone: **RUNTIME REPAIR GATE** (owner opened `docs/HOTFOX_RUNTIME_REPAIR_EXECUTION_PROMPT.md` from `d723f65`).
 
-3.1 is historical **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 25 `APPROVED`, P0=0, P1=0) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`. Automatic product-phase progression is stopped. Do not claim `RELEASE READY`.
+3.1 remains historical **ENGINEERING COMPLETE** (round 25 `APPROVED` on `7192b04`; ledger confirmed by round 26 on `23e547a`). This repair is not a new product phase and does not claim `RELEASE READY`.
+
+Review this repair for: TUN self-exclusion of Go/Xray sockets, truthful `bindProcessToNetwork`, semantic CUSTOM/POLICYGROUP/PROXYCHAIN compare, real outbound/balancer tags, no false CONNECTED, no secrets.
 
 This file is trusted reviewer context from `main`/owner policy. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md`.
 

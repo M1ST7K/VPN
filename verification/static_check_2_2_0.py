@@ -81,10 +81,16 @@ def main() -> int:
             fail("IPv6 ::/0 capture missing")
         if 'addRoute("2000::", 3)' in vpn:
             fail("IPv6 2000::/3 LAN split omits NAT64 and is not fail-closed")
+        if "HotfoxTunSelfExclusion.forPlan" not in vpn:
+            fail("TUN self-exclusion is not applied from CoreVpnService")
+        if "HotfoxSocketProtect.attach" not in vpn:
+            fail("VpnService.protect broker is not attached")
         if "addDisallowedApplication(selfPackageName)" in vpn and "bindProcessToUnderlying" not in vpn:
             fail("self-disallow without process bind would block TUN inject")
         if "bindProcessToUnderlying" not in vpn:
             fail("process must bind to underlying network so Xray does not loop into TUN")
+        if "interpretBindAttempt" not in read("app/src/main/java/com/v2ray/ang/vpn/VpnLoopPrevention.kt"):
+            fail("bindProcessToNetwork Boolean result is not interpreted")
         if "HF-VPN-012" not in vpn:
             fail("loop-prevention bind failure is not fail-closed")
         if "injectThroughVpn" not in vpn:
@@ -416,6 +422,21 @@ def main() -> int:
         "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
         "HotfoxXrayConfigInjector.apply",
         "Xray routing injection from HotFox policy",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+        "HotfoxXrayConfigValidator.requireValid",
+        "final Xray config rejects dangling outbound/balancer tags",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt",
+        "isContainerConfigType",
+        "CUSTOM/POLICYGROUP/PROXYCHAIN are not compared as network protocols",
+    )
+    must_contain(
+        "app/src/test/java/com/v2ray/ang/vpn/HotfoxRuntimeRepairTest.kt",
+        "includeDoesNotPutSelfOnAllowList",
+        "runtime-repair regression: self stays off TUN in INCLUDE",
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingApply.kt",

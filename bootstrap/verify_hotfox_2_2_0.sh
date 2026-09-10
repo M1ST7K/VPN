@@ -40,6 +40,12 @@ grep -q 'fun vpnProtect' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreV
   || fail "vpnProtect missing"
 grep -q 'bindProcessToUnderlying' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "process bind to underlying network missing"
+grep -q 'HotfoxTunSelfExclusion.forPlan' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
+  || fail "TUN self-exclusion missing"
+grep -q 'fun interpretBindAttempt' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/VpnLoopPrevention.kt" \
+  || fail "bindProcessToNetwork Boolean is not interpreted"
+grep -q 'HotfoxXrayConfigValidator.requireValid' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \
+  || fail "dangling Xray tag validator missing"
 grep -q 'HF-VPN-012' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "loop-prevention bind failure is not fail-closed"
 grep -q 'VpnRestartGate' "$PROJECT/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt" \

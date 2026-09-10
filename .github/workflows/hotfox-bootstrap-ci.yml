@@ -150,13 +150,21 @@ jobs:
           set -euo pipefail
           sha256sum V2rayNG/app/build/outputs/apk/playstore/debug/*.apk | tee apk-sha256.txt
           test -s apk-sha256.txt
+          {
+            echo "candidate_sha=${GITHUB_SHA}"
+            echo "ref=${GITHUB_REF_NAME}"
+            echo "apk_sha256:"
+            cat apk-sha256.txt
+          } | tee candidate-evidence.txt
 
       - name: Upload APK SHA-256
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: hotfox-playstore-debug-apk-sha256
-          path: apk-sha256.txt
+          path: |
+            apk-sha256.txt
+            candidate-evidence.txt
           if-no-files-found: error
           retention-days: 14
 
