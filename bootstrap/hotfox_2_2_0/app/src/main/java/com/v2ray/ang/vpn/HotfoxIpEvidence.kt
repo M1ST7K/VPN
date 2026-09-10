@@ -25,3 +25,16 @@ object HotfoxIpEvidence {
         return left != right
     }
 }
+
+/**
+ * 2.9 Test E must pass before TUN/HEV is blamed. SOCKS-only HTTPS FAIL
+ * is HF-VPN-014 / do-not-blame-TUN, not tun-not-forwarded.
+ */
+object HotfoxEngineeringE2eGate {
+    fun outcome(socksOnlyHttps: Boolean, protectedCycles: Int, requestedCycles: Int): Pair<String, String> {
+        if (!socksOnlyHttps) return "FAIL" to "socks-only-https"
+        if (protectedCycles < requestedCycles.coerceAtLeast(1)) return "FAIL" to "not-protected"
+        return "PASS" to "ok"
+    }
+}
+

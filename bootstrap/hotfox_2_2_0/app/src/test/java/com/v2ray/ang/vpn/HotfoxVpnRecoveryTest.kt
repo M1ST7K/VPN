@@ -426,4 +426,11 @@ class HotfoxVpnRecoveryTest {
         assertFalse(HotfoxIpEvidence.changed("1.1.1.1", "1.1.1.1"))
         assertFalse(HotfoxIpEvidence.changed("", "8.8.8.8"))
     }
+
+    @Test
+    fun engineeringE2eGateRequiresSocksOnlyBeforeTun() {
+        assertEquals("FAIL" to "socks-only-https", HotfoxEngineeringE2eGate.outcome(false, 3, 3))
+        assertEquals("FAIL" to "not-protected", HotfoxEngineeringE2eGate.outcome(true, 1, 3))
+        assertEquals("PASS" to "ok", HotfoxEngineeringE2eGate.outcome(true, 3, 3))
+    }
 }

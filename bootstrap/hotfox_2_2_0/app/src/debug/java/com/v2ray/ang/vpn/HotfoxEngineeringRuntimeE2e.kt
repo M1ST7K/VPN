@@ -1,11 +1,14 @@
 package com.v2ray.ang.vpn
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
+import androidx.core.content.ContextCompat
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.handler.AngConfigManager
 import com.v2ray.ang.handler.SettingsManager
+import com.v2ray.ang.service.CoreProxyOnlyService
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.SecretRedactor
 import java.io.File
@@ -44,19 +47,30 @@ object HotfoxEngineeringRuntimeE2e {
             AngConfigManager.importBatchConfig(url, "", true)
         }.getOrElse { error ->
             LogUtil.e(AppConfig.TAG, "$LOG_PREFIX: import failed: ${error.javaClass.simpleName}")
-            return finish("FAIL", "import-exception", emptyList(), null, null)
+            return finish("FAIL", "import-exception", emptyList(), null, null, socksOnlyHttps = null)
         }
         val (count, countSub) = imported
         if (count <= 0 && countSub <= 0) {
-            return finish("FAIL", "import-empty", emptyList(), null, null)
+            return finish("FAIL", "import-empty", emptyList(), null, null, socksOnlyHttps = null)
         }
         val guid = HotfoxServerSelection.firstUsableGuid()
             ?: return finish("FAIL", "no-servers", emptyList(), null, null)
         HotfoxServerSelection.selectManual(guid)
         val ipBefore = fetchDirectIp()
+        val socksOnly = runSocksOnlyIsolation(context, guid)
+        if (!socksOnly) {
+            return finish(
+                result = "FAIL",
+                reason = "socks-only-https",
+                cycles = emptyList(),
+                ipBefore = ipBefore,
+                ipAfter = fetchDirectIp(),
+                socksOnlyHttps = false,
+            )
+        }
         val results = ArrayList<Cycle>()
-        var allProtected = true
-        repeat(cycles.coerceIn(1, 5)) { index ->
+        val requested = cycles.coerceIn(1, 5)
+        repeat(requested) { index ->
             if (index > 0) {
                 CoreServiceManager.stopVService(context)
                 runCatching { kotlinx.coroutines.runBlocking { VpnSessionCoordinator.awaitIdle(12_000L) } }
@@ -65,7 +79,7 @@ object HotfoxEngineeringRuntimeE2e {
                 .onFailure { error ->
                     LogUtil.e(AppConfig.TAG, "$LOG_PREFIX: start failed: ${error.javaClass.simpleName}")
                 }
-            val protectedNow = waitProtected(45_000L)
+            val protectedNow = waitState(VpnSessionState.CONNECTED, 45_000L)
             val isolation = HotfoxSocksIsolation.last
             val ipSocks = if (protectedNow || isolation?.socksHttps == true) {
                 fetchIpViaSocks(SettingsManager.getSocksPort())
@@ -85,17 +99,16 @@ object HotfoxEngineeringRuntimeE2e {
                 ipDuringTun = ipTun,
             )
             results += cycle
-            if (!protectedNow) allProtected = false
         }
         CoreServiceManager.stopVService(context)
         runCatching { kotlinx.coroutines.runBlocking { VpnSessionCoordinator.awaitIdle(12_000L) } }
         val ipAfter = fetchDirectIp()
-        val reason = when {
-            !allProtected -> results.lastOrNull()?.lastError ?: "not-protected"
-            else -> "ok"
-        }
-        val result = if (allProtected) "PASS" else "FAIL"
-        return finish(result, reason, results, ipBefore, ipAfter)
+        val (result, reason) = HotfoxEngineeringE2eGate.outcome(
+            socksOnlyHttps = true,
+            protectedCycles = results.count { it.protected },
+            requestedCycles = requested,
+        )
+        return finish(result, reason, results, ipBefore, ipAfter, socksOnlyHttps = true)
     }
 
     fun writeReport(context: Context, report: String) {
@@ -110,12 +123,15 @@ object HotfoxEngineeringRuntimeE2e {
         cycles: List<Cycle>,
         ipBefore: String?,
         ipAfter: String?,
+        socksOnlyHttps: Boolean? = null,
     ): String {
         val during = cycles.firstOrNull { it.protected }?.ipDuringSocks
+            ?: cycles.firstOrNull()?.ipDuringSocks
         val report = buildString {
             appendLine("engineeringRuntimeE2e=$result")
             appendLine("physicalDeviceE2e=${VpnPathVerification.PHYSICAL_E2E_NOT_EXECUTED}")
             appendLine("reason=$reason")
+            appendLine("socksOnlyHttps=${socksOnlyHttps ?: "none"}")
             appendLine("cycles=${cycles.size}")
             appendLine("protectedCycles=${cycles.count { it.protected }}")
             appendLine("ipBefore=${HotfoxIpEvidence.redact(ipBefore)}")
@@ -153,15 +169,40 @@ object HotfoxEngineeringRuntimeE2e {
         return url
     }
 
-    private fun waitProtected(timeoutMs: Long): Boolean {
+    private fun runSocksOnlyIsolation(context: Context, guid: String): Boolean {
+        HotfoxServerSelection.selectManual(guid)
+        val started = runCatching {
+            ContextCompat.startForegroundService(
+                context.applicationContext,
+                Intent(context.applicationContext, CoreProxyOnlyService::class.java),
+            )
+            true
+        }.getOrElse { error ->
+            LogUtil.e(AppConfig.TAG, "$LOG_PREFIX: proxy-only start failed: ${error.javaClass.simpleName}")
+            false
+        }
+        if (!started) return false
+        val proxyOnly = waitState(VpnSessionState.PROXY_ONLY, 45_000L)
+        val isolation = HotfoxSocksIsolation.last
+        val proven = isolation?.socksOnlyPathProven == true && isolation.socksHttps
+        CoreServiceManager.stopVService(context)
+        runCatching { kotlinx.coroutines.runBlocking { VpnSessionCoordinator.awaitIdle(12_000L) } }
+        LogUtil.i(
+            AppConfig.TAG,
+            "$LOG_PREFIX: socks-only proxyOnly=$proxyOnly proven=$proven ${isolation?.summary() ?: "none"}",
+        )
+        return proxyOnly && proven
+    }
+
+    private fun waitState(wanted: VpnSessionState, timeoutMs: Long): Boolean {
         val deadline = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < deadline) {
             val state = VpnSessionCoordinator.currentState()
-            if (state.isProtected()) return true
+            if (state == wanted) return true
             if (state == VpnSessionState.ERROR) return false
             Thread.sleep(400L)
         }
-        return VpnSessionCoordinator.currentState().isProtected()
+        return VpnSessionCoordinator.currentState() == wanted
     }
 
     private fun fetchDirectIp(): String? = fetchIp(OkHttpClient.Builder().proxy(java.net.Proxy.NO_PROXY))
