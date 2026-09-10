@@ -38,9 +38,10 @@ Implemented architecture:
    bindSocket — not process-direct HTTPS from the excluded UID.
 5. **lifecycle ownership** — pipeline receives the attempt from
    `onStartCommand`, never `currentAttempt()`. `claimTeardown(owned)` is
-   exclusive (second same-attempt claim fails) and runs before start-lock
-   release. Replacement admission joins the prior pipeline on `serviceScope`,
-   not via `runBlocking` on Android lifecycle callbacks.
+   exclusive. Admission is an owned `admissionJob` cancelled by teardown.
+   `VpnAdmissionGate` bumps the epoch only after a successful claim, so a
+   rejected stale stop cannot abort a newer admission. If `setupVpnService()`
+   finishes after cancellation/staleness, the newly created TUN is abandoned.
 
 ### P1 — bindProcessToNetwork truth
 
@@ -77,8 +78,8 @@ GLOBAL/SMART drop legacy `.ru` / `.su` / `.рф` / geosite:cn / geoip:private DI
 
 ## Host CI evidence
 
-Do not cite `e85af2d`, `b91db24`, `3d21a27`, or `bc4e366` as this candidate.
-Those heads are historical.
+Do not cite `e85af2d`, `b91db24`, `3d21a27`, `bc4e366`, or `141daea` as this
+candidate. Those heads are historical.
 
 The required host record for **this** commit is the push-CI artifact
 `candidate-evidence.txt` (`candidate_sha=${GITHUB_SHA}`) plus APK SHA-256 from
