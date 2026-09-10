@@ -459,7 +459,7 @@ Implementation included:
 
 **ENGINEERING-EXIT CANDIDATE.** 2.8 engineering gate is closed (round 13 `APPROVED`, P0 = 0, P1 = 0). Canonical spec: `docs/HOTFOX_2_9_VPN_RECOVERY.md`. Validation timing: `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`. Do not record `2.9 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0). Premium UI is 3.0 and must not start until then.
 
-Implementation candidate `dacfe386260b204a562b231ba6f31d81ed5d01e1`. GitHub CI for exact SHA `dacfe386260b204a562b231ba6f31d81ed5d01e1` (run `34424982370`):
+Implementation candidate `dacfe386260b204a562b231ba6f31d81ed5d01e1`. Round 14 P1 (E2E/SDK `platforms;android-37.0` vs compileSdk 37) is fixed in `696254c1519e263b6dd0890b9e4c2fb855280ce2`. GitHub CI for exact SHA `696254c1519e263b6dd0890b9e4c2fb855280ce2` (run `34446690590`):
 
 - Payload integrity: PASS
 - Reconstruct and overlay verification: PASS
@@ -483,6 +483,7 @@ Implementation in this candidate:
 8. TUN fd lifetime evidence; TUN inject proves HTTP before UDP DNS; IPv4 HTTPS is independent of IPv6.
 9. Connected health probes SOCKS HTTPS, not HTTP 10809.
 10. Debug engineering-runtime E2E harness (SOCKS-only Test E, then VPN reconnect cycles) is preserved for the final release validation gate.
+11. Secret-gated E2E/SDK install requests `platforms;android-37` and asserts `platforms/android-37` for `compileSdk = 37`, keeping `build-tools;37.0.0` separate; `platforms;android-37.0` remains a fallback with a symlink when Google only publishes the minor-versioned platform.
 
 
 
