@@ -1,5 +1,6 @@
 package com.v2ray.ang.vpn
 
+import java.time.DateTimeException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -28,17 +29,18 @@ object HotfoxSubscriptionPresentation {
         now: Instant = Instant.now(),
     ): SubscriptionPresentation {
         if (expireAtEpochSeconds == null || expireAtEpochSeconds <= 0L) {
-            return SubscriptionPresentation(
-                titleIsPremium = false,
-                status = if (serverCount > 0) SubscriptionPresentation.Status.UNKNOWN else SubscriptionPresentation.Status.MISSING,
-                expiryLabel = null,
-                remainingLabel = null,
-                remainingDays = null,
-                timelineFraction = null,
-            )
+            return unavailable(serverCount)
         }
-        val expiryInstant = Instant.ofEpochSecond(expireAtEpochSeconds)
-        val expiryDate = expiryInstant.atZone(zoneId).toLocalDate()
+        val expiryInstant = try {
+            Instant.ofEpochSecond(expireAtEpochSeconds)
+        } catch (_: DateTimeException) {
+            return unavailable(serverCount)
+        }
+        val expiryDate = try {
+            expiryInstant.atZone(zoneId).toLocalDate()
+        } catch (_: DateTimeException) {
+            return unavailable(serverCount)
+        }
         val today = now.atZone(zoneId).toLocalDate()
         val calendarRemaining = remainingDays(today, expiryDate)
         val expired = !now.isBefore(expiryInstant)
@@ -65,4 +67,18 @@ object HotfoxSubscriptionPresentation {
 
     fun remainingDays(today: LocalDate, expiry: LocalDate): Int =
         maxOf(0, ChronoUnit.DAYS.between(today, expiry).toInt())
+
+    private fun unavailable(serverCount: Int): SubscriptionPresentation =
+        SubscriptionPresentation(
+            titleIsPremium = false,
+            status = if (serverCount > 0) {
+                SubscriptionPresentation.Status.UNKNOWN
+            } else {
+                SubscriptionPresentation.Status.MISSING
+            },
+            expiryLabel = null,
+            remainingLabel = null,
+            remainingDays = null,
+            timelineFraction = null,
+        )
 }

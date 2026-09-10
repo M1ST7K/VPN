@@ -96,4 +96,18 @@ class HotfoxSubscriptionPresentationTest {
         assertEquals(SubscriptionPresentation.Status.UNKNOWN, shown.status)
         assertNull(shown.expiryLabel)
     }
+
+    @Test
+    fun extremePositiveEpochIsUnknownNotPremium() {
+        val shown = HotfoxSubscriptionPresentation.fromExpiryEpochSeconds(
+            expireAtEpochSeconds = Long.MAX_VALUE,
+            serverCount = 5,
+            zoneId = moscow,
+            now = Instant.parse("2026-09-10T12:00:00Z"),
+        )
+        assertEquals(SubscriptionPresentation.Status.UNKNOWN, shown.status)
+        assertEquals(false, shown.titleIsPremium)
+        assertNull(shown.expiryLabel)
+        assertNull(shown.remainingDays)
+    }
 }

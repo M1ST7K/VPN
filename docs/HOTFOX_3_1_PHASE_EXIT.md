@@ -4,7 +4,7 @@ This checkpoint requests the canonical phase-exit review after the first coheren
 
 - Implementation commit: `0e39e4b`. Compile fix for `HotfoxV31PersistedState.schema` default (`HotfoxStateMigration.SCHEMA`) on `ed9c996`.
 - Round 20 P1 remains in tree from `844918b`: INCLUDE/EXCLUDE no longer emit non-block DOMAIN/CIDR Xray rules, so `BLOCK > APP > DOMAIN > CIDR` matches the enforceable data plane.
-- Round 22/23 P1: cap is bound to trusted `docs/AI_REVIEW_PHASE_ID` / `HOTFOX_REVIEW_PHASE` matching `AI_REVIEW_CURRENT_PHASE.md` (`2.4` on `main` after PR #7 `d516623`). Canonical `VERDICT:` lines only. PR-head cannot select a different phase. This is a **new** SHA; do not reuse `868c3e0` / `e57fed5` / `17a1e92` / `5b2bba1`.
+- Round 24 P1: out-of-range remote expiry epochs (`Long.MAX_VALUE`) fail closed to UNKNOWN/MISSING; secret-bearing `android-emulator-runner` is pinned to commit `a421e43855164a8197daf9d8d40fe71c6996bb0d` (v2.38.0). This is a **new** SHA; do not reuse `884b6b8` / `e57fed5`.
 - 3.0 closure: round 19 `APPROVED` on SHA `21f341980121a49f103bd61eaa588c37f1987c8a`.
 - Scope delivered in repository/CI:
   - `HotfoxEngineFacade` — UI/notification/QS re-observe process-scoped engine state; Activity is not a session owner;

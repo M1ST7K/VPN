@@ -49,7 +49,7 @@ Owner merged PR #5. Trusted `main` includes the per-phase cap at `c1cd9ba7f8ccfd
 
 Owner merged PR #7. Trusted `main` now includes `docs/AI_REVIEW_PHASE_ID` = `2.4` at `d516623c436c4c4ed1a6b010f451917a76c2f30e`, matching `docs/AI_REVIEW_CURRENT_PHASE.md`. The reviewer load step can read the file from `main`.
 
-This head is a **new** `[hotfox-phase-exit]` after that sync. Do not reuse `868c3e0`, `e57fed5`, `17a1e92`, `5b2bba1`, `844918b`, `1dda013`, or a CAP-marked SHA.
+This head is a **new** `[hotfox-phase-exit]` after round-24 P1 (safe expiry epoch + pinned secret-bearing emulator action). Do not reuse `884b6b8`, `868c3e0`, `e57fed5`, `17a1e92`, `5b2bba1`, `844918b`, `1dda013`, or a CAP-marked SHA.
 
 ## Work allowed now
 
