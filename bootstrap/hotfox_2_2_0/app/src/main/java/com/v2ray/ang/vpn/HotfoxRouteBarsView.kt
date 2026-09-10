@@ -29,11 +29,15 @@ class HotfoxRouteBarsView @JvmOverloads constructor(
     init {
         cream.color = ContextCompat.getColor(context, R.color.hotfox_editorial_text)
         orange.color = ContextCompat.getColor(context, R.color.hotfox_orange)
+        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        contentDescription = null
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (!isInEditMode) post(pulseRunnable)
+        if (!isInEditMode && !HotfoxMotion.reducedMotion(context)) {
+            post(pulseRunnable)
+        }
     }
 
     fun setVisual(next: Visual) {
@@ -90,6 +94,7 @@ class HotfoxRouteBarsView @JvmOverloads constructor(
 
     private val pulseRunnable = object : Runnable {
         override fun run() {
+            if (HotfoxMotion.reducedMotion(context)) return
             if (visual == Visual.CONNECTING || visual == Visual.CONNECTED) {
                 pulse += if (pulseRising) 0.04f else -0.04f
                 if (pulse >= 1f) {

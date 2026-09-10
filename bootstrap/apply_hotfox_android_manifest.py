@@ -25,6 +25,27 @@ PAUSE_RECEIVER = """
 
 PERMISSION = '    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n'
 
+ONBOARDING_ACTIVITY = """
+        <activity
+            android:name="com.v2ray.ang.ui.HotfoxOnboardingActivity"
+            android:exported="false"
+            android:theme="@style/AppThemeDayNight.NoActionBar" />
+"""
+
+AUTOPILOT_ACTIVITY = """
+        <activity
+            android:name="com.v2ray.ang.ui.HotfoxAutopilotActivity"
+            android:exported="false"
+            android:theme="@style/AppThemeDayNight.NoActionBar" />
+"""
+
+ROUTING_ACTIVITY = """
+        <activity
+            android:name="com.v2ray.ang.ui.HotfoxRoutingPrivacyActivity"
+            android:exported="false"
+            android:theme="@style/AppThemeDayNight.NoActionBar" />
+"""
+
 
 def _insert_before_application_end(text: str, snippet: str) -> str:
     marker = "</application>"
@@ -49,6 +70,15 @@ def patch(manifest: Path) -> None:
         changed = True
     if "HotfoxAutopilotPauseReceiver" not in text:
         text = _insert_before_application_end(text, PAUSE_RECEIVER)
+        changed = True
+    if "HotfoxOnboardingActivity" not in text:
+        text = _insert_before_application_end(text, ONBOARDING_ACTIVITY)
+        changed = True
+    if "HotfoxAutopilotActivity" not in text:
+        text = _insert_before_application_end(text, AUTOPILOT_ACTIVITY)
+        changed = True
+    if "HotfoxRoutingPrivacyActivity" not in text:
+        text = _insert_before_application_end(text, ROUTING_ACTIVITY)
         changed = True
     if changed:
         manifest.write_text(text, encoding="utf-8")

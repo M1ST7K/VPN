@@ -18,9 +18,40 @@ class ConnectionUiMapperTest {
         )
         incomplete.forEach { state ->
             assertFalse(state.name, ConnectionUiMapper.isProtectedHeadline(state))
-            assertEquals(state.name, ConnectionUiMapper.Headline.CONNECTING, ConnectionUiMapper.headline(state))
-            assertEquals(ConnectionUiPhase.CONNECTING, state.uiPhase())
+            assertTrue(
+                state.name,
+                ConnectionUiMapper.headline(state) != ConnectionUiMapper.Headline.CONNECTED,
+            )
         }
+        assertEquals(ConnectionUiMapper.Headline.SELECTING, ConnectionUiMapper.headline(VpnSessionState.PREPARING))
+        assertEquals(ConnectionUiMapper.Headline.VERIFYING, ConnectionUiMapper.headline(VpnSessionState.VERIFYING_PATH))
+        assertEquals(ConnectionUiMapper.Headline.CONNECTING, ConnectionUiMapper.headline(VpnSessionState.WAITING_SOCKS))
+        assertEquals(ConnectionUiPhase.SELECTING, VpnSessionState.PREPARING.uiPhase())
+        assertEquals(ConnectionUiPhase.VERIFYING, VpnSessionState.VERIFYING_PATH.uiPhase())
+        assertEquals(ConnectionUiPhase.CONNECTING, VpnSessionState.STARTING_HEV.uiPhase())
+    }
+
+    @Test
+    fun selectingAndVerifyingStayDistinctFromProtected() {
+        assertEquals(
+            ConnectionUiMapper.Headline.SELECTING,
+            ConnectionUiMapper.headline(
+                VpnSessionState.PREPARING,
+                VpnConnectionStage.RESOLVE_SERVER,
+                autoSelecting = true,
+            ),
+        )
+        assertEquals(
+            ConnectionUiMapper.Headline.VERIFYING,
+            ConnectionUiMapper.headline(
+                VpnSessionState.VERIFYING_PATH,
+                VpnConnectionStage.TUN_INJECT,
+                autoSelecting = false,
+            ),
+        )
+        assertFalse(
+            ConnectionUiMapper.isProtectedHeadline(VpnSessionState.VERIFYING_PATH),
+        )
     }
 
     @Test
@@ -59,5 +90,6 @@ class ConnectionUiMapperTest {
         assertTrue(ConnectionUiMapper.timerShouldRun(VpnSessionState.CONNECTED))
         assertTrue(ConnectionUiMapper.timerShouldRun(VpnSessionState.RECONNECTING))
         assertFalse(ConnectionUiMapper.timerShouldRun(VpnSessionState.WAITING_SOCKS))
+        assertFalse(ConnectionUiMapper.timerShouldRun(VpnSessionState.VERIFYING_PATH))
     }
 }

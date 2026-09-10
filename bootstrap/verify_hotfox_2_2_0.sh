@@ -222,6 +222,38 @@ grep -q 'ci_run_vpn_e2e.sh' "$ROOT/.github/workflows/hotfox-vpn-e2e.yml" \
   || fail "VPN E2E workflow is still a placeholder"
 grep -q 'install_hotfox_android_sdk.sh' "$ROOT/.github/workflows/hotfox-vpn-e2e.yml" \
   || fail "VPN E2E workflow must install compileSdk 37 via install_hotfox_android_sdk.sh"
+grep -q 'Headline.SELECTING' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ConnectionUiMapper.kt" \
+  || fail "3.0 selecting headline missing"
+grep -q 'object ConnectionErrorUiMapper' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/ConnectionErrorUiMapper.kt" \
+  || fail "3.0 error presentation mapper missing"
+grep -q 'object NotificationUiMapper' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/NotificationUiMapper.kt" \
+  || fail "3.0 notification mapper missing"
+grep -q 'object QsTileUiMapper' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/QsTileUiMapper.kt" \
+  || fail "3.0 QS tile mapper missing"
+grep -q 'VPN_PERMISSION' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxOnboarding.kt" \
+  || fail "3.0 onboarding flow missing"
+grep -q 'fun reducedMotion' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxMotion.kt" \
+  || fail "3.0 reduced-motion helper missing"
+grep -q 'hotfox_headline_selecting' "$PROJECT/app/src/main/res/values/strings.xml" \
+  || fail "selecting string resource missing"
+grep -q 'Подбираем маршрут' "$PROJECT/app/src/main/res/values-ru/strings.xml" \
+  || fail "Russian selecting headline missing"
+grep -q 'NotificationUiMapper.from' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt" \
+  || fail "foreground notification is not derived from VpnSessionState"
+grep -q 'QsTileUiMapper.from' "$PROJECT/app/src/main/java/com/v2ray/ang/service/QSTileService.kt" \
+  || fail "QS tile is not derived from VpnSessionState"
+grep -q 'HotfoxOnboardingStore.shouldPrompt' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt" \
+  || fail "first-run onboarding is not launched from MainActivity"
+grep -q 'class HotfoxAutopilotActivity' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/HotfoxAutopilotActivity.kt" \
+  || fail "dedicated Autopilot activity missing"
+grep -q 'class HotfoxRoutingPrivacyActivity' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/HotfoxRoutingPrivacyActivity.kt" \
+  || fail "dedicated routing/privacy activity missing"
+grep -q 'IMPORTANT_FOR_ACCESSIBILITY_NO' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouteBarsView.kt" \
+  || fail "route bars must be decorative for TalkBack"
+grep -q 'HotfoxOnboardingActivity' "$ROOT/bootstrap/apply_hotfox_android_manifest.py" \
+  || fail "AndroidManifest patch must register onboarding activity"
+grep -q 'fun fixtureLine' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxPremiumViewState.kt" \
+  || fail "3.0 UI fixture mapper missing"
 grep -q '"platforms;android-37"' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \
   || fail "SDK install must request platforms;android-37 for compileSdk 37"
 grep -q 'platforms/android-37' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \

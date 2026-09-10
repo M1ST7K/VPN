@@ -680,6 +680,94 @@ def main() -> int:
     if main_activity and "2600L" in main_activity:
         fail("server ping must not use a magic 2600ms delay")
 
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/ConnectionUiMapper.kt",
+        "Headline.SELECTING",
+        "3.0 selecting headline",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/ConnectionUiMapper.kt",
+        "Headline.VERIFYING",
+        "3.0 verifying headline",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/ConnectionErrorUiMapper.kt",
+        "diagnosticCode",
+        "3.0 error mapper diagnostic code",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/NotificationUiMapper.kt",
+        "isProtected",
+        "3.0 notification mapper",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/QsTileUiMapper.kt",
+        "Appearance.ACTIVE",
+        "3.0 QS tile mapper",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxOnboarding.kt",
+        "VPN_PERMISSION",
+        "3.0 onboarding VPN permission step",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxMotion.kt",
+        "fun reducedMotion",
+        "3.0 reduced-motion helper",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxPremiumViewState.kt",
+        "fun fixtureLine",
+        "3.0 screenshot/golden fixtures",
+    )
+    must_contain(
+        "app/src/main/res/values/strings.xml",
+        "hotfox_headline_selecting",
+        "selecting string resource",
+    )
+    must_contain(
+        "app/src/main/res/values-ru/strings.xml",
+        "Подбираем маршрут",
+        "Russian selecting headline",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt",
+        "NotificationUiMapper.from",
+        "foreground notification uses session mapper",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/service/QSTileService.kt",
+        "QsTileUiMapper.from",
+        "QS tile uses session mapper",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",
+        "HotfoxOnboardingStore.shouldPrompt",
+        "first-run onboarding launch",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/HotfoxAutopilotActivity.kt",
+        "HotfoxAutopilotStore",
+        "dedicated Autopilot surface",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/HotfoxRoutingPrivacyActivity.kt",
+        "HotfoxRoutingStore",
+        "dedicated routing/privacy surface",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRouteBarsView.kt",
+        "IMPORTANT_FOR_ACCESSIBILITY_NO",
+        "route bars are decorative for TalkBack",
+    )
+    qs_tile = read("app/src/main/java/com/v2ray/ang/service/QSTileService.kt")
+    if qs_tile and "shouldStartOnClick" in qs_tile and "shouldStopOnClick" in qs_tile:
+        pass
+    else:
+        fail("QS tile click must be gated by QsTileUiMapper")
+    if "HotfoxOnboardingActivity" not in (ROOT / "bootstrap/apply_hotfox_android_manifest.py").read_text(encoding="utf-8"):
+        fail("AndroidManifest patch must register HotfoxOnboardingActivity")
+
     secret_re = re.compile(
         r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}|"
         r"sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|rk_live_[A-Za-z0-9]+|"

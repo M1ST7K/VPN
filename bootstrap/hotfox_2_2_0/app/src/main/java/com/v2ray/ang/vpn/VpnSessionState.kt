@@ -50,13 +50,17 @@ enum class VpnSessionState {
         CONNECTED -> ConnectionUiPhase.CONNECTED
         ERROR -> ConnectionUiPhase.ERROR
         DISCONNECTED, PERMISSION_REQUIRED, PROXY_ONLY, ROOT_RUNNING -> ConnectionUiPhase.DISCONNECTED
+        PREPARING -> ConnectionUiPhase.SELECTING
+        VERIFYING_PATH -> ConnectionUiPhase.VERIFYING
         else -> ConnectionUiPhase.CONNECTING
     }
 }
 
 enum class ConnectionUiPhase {
     DISCONNECTED,
+    SELECTING,
     CONNECTING,
+    VERIFYING,
     CONNECTED,
     ERROR,
 }

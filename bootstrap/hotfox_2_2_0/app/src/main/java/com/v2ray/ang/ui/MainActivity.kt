@@ -54,10 +54,14 @@ import com.v2ray.ang.root.RootManager
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
+import com.v2ray.ang.vpn.ConnectionErrorUiMapper
 import com.v2ray.ang.vpn.ConnectionUiMapper
 import com.v2ray.ang.vpn.HotfoxAutopilotLabels
 import com.v2ray.ang.vpn.HotfoxAutopilotRuntime
 import com.v2ray.ang.vpn.HotfoxAutopilotStore
+import com.v2ray.ang.vpn.HotfoxHaptics
+import com.v2ray.ang.vpn.HotfoxMotion
+import com.v2ray.ang.vpn.HotfoxOnboardingStore
 import com.v2ray.ang.vpn.HotfoxLatencyDisplay
 import com.v2ray.ang.vpn.HotfoxResolvedTargetDisplay
 import com.v2ray.ang.vpn.HotfoxRoutingApply
@@ -81,6 +85,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+    companion object {
+        const val EXTRA_SKIP_ONBOARDING = "hotfox_skip_onboarding"
+    }
+
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -132,6 +140,12 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val skipOnboarding = intent?.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false) == true
+        if (savedInstanceState == null && !skipOnboarding && HotfoxOnboardingStore.shouldPrompt()) {
+            startActivity(Intent(this, HotfoxOnboardingActivity::class.java))
+            finish()
+            return
+        }
         setContentView(binding.root)
         setupToolbar(binding.toolbar, false, "")
 
@@ -147,29 +161,26 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         )
         binding.toolbar.navigationContentDescription = getString(R.string.hotfox_settings_content_description)
         binding.toolbar.setNavigationOnClickListener {
-            MaterialAlertDialogBuilder(this).setTitle("Настройки HotFox")
+            MaterialAlertDialogBuilder(this).setTitle(R.string.hotfox_settings_title)
                 .setItems(arrayOf(
-                    "Подключение и DNS",
-                    "Приложения через VPN",
-                    "Правила маршрутизации",
-                    "Подписки",
-                    "Блокировка рекламы",
+                    getString(R.string.hotfox_settings_connection_dns),
+                    getString(R.string.hotfox_settings_apps),
+                    getString(R.string.hotfox_settings_routing),
+                    getString(R.string.hotfox_settings_subscriptions),
+                    getString(R.string.hotfox_settings_ads),
                     getString(R.string.hotfox_always_on_title),
-                    "Диагностика",
-                    "Пауза защиты",
-                    "Уровень защиты",
-                    "Доверенная сеть",
-                    "Автопилот",
-                    "О приложении",
+                    getString(R.string.hotfox_settings_diagnostics),
+                    getString(R.string.hotfox_settings_autopilot),
+                    getString(R.string.hotfox_settings_about),
                 )) { _, i ->
                     when (i) {
                         0 -> requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java))
                         1 -> requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java))
-                        2 -> requestActivityLauncher.launch(Intent(this, RoutingSettingActivity::class.java))
+                        2 -> requestActivityLauncher.launch(Intent(this, HotfoxRoutingPrivacyActivity::class.java))
                         3 -> requestActivityLauncher.launch(Intent(this, SubSettingActivity::class.java))
                         4 -> {
                             val enabled = HotfoxRoutingStore.load().adsBlocked
-                            MaterialAlertDialogBuilder(this).setTitle("Фильтр рекламы")
+                            MaterialAlertDialogBuilder(this).setTitle(R.string.hotfox_settings_ads)
                                 .setMessage("Блокировка рекламных доменов по geosite для трафика внутри VPN. Приложения, исключённые из туннеля, идут напрямую, включая рекламу. Сейчас: " + if (enabled) "включена" else "выключена")
                                 .setPositiveButton(if (enabled) "Выключить" else "Включить") { _, _ ->
                                     HotfoxRoutingStore.saveAds(!enabled)
@@ -178,11 +189,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                         }
                         5 -> showAlwaysOnGuidance()
                         6 -> copyDiagnostics()
-                        7 -> showAutopilotPauseDialog()
-                        8 -> showProtectionLevelDialog()
-                        9 -> showTrustedNetworkDialog()
-                        10 -> showAutopilotPolicyDialog()
-                        11 -> startActivity(Intent(this, AboutActivity::class.java))
+                        7 -> requestActivityLauncher.launch(Intent(this, HotfoxAutopilotActivity::class.java))
+                        8 -> startActivity(Intent(this, AboutActivity::class.java))
                     }
                 }.show()
         }
@@ -267,9 +275,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.navServers.setTextColor(if (section == UiSection.SERVERS) active else muted)
         binding.navSubscription.setTextColor(if (section == UiSection.SUBSCRIPTION) active else muted)
         binding.tvHeaderMicrocopy.text = when (section) {
-            UiSection.CONNECTION -> "Proxy for\na freer internet"
-            UiSection.SERVERS -> "Серверы\nпо всему миру"
-            UiSection.SUBSCRIPTION -> "Доступ\nбез ограничений"
+            UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
+            UiSection.SERVERS -> getString(R.string.hotfox_header_microcopy_servers)
+            UiSection.SUBSCRIPTION -> getString(R.string.hotfox_header_microcopy_subscription)
         }
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
         if (section == UiSection.SUBSCRIPTION) {
@@ -870,6 +878,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val now = SystemClock.elapsedRealtime()
         if (now - lastFabTapElapsed < 700L) return
         lastFabTapElapsed = now
+        HotfoxHaptics.confirm(binding.fab, HotfoxMotion.reducedMotion(this))
         if (mainViewModel.isRunning.value != true && HotfoxServerSelection.firstUsableGuid() == null) {
             showAddDialog(); return
         }
@@ -958,9 +967,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     @Suppress("UNUSED_PARAMETER")
     private fun applyRunningState(isLoading: Boolean, isRunning: Boolean) {
         val session = VpnSessionCoordinator.currentState()
-        val headline = ConnectionUiMapper.resolveHeadline(session, isLoading)
+        val headline = ConnectionUiMapper.resolveHeadline(
+            session,
+            VpnSessionCoordinator.lastStage(),
+            isLoading,
+            autoSelecting = HotfoxServerSelection.isAutoMode() && session == VpnSessionState.PREPARING,
+        )
         val headlineRes = when (headline) {
             ConnectionUiMapper.Headline.CONNECTED -> R.string.hotfox_headline_connected
+            ConnectionUiMapper.Headline.SELECTING -> R.string.hotfox_headline_selecting
+            ConnectionUiMapper.Headline.VERIFYING -> R.string.hotfox_headline_verifying
             ConnectionUiMapper.Headline.CONNECTING -> R.string.hotfox_headline_connecting
             ConnectionUiMapper.Headline.RECONNECTING -> R.string.hotfox_headline_reconnecting
             ConnectionUiMapper.Headline.ERROR -> R.string.hotfox_headline_error
@@ -993,6 +1009,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             -> getString(R.string.hotfox_disconnect)
             ConnectionUiMapper.Headline.DISCONNECTING -> getString(R.string.hotfox_headline_disconnecting)
             ConnectionUiMapper.Headline.ERROR -> getString(R.string.hotfox_connect)
+            ConnectionUiMapper.Headline.SELECTING -> getString(R.string.hotfox_headline_selecting)
+            ConnectionUiMapper.Headline.VERIFYING -> getString(R.string.hotfox_headline_verifying)
             ConnectionUiMapper.Headline.CONNECTING -> getString(R.string.hotfox_headline_connecting)
             ConnectionUiMapper.Headline.DISCONNECTED -> getString(R.string.hotfox_connect)
         }
@@ -1010,7 +1028,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 setTestState(getString(R.string.hotfox_headline_proxy_only))
             } else if (headline == ConnectionUiMapper.Headline.ROOT_RUNNING) {
                 setTestState(getString(R.string.hotfox_headline_root))
-            } else if (headline != ConnectionUiMapper.Headline.CONNECTING && headline != ConnectionUiMapper.Headline.DISCONNECTING) {
+            } else if (headline != ConnectionUiMapper.Headline.CONNECTING &&
+                headline != ConnectionUiMapper.Headline.SELECTING &&
+                headline != ConnectionUiMapper.Headline.VERIFYING &&
+                headline != ConnectionUiMapper.Headline.DISCONNECTING
+            ) {
                 setTestState(getString(R.string.connection_not_connected))
             }
             binding.layoutTest.isFocusable = false
@@ -1026,12 +1048,34 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         )
         val stage = VpnSessionCoordinator.lastStage()
         val error = VpnSessionCoordinator.lastError()
-        if (headline == ConnectionUiMapper.Headline.ERROR && !error.isNullOrBlank()) {
+        if (headline == ConnectionUiMapper.Headline.ERROR) {
+            val presentation = ConnectionErrorUiMapper.fromLastError(error)
             binding.tvConnectionStage.visibility = View.VISIBLE
-            binding.tvConnectionStage.text = error
+            val titleId = resources.getIdentifier(presentation.titleResName, "string", packageName)
+            val detailId = resources.getIdentifier(presentation.detailResName, "string", packageName)
+            val title = if (titleId != 0) getString(titleId) else getString(R.string.hotfox_headline_error)
+            val detail = if (detailId != 0) getString(detailId) else ""
+            binding.tvConnectionStage.text = buildString {
+                append(title)
+                if (detail.isNotBlank()) {
+                    append(" · ")
+                    append(detail)
+                }
+                if (presentation.diagnosticCode.isNotBlank()) {
+                    append(" · ")
+                    append(presentation.diagnosticCode)
+                }
+            }
+            setTestState(title)
+        } else if (headline == ConnectionUiMapper.Headline.SELECTING) {
+            binding.tvConnectionStage.visibility = View.VISIBLE
+            binding.tvConnectionStage.text = getString(R.string.hotfox_headline_selecting)
+        } else if (headline == ConnectionUiMapper.Headline.VERIFYING) {
+            binding.tvConnectionStage.visibility = View.VISIBLE
+            binding.tvConnectionStage.text = getString(R.string.hotfox_headline_verifying)
         } else if (headline == ConnectionUiMapper.Headline.CONNECTING) {
             binding.tvConnectionStage.visibility = View.VISIBLE
-            binding.tvConnectionStage.text = stage.code
+            binding.tvConnectionStage.text = getString(R.string.hotfox_connecting_hint)
         } else {
             val autopilot = HotfoxAutopilotStore.lastDecision()
             val autopilotCopy = when (autopilot?.intent) {
@@ -1057,6 +1101,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.tvConnectLabel.animate().cancel()
         binding.tvConnectLabel.setText(textRes)
         binding.tvConnectLabel.setTextColor(ContextCompat.getColor(this, colorRes))
+        if (HotfoxMotion.reducedMotion(this)) {
+            binding.tvConnectLabel.alpha = 1f
+            binding.tvConnectLabel.translationY = 0f
+            return
+        }
         binding.tvConnectLabel.alpha = 0.35f
         binding.tvConnectLabel.translationY = 5f
         binding.tvConnectLabel.animate()
@@ -1099,6 +1148,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.connectAction.scaleX = 1f
         binding.connectAction.scaleY = 1f
         binding.connectAction.alpha = 1f
+        if (HotfoxMotion.reducedMotion(this)) return
 
         binding.connectAction.scaleX = 0.97f
         binding.connectAction.scaleY = 0.97f
@@ -1130,6 +1180,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun runEntranceAnimations() {
+        if (HotfoxMotion.reducedMotion(this)) return
         val views = listOf(
             binding.toolbar,
             binding.heroSurface,
@@ -1152,6 +1203,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun startLogoAnimation() {
+        if (HotfoxMotion.reducedMotion(this)) return
         if (!binding.brandLogo.isVisible || logoFloatAnimator?.isRunning == true) return
         logoFloatAnimator = ObjectAnimator.ofFloat(binding.brandLogo, View.TRANSLATION_Y, 0f, -7f, 0f).apply {
             duration = 3200L
