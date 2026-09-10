@@ -636,6 +636,8 @@ def main() -> int:
         fail("SDK install must assert platforms/android-37")
     if "build-tools;37.0.0" not in sdk_install:
         fail("SDK install must keep build-tools;37.0.0 separate from the platform package")
+    if sdk_install.count("sdkmanager --channel=3") < 3:
+        fail("SDK install must pass --channel=3 to sdkmanager for API 37 packages")
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")

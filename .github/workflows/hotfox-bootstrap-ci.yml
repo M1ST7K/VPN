@@ -94,6 +94,7 @@ jobs:
           fi
           # compileSdk=37: platforms;android-37 → platforms/android-37
           # Keep build-tools;37.0.0 separate from the platform package.
+          # SDK packages are installed with sdkmanager --channel=3.
           bash .github/scripts/install_hotfox_android_sdk.sh
           test -d "${ANDROID_SDK_ROOT}/platforms/android-37"
           test -x "${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}/ndk-build"

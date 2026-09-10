@@ -71,6 +71,7 @@ ensure_android_sdk() {
   # Do not install emulator here.
   # compileSdk=37: platforms;android-37 → platforms/android-37
   # Keep build-tools;37.0.0 separate from the platform package.
+  # SDK packages are installed with sdkmanager --channel=3.
   bash "$ROOT/.github/scripts/install_hotfox_android_sdk.sh"
 }
 

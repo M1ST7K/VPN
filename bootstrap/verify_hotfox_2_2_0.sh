@@ -225,6 +225,8 @@ grep -q 'platforms/android-37' "$ROOT/.github/scripts/install_hotfox_android_sdk
   || fail "SDK install must assert platforms/android-37"
 grep -q 'build-tools;37.0.0' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \
   || fail "SDK install must keep build-tools;37.0.0 separate from the platform package"
+grep -q 'sdkmanager --channel=3' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \
+  || fail "SDK install must pass --channel=3 to sdkmanager for API 37 packages"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then
