@@ -214,4 +214,47 @@ class HotfoxServerSelectionTest {
         assertTrue(result is HotfoxServerSelection.ResolveResult.Failure)
         assertTrue((result as HotfoxServerSelection.ResolveResult.Failure).message.contains("HF-VPN-010"))
     }
+
+    @Test
+    fun lateAutoResultCannotOverwriteManualSelection() {
+        val request = HotfoxServerSelection.captureAutoRequest(auto = true, generation = 3L)
+        assertFalse(
+            HotfoxServerSelection.shouldCommitAutoResult(
+                request = request,
+                currentAuto = false,
+                currentGeneration = 4L,
+            ),
+        )
+        val late = HotfoxServerSelection.resolveLateAutoAgainstManual(
+            request = request,
+            currentAuto = false,
+            currentGeneration = 4L,
+            currentSelectedGuid = "manual-y",
+            autoResultGuid = "auto-x",
+        )
+        assertTrue(late is HotfoxServerSelection.ResolveResult.Success)
+        val success = late as HotfoxServerSelection.ResolveResult.Success
+        assertEquals("manual-y", success.guid)
+        assertFalse(success.resolvedFromAuto)
+    }
+
+    @Test
+    fun matchingAutoGenerationStillCommits() {
+        val request = HotfoxServerSelection.captureAutoRequest(auto = true, generation = 7L)
+        assertTrue(
+            HotfoxServerSelection.shouldCommitAutoResult(
+                request = request,
+                currentAuto = true,
+                currentGeneration = 7L,
+            ),
+        )
+        val ok = HotfoxServerSelection.resolveLateAutoAgainstManual(
+            request = request,
+            currentAuto = true,
+            currentGeneration = 7L,
+            currentSelectedGuid = "sticky",
+            autoResultGuid = "auto-x",
+        )
+        assertEquals(HotfoxServerSelection.ResolveResult.Success("auto-x", true), ok)
+    }
 }

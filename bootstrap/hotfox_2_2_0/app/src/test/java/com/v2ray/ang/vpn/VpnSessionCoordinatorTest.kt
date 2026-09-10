@@ -315,4 +315,27 @@ class VpnSessionCoordinatorTest {
             VpnSessionCoordinator.endStop()
         }
     }
+
+    @Test
+    fun stalePipelineAndTeardownCannotAdoptNewerAttempt() {
+        val first = VpnSessionCoordinator.beginAttempt()
+        HotfoxSocketProtect.resetForTests()
+        HotfoxSocketProtect.attach(first) { true }
+        val second = VpnSessionCoordinator.beginAttempt()
+        HotfoxSocketProtect.attach(second) { fd -> fd > 0 }
+        assertFalse(VpnSessionCoordinator.setState(first, VpnSessionState.STARTING_CORE))
+        assertEquals(VpnSessionState.PREPARING, VpnSessionCoordinator.currentState())
+        assertFalse(VpnSessionCoordinator.claimTeardown(first))
+        assertFalse(VpnSessionCoordinator.isTeardownActive())
+        assertTrue(VpnSessionCoordinator.isCurrent(second))
+        HotfoxSocketProtect.detach(first)
+        val live = HotfoxSocketProtect.protect(31, "tcp", second)
+        assertTrue(live.success)
+        assertEquals(second, HotfoxSocketProtect.boundAttemptForTests())
+        assertTrue(VpnSessionCoordinator.claimTeardown(second))
+        assertTrue(VpnSessionCoordinator.isTeardownActive())
+        assertEquals(VpnSessionState.DISCONNECTING, VpnSessionCoordinator.currentState())
+        assertEquals(0L, VpnSessionCoordinator.beginAttempt())
+        HotfoxSocketProtect.resetForTests()
+    }
 }

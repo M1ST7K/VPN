@@ -51,6 +51,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @SuppressLint("VpnServicePolicy")
 class CoreVpnService : VpnService(), ServiceControl {
@@ -118,6 +119,8 @@ class CoreVpnService : VpnService(), ServiceControl {
             return START_STICKY
         }
 
+        joinOwnedJobs()
+
         if (VpnSessionCoordinator.isTeardownActive()) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: start refused; teardown active")
             unlockStart()
@@ -147,7 +150,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             failTunnelStart(attempt, "HF-VPN-012", "Не удалось привязать процесс к внешней сети")
             return START_NOT_STICKY
         }
-        startService()
+        startOwnedPipeline(attempt)
         return START_STICKY
     }
 
@@ -156,6 +159,14 @@ class CoreVpnService : VpnService(), ServiceControl {
     }
 
     override fun startService() {
+        startOwnedPipeline(protectAttempt)
+    }
+
+    private fun startOwnedPipeline(attempt: Long) {
+        if (attempt == 0L || !VpnSessionCoordinator.isCurrent(attempt)) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: refuse pipeline for stale attempt=$attempt")
+            return
+        }
         if (!::mInterface.isInitialized) {
             LogUtil.e(AppConfig.TAG, "StartCore-VPN: Interface not initialized")
             return
@@ -164,12 +175,12 @@ class CoreVpnService : VpnService(), ServiceControl {
         val previous = pipelineJob
         pipelineJob = serviceScope.launch {
             previous?.cancelAndJoin()
-            startTunnelPipeline()
+            startTunnelPipeline(attempt)
         }
     }
 
-    private suspend fun startTunnelPipeline() {
-        val attempt = VpnSessionCoordinator.currentAttempt()
+    private suspend fun startTunnelPipeline(attempt: Long) {
+        if (!pipelineStillCurrent(attempt)) return
         if (!VpnSessionCoordinator.setState(attempt, VpnSessionState.STARTING_CORE)) return
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.XRAY_START)
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: STARTING_CORE attempt=$attempt")
@@ -509,12 +520,17 @@ class CoreVpnService : VpnService(), ServiceControl {
         if (tryAutoFailover(attempt, code)) {
             return
         }
-        if (!VpnSessionCoordinator.markError(attempt, code, message)) {
+        val claimed = VpnSessionCoordinator.claimTeardown(attempt)
+        if (!claimed) {
+            com.v2ray.ang.vpn.HotfoxSocketProtect.detach(attempt)
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: stale failTunnelStart ignored attempt=$attempt")
             return
         }
+        if (!VpnSessionCoordinator.markError(attempt, code, message)) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: markError rejected after teardown claim attempt=$attempt")
+        }
         MessageUtil.sendMsg2UI(this, AppConfig.MSG_STATE_START_FAILURE, message)
-        stopAllService(detachAttempt = attempt)
+        stopAllService(detachAttempt = attempt, teardownAlreadyClaimed = true, joinJobs = false)
     }
 
     private fun tryAutoFailover(attempt: Long, code: String): Boolean {
@@ -524,7 +540,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         if (!VpnSessionCoordinator.markReconnecting(attempt)) return false
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: AUTO failover ${decision.reason} next=${decision.guid}")
         CoreServiceManager.scheduleAuthorizedRestart(applicationContext)
-        stopAllService()
+        stopAllService(detachAttempt = attempt, joinJobs = false)
         return true
     }
 
@@ -550,24 +566,24 @@ class CoreVpnService : VpnService(), ServiceControl {
         CoreServiceManager.requestConnectedReload()
     }
 
-    private fun stopAllService(isForced: Boolean = true, detachAttempt: Long = protectAttempt) {
+    private fun stopAllService(
+        isForced: Boolean = true,
+        detachAttempt: Long = protectAttempt,
+        teardownAlreadyClaimed: Boolean = false,
+        joinJobs: Boolean = true,
+    ) {
+        val claimed = teardownAlreadyClaimed || VpnSessionCoordinator.claimTeardown(detachAttempt)
         unlockStart()
-        val state = VpnSessionCoordinator.currentState()
-        val keepError = state == VpnSessionState.ERROR
-        val keepReconnecting = state == VpnSessionState.RECONNECTING
-        val stopAttempt = VpnSessionCoordinator.currentAttempt()
-        if (!keepError) {
-            if (!keepReconnecting) {
-                VpnSessionCoordinator.setState(stopAttempt, VpnSessionState.DISCONNECTING)
-            }
-            VpnSessionCoordinator.setTeardownActive(true)
-        }
         com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
+        if (!claimed) {
+            LogUtil.w(
+                AppConfig.TAG,
+                "StartCore-VPN: stale teardown ignored attempt=$detachAttempt current=${VpnSessionCoordinator.currentAttempt()}",
+            )
+            return
+        }
         isRunning = false
-        pipelineJob?.cancel()
-        pipelineJob = null
-        trafficJob?.cancel()
-        trafficJob = null
+        finishOwnedJobs(join = joinJobs)
         health.stop()
         tun2SocksService?.stopTun2Socks()
         tun2SocksService = null
@@ -590,6 +606,26 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
 
         CoreServiceManager.stopCoreLoop()
+    }
+
+    private fun joinOwnedJobs() {
+        finishOwnedJobs(join = true)
+    }
+
+    private fun finishOwnedJobs(join: Boolean) {
+        val pipeline = pipelineJob
+        val traffic = trafficJob
+        pipelineJob = null
+        trafficJob = null
+        if (!join) {
+            pipeline?.cancel()
+            traffic?.cancel()
+            return
+        }
+        runBlocking {
+            pipeline?.cancelAndJoin()
+            traffic?.cancelAndJoin()
+        }
     }
 
     private fun tryLockStart(): Boolean = isStartingLock.compareAndSet(false, true)

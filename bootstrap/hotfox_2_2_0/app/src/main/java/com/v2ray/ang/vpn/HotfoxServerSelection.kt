@@ -4,6 +4,7 @@ import com.v2ray.ang.commerce.ManagedConfigParser
 import com.v2ray.ang.commerce.CommercePreferences
 import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.handler.MmkvManager
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * AUTO vs manual server selection. AUTO is a persisted mode, not a fake ProfileItem.
@@ -15,6 +16,8 @@ object HotfoxServerSelection {
     const val PREF_LAST_GOOD_AUTO = "pref_hotfox_last_good_auto_guid"
 
     val health = ServerHealthRepository()
+    private val selectionLock = Any()
+    private val selectionGeneration = AtomicLong(0L)
 
     @Volatile
     var lastAutoReason: String = ""
@@ -47,11 +50,49 @@ object HotfoxServerSelection {
     fun resetLastGoodForTests() {
         lastGoodAutoGuid = null
         lastAutoReason = ""
+        selectionGeneration.set(0L)
     }
+
+    fun selectionGenerationForTests(): Long = selectionGeneration.get()
 
     fun persistAutoTarget(guid: String) {
         if (guid.isBlank() || guid == AUTO_GUID) return
-        MmkvManager.setSelectServer(guid)
+        synchronized(selectionLock) {
+            if (!isAutoMode()) return
+            MmkvManager.setSelectServer(guid)
+        }
+    }
+
+    data class AutoPersistRequest(
+        val generation: Long,
+        val auto: Boolean,
+    )
+
+    fun captureAutoRequest(auto: Boolean, generation: Long): AutoPersistRequest =
+        AutoPersistRequest(generation = generation, auto = auto)
+
+    fun shouldCommitAutoResult(
+        request: AutoPersistRequest,
+        currentAuto: Boolean,
+        currentGeneration: Long,
+    ): Boolean {
+        return request.auto && currentAuto && request.generation == currentGeneration
+    }
+
+    fun resolveLateAutoAgainstManual(
+        request: AutoPersistRequest,
+        currentAuto: Boolean,
+        currentGeneration: Long,
+        currentSelectedGuid: String?,
+        autoResultGuid: String,
+    ): ResolveResult {
+        if (shouldCommitAutoResult(request, currentAuto, currentGeneration)) {
+            return ResolveResult.Success(autoResultGuid, resolvedFromAuto = true)
+        }
+        if (!currentAuto && !currentSelectedGuid.isNullOrBlank() && currentSelectedGuid != AUTO_GUID) {
+            return ResolveResult.Success(currentSelectedGuid, resolvedFromAuto = false)
+        }
+        return ResolveResult.Failure("stale-auto-superseded")
     }
 
     fun currentCandidates(): List<Candidate> = candidates()
@@ -63,11 +104,17 @@ object HotfoxServerSelection {
     }
 
     fun selectManual(guid: String) {
-        applyPersisted(persistAfterTap(tapGuid = guid, previousGuid = MmkvManager.getSelectServer(), firstUsableGuid = firstUsableGuid()))
+        synchronized(selectionLock) {
+            selectionGeneration.incrementAndGet()
+            applyPersisted(persistAfterTap(tapGuid = guid, previousGuid = MmkvManager.getSelectServer(), firstUsableGuid = firstUsableGuid()))
+        }
     }
 
     fun selectAuto() {
-        applyPersisted(persistAfterTap(tapGuid = AUTO_GUID, previousGuid = MmkvManager.getSelectServer(), firstUsableGuid = firstUsableGuid()))
+        synchronized(selectionLock) {
+            selectionGeneration.incrementAndGet()
+            applyPersisted(persistAfterTap(tapGuid = AUTO_GUID, previousGuid = MmkvManager.getSelectServer(), firstUsableGuid = firstUsableGuid()))
+        }
     }
 
     /**
@@ -115,14 +162,20 @@ object HotfoxServerSelection {
     }
 
     fun resolveForConnect(): ResolveResult {
+        val request: AutoPersistRequest
+        val selectedGuid: String?
+        synchronized(selectionLock) {
+            request = AutoPersistRequest(selectionGeneration.get(), isAutoMode())
+            selectedGuid = MmkvManager.getSelectServer()
+        }
         val servers = candidates()
         val now = System.currentTimeMillis()
         val snapshot = healthSnapshot(servers, now)
         return persistResolution(
             pick(
                 servers = servers,
-                auto = isAutoMode(),
-                selectedGuid = MmkvManager.getSelectServer(),
+                auto = request.auto,
+                selectedGuid = selectedGuid,
                 healthByGuid = snapshot,
                 nowEpochMs = now,
                 lastGoodGuid = lastGoodAutoGuidOrPersisted(),
@@ -130,6 +183,7 @@ object HotfoxServerSelection {
             ),
             snapshot,
             now,
+            request,
         )
     }
 
@@ -138,14 +192,20 @@ object HotfoxServerSelection {
      * Latency from the previous network context is not used to flap to a "faster" peer.
      */
     fun resolveForHandover(): ResolveResult {
+        val request: AutoPersistRequest
+        val selectedGuid: String?
+        synchronized(selectionLock) {
+            request = AutoPersistRequest(selectionGeneration.get(), isAutoMode())
+            selectedGuid = MmkvManager.getSelectServer()
+        }
         val servers = candidates()
         val now = System.currentTimeMillis()
         val snapshot = healthSnapshot(servers, now)
         return persistResolution(
             resolveForHandover(
                 servers = servers,
-                auto = isAutoMode(),
-                selectedGuid = MmkvManager.getSelectServer(),
+                auto = request.auto,
+                selectedGuid = selectedGuid,
                 healthByGuid = snapshot,
                 nowEpochMs = now,
                 lastGoodGuid = lastGoodAutoGuidOrPersisted(),
@@ -154,6 +214,7 @@ object HotfoxServerSelection {
             ),
             snapshot,
             now,
+            request,
         )
     }
 
@@ -315,12 +376,38 @@ object HotfoxServerSelection {
         result: ResolveResult,
         healthByGuid: Map<String, ServerHealth> = emptyMap(),
         nowEpochMs: Long = 0L,
+        request: AutoPersistRequest,
     ): ResolveResult {
         lastAutoReason = AutoSelectionPolicy.diagnosticReason(result, healthByGuid, nowEpochMs)
-        if (result is ResolveResult.Success) {
+        if (result !is ResolveResult.Success) return result
+        synchronized(selectionLock) {
+            val currentAuto = isAutoMode()
+            val currentGeneration = selectionGeneration.get()
+            val currentSelected = MmkvManager.getSelectServer()
+            if (result.resolvedFromAuto) {
+                val decided = resolveLateAutoAgainstManual(
+                    request = request,
+                    currentAuto = currentAuto,
+                    currentGeneration = currentGeneration,
+                    currentSelectedGuid = currentSelected,
+                    autoResultGuid = result.guid,
+                )
+                if (decided is ResolveResult.Success && decided.resolvedFromAuto) {
+                    MmkvManager.setSelectServer(decided.guid)
+                    return decided
+                }
+                lastAutoReason = "stale-auto-superseded"
+                return decided
+            }
+            if (currentGeneration != request.generation) {
+                if (!currentSelected.isNullOrBlank() && currentSelected != AUTO_GUID) {
+                    return ResolveResult.Success(currentSelected, resolvedFromAuto = currentAuto)
+                }
+                return ResolveResult.Failure("stale-auto-superseded")
+            }
             MmkvManager.setSelectServer(result.guid)
+            return result
         }
-        return result
     }
 
     private fun usableGuids(): List<String> =

@@ -80,6 +80,26 @@ object VpnSessionCoordinator {
     }
 
     /**
+     * Atomically claim teardown for [ownedAttempt] **before** start admission
+     * is released. A stale attempt cannot mark teardown or move a newer
+     * session to DISCONNECTING.
+     */
+    fun claimTeardown(ownedAttempt: Long): Boolean {
+        synchronized(generationLock) {
+            if (ownedAttempt == 0L || !matches(ownedAttempt)) {
+                return false
+            }
+            teardownActive.set(true)
+            val current = state.get()
+            if (current != VpnSessionState.ERROR && current != VpnSessionState.RECONNECTING) {
+                lastStage.set(VpnConnectionStage.STOPPING)
+                state.set(VpnSessionState.DISCONNECTING)
+            }
+            return true
+        }
+    }
+
+    /**
      * Core-stop result. Barrier clears only after confirmed successful termination
      * **and** the caller has finished resource cleanup. Failed/exception stops stay
      * fail-closed. A stale epoch/attempt cannot disconnect a newer session.
