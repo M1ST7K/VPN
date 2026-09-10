@@ -1,0 +1,1 @@
+Setup branch active: cursor/hotfox-2.2.0-setup
