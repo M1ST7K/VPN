@@ -1,0 +1,103 @@
+---
+description: Owner override deferring emulator/runtime/physical E2E to the final release validation gate
+alwaysApply: true
+---
+
+# HOTFOX — OWNER OVERRIDE: FINISH ENGINEERING ROADMAP BEFORE RUNTIME RELEASE VALIDATION
+
+This rule is **ALWAYS ACTIVE** and is the latest explicit owner decision.
+
+If this rule conflicts with `.cursor/rules/10-hotfox-engineering-gates.mdc`, `.cursor/rules/20-hotfox-roadmap-progression.mdc`, `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc`, `docs/HOTFOX_2_9_VPN_RECOVERY.md`, `docs/CURRENT_PHASE.md`, `docs/AI_REVIEW_CURRENT_PHASE.md`, or older roadmap wording about emulator/runtime E2E timing, **this rule wins only for validation timing and phase-blocking policy**.
+
+It does NOT weaken the required production architecture, fail-closed behavior, security, truthful state, DNS/IPv6 policy, secret handling, or final release acceptance.
+
+## 1. Owner decision
+
+Complete the engineering roadmap first.
+
+Do not stop 2.9, 3.0, or 3.1 solely because a local emulator, runtime subscription secret, physical phone, or device-wide VPN E2E is unavailable to the cloud/background agent.
+
+The sequence remains:
+
+`2.9 VPN Core Recovery / Real Connection Fix`
+→ `3.0 Premium Android Experience`
+→ `3.1 Mature HotFox Platform / Pre-release Engineering`
+→ `FINAL RELEASE VALIDATION GATE`.
+
+## 2. Per-phase engineering exit
+
+For 2.9, 3.0 and 3.1, engineering completion may be based on repository-verifiable evidence:
+
+- implementation of the phase scope;
+- source-level correctness of the intended production path;
+- unit/integration/static validation that can run in CI;
+- successful reconstruction/build;
+- unit tests, lint/static checks and release compilation required by the repository;
+- no known substantiated P0/P1 in the final phase review;
+- no production mocks, fake CONNECTED state, fake ping/health/traffic, direct-routing readiness bypass, disabled TLS/REALITY, DNS bypass, IPv6 leak, secret embedding, or other truth/security regression.
+
+Emulator/runtime VPN E2E is **not an intermediate phase blocker** under this owner decision.
+
+Physical-device E2E remains **not an intermediate phase blocker**.
+
+If runtime E2E was not executed, report exactly that. Never convert `NOT EXECUTED` into PASS.
+
+Truthful phase wording is:
+
+`<phase> ENGINEERING COMPLETE — runtime and physical release validation deferred.`
+
+## 3. 2.9 special handling
+
+Continue fixing all 2.9 defects that can be reasoned about, implemented and covered from repository/CI evidence.
+
+Keep the diagnostic/runtime E2E harnesses already added. Do not delete or weaken them just because execution is deferred.
+
+Do not require the cloud/background agent to access the owner's local Android emulator before closing 2.9.
+
+Do not require a known-working private subscription URL to be committed, uploaded to CI, printed, or logged.
+
+When the repository-side 2.9 implementation is coherent, CI is green and final review has P0=0/P1=0, close 2.9 as engineering-complete and immediately start 3.0.
+
+## 4. Final release validation gate
+
+After 3.1 ENGINEERING COMPLETE, stop automatic roadmap progression and enter the single final release validation gate.
+
+At that point, release validation MUST include actual runtime proof before `RELEASE READY` can be claimed.
+
+Minimum final runtime acceptance:
+
+- build/install the final release candidate on the available Android emulator;
+- use a known-working subscription supplied only at runtime;
+- prove SOCKS-only Xray egress where applicable;
+- prove the full production path: Android app traffic → VpnService/TUN → HEV/tun2socks → local Xray SOCKS → Xray outbound → remote VPN server → Internet → response;
+- prove real HTTPS and browser/device-wide traffic;
+- compare public IP before/during/after VPN when the environment permits;
+- verify DNS policy and no silent DNS bypass;
+- verify IPv6 is routed or fail-closed with no leak;
+- verify disconnect restores normal networking;
+- run repeated connect/disconnect/reconnect cycles;
+- verify no false `CONNECTED` / `Защищено` state;
+- collect sanitized diagnostics without secrets;
+- run the final physical Android device acceptance suite before production release.
+
+If any final runtime or physical validation fails, return to the engineering fix loop, correct the defect, rebuild and repeat the final gate.
+
+## 5. Release truth
+
+`ENGINEERING COMPLETE` does not mean runtime-validated or release-ready.
+
+Do not claim:
+
+- emulator E2E PASS unless it actually ran and passed;
+- physical-device PASS unless it actually ran and passed;
+- `RELEASE READY` until the final release validation gate passes.
+
+The owner explicitly accepts the risk of discovering remaining runtime VPN defects at the final gate and fixing them then.
+
+## 6. Automatic progression instruction
+
+Do not idle waiting for emulator/device validation during 2.9/3.0/3.1.
+
+When a phase satisfies its repository/CI/review engineering exit, mark it engineering-complete with runtime/physical validation deferred, update current-phase context, and immediately continue to the next phase.
+
+Only the final release validation gate is allowed to stop progression for missing runtime/device evidence.
