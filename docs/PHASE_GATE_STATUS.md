@@ -506,6 +506,8 @@ Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `R
 
 Trusted checkpoint **round 25** returned `APPROVED` (P0 = 0, P1 = 0) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`. Comment: https://github.com/M1ST7K/VPN/pull/4#issuecomment-5623226541
 
+Owner-requested follow-up **round 26** returned `APPROVED` (P0 = 0, P1 = 0) on SHA `23e547a2c062a2a58d9ba510d25ee77a8b132b04` (COMPLETE ledger / final-gate docs only). Comment: https://github.com/M1ST7K/VPN/pull/4#issuecomment-5623514502
+
 Repository-side 3.1 work: `HotfoxEngineFacade`, signed control plane, capacity-aware AUTO, generated device registry, API compatibility, offline/outage policy, privacy-safe telemetry, 2.x migration, remote-flag denylist for fake CONNECTED / DNS / IPv6 weakening. Round 20 P1 (INCLUDE/EXCLUDE Xray vs APP precedence) remains in tree from `844918b`. Round 24 P1 (fail-closed expiry epochs + pinned `android-emulator-runner`) is in `7192b04`. Round 23 required the phase-ID file on trusted `main` as `2.4`; owner merged PR #7 (`d516623`). PR-head cannot select `3.1` to reset the cap.
 
 Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `RELEASE READY`.
@@ -520,7 +522,7 @@ Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `R
 
 ## FINAL RELEASE VALIDATION GATE
 
-**WAITING — automatic engineering progression stopped.** 3.1 engineering gate is closed (round 25 `APPROVED`, P0=0, P1=0). Canonical suite: `docs/HOTFOX_ROADMAP.md` (`FINAL RELEASE DEVICE GATE`) and `docs/phases/final-release-validation-gate.md`.
+**WAITING — automatic engineering progression stopped.** 3.1 engineering gate is closed (round 25 `APPROVED` on `7192b04`; ledger confirmed by round 26 `APPROVED` on `23e547a`). Canonical suite: `docs/HOTFOX_ROADMAP.md` (`FINAL RELEASE DEVICE GATE`) and `docs/phases/final-release-validation-gate.md`.
 
 Do not start a new product phase. Do not execute emulator/physical E2E until the owner explicitly starts this gate. Do not claim `RELEASE READY`.
 

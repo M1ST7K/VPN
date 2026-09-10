@@ -129,7 +129,7 @@ Do not reopen 3.0 solely because runtime/physical release validation is deferred
 
 ### 3.1 — Mature HotFox Platform / Pre-release Engineering
 
-Phase 3.1 Mature HotFox Platform is **ENGINEERING COMPLETE — runtime and physical release validation deferred** after checkpoint round 25 (`APPROVED`, no substantiated P0/P1) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`.
+Phase 3.1 Mature HotFox Platform is **ENGINEERING COMPLETE — runtime and physical release validation deferred** after checkpoint round 25 (`APPROVED`, no substantiated P0/P1) on SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`. Owner-requested follow-up round 26 (`APPROVED` on `23e547a2c062a2a58d9ba510d25ee77a8b132b04`) confirmed the COMPLETE ledger and did not claim `RELEASE READY`.
 
 Preserve its guarantees:
 

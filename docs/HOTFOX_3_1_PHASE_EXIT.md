@@ -33,6 +33,8 @@ Automatic engineering progression stopped at `FINAL RELEASE VALIDATION GATE`. Do
 
 ## Owner-requested follow-up phase-exit
 
-The owner explicitly requested `[hotfox-phase-exit]` after the COMPLETE ledger landed. This head is that candidate: 3.1 product plus the COMPLETE / FINAL RELEASE VALIDATION GATE docs. It is **not** a new product phase and does **not** claim `RELEASE READY`.
+The owner explicitly requested `[hotfox-phase-exit]` after the COMPLETE ledger landed. Candidate SHA `23e547a2c062a2a58d9ba510d25ee77a8b132b04` was **round 26 `APPROVED`** (P0=0, P1=0): documentation/rules-only confirmation of 3.1 closure and the final release validation gate. No production VPN/entitlement/control-plane code changed. `RELEASE READY` was not claimed.
 
-Do not reuse `7192b04` / `be69893` — those SHAs lack this follow-up marker on the current head.
+Comment: https://github.com/M1ST7K/VPN/pull/4#issuecomment-5623514502
+
+Automatic engineering progression remains stopped at `FINAL RELEASE VALIDATION GATE`. Do not start a new product phase.
