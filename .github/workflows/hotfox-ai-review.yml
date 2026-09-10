@@ -167,6 +167,18 @@ jobs:
           ref: main
           persist-credentials: false
 
+      - id: phase
+        name: Load trusted engineering phase id
+        run: |
+          set -euo pipefail
+          file="docs/AI_REVIEW_PHASE_ID"
+          if [ ! -f "$file" ]; then
+            echo "Trusted phase id file $file is missing from the reviewer checkout." >&2
+            exit 1
+          fi
+          phase="$(head -n1 "$file" | tr -d '[:space:]')"
+          echo "id=${phase}" >> "$GITHUB_OUTPUT"
+
       - name: Validate OpenAI secret is configured
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -192,6 +204,7 @@ jobs:
           # trigger string is used in any CHANGES_REQUIRED handoff so Cursor retries
           # only after the next green phase-exit candidate.
           HOTFOX_REVIEW_TRIGGER: ${{ inputs.review_mode == 'phase_exit' && '[hotfox-phase-exit]' || '[hotfox-review]' }}
+          HOTFOX_REVIEW_PHASE: ${{ steps.phase.outputs.id }}
           MAX_REVIEW_ROUNDS: "40"
           # The reviewer already prioritizes VPN/security/commerce-sensitive patches.
           # Keeping a bounded diff prevents giant historical PR context from being

@@ -4,7 +4,7 @@ This checkpoint requests the canonical phase-exit review after the first coheren
 
 - Implementation commit: `0e39e4b`. Compile fix for `HotfoxV31PersistedState.schema` default (`HotfoxStateMigration.SCHEMA`) on `ed9c996`.
 - Round 20 P1 remains in tree from `844918b`: INCLUDE/EXCLUDE no longer emit non-block DOMAIN/CIDR Xray rules, so `BLOCK > APP > DOMAIN > CIDR` matches the enforceable data plane.
-- Round 21 did not review `844918b` (old lifetime CAP on `main`). Candidate `5b2bba1` had green CI but no review (orchestrator omitted `expected_sha`). After PR #6, this is a **new** SHA; do not treat `5b2bba1` / `844918b` / `1dda013` as this candidate.
+- Round 22 P1: checkpoint cap is bound to trusted `docs/AI_REVIEW_PHASE_ID` / `HOTFOX_REVIEW_PHASE`, persisted in review markers, and counted only for that id via canonical `VERDICT:` lines. An `APPROVED` line is not a phase reset.
 - 3.0 closure: round 19 `APPROVED` on SHA `21f341980121a49f103bd61eaa588c37f1987c8a`.
 - Scope delivered in repository/CI:
   - `HotfoxEngineFacade` — UI/notification/QS re-observe process-scoped engine state; Activity is not a session owner;

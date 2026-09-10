@@ -32,6 +32,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify exact bootstrap payload
         run: bash bootstrap/verify_payload.sh
+      - name: Review-cap unit tests
+        run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
 
   reconstruct-and-build:
     name: Reconstruct and build Android app

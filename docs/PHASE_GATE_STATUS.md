@@ -506,7 +506,7 @@ Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `R
 
 **IN PROGRESS.** 3.0 engineering gate is closed (round 19 `APPROVED`, P0=0, P1=0). Canonical scope: `docs/HOTFOX_ROADMAP.md` (legacy «3.0 Mature» heading) and `docs/phases/3.1-mature-platform.md`.
 
-Repository-side 3.1 work: `HotfoxEngineFacade`, signed control plane, capacity-aware AUTO, generated device registry, API compatibility, offline/outage policy, privacy-safe telemetry, 2.x migration, remote-flag denylist for fake CONNECTED / DNS / IPv6 weakening. Round 20 P1 (INCLUDE/EXCLUDE Xray vs APP precedence) remains in tree from `844918b` (push CI `34475599536` SUCCESS). Branch is synced with trusted `main` `04445e1` (PR #6 orchestrator `expected_sha` + PR #5 per-phase cap). Round 21 was CAP-only. `5b2bba1` green CI had no SHA-bound review.
+Repository-side 3.1 work: `HotfoxEngineFacade`, signed control plane, capacity-aware AUTO, generated device registry, API compatibility, offline/outage policy, privacy-safe telemetry, 2.x migration, remote-flag denylist for fake CONNECTED / DNS / IPv6 weakening. Round 20 P1 (INCLUDE/EXCLUDE Xray vs APP precedence) remains in tree from `844918b`. Round 22 P1 (cap keyed off last `APPROVED`) is fixed: cap uses trusted `docs/AI_REVIEW_PHASE_ID` / `HOTFOX_REVIEW_PHASE`.
 
 Runtime and physical VPN E2E remain **NOT EXECUTED / deferred**. Do not claim `RELEASE READY`. Do not record `3.1 ENGINEERING COMPLETE` until phase-exit `APPROVED` (P0=0, P1=0).
 

@@ -47,7 +47,7 @@ Push CI for routing P1 fix `844918b` was green (`34475599536`). Round 21 did **n
 
 Owner merged PR #5. Trusted `main` includes the per-phase cap at `c1cd9ba7f8ccfddd73e2e654933e2a80e851e37c` (`MAX_REVIEW_ROUNDS=40` after last `VERDICT: APPROVED`; CAP comments are ignored). Owner merged PR #6: orchestrator on `main` now passes exact `expected_sha` (`04445e11d4848b339d8c07ecf85b166781ab23d6`). The old lifetime CAP is no longer a blocker.
 
-Candidate `5b2bba15b75cbd645049bbcbcf125a835ae760e1` had green push CI but no SHA-bound review (orchestrator on `main` at that time omitted `expected_sha`). This head is a **new** `[hotfox-phase-exit]` after syncing with `04445e1`. Do not reuse `5b2bba1`, `844918b`, `1dda013`, or a CAP-marked SHA.
+This head is a **new** `[hotfox-phase-exit]` after round-22 P1 (phase-id cap). Do not reuse `17a1e92`, `5b2bba1`, `844918b`, `1dda013`, or a CAP-marked SHA.
 
 ## Work allowed now
 

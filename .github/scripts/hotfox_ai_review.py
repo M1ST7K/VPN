@@ -21,9 +21,15 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from hotfox_ai_review_cap import (
+    format_review_marker,
+    load_review_phase,
+    parse_review_marker,
+    phase_cap_round,
+)
+
 GITHUB_API = "https://api.github.com"
 OPENAI_API = "https://api.openai.com/v1/responses"
-MARKER_RE = re.compile(r"<!-- HOTFOX_AI_REVIEW head=([0-9a-f]{40}) round=(\d+) -->")
 
 
 def env(name: str) -> str:
@@ -141,38 +147,19 @@ def prior_reviews() -> list[dict]:
         if ((comment.get("user") or {}).get("login") or "").lower() != "github-actions[bot]":
             continue
         body = comment.get("body") or ""
-        match = MARKER_RE.search(body)
-        if match:
+        parsed = parse_review_marker(body)
+        if parsed:
             out.append(
                 {
-                    "head": match.group(1),
-                    "round": int(match.group(2)),
+                    "head": parsed["head"],
+                    "round": parsed["round"],
+                    "phase": parsed["phase"],
                     "body": body,
                     "created_at": comment.get("created_at") or "",
                 }
             )
     out.sort(key=lambda item: (item["round"], item["created_at"]))
     return out
-
-
-def completed_checkpoint(body: str) -> bool:
-    return "VERDICT: APPROVED" in body or "VERDICT: CHANGES_REQUIRED" in body
-
-
-def phase_cap_round(old: list[dict]) -> int:
-    """Cap window for the current engineering phase.
-
-    Long-lived PRs accumulate successful 2.4–3.x closures. The safety cap must
-    bound a stuck loop in the *current* phase, not count already-APPROVED
-    historical checkpoints. Automation-paused CAP comments are not reviews.
-    """
-    completed = [item for item in old if completed_checkpoint(item["body"])]
-    last_approved_round = 0
-    for item in completed:
-        if "VERDICT: APPROVED" in item["body"]:
-            last_approved_round = max(last_approved_round, item["round"])
-    phase = [item for item in completed if item["round"] > last_approved_round]
-    return len(phase) + 1
 
 
 def compare(base: str, head: str) -> tuple[str, list[str]]:
@@ -390,11 +377,12 @@ def main() -> int:
         write_outputs(approved=False, sha=current, verdict_name="DUPLICATE")
         return 0
 
+    current_phase = load_review_phase()
     last = old[-1] if old else None
     round_no = last["round"] + 1 if last else 1
-    cap_round = phase_cap_round(old)
+    cap_round = phase_cap_round(old, current_phase)
     if cap_round > MAX_ROUNDS:
-        marker = f"<!-- HOTFOX_AI_REVIEW head={current} round={round_no} -->"
+        marker = format_review_marker(current, round_no, current_phase)
         post_comment(
             marker
             + f"\n### HotFox AI Review — automation paused\n\nReached the safety cap of {MAX_ROUNDS} checkpoint rounds "
@@ -424,7 +412,7 @@ def main() -> int:
     scope = f"Checkpoint round {round_no}; {scope_kind}; {trim_note}."
     review = review_with_openai(pr, diff, files, scope, last["body"] if last else "")
     result = verdict(review)
-    marker = f"<!-- HOTFOX_AI_REVIEW head={current} round={round_no} -->"
+    marker = format_review_marker(current, round_no, current_phase)
     header = marker + f"\n### HotFox AI Checkpoint Review — round {round_no}\n\n"
 
     if result is None:
