@@ -52,6 +52,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 @SuppressLint("VpnServicePolicy")
 class CoreVpnService : VpnService(), ServiceControl {
@@ -135,7 +136,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         trafficJob = null
         previousPipeline?.cancelAndJoin()
         previousTraffic?.cancelAndJoin()
-        if (!isActive || !VpnAdmissionGate.isCurrent(admission)) {
+        if (!coroutineContext.isActive || !VpnAdmissionGate.isCurrent(admission)) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: stale admission=$admission")
             unlockStart()
             return
@@ -151,7 +152,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             unlockStart()
             return
         }
-        if (!isActive || !VpnAdmissionGate.isCurrent(admission) || !VpnSessionCoordinator.isCurrent(attempt)) {
+        if (!coroutineContext.isActive || !VpnAdmissionGate.isCurrent(admission) || !VpnSessionCoordinator.isCurrent(attempt)) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after beginAttempt=$attempt")
             com.v2ray.ang.vpn.HotfoxSocketProtect.detach(attempt)
             unlockStart()
@@ -172,7 +173,7 @@ class CoreVpnService : VpnService(), ServiceControl {
                 admission = admission,
                 currentEpoch = VpnAdmissionGate.snapshot(),
                 pipelineCurrent = pipelineStillCurrent(attempt),
-                cancelled = !isActive,
+                cancelled = !coroutineContext.isActive,
             )
         ) {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: admission superseded after TUN establish attempt=$attempt")
