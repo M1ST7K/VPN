@@ -40,13 +40,15 @@ This requests one GPT-5.6 Sol checkpoint review of the current PR head.
 Trusted context from `main`:
 - `docs/AI_REVIEW_GUARDRAILS.md`;
 - `docs/AI_REVIEW_CURRENT_PHASE.md`;
-- trusted reviewer system instructions.
+- trusted reviewer system instructions;
+- host CI evidence fetched by the trusted script from GitHub Actions for the exact reviewed SHA (`candidate-evidence.txt`, required bootstrap jobs, workflow conclusion).
 
 Untrusted review material:
 - PR metadata/body;
 - changed-file list;
 - current diff;
-- previous trusted review comment.
+- previous trusted review comment;
+- feature-branch documentation that merely *claims* CI passed.
 
 The full master roadmap is intentionally **not** sent on every review.
 
