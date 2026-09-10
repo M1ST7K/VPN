@@ -160,7 +160,30 @@ class HotfoxRoutingTest {
         val globalLan = smart.copy(mode = HotfoxRoutingMode.GLOBAL, lanAccess = true)
         assertTrue(lanOn.ipv6TunCapturesAll(ipv6ProxyEnabled = false))
         assertTrue(globalLan.ipv6TunCapturesAll(ipv6ProxyEnabled = true))
-        assertFalse(lanOn.ipv6TunCapturesAll(ipv6ProxyEnabled = true))
+        assertTrue(lanOn.ipv6TunCapturesAll(ipv6ProxyEnabled = true))
+    }
+
+    @Test
+    fun ipv6Nat64StaysCapturedWhenLanAccessAndIpv6ProxyEnabled() {
+        val self = "com.hotfox.vpn"
+        val lanOn = smart.copy(lanAccess = true)
+        val tun = HotfoxRoutingDataPlane.tunEnforcement(
+            lanOn,
+            ipv6ProxyEnabled = true,
+            selfPackage = self,
+        )
+        assertTrue(tun.captureIpv6Default)
+        assertEquals(
+            listOf(HotfoxRoutingDataPlane.Ipv6TunRoute("::", 0)),
+            tun.ipv6CaptureRoutes,
+        )
+        assertTrue(tun.capturesIpv6Destination("64:ff9b::1"))
+        assertTrue(tun.capturesIpv6Destination("64:ff9b::c000:221"))
+        assertTrue(tun.capturesIpv6Destination("2001:4860:4860::8888"))
+
+        val guaOnly = CidrRouting.parse("2000::/3")
+        checkNotNull(guaOnly)
+        assertFalse(CidrRouting.contains(guaOnly, "64:ff9b::1"))
     }
 
     @Test
@@ -377,9 +400,10 @@ class HotfoxRoutingTest {
             lanAccess = true,
             rules = listOf(RoutingRule("lan", RoutingRuleKind.LAN, "lan", RouteAction.BLOCK)),
         )
-        val lanTun = HotfoxRoutingDataPlane.tunEnforcement(lanOn, ipv6ProxyEnabled = false, selfPackage = self)
+        val lanTun = HotfoxRoutingDataPlane.tunEnforcement(lanOn, ipv6ProxyEnabled = true, selfPackage = self)
         assertFalse(lanTun.captureIpv4Default)
         assertTrue(lanTun.captureIpv6Default)
+        assertTrue(lanTun.capturesIpv6Destination("64:ff9b::1"))
         assertFalse(lanTun.perApp.enabled)
         assertTrue(HotfoxRoutingDataPlane.xrayRules(lanOn).isEmpty())
 

@@ -384,16 +384,16 @@ class CoreVpnService : VpnService(), ServiceControl {
             builder.addRoute("0.0.0.0", 0)
         }
 
-        // Always capture IPv6 as well. When IPv6 proxying is disabled, CoreConfigManager
-        // installs a fail-closed ::/0 -> blackhole rule so the device cannot silently leak
-        // IPv6 outside the Android VPN. Enabled mode forwards IPv6 normally.
+        // Always capture IPv6 with ::/0. Partial GUA routes (2000::/3) omit
+        // NAT64 64:ff9b::/96 and operator prefixes, which would leak off TUN
+        // while CONNECTED is still reachable. LAN bypass stays IPv4-only.
+        // When IPv6 proxying is disabled, CoreConfigManager still fail-closes
+        // captured IPv6 to blackhole rather than the underlying network.
         builder.addAddress(vpnConfig.ipv6Client, 126)
-        if (!tun.captureIpv6Default) {
-            builder.addRoute("2000::", 3)
-            builder.addRoute("fc00::", 18)
-        } else {
-            builder.addRoute("::", 0)
+        check(tun.captureIpv6Default && tun.ipv6CaptureRoutes.any { it.address == "::" && it.prefix == 0 }) {
+            "IPv6 TUN capture must remain fail-closed ::/0"
         }
+        builder.addRoute("::", 0)
 
         // DNS is always installed on the VPN interface. 2.5 does not allow a
         // silent system-DNS bypass while protection is claimed.

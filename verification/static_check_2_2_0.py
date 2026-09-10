@@ -79,6 +79,8 @@ def main() -> int:
             fail("VpnService.protect path missing")
         if 'addRoute("::", 0)' not in vpn:
             fail("IPv6 ::/0 capture missing")
+        if 'addRoute("2000::", 3)' in vpn:
+            fail("IPv6 2000::/3 LAN split omits NAT64 and is not fail-closed")
         if "addDisallowedApplication(selfPackageName)" in vpn and "bindProcessToUnderlying" not in vpn:
             fail("self-disallow without process bind would block TUN inject")
         if "bindProcessToUnderlying" not in vpn:
@@ -393,9 +395,14 @@ def main() -> int:
         "2.5 routing data-plane projection",
     )
     must_contain(
-        "app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
-        "HotfoxRoutingDataPlane.tunEnforcement",
-        "VpnService TUN plan uses HotFox routing data plane",
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingDataPlane.kt",
+        "IPV6_FAIL_CLOSED_ROUTES",
+        "IPv6 TUN capture is fail-closed ::/0 including NAT64",
+    )
+    must_contain(
+        "app/src/test/java/com/v2ray/ang/vpn/HotfoxRoutingTest.kt",
+        "64:ff9b::1",
+        "IPv6 NAT64 stays captured when LAN access is enabled",
     )
     must_contain(
         "app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt",

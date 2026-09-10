@@ -50,6 +50,9 @@ grep -q '!xrayShutdownGate.drain' "$PROJECT/app/src/main/java/com/v2ray/ang/core
   || fail "handover drain timeout is not fail-closed"
 grep -q 'builder.addRoute("::", 0)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "IPv6 capture route missing"
+if grep -q 'addRoute("2000::", 3)' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt"; then
+  fail "IPv6 2000::/3 LAN split omits NAT64 and is not fail-closed"
+fi
 grep -q 'hotfox_hev_stability_migrated_2_0_2' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/SettingsManager.kt" \
   || fail "HEV default migration missing"
 grep -q 'System.loadLibrary("hev-socks5-tunnel")' "$PROJECT/app/src/main/java/com/v2ray/ang/service/TProxyService.kt" \

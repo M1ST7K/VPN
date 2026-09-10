@@ -247,12 +247,15 @@ data class RoutingPolicySnapshot(
     fun dnsPolicy(): DnsPolicy = DnsPolicy.THROUGH_VPN
 
     /**
-     * Mirrors CoreVpnService IPv6 capture: `::/0` unless both IPv6 proxying and
-     * explicit LAN bypass are enabled. GLOBAL never takes the partial-route path.
+     * IPv6 Internet is always captured with `::/0`.
+     *
+     * LAN bypass is IPv4-only at the TUN layer. A partial IPv6 capture
+     * (`2000::/3` + `fc00::/18`) omits NAT64 (`64:ff9b::/96`) and any
+     * operator-specific prefix outside those ranges, which would leak
+     * IPv6-only traffic off TUN while the session can still reach CONNECTED.
      */
-    fun ipv6TunCapturesAll(ipv6ProxyEnabled: Boolean): Boolean {
-        return !(ipv6ProxyEnabled && bypassLanOnTun())
-    }
+    @Suppress("UNUSED_PARAMETER")
+    fun ipv6TunCapturesAll(ipv6ProxyEnabled: Boolean): Boolean = true
 
     fun uiLabel(): String = when (mode) {
         HotfoxRoutingMode.SMART -> "Весь трафик · Smart"
