@@ -22,6 +22,8 @@ Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
 
 Hold the engineering-complete product until the owner explicitly starts the final release validation gate. That gate requires **actual** emulator and physical Android evidence of the truthful VPN path. Missing runtime/device execution is expected until the owner starts the gate; it is not a new product phase.
 
+The owner may still request a `[hotfox-phase-exit]` review of the current COMPLETE ledger. That review does not reopen 3.1 as an implementation phase and does not authorize a `RELEASE READY` claim.
+
 ## Inherited guarantees (still binding)
 
 - truthful `VpnService`/TUN → HEV → SOCKS `127.0.0.1:10808` → Xray;

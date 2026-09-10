@@ -30,3 +30,9 @@ This checkpoint closed 3.1 as:
 `3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
 Automatic engineering progression stopped at `FINAL RELEASE VALIDATION GATE`. Do not claim `RELEASE READY`.
+
+## Owner-requested follow-up phase-exit
+
+The owner explicitly requested `[hotfox-phase-exit]` after the COMPLETE ledger landed. This head is that candidate: 3.1 product plus the COMPLETE / FINAL RELEASE VALIDATION GATE docs. It is **not** a new product phase and does **not** claim `RELEASE READY`.
+
+Do not reuse `7192b04` / `be69893` — those SHAs lack this follow-up marker on the current head.
