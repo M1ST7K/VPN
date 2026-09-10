@@ -45,9 +45,9 @@ Runtime/emulator/physical VPN E2E remains `NOT EXECUTED / deferred`. `RELEASE RE
 
 Push CI for routing P1 fix `844918b` was green (`34475599536`). Round 21 did **not** review that head: the old PR-lifetime checkpoint cap on `main` paused automation. That is not a product P0/P1 and is not a stuck 3.1 architecture loop: rounds 1–19 closed 2.4–3.0 APPROVED; round 20 was the first 3.1 review (routing P1, now in tree).
 
-Owner merged PR #5. Trusted `main` now includes the per-phase cap at `c1cd9ba7f8ccfddd73e2e654933e2a80e851e37c` (`MAX_REVIEW_ROUNDS=40` after last `VERDICT: APPROVED`; CAP comments are ignored). This 3.1 branch is synced with that `main`. The old lifetime CAP is no longer a blocker.
+Owner merged PR #5. Trusted `main` includes the per-phase cap at `c1cd9ba7f8ccfddd73e2e654933e2a80e851e37c` (`MAX_REVIEW_ROUNDS=40` after last `VERDICT: APPROVED`; CAP comments are ignored). Owner merged PR #6: orchestrator on `main` now passes exact `expected_sha` (`04445e11d4848b339d8c07ecf85b166781ab23d6`). The old lifetime CAP is no longer a blocker.
 
-This head is a **new** `[hotfox-phase-exit]` candidate after the main sync. Do not reuse `844918b`, `1dda013`, or a CAP-marked SHA.
+Candidate `5b2bba15b75cbd645049bbcbcf125a835ae760e1` had green push CI but no SHA-bound review (orchestrator on `main` at that time omitted `expected_sha`). This head is a **new** `[hotfox-phase-exit]` after syncing with `04445e1`. Do not reuse `5b2bba1`, `844918b`, `1dda013`, or a CAP-marked SHA.
 
 ## Work allowed now
 
