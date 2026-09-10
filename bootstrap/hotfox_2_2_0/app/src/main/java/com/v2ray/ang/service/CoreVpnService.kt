@@ -129,6 +129,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             return START_STICKY
         }
         VpnSessionCoordinator.setState(attempt, VpnSessionState.ESTABLISHING_TUN)
+        com.v2ray.ang.vpn.HotfoxSocketProtect.attach(attempt) { fd -> protect(fd) }
         VpnSessionCoordinator.recordStage(attempt, VpnConnectionStage.VPN_PREPARE)
         if (!setupVpnService()) {
             VpnSessionCoordinator.markError(attempt, "HF-VPN-002", "Не удалось создать VPN-интерфейс")
@@ -273,10 +274,13 @@ class CoreVpnService : VpnService(), ServiceControl {
     }
 
     override fun vpnProtect(socket: Int): Boolean {
-        val ok = protect(socket)
-        com.v2ray.ang.vpn.VpnProtectEvidence.record(ok)
-        LogUtil.i(AppConfig.TAG, "StartCore-VPN: vpnProtect socket=$socket result=$ok")
-        return ok
+        val result = com.v2ray.ang.vpn.HotfoxSocketProtect.protect(
+            fd = socket,
+            protocol = "fd",
+            attempt = VpnSessionCoordinator.currentAttempt(),
+        )
+        LogUtil.i(AppConfig.TAG, "StartCore-VPN: vpnProtect socket=$socket ${result.reason}")
+        return result.success
     }
 
     override fun setUnderlyingNetworks(networks: Array<Network>?): Boolean {
@@ -434,27 +438,22 @@ class CoreVpnService : VpnService(), ServiceControl {
      */
     private fun configurePerAppProxy(builder: Builder, plan: PerAppVpnPlan) {
         val selfPackageName = BuildConfig.APPLICATION_ID
-
-        // Per-app off (or empty include/exclude): do not exclude HotFox.
-        // Loop prevention is bindProcessToUnderlying (this libv2ray has no protect()
-        // callback). Remaining on TUN lets injectThroughVpn traverse TUN → HEV → SOCKS → Xray.
-        if (!plan.enabled) {
-            return
-        }
-
-        val apps = plan.packages.toMutableSet()
-        if (plan.bypassSelected) apps.remove(selfPackageName) else apps.add(selfPackageName)
-
-        apps.forEach { pkg ->
+        val ops = com.v2ray.ang.vpn.HotfoxTunSelfExclusion.forPlan(plan, selfPackageName)
+        // Always keep HotFox/Xray off TUN. injectThroughVpn still binds
+        // probe sockets to TRANSPORT_VPN so path proof is tunneled, not
+        // process-direct HTTPS from the excluded UID.
+        fun apply(pkg: String, disallow: Boolean) {
             try {
-                if (plan.bypassSelected) {
-                    builder.addDisallowedApplication(pkg)
-                } else {
-                    builder.addAllowedApplication(pkg)
-                }
+                if (disallow) builder.addDisallowedApplication(pkg)
+                else builder.addAllowedApplication(pkg)
             } catch (e: PackageManager.NameNotFoundException) {
                 LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to configure app $pkg", e)
             }
+        }
+        if (ops.useAllowList) {
+            ops.allow.forEach { apply(it, disallow = false) }
+        } else {
+            ops.disallow.forEach { apply(it, disallow = true) }
         }
     }
 
@@ -559,6 +558,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             }
             VpnSessionCoordinator.setTeardownActive(true)
         }
+        com.v2ray.ang.vpn.HotfoxSocketProtect.detach(VpnSessionCoordinator.currentAttempt())
         isRunning = false
         pipelineJob?.cancel()
         pipelineJob = null

@@ -120,6 +120,7 @@ object HotfoxXrayConfigInjector {
         if (content.isBlank()) return content
         return runCatching {
             val root = JSONObject(content)
+            val tags = HotfoxXrayTagResolver.resolve(content)
             val routing = root.optJSONObject("routing") ?: JSONObject().also { root.put("routing", it) }
             val existing = routing.optJSONArray("rules") ?: JSONArray()
             val existingRules = ArrayList<ExistingRule>()
@@ -134,13 +135,14 @@ object HotfoxXrayConfigInjector {
                 if (rule.source == "existing") {
                     while (existingIndex < existing.length()) {
                         val raw = existing.optJSONObject(existingIndex++)
-                        if (raw != null && keepExisting(snapshot.mode, raw.optString("outboundTag"))) {
+                        if (raw != null && keepRaw(snapshot, raw, tags)) {
+                            rewriteRuleTags(raw, tags)
                             merged.put(raw)
                             return@forEach
                         }
                     }
                 } else {
-                    merged.put(toJson(rule))
+                    merged.put(toJson(rule, tags))
                 }
             }
             routing.put("rules", merged)
@@ -148,12 +150,52 @@ object HotfoxXrayConfigInjector {
         }.getOrDefault(content)
     }
 
-    private fun toJson(rule: XrayFieldRule): JSONObject {
+    private fun keepRaw(
+        snapshot: RoutingPolicySnapshot,
+        raw: JSONObject,
+        tags: HotfoxXrayTagMap,
+    ): Boolean {
+        val outbound = raw.optString("outboundTag")
+        if (!keepExisting(snapshot.mode, outbound)) return false
+        if (snapshot.mode == HotfoxRoutingMode.CUSTOM) return true
+        val domains = jsonStringList(raw.opt("domain"))
+        val ips = jsonStringList(raw.opt("ip"))
+        return !HotfoxLegacyDirectBypass.isLegacyDirectBypass(domains, ips, outbound, tags.direct)
+    }
+
+    private fun jsonStringList(value: Any?): List<String> {
+        val array = value as? JSONArray ?: return emptyList()
+        val out = ArrayList<String>()
+        for (index in 0 until array.length()) {
+            val item = array.optString(index)
+            if (item.isNotBlank()) out.add(item)
+        }
+        return out
+    }
+
+    private fun rewriteRuleTags(raw: JSONObject, tags: HotfoxXrayTagMap) {
+        val outbound = raw.optString("outboundTag")
+        val mapped = when (outbound) {
+            HotfoxXrayRouting.TAG_PROXY -> tags.proxy
+            HotfoxXrayRouting.TAG_DIRECT -> tags.direct
+            HotfoxXrayRouting.TAG_BLOCKED -> tags.block
+            else -> null
+        }
+        if (!mapped.isNullOrBlank()) raw.put("outboundTag", mapped)
+    }
+
+    private fun toJson(rule: XrayFieldRule, tags: HotfoxXrayTagMap): JSONObject {
         val obj = JSONObject()
         obj.put("type", "field")
         if (rule.domain.isNotEmpty()) obj.put("domain", JSONArray(rule.domain))
         if (rule.ip.isNotEmpty()) obj.put("ip", JSONArray(rule.ip))
-        obj.put("outboundTag", rule.outboundTag)
+        val resolved = when (rule.outboundTag) {
+            HotfoxXrayRouting.TAG_PROXY -> tags.proxy ?: rule.outboundTag
+            HotfoxXrayRouting.TAG_DIRECT -> tags.direct ?: rule.outboundTag
+            HotfoxXrayRouting.TAG_BLOCKED -> tags.block ?: rule.outboundTag
+            else -> rule.outboundTag
+        }
+        obj.put("outboundTag", resolved)
         return obj
     }
 }

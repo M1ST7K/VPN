@@ -401,6 +401,7 @@ object CoreServiceManager {
         }
         val routingSnapshot = HotfoxRoutingStore.load()
         val coreConfigJson = HotfoxXrayConfigInjector.apply(result.content, routingSnapshot)
+        com.v2ray.ang.vpn.HotfoxXrayConfigValidator.requireValid(coreConfigJson)
         val outboundCompare = com.v2ray.ang.vpn.HotfoxOutboundCompare.record(config, coreConfigJson)
         if (outboundCompare.blockingMismatch) {
             error("Generated Xray outbound drifted from selected profile")

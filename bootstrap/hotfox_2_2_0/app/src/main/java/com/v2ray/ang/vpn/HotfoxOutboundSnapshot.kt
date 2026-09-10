@@ -116,11 +116,24 @@ object HotfoxOutboundCompare {
         last = null
     }
 
+    fun isContainerConfigType(typeName: String): Boolean {
+        return when (typeName.uppercase()) {
+            "CUSTOM", "POLICYGROUP", "PROXYCHAIN" -> true
+            else -> false
+        }
+    }
+
+    fun logicalProtocol(profile: ProfileItem): String {
+        val name = profile.configType.name
+        if (isContainerConfigType(name)) return ""
+        return name.lowercase()
+    }
+
     fun fromProfile(profile: ProfileItem): HotfoxOutboundSnapshot {
         val network = profile.network.orEmpty()
         val security = profile.security.orEmpty()
         return HotfoxOutboundSnapshot(
-            protocol = profile.configType.name.lowercase(),
+            protocol = logicalProtocol(profile),
             address = profile.server.orEmpty(),
             port = profile.serverPort?.toIntOrNull(),
             network = network,
@@ -217,7 +230,15 @@ object HotfoxOutboundCompare {
     fun record(profile: ProfileItem, generatedJson: String): Result {
         val fromProfile = fromProfile(profile)
         val generated = fromGeneratedJson(generatedJson)
-        val diffs = if (generated == null) emptyList() else mismatches(fromProfile, generated)
+        val diffs = ArrayList<String>()
+        val typeName = profile.configType.name
+        if (isContainerConfigType(typeName)) {
+            diffs += containerMismatches(typeName, profile, generatedJson, generated)
+        } else if (generated == null) {
+            diffs += "generated:missing-proxy-outbound"
+        } else {
+            diffs += mismatches(fromProfile, generated)
+        }
         val result = Result(fromProfile, generated, diffs)
         last = result
         LogUtil.i(AppConfig.TAG, SecretRedactor.redact("HotfoxOutboundCompare: ${result.summary()}"))
@@ -228,6 +249,49 @@ object HotfoxOutboundCompare {
             )
         }
         return result
+    }
+
+    fun proxyOutboundCount(json: String): Int {
+        return runCatching {
+            val root = JsonParser.parseString(json).asJsonObject
+            val outbounds = root.getAsJsonArray("outbounds") ?: return 0
+            var count = 0
+            for (element in outbounds) {
+                if (!element.isJsonObject) continue
+                val protocol = element.asJsonObject.get("protocol")?.asString.orEmpty().lowercase()
+                if (protocol.isNotBlank() && protocol !in setOf("freedom", "blackhole", "dns", "block", "direct")) {
+                    count += 1
+                }
+            }
+            count
+        }.getOrDefault(0)
+    }
+
+    private fun containerMismatches(
+        typeName: String,
+        profile: ProfileItem,
+        generatedJson: String,
+        generated: HotfoxOutboundSnapshot?,
+    ): List<String> {
+        val found = ArrayList<String>()
+        val count = proxyOutboundCount(generatedJson)
+        when (typeName.uppercase()) {
+            "CUSTOM" -> if (count < 1) found += "generated:missing-proxy-outbound"
+            "POLICYGROUP" -> if (count < 1) found += "generated:missing-group-member"
+            "PROXYCHAIN" -> if (count < 1) found += "generated:missing-chain-hop"
+        }
+        if (generated != null) {
+            val expected = fromProfile(profile)
+            if (expected.address.isNotBlank() && generated.address.isNotBlank() &&
+                !expected.address.equals(generated.address, ignoreCase = true)
+            ) {
+                found += "address:${expected.address}!=${generated.address}"
+            }
+            if (expected.port != null && generated.port != null && expected.port != generated.port) {
+                found += "port:${expected.port}!=${generated.port}"
+            }
+        }
+        return found
     }
 
     private fun firstProxyOutbound(outbounds: JsonArray): JsonObject? {

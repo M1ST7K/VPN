@@ -226,6 +226,7 @@ data class RoutingPolicySnapshot(
      */
     fun outsideVpnCapture(packageName: String?, selfPackage: String = ""): Boolean {
         if (packageName.isNullOrBlank()) return false
+        if (selfPackage.isNotBlank() && packageName == selfPackage) return true
         val plan = perAppPlan(selfPackage)
         if (!plan.enabled) return false
         return if (plan.bypassSelected) {

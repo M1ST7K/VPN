@@ -32,6 +32,20 @@ object ConnectionErrorUiMapper {
                     primaryAction = PrimaryAction.RETRY,
                     diagnosticCode = "HF-VPN-012",
                 )
+            raw.contains("HF-VPN-015") || raw.contains("protect-false") || raw.contains("stale-service") ->
+                Presentation(
+                    titleResName = "hotfox_error_loop_title",
+                    detailResName = "hotfox_error_loop_detail",
+                    primaryAction = PrimaryAction.RETRY,
+                    diagnosticCode = "HF-VPN-015",
+                )
+            raw.contains("HF-VPN-016") || raw.contains("dangling-outbound") ->
+                Presentation(
+                    titleResName = "hotfox_headline_error",
+                    detailResName = "hotfox_error_generic_detail",
+                    primaryAction = PrimaryAction.RETRY,
+                    diagnosticCode = "HF-VPN-016",
+                )
             raw.contains("HF-VPN-014") || raw.contains("socks-outbound") ->
                 Presentation(
                     titleResName = "hotfox_error_socks_title",
