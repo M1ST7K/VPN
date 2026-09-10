@@ -25,7 +25,7 @@ data class HotfoxV31PersistedState(
     val shadowAuto: Boolean,
     val deviceId: String,
     val controlPlanePolicyVersion: Int,
-    val schema: Int = SCHEMA,
+    val schema: Int = HotfoxStateMigration.SCHEMA,
 )
 
 object HotfoxStateMigration {
