@@ -28,6 +28,7 @@ class HotfoxOpsTest {
     fun reset() {
         HotfoxNodeDrain.resetForTests()
         HotfoxRemoteFlags.resetForTests()
+        HotfoxControlPlane.resetForTests()
         VpnSessionCoordinator.resetForTests()
     }
 

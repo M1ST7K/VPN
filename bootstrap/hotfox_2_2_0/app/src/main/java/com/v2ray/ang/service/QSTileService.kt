@@ -14,8 +14,8 @@ import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
+import com.v2ray.ang.vpn.HotfoxEngineFacade
 import com.v2ray.ang.vpn.QsTileUiMapper
-import com.v2ray.ang.vpn.VpnSessionCoordinator
 import java.lang.ref.SoftReference
 
 class QSTileService : TileService() {
@@ -24,7 +24,7 @@ class QSTileService : TileService() {
         applySessionAppearance()
         if (qsTile == null) return
         if (state == Tile.STATE_INACTIVE &&
-            QsTileUiMapper.from(VpnSessionCoordinator.currentState()) == QsTileUiMapper.Appearance.INACTIVE
+            QsTileUiMapper.from(HotfoxEngineFacade.currentState()) == QsTileUiMapper.Appearance.INACTIVE
         ) {
             qsTile.state = Tile.STATE_INACTIVE
         }
@@ -34,7 +34,7 @@ class QSTileService : TileService() {
     private fun applySessionAppearance() {
         val tile = qsTile ?: return
         tile.icon = Icon.createWithResource(applicationContext, R.drawable.ic_hotfox_notification)
-        val appearance = QsTileUiMapper.from(VpnSessionCoordinator.currentState())
+        val appearance = QsTileUiMapper.from(HotfoxEngineFacade.currentState())
         val labelId = resources.getIdentifier(
             QsTileUiMapper.labelResName(appearance),
             "string",
@@ -72,7 +72,7 @@ class QSTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        val session = VpnSessionCoordinator.currentState()
+        val session = HotfoxEngineFacade.currentState()
         when {
             QsTileUiMapper.shouldStopOnClick(session) -> CoreServiceManager.stopVService(this)
             QsTileUiMapper.shouldStartOnClick(session) -> CoreServiceManager.startVServiceFromToggle(this)

@@ -259,6 +259,36 @@ grep -q 'HotfoxOnboardingActivity' "$ROOT/bootstrap/apply_hotfox_android_manifes
   || fail "AndroidManifest patch must register onboarding activity"
 grep -q 'fun fixtureLine' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxPremiumViewState.kt" \
   || fail "3.0 UI fixture mapper missing"
+grep -q 'object HotfoxEngineFacade' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxEngineFacade.kt" \
+  || fail "3.1 engine/UI facade missing"
+grep -q 'HotfoxEngineFacade.snapshot' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt" \
+  || fail "MainActivity does not observe HotfoxEngineFacade"
+if grep -q 'VpnSessionCoordinator\.' "$PROJECT/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt"; then
+  fail "MainActivity must not call VpnSessionCoordinator directly"
+fi
+grep -q 'verifyEcdsaP256' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxControlPlane.kt" \
+  || fail "3.1 signed control plane missing"
+grep -q 'fun capacityPenalty' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt" \
+  || fail "3.1 capacity-aware AUTO missing"
+grep -q 'MAINTENANCE' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt" \
+  || fail "3.1 AUTO maintenance filter missing"
+grep -q 'fun generateDeviceId' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxDeviceRegistry.kt" \
+  || fail "3.1 device registry missing"
+if grep -Eq 'ANDROID_ID|getSerial|TELEPHONY' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxDeviceRegistry.kt"; then
+  fail "device registry must not use hardware identifiers"
+fi
+grep -q 'CLIENT_TOO_OLD' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxApiCompatibility.kt" \
+  || fail "3.1 API compatibility missing"
+grep -q 'fabricateEntitlementOnBillingOutage' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxOfflinePolicy.kt" \
+  || fail "3.1 offline entitlement policy missing"
+grep -q 'object HotfoxPrivacyTelemetry' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxPrivacyTelemetry.kt" \
+  || fail "3.1 privacy-safe telemetry missing"
+grep -q 'object HotfoxStateMigration' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxStateMigration.kt" \
+  || fail "3.1 2.x migration missing"
+grep -q 'vpn.fake_connected' "$PROJECT/app/src/main/java/com/v2ray/ang/ops/HotfoxServiceHealth.kt" \
+  || fail "remote flags must deny vpn.fake_connected"
+grep -q 'HotfoxEngineFacade.currentState' "$PROJECT/app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt" \
+  || fail "notification must observe HotfoxEngineFacade"
 grep -q '"platforms;android-37"' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \
   || fail "SDK install must request platforms;android-37 for compileSdk 37"
 grep -q 'platforms/android-37' "$ROOT/.github/scripts/install_hotfox_android_sdk.sh" \

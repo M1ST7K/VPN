@@ -75,7 +75,7 @@ import com.v2ray.ang.vpn.HotfoxSubscriptionPresentation
 import com.v2ray.ang.vpn.HotfoxTrafficFormatter
 import com.v2ray.ang.vpn.HotfoxRouteBarsView
 import com.v2ray.ang.vpn.SubscriptionPresentation
-import com.v2ray.ang.vpn.VpnSessionCoordinator
+import com.v2ray.ang.vpn.HotfoxEngineFacade
 import com.v2ray.ang.vpn.VpnSessionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -724,7 +724,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             val routing = HotfoxRoutingStore.load()
             val ipv6 = MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED)
             val traffic = mainViewModel.tunnelTraffic.value
-            val path = VpnSessionCoordinator.lastPath()
+            val path = HotfoxEngineFacade.lastPath()
             val report = com.v2ray.ang.vpn.HotfoxDiagnosticsBuilder.build(
                 androidRelease = Build.VERSION.RELEASE,
                 api = Build.VERSION.SDK_INT,
@@ -739,7 +739,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 serverRemark = selected?.remarks,
                 uploaded = traffic?.first,
                 downloaded = traffic?.second,
-                lastError = VpnSessionCoordinator.lastError(),
+                lastError = HotfoxEngineFacade.lastError(),
                 serverCount = MmkvManager.decodeAllServerList().size,
                 path = path,
                 httpPort = SettingsManager.getHttpPort(),
@@ -947,10 +947,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
     fun restartV2Ray() {
         lifecycleScope.launch {
-            val session = VpnSessionCoordinator.currentState()
+            val session = HotfoxEngineFacade.currentState()
             if (mainViewModel.isRunning.value == true || session.isServiceActive() || session.isBusy()) {
                 CoreServiceManager.stopVService(this@MainActivity)
-                VpnSessionCoordinator.awaitIdle()
+                HotfoxEngineFacade.awaitIdle()
             }
             startV2Ray()
         }
@@ -966,10 +966,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
     @Suppress("UNUSED_PARAMETER")
     private fun applyRunningState(isLoading: Boolean, isRunning: Boolean) {
-        val session = VpnSessionCoordinator.currentState()
+        val engine = HotfoxEngineFacade.snapshot()
+        val session = engine.state
         val headline = ConnectionUiMapper.resolveHeadline(
             session,
-            VpnSessionCoordinator.lastStage(),
+            engine.stage,
             isLoading,
             autoSelecting = HotfoxServerSelection.isAutoMode() && session == VpnSessionState.PREPARING,
         )
@@ -1023,7 +1024,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         } else {
             stopConnectionClock(reset = headline == ConnectionUiMapper.Headline.DISCONNECTED || headline == ConnectionUiMapper.Headline.ERROR)
             if (headline == ConnectionUiMapper.Headline.ERROR) {
-                setTestState(VpnSessionCoordinator.lastError() ?: getString(R.string.hotfox_headline_error))
+                setTestState(engine.lastError ?: getString(R.string.hotfox_headline_error))
             } else if (headline == ConnectionUiMapper.Headline.PROXY_ONLY) {
                 setTestState(getString(R.string.hotfox_headline_proxy_only))
             } else if (headline == ConnectionUiMapper.Headline.ROOT_RUNNING) {
@@ -1046,8 +1047,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 ConnectionVisualState.DISCONNECTED -> HotfoxRouteBarsView.Visual.IDLE
             }
         )
-        val stage = VpnSessionCoordinator.lastStage()
-        val error = VpnSessionCoordinator.lastError()
+        val error = engine.lastError
         if (headline == ConnectionUiMapper.Headline.ERROR) {
             val presentation = ConnectionErrorUiMapper.fromLastError(error)
             binding.tvConnectionStage.visibility = View.VISIBLE
@@ -1117,11 +1117,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun startConnectionClock() {
-        val started = VpnSessionCoordinator.sessionStartedAtElapsed() ?: return
+        val started = HotfoxEngineFacade.sessionStartedAtElapsed() ?: return
         connectionClockJob?.cancel()
         connectionClockJob = lifecycleScope.launch {
-            while (isActive && ConnectionUiMapper.timerShouldRun(VpnSessionCoordinator.currentState())) {
-                val origin = VpnSessionCoordinator.sessionStartedAtElapsed() ?: break
+            while (isActive && ConnectionUiMapper.timerShouldRun(HotfoxEngineFacade.currentState())) {
+                val origin = HotfoxEngineFacade.sessionStartedAtElapsed() ?: break
                 val elapsed = SystemClock.elapsedRealtime() - origin
                 val totalSeconds = elapsed / 1000L
                 val hours = totalSeconds / 3600L
@@ -1313,13 +1313,14 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val selected = selectedGuid?.let(MmkvManager::decodeServerConfig)
         val presentation = HotfoxServerPresentation.fromRemark(selected?.remarks)
         val city = presentation.title.takeIf { it.isNotBlank() && it != "—" }
-        val session = VpnSessionCoordinator.currentState()
+        val engine = HotfoxEngineFacade.snapshot()
+        val session = engine.state
         val connecting = session.isBusy() && session != VpnSessionState.DISCONNECTING
         val selectedLabel = HotfoxResolvedTargetDisplay.serverLabel(
             auto = HotfoxServerSelection.isAutoMode(),
             connecting = connecting,
             city = city,
-            stage = VpnSessionCoordinator.lastStage(),
+            stage = engine.stage,
             idleFallback = getString(R.string.hotfox_server_not_selected),
             autoPrefix = { getString(R.string.hotfox_auto_prefix, it) },
             shadowAuto = HotfoxShadowStore.isShadowAuto(),
@@ -1892,6 +1893,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     override fun onDestroy() {
+        // Activity death is not a VPN session owner. The process-scoped engine
+        // continues; a later Activity re-observes HotfoxEngineFacade.snapshot().
         tabMediator?.detach()
         haloAnimator?.cancel()
         logoFloatAnimator?.cancel()

@@ -18,8 +18,8 @@ import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.extension.toSpeedString
 import com.v2ray.ang.ui.MainActivity
 import com.v2ray.ang.util.LogUtil
+import com.v2ray.ang.vpn.HotfoxEngineFacade
 import com.v2ray.ang.vpn.NotificationUiMapper
-import com.v2ray.ang.vpn.VpnSessionCoordinator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -93,7 +93,7 @@ object NotificationManager {
                 ""
             }
 
-        val copy = NotificationUiMapper.from(VpnSessionCoordinator.currentState())
+        val copy = NotificationUiMapper.from(HotfoxEngineFacade.currentState())
         val title = stringRes(service, copy.titleResName, R.string.app_name)
         val text = stringRes(service, copy.textResName, R.string.hotfox_connecting_hint)
 
@@ -182,7 +182,7 @@ object NotificationManager {
             }
             mBuilder?.setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             mBuilder?.setContentText(contentText)
-            val copy = NotificationUiMapper.from(VpnSessionCoordinator.currentState())
+            val copy = NotificationUiMapper.from(HotfoxEngineFacade.currentState())
             mBuilder?.setContentTitle(stringRes(getService(), copy.titleResName, R.string.app_name))
             getNotificationManager()?.notify(NOTIFICATION_ID, mBuilder?.build())
         }

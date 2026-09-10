@@ -1,6 +1,6 @@
 # HotFox AI Review — Current Trusted Phase Scope
 
-Current milestone: **3.0 — Premium Android Experience**.
+Current milestone: **3.1 — Mature HotFox Platform / Pre-release Engineering**.
 
 This file is trusted reviewer context from `main`/owner policy. It intentionally stays short. The full canonical product roadmap lives in `docs/HOTFOX_ROADMAP.md`.
 
@@ -110,38 +110,55 @@ Preserve its guarantees:
 
 Do not reopen 2.9 solely because runtime/physical release validation is deferred.
 
-## Current goal — 3.0 Premium Android Experience
+### 3.0 — Premium Android Experience
 
-Polish truthful UX without hiding failure. Canonical scope is the legacy «2.9 Premium Android Experience» heading in `docs/HOTFOX_ROADMAP.md` and `docs/phases/3.0-premium-android.md`.
+Phase 3.0 Premium Android Experience is **ENGINEERING COMPLETE — runtime and physical release validation deferred** after checkpoint round 19 (`APPROVED`, no substantiated P0/P1) on SHA `21f341980121a49f103bd61eaa588c37f1987c8a`.
 
-Do not expand 3.0 into 3.1 Mature Platform until the 3.0 engineering gate closes.
+Preserve its guarantees:
 
-## Highest-priority review targets for 3.0
+- `Защищено` / notification protected / QS ACTIVE only from canonical `VpnSessionState.CONNECTED`;
+- SELECTING / CONNECTING / VERIFYING remain distinct from CONNECTED;
+- `ConnectionErrorUiMapper` keeps diagnostic codes out of the headline and strips secrets;
+- first-run onboarding around real permission/access/AUTO/connect;
+- `NotificationManager` aliases `android.app.NotificationManager` as `AndroidNotificationManager`;
+- Autopilot/Routing dedicated surfaces; reduced-motion; decorative route-bars.
 
-1. **Truthful headlines** — `Защищено` only from canonical protected session; SELECTING / CONNECTING / VERIFYING remain distinct from CONNECTED.
-2. **Error presentation** — user-facing title/detail/action; diagnostic codes stay in details, not the headline.
-3. **Notification / QS Tile** — protected/ACTIVE only when `VpnSessionState.CONNECTED`.
-4. **AUTO / Shadow copy** — resolved target and recovery state are truthful.
-5. **Navigation** — primary destinations remain `Соединение` / `Серверы` / `Подписка`.
-6. **No fake ping, fake CONNECTED, or secret leakage in UI/notifications**.
-7. **No 2.2–2.9 regression** of VPN path, DNS/IPv6, entitlement, or E2E harnesses.
-8. **Accessibility / reduced-motion** for key connection controls.
+Do not reopen 3.0 solely because runtime/physical release validation is deferred.
+
+## Current goal — 3.1 Mature HotFox Platform / Pre-release Engineering
+
+Canonical scope is the legacy «3.0 Mature HotFox Platform» heading in `docs/HOTFOX_ROADMAP.md` and `docs/phases/3.1-mature-platform.md`.
+
+Do not expand 3.1 into `RELEASE READY` or the final device gate until the 3.1 engineering gate closes.
+
+## Highest-priority review targets for 3.1
+
+1. **Engine/UI boundary** — UI observes `HotfoxEngineFacade`; Activity death is not a second session owner; `CONNECTED` still comes only from `VpnSessionCoordinator`.
+2. **Signed control plane** — ECDSA inventory/capacity/maintenance/weight/region/policy version; invalid signature fail-closed; last-known-good + TTL; outage does not wipe servers.
+3. **Capacity-aware AUTO** — control-plane load plus local health; do not send everyone to one low-latency overloaded node; **manual stays sticky**.
+4. **Devices** — generated scoped IDs only; register/limit/revoke/rename; no hardware fingerprinting.
+5. **Offline / API** — billing outage does not fabricate entitlement; old clients fail gracefully; remote flags cannot fake CONNECTED or weaken TLS/DNS/IPv6.
+6. **Privacy-safe observability** — no browsing content or secrets.
+7. **2.x migration** — preserve entitlement, manual subscriptions, AUTO/manual, routing.
+8. **No 2.2–3.0 regression** of VPN path, DNS/IPv6, entitlement, NotificationManager alias, or E2E harnesses.
 
 ## Scope discipline
 
-Do **not** turn unimplemented 3.1 Mature Platform items into P0/P1 during 3.0 review.
+Do **not** turn unimplemented final-release device-gate items into P0/P1 during 3.1 review.
 
-Missing emulator/runtime/physical execution by itself is **not** a 3.0 P0/P1 under the latest owner validation timing override.
+Missing emulator/runtime/physical execution by itself is **not** a 3.1 P0/P1 under the latest owner validation timing override.
 
-## Exit gate for 3.0 engineering
+Optional account sync and R8/process-split are out of scope unless product-justified with evidence.
+
+## Exit gate for 3.1 engineering
 
 Run one final `[hotfox-phase-exit]` when the repository-side implementation is coherent and required build/unit/integration/lint/static/release-compilation checks are green.
 
 If P0=0 and P1=0, record:
 
-`3.0 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
+`3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
-Then immediately move to `3.1 Mature HotFox Platform / Pre-release Engineering`.
+Then stop at `FINAL RELEASE VALIDATION GATE`.
 
 If runtime E2E did not run, state `NOT EXECUTED / deferred`; never claim PASS.
 

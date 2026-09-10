@@ -88,6 +88,10 @@ object HotfoxRemoteFlags {
         "vpn.skip_tls",
         "vpn.disable_reality",
         "vpn.allow_insecure",
+        "vpn.disable_dns_protection",
+        "vpn.disable_ipv6_fail_closed",
+        "vpn.fake_connected",
+        "vpn.skip_path_verify",
         "commerce.trust_checkout",
     )
 

@@ -2,7 +2,7 @@
 
 Status: **CANONICAL**
 
-Current engineering phase: **3.0 — Premium Android Experience**
+Current engineering phase: **3.1 — Mature HotFox Platform / Pre-release Engineering**
 
 This document defines the sequential HotFox engineering roadmap from the already completed truthful core and commercial foundation through the mature 3.0 platform.
 
@@ -1240,7 +1240,7 @@ This phase proves real Internet through TUN → HEV → SOCKS `127.0.0.1:10808` 
 
 # 2.9 — PREMIUM ANDROID EXPERIENCE
 
-Status: **IN PROGRESS (3.0 Premium Android Experience; former 2.9 Premium heading)**
+Status: **ENGINEERING COMPLETE — runtime and physical release validation deferred** (3.0 Premium Android Experience; former 2.9 Premium heading; round 19 `APPROVED`, SHA `21f3419`)
 
 ## Purpose
 
@@ -1514,7 +1514,7 @@ Do not request a physical Android test merely to enter 3.0.
 
 # 3.0 — MATURE HOTFOX PLATFORM
 
-Status: **PLANNED (renumbered to 3.1 after owner override)**
+Status: **IN PROGRESS (renumbered to 3.1 after owner override)**
 
 ## Purpose
 

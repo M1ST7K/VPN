@@ -50,11 +50,11 @@ Revisit an earlier phase only if:
 
 Current engineering phase is:
 
-`2.9 VPN Core Recovery / Real Connection Fix`
+`3.1 Mature HotFox Platform / Pre-release Engineering`
 
-2.8 is **ENGINEERING COMPLETE — physical release validation deferred**.
+3.0 is **ENGINEERING COMPLETE — runtime and physical release validation deferred**.
 
-Do not restart 2.8 work unless one of the legitimate regression conditions above applies.
+Do not restart 3.0 work unless one of the legitimate regression conditions above applies.
 
 ## 4. Standard engineering exit gate for 2.4 through 3.0
 

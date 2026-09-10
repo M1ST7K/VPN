@@ -160,22 +160,23 @@ Deliverables:
 
 Detailed spec: `docs/phases/2.7-operations.md`
 
-## 3.0 — Mature HotFox
+## 3.0 — Premium Android Experience
 
-Purpose: remove remaining inherited-product friction after the VPN and commercial system are already stable.
+Purpose: make truthful HotFox behavior feel simple, deliberate and premium without hiding technical failure.
 
-Candidates:
-- dedicated VPN engine process;
-- stronger HotFox server/control-plane metadata;
-- optional account/device sync;
-- secure remote config/feature flags;
-- robust multi-device plans;
-- tablet/foldable optimization;
-- advanced automation;
-- deep legacy v2rayNG UI/domain cleanup;
-- performance/battery hardening.
+Closed as **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 19 `APPROVED`).
 
-Detailed spec: `docs/phases/3.0-mature.md`
+Detailed spec: `docs/phases/3.0-premium-android.md`
+
+## 3.1 — Mature HotFox Platform / Pre-release Engineering
+
+Purpose: remove remaining inherited-product friction after VPN correctness, commerce, AUTO, routing, Shadow, operations, Autopilot and premium UX are already stable.
+
+Candidates implemented in-repository: engine/UI facade, signed control-plane metadata, capacity-aware AUTO, generated device registry, API versioning, offline policy, privacy-safe observability, 2.x migration.
+
+Still deferred without evidence: dedicated VPN engine process split, R8/minification, optional account secret sync.
+
+Detailed spec: `docs/phases/3.1-mature-platform.md`
 
 # Target product surfaces
 

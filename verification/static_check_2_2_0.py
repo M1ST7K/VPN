@@ -776,6 +776,83 @@ def main() -> int:
     if "HotfoxOnboardingActivity" not in (ROOT / "bootstrap/apply_hotfox_android_manifest.py").read_text(encoding="utf-8"):
         fail("AndroidManifest patch must register HotfoxOnboardingActivity")
 
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxEngineFacade.kt",
+        "object HotfoxEngineFacade",
+        "3.1 engine/UI facade",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ui/MainActivity.kt",
+        "HotfoxEngineFacade.snapshot",
+        "MainActivity observes engine via facade",
+    )
+    main_activity_31 = read("app/src/main/java/com/v2ray/ang/ui/MainActivity.kt")
+    if "VpnSessionCoordinator." in main_activity_31:
+        fail("MainActivity must not call VpnSessionCoordinator directly")
+    if "markConnected" in main_activity_31 or "beginAttempt" in main_activity_31:
+        fail("MainActivity must not mint or complete VPN sessions")
+    facade = read("app/src/main/java/com/v2ray/ang/vpn/HotfoxEngineFacade.kt")
+    if "fun markConnected" in facade or "fun beginAttempt" in facade or "fun setState" in facade:
+        fail("HotfoxEngineFacade must remain read-only")
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxControlPlane.kt",
+        "verifyEcdsaP256",
+        "3.1 signed control plane",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxControlPlane.kt",
+        "STALE_GRACE_MS",
+        "3.1 control-plane last-known-good TTL",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt",
+        "capacityPenalty",
+        "3.1 capacity-aware AUTO",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt",
+        "MAINTENANCE",
+        "3.1 AUTO excludes maintenance nodes",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxDeviceRegistry.kt",
+        "generateDeviceId",
+        "3.1 generated device ids",
+    )
+    device_registry = read("app/src/main/java/com/v2ray/ang/ops/HotfoxDeviceRegistry.kt")
+    if "ANDROID_ID" in device_registry or "TELEPHONY" in device_registry or "getSerial" in device_registry:
+        fail("device registry must not use hardware identifiers")
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxApiCompatibility.kt",
+        "CLIENT_TOO_OLD",
+        "3.1 API version fail-graceful",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxOfflinePolicy.kt",
+        "fabricateEntitlementOnBillingOutage",
+        "3.1 billing outage does not fabricate entitlement",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxPrivacyTelemetry.kt",
+        "SHADOW_FALLBACK",
+        "3.1 privacy-safe observability",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxStateMigration.kt",
+        "fun migrate",
+        "3.1 2.x state migration",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/ops/HotfoxServiceHealth.kt",
+        "vpn.fake_connected",
+        "remote flags cannot fake CONNECTED",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt",
+        "HotfoxEngineFacade.currentState",
+        "notification observes facade, not a second session owner",
+    )
+
     secret_re = re.compile(
         r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}|"
         r"sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|rk_live_[A-Za-z0-9]+|"

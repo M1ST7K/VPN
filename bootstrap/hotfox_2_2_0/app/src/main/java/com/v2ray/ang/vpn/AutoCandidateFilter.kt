@@ -1,5 +1,6 @@
 package com.v2ray.ang.vpn
 
+import com.v2ray.ang.ops.HotfoxControlPlane
 import com.v2ray.ang.ops.HotfoxNodeDrain
 
 /**
@@ -14,6 +15,7 @@ enum class AutoFilterReason {
     MISSING_CONFIG,
     DISABLED,
     DRAINED,
+    MAINTENANCE,
     ENTITLEMENT_BLOCKED,
 }
 
@@ -35,6 +37,10 @@ object AutoCandidateFilter {
         if (candidate.disabled) return AutoFilterReason.DISABLED
         if (excludeDrained && candidate.guid in HotfoxNodeDrain.activeGuids()) {
             return AutoFilterReason.DRAINED
+        }
+        if (excludeDrained && candidate.guid in HotfoxControlPlane.unavailableForAutoGuids()) {
+            val node = HotfoxControlPlane.current()?.node(candidate.guid)
+            return if (node?.drained == true) AutoFilterReason.DRAINED else AutoFilterReason.MAINTENANCE
         }
         if (candidate.requiresEntitlement && !candidate.entitlementUsable) {
             return AutoFilterReason.ENTITLEMENT_BLOCKED

@@ -1,5 +1,7 @@
 package com.v2ray.ang.vpn
 
+import com.v2ray.ang.ops.HotfoxControlPlane
+
 /**
  * Deterministic AUTO score. Lower is better. Not AI.
  *
@@ -8,6 +10,7 @@ package com.v2ray.ang.vpn
  *        + 80 * consecutive failures
  *        + stale penalty
  *        + degraded penalty
+ *        + signed control-plane load/weight (3.1; ignored without usable metadata)
  */
 object AutoSelectionPolicy {
     const val SWITCH_ABS_MS = 50.0
@@ -34,9 +37,15 @@ object AutoSelectionPolicy {
                 val jitter = health.jitterMs ?: 0.0
                 val stale = stalePenalty(health, nowEpochMs)
                 val degraded = if (health.availability == ServerAvailability.DEGRADED) DEGRADED_PENALTY_MS else 0.0
-                latency + 0.5 * jitter + FAILURE_PENALTY_MS * health.consecutiveFailures + stale + degraded
+                val capacity = capacityPenalty(health.guid, nowEpochMs)
+                latency + 0.5 * jitter + FAILURE_PENALTY_MS * health.consecutiveFailures + stale + degraded + capacity
             }
         }
+    }
+
+    fun capacityPenalty(guid: String, nowEpochMs: Long): Double {
+        if (!HotfoxControlPlane.usableForAuto(nowEpochMs)) return 0.0
+        return HotfoxControlPlane.loadPenaltyMs(guid) + HotfoxControlPlane.weightBiasMs(guid)
     }
 
     fun stalePenalty(health: ServerHealth, nowEpochMs: Long): Double {

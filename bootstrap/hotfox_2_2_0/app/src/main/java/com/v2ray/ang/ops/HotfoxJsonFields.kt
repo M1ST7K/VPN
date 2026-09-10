@@ -62,4 +62,61 @@ internal object HotfoxJsonFields {
 
     fun intList(obj: String, key: String): Set<Int> =
         stringList(obj, key).mapNotNull { it.toIntOrNull() }.toSet()
+
+    fun boolValue(obj: String, key: String): Boolean? =
+        when (raw(obj, key)?.lowercase()) {
+            "true" -> true
+            "false" -> false
+            else -> null
+        }
+
+    /**
+     * Extracts JSON objects from `"key":[{...},{...}]` without a JSON library.
+     * Strings are skipped so braces inside values do not change depth.
+     */
+    fun objectArray(obj: String, key: String): List<String> {
+        val needle = "\"$key\""
+        val idx = obj.indexOf(needle)
+        if (idx < 0) return emptyList()
+        val colon = obj.indexOf(':', idx + needle.length)
+        if (colon < 0) return emptyList()
+        var i = colon + 1
+        while (i < obj.length && obj[i].isWhitespace()) i++
+        if (i >= obj.length || obj[i] != '[') return emptyList()
+        i++
+        val result = ArrayList<String>()
+        var depth = 0
+        var start = -1
+        var inString = false
+        var escape = false
+        while (i < obj.length) {
+            val ch = obj[i]
+            if (inString) {
+                when {
+                    escape -> escape = false
+                    ch == '\\' -> escape = true
+                    ch == '"' -> inString = false
+                }
+                i++
+                continue
+            }
+            when (ch) {
+                '"' -> inString = true
+                '{' -> {
+                    if (depth == 0) start = i
+                    depth++
+                }
+                '}' -> {
+                    depth--
+                    if (depth == 0 && start >= 0) {
+                        result.add(obj.substring(start, i + 1))
+                        start = -1
+                    }
+                }
+                ']' -> if (depth == 0) break
+            }
+            i++
+        }
+        return result
+    }
 }
