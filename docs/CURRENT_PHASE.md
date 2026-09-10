@@ -1,6 +1,6 @@
 # CURRENT PHASE — RUNTIME REPAIR GATE (owner opened)
 
-Status: **ROUND 31 P0/P1 FIXES — phase-exit candidate; host CI/APK evidence must be this HEAD; emulator/physical still NOT EXECUTED**
+Status: **ROUND 32 P0/P1 FIXES — phase-exit candidate; host CI/APK evidence must be this HEAD; emulator/physical still NOT EXECUTED**
 
 The owner explicitly opened `docs/HOTFOX_RUNTIME_REPAIR_EXECUTION_PROMPT.md` from HEAD `d723f65`.
 That supersedes the previous no-op / deferred-runtime instruction **for this engineering/runtime repair only**.

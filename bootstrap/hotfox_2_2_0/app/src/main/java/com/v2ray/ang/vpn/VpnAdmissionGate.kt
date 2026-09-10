@@ -5,10 +5,11 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * Admission epoch and commit lock for async VPN start.
  *
- * A rejected stale teardown must not invalidate a live admission. Only a
- * successful teardown claim may bump the epoch, and that bump plus pipeline
- * cancel must run under [withCommitLock] together with admission commit so
- * a cancelled coroutine cannot install a pipeline after teardown.
+ * A rejected stale teardown must not invalidate a live admission. Claim,
+ * epoch invalidation, and pipeline cancel must run under [withCommitLock]
+ * together with [tryCommitEstablished]. A claimed teardown rejects commit
+ * even if the epoch has not been bumped yet, so admission cannot start an
+ * obsolete pipeline after disconnect/revoke ownership is taken.
  */
 object VpnAdmissionGate {
     private val epoch = AtomicLong(0L)
@@ -39,7 +40,9 @@ object VpnAdmissionGate {
         admission: Long,
         pipelineCurrent: Boolean,
         cancelled: Boolean,
+        teardownActive: Boolean,
     ): Boolean {
+        if (teardownActive) return false
         return !shouldAbandonEstablished(admission, epoch.get(), pipelineCurrent, cancelled)
     }
 

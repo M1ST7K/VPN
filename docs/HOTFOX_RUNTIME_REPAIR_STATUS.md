@@ -38,11 +38,12 @@ Implemented architecture:
    bindSocket — not process-direct HTTPS from the excluded UID.
 5. **lifecycle ownership** — pipeline receives the attempt from
    `onStartCommand`, never `currentAttempt()`. `claimTeardown(owned)` is
-   exclusive. Admission commit (`tryCommitEstablished` + `startOwnedPipeline`)
-   and teardown invalidate/cancel share `VpnAdmissionGate.withCommitLock`, so
-   a cancelled admission cannot install a pipeline after teardown. Epoch
-   bumps only after a successful claim. A TUN established after staleness
-   is abandoned.
+   exclusive and runs **inside** `VpnAdmissionGate.withCommitLock` together
+   with epoch invalidation and job cancel. `tryCommitEstablished` rejects a
+   claimed teardown on that same lock even before the epoch bump, so a
+   disconnect/revoke cannot be followed by an obsolete pipeline start.
+   Epoch bumps only after a successful claim. A TUN established after
+   staleness is abandoned.
 
 ### P1 — bindProcessToNetwork truth
 
@@ -79,8 +80,8 @@ GLOBAL/SMART drop legacy `.ru` / `.su` / `.рф` / geosite:cn / geoip:private DI
 
 ## Host CI evidence
 
-Do not cite `e85af2d`, `b91db24`, `3d21a27`, `bc4e366`, `141daea`, or
-`2999248` as this candidate. Those heads are historical.
+Do not cite `e85af2d`, `b91db24`, `3d21a27`, `bc4e366`, `141daea`,
+`2999248`, or `775ff6c` as this candidate. Those heads are historical.
 
 The required host record for **this** commit is the push-CI artifact
 `candidate-evidence.txt` (`candidate_sha=${GITHUB_SHA}`) plus APK SHA-256 from

@@ -74,6 +74,7 @@ class VpnAdmissionGateTest {
                     admission = admission,
                     pipelineCurrent = true,
                     cancelled = false,
+                    teardownActive = false,
                 ),
             )
             VpnAdmissionGate.invalidateAfterClaim(true)
@@ -82,6 +83,7 @@ class VpnAdmissionGateTest {
                     admission = admission,
                     pipelineCurrent = true,
                     cancelled = false,
+                    teardownActive = true,
                 ),
             )
         }
@@ -97,8 +99,25 @@ class VpnAdmissionGateTest {
                     admission = admission,
                     pipelineCurrent = true,
                     cancelled = false,
+                    teardownActive = true,
                 ),
             )
+        }
+    }
+
+    @Test
+    fun claimedTeardownRejectsCommitBeforeEpochBump() {
+        val admission = VpnAdmissionGate.snapshot()
+        VpnAdmissionGate.withCommitLock {
+            assertFalse(
+                VpnAdmissionGate.tryCommitEstablished(
+                    admission = admission,
+                    pipelineCurrent = true,
+                    cancelled = false,
+                    teardownActive = true,
+                ),
+            )
+            assertTrue(VpnAdmissionGate.isCurrent(admission))
         }
     }
 }

@@ -84,7 +84,8 @@ object VpnSessionCoordinator {
     /**
      * Exclusive teardown ownership for [ownedAttempt]. The first claimant for
      * the current attempt wins; a second same-attempt or stale claim fails.
-     * Must be called **before** start admission is released.
+     * Production callers must invoke this inside [VpnAdmissionGate.withCommitLock]
+     * together with epoch invalidation so admission cannot commit after claim.
      */
     fun claimTeardown(ownedAttempt: Long): Boolean {
         synchronized(generationLock) {

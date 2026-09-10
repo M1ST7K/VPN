@@ -179,6 +179,7 @@ class CoreVpnService : VpnService(), ServiceControl {
                     admission = admission,
                     pipelineCurrent = pipelineStillCurrent(attempt),
                     cancelled = cancelled,
+                    teardownActive = VpnSessionCoordinator.isTeardownActive(),
                 )
             ) {
                 false
@@ -561,8 +562,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         if (tryAutoFailover(attempt, code)) {
             return
         }
-        val claimed = VpnSessionCoordinator.claimTeardown(attempt)
-        if (!claimed) {
+        if (!stopAllService(detachAttempt = attempt)) {
             com.v2ray.ang.vpn.HotfoxSocketProtect.detach(attempt)
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: stale failTunnelStart ignored attempt=$attempt")
             return
@@ -571,7 +571,6 @@ class CoreVpnService : VpnService(), ServiceControl {
             LogUtil.w(AppConfig.TAG, "StartCore-VPN: markError rejected after teardown claim attempt=$attempt")
         }
         MessageUtil.sendMsg2UI(this, AppConfig.MSG_STATE_START_FAILURE, message)
-        stopAllService(detachAttempt = attempt, teardownAlreadyClaimed = true)
     }
 
     private fun tryAutoFailover(attempt: Long, code: String): Boolean {
@@ -626,23 +625,26 @@ class CoreVpnService : VpnService(), ServiceControl {
     private fun stopAllService(
         isForced: Boolean = true,
         detachAttempt: Long = protectAttempt,
-        teardownAlreadyClaimed: Boolean = false,
-    ) {
-        val claimed = teardownAlreadyClaimed || VpnSessionCoordinator.claimTeardown(detachAttempt)
+    ): Boolean {
+        // Claim, invalidate, and cancel under the same lock as tryCommitEstablished.
+        val claimed = VpnAdmissionGate.withCommitLock {
+            if (!VpnSessionCoordinator.claimTeardown(detachAttempt)) {
+                return@withCommitLock false
+            }
+            VpnAdmissionGate.invalidateAfterClaim(true)
+            unlockStart()
+            com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
+            isRunning = false
+            cancelOwnedJobs()
+            true
+        }
         if (!claimed) {
             com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
             LogUtil.w(
                 AppConfig.TAG,
                 "StartCore-VPN: stale teardown ignored attempt=$detachAttempt current=${VpnSessionCoordinator.currentAttempt()}",
             )
-            return
-        }
-        VpnAdmissionGate.withCommitLock {
-            VpnAdmissionGate.invalidateAfterClaim(true)
-            unlockStart()
-            com.v2ray.ang.vpn.HotfoxSocketProtect.detach(detachAttempt)
-            isRunning = false
-            cancelOwnedJobs()
+            return false
         }
         health.stop()
         tun2SocksService?.stopTun2Socks()
@@ -666,6 +668,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
 
         CoreServiceManager.stopCoreLoop()
+        return true
     }
 
     private fun cancelOwnedJobs() {
