@@ -86,6 +86,7 @@ object HotfoxOutboundCompare {
         "security",
         "reality",
         "publicKeyPresent",
+        "generated",
     )
 
     data class Result(

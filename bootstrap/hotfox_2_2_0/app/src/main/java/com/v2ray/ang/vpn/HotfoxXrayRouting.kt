@@ -1,7 +1,8 @@
 package com.v2ray.ang.vpn
 
-import org.json.JSONArray
-import org.json.JSONObject
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 
 data class XrayFieldRule(
     val domain: List<String> = emptyList(),
@@ -119,83 +120,95 @@ object HotfoxXrayConfigInjector {
     fun apply(content: String, snapshot: RoutingPolicySnapshot): String {
         if (content.isBlank()) return content
         return runCatching {
-            val root = JSONObject(content)
+            val root = JsonParser.parseString(content).asJsonObject
             val tags = HotfoxXrayTagResolver.resolve(content)
-            val routing = root.optJSONObject("routing") ?: JSONObject().also { root.put("routing", it) }
-            val existing = routing.optJSONArray("rules") ?: JSONArray()
+            val routing = root.get("routing")?.takeIf { it.isJsonObject }?.asJsonObject
+                ?: JsonObject().also { root.add("routing", it) }
+            val existing = routing.get("rules")?.takeIf { it.isJsonArray }?.asJsonArray ?: JsonArray()
             val existingRules = ArrayList<ExistingRule>()
-            for (index in 0 until existing.length()) {
-                val rule = existing.optJSONObject(index) ?: continue
-                existingRules.add(ExistingRule(rule.optString("outboundTag")))
+            for (index in 0 until existing.size()) {
+                val rule = existing[index].takeIf { it.isJsonObject }?.asJsonObject ?: continue
+                existingRules.add(ExistingRule(primitive(rule, "outboundTag")))
             }
             val planned = merge(existingRules, snapshot)
-            val merged = JSONArray()
+            val merged = JsonArray()
             var existingIndex = 0
             planned.forEach { rule ->
                 if (rule.source == "existing") {
-                    while (existingIndex < existing.length()) {
-                        val raw = existing.optJSONObject(existingIndex++)
+                    while (existingIndex < existing.size()) {
+                        val raw = existing[existingIndex++].takeIf { it.isJsonObject }?.asJsonObject
                         if (raw != null && keepRaw(snapshot, raw, tags)) {
                             rewriteRuleTags(raw, tags)
-                            merged.put(raw)
+                            merged.add(raw)
                             return@forEach
                         }
                     }
                 } else {
-                    merged.put(toJson(rule, tags))
+                    merged.add(toJson(rule, tags))
                 }
             }
-            routing.put("rules", merged)
+            routing.add("rules", merged)
             root.toString()
         }.getOrDefault(content)
     }
 
     private fun keepRaw(
         snapshot: RoutingPolicySnapshot,
-        raw: JSONObject,
+        raw: JsonObject,
         tags: HotfoxXrayTagMap,
     ): Boolean {
-        val outbound = raw.optString("outboundTag")
+        val outbound = primitive(raw, "outboundTag")
         if (!keepExisting(snapshot.mode, outbound)) return false
         if (snapshot.mode == HotfoxRoutingMode.CUSTOM) return true
-        val domains = jsonStringList(raw.opt("domain"))
-        val ips = jsonStringList(raw.opt("ip"))
+        val domains = stringList(raw, "domain")
+        val ips = stringList(raw, "ip")
         return !HotfoxLegacyDirectBypass.isLegacyDirectBypass(domains, ips, outbound, tags.direct)
     }
 
-    private fun jsonStringList(value: Any?): List<String> {
-        val array = value as? JSONArray ?: return emptyList()
+    private fun stringList(obj: JsonObject, name: String): List<String> {
+        val array = obj.get(name)?.takeIf { it.isJsonArray }?.asJsonArray ?: return emptyList()
         val out = ArrayList<String>()
-        for (index in 0 until array.length()) {
-            val item = array.optString(index)
+        for (index in 0 until array.size()) {
+            val item = array[index].takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
             if (item.isNotBlank()) out.add(item)
         }
         return out
     }
 
-    private fun rewriteRuleTags(raw: JSONObject, tags: HotfoxXrayTagMap) {
-        val outbound = raw.optString("outboundTag")
+    private fun primitive(obj: JsonObject, name: String): String =
+        obj.get(name)?.takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
+
+    private fun rewriteRuleTags(raw: JsonObject, tags: HotfoxXrayTagMap) {
+        val outbound = primitive(raw, "outboundTag")
         val mapped = when (outbound) {
             HotfoxXrayRouting.TAG_PROXY -> tags.proxy
             HotfoxXrayRouting.TAG_DIRECT -> tags.direct
             HotfoxXrayRouting.TAG_BLOCKED -> tags.block
             else -> null
         }
-        if (!mapped.isNullOrBlank()) raw.put("outboundTag", mapped)
+        if (!mapped.isNullOrBlank()) raw.addProperty("outboundTag", mapped)
     }
 
-    private fun toJson(rule: XrayFieldRule, tags: HotfoxXrayTagMap): JSONObject {
-        val obj = JSONObject()
-        obj.put("type", "field")
-        if (rule.domain.isNotEmpty()) obj.put("domain", JSONArray(rule.domain))
-        if (rule.ip.isNotEmpty()) obj.put("ip", JSONArray(rule.ip))
+    private fun toJson(rule: XrayFieldRule, tags: HotfoxXrayTagMap): JsonObject {
+        val obj = JsonObject()
+        obj.addProperty("type", "field")
+        if (rule.domain.isNotEmpty()) {
+            val domain = JsonArray()
+            rule.domain.forEach { domain.add(it) }
+            obj.add("domain", domain)
+        }
+        if (rule.ip.isNotEmpty()) {
+            val ip = JsonArray()
+            rule.ip.forEach { ip.add(it) }
+            obj.add("ip", ip)
+        }
         val resolved = when (rule.outboundTag) {
             HotfoxXrayRouting.TAG_PROXY -> tags.proxy ?: rule.outboundTag
             HotfoxXrayRouting.TAG_DIRECT -> tags.direct ?: rule.outboundTag
             HotfoxXrayRouting.TAG_BLOCKED -> tags.block ?: rule.outboundTag
             else -> rule.outboundTag
         }
-        obj.put("outboundTag", resolved)
+        obj.addProperty("outboundTag", resolved)
         return obj
     }
 }

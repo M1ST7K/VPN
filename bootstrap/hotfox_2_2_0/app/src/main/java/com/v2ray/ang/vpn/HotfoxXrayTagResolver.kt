@@ -1,7 +1,8 @@
 package com.v2ray.ang.vpn
 
-import org.json.JSONArray
-import org.json.JSONObject
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 
 data class HotfoxXrayTagMap(
     val proxy: String?,
@@ -31,49 +32,56 @@ object HotfoxXrayTagResolver {
         if (json.isBlank()) {
             return HotfoxXrayTagMap(null, null, null, emptySet(), emptySet())
         }
-        return runCatching {
-            val root = JSONObject(json)
-            val outboundTags = LinkedHashSet<String>()
-            var proxy: String? = null
-            var direct: String? = null
-            var block: String? = null
-            val outbounds = root.optJSONArray("outbounds") ?: JSONArray()
-            for (index in 0 until outbounds.length()) {
-                val outbound = outbounds.optJSONObject(index) ?: continue
-                val tag = outbound.optString("tag").trim()
-                val protocol = outbound.optString("protocol").trim().lowercase()
-                if (tag.isNotBlank()) outboundTags.add(tag)
-                when {
-                    protocol in DIRECT_PROTOCOLS || tag.lowercase() in DIRECT_TAGS ->
-                        if (direct == null && tag.isNotBlank()) direct = tag
-                    protocol in BLOCK_PROTOCOLS || tag.lowercase() in BLOCK_TAGS ->
-                        if (block == null && tag.isNotBlank()) block = tag
-                    protocol.isNotBlank() && protocol !in SKIP_PROTOCOLS ->
-                        if (proxy == null && tag.isNotBlank()) proxy = tag
-                    tag.lowercase() in PROXY_TAGS ->
-                        if (proxy == null) proxy = tag
-                }
+        val root = runCatching { JsonParser.parseString(json).asJsonObject }.getOrNull()
+            ?: return HotfoxXrayTagMap(null, null, null, emptySet(), emptySet())
+        val outboundTags = LinkedHashSet<String>()
+        var proxy: String? = null
+        var direct: String? = null
+        var block: String? = null
+        val outbounds = root.arr("outbounds")
+        for (index in 0 until outbounds.size()) {
+            val outbound = outbounds[index].takeIf { it.isJsonObject }?.asJsonObject ?: continue
+            val tag = outbound.str("tag")
+            val protocol = outbound.str("protocol").lowercase()
+            if (tag.isNotBlank()) outboundTags.add(tag)
+            when {
+                protocol in DIRECT_PROTOCOLS || tag.lowercase() in DIRECT_TAGS ->
+                    if (direct == null && tag.isNotBlank()) direct = tag
+                protocol in BLOCK_PROTOCOLS || tag.lowercase() in BLOCK_TAGS ->
+                    if (block == null && tag.isNotBlank()) block = tag
+                protocol.isNotBlank() && protocol !in SKIP_PROTOCOLS ->
+                    if (proxy == null && tag.isNotBlank()) proxy = tag
+                tag.lowercase() in PROXY_TAGS ->
+                    if (proxy == null && tag.isNotBlank()) proxy = tag
             }
-            if (proxy == null) {
-                proxy = outboundTags.firstOrNull { it.lowercase() in PROXY_TAGS }
-            }
-            if (direct == null) {
-                direct = outboundTags.firstOrNull { it.lowercase() in DIRECT_TAGS }
-            }
-            if (block == null) {
-                block = outboundTags.firstOrNull { it.lowercase() in BLOCK_TAGS }
-            }
-            val balancerTags = LinkedHashSet<String>()
-            val routing = root.optJSONObject("routing")
-            val balancers = routing?.optJSONArray("balancers") ?: JSONArray()
-            for (index in 0 until balancers.length()) {
-                val balancer = balancers.optJSONObject(index) ?: continue
-                val tag = balancer.optString("tag").trim()
-                if (tag.isNotBlank()) balancerTags.add(tag)
-            }
-            HotfoxXrayTagMap(proxy, direct, block, outboundTags, balancerTags)
-        }.getOrDefault(HotfoxXrayTagMap(null, null, null, emptySet(), emptySet()))
+        }
+        if (proxy == null) {
+            proxy = outboundTags.firstOrNull { it.lowercase() in PROXY_TAGS }
+        }
+        if (direct == null) {
+            direct = outboundTags.firstOrNull { it.lowercase() in DIRECT_TAGS }
+        }
+        if (block == null) {
+            block = outboundTags.firstOrNull { it.lowercase() in BLOCK_TAGS }
+        }
+        val balancerTags = LinkedHashSet<String>()
+        val balancers = root.obj("routing")?.arr("balancers") ?: JsonArray()
+        for (index in 0 until balancers.size()) {
+            val balancer = balancers[index].takeIf { it.isJsonObject }?.asJsonObject ?: continue
+            val tag = balancer.str("tag")
+            if (tag.isNotBlank()) balancerTags.add(tag)
+        }
+        return HotfoxXrayTagMap(proxy, direct, block, outboundTags, balancerTags)
     }
+
+    internal fun JsonObject.str(name: String): String =
+        get(name)?.takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
+
+    internal fun JsonObject.obj(name: String): JsonObject? =
+        get(name)?.takeIf { it.isJsonObject }?.asJsonObject
+
+    internal fun JsonObject.arr(name: String): JsonArray =
+        get(name)?.takeIf { it.isJsonArray }?.asJsonArray ?: JsonArray()
 }
 
 object HotfoxLegacyDirectBypass {
@@ -133,13 +141,14 @@ object HotfoxXrayConfigValidator {
         val tags = HotfoxXrayTagResolver.resolve(json)
         val danglingOut = ArrayList<String>()
         val danglingBal = ArrayList<String>()
-        runCatching {
-            val root = JSONObject(json)
-            val rules = root.optJSONObject("routing")?.optJSONArray("rules") ?: JSONArray()
-            for (index in 0 until rules.length()) {
-                val rule = rules.optJSONObject(index) ?: continue
-                val outbound = rule.optString("outboundTag").trim()
-                val balancer = rule.optString("balancerTag").trim()
+        val root = runCatching { JsonParser.parseString(json).asJsonObject }.getOrNull()
+        val rules = root?.get("routing")?.takeIf { it.isJsonObject }
+            ?.asJsonObject?.get("rules")?.takeIf { it.isJsonArray }?.asJsonArray
+        if (rules != null) {
+            for (index in 0 until rules.size()) {
+                val rule = rules[index].takeIf { it.isJsonObject }?.asJsonObject ?: continue
+                val outbound = rule.get("outboundTag")?.takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
+                val balancer = rule.get("balancerTag")?.takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
                 if (outbound.isNotBlank() && !tags.known(outbound)) danglingOut.add(outbound)
                 if (balancer.isNotBlank() && balancer !in tags.balancerTags) danglingBal.add(balancer)
             }
