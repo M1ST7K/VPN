@@ -595,6 +595,36 @@ def main() -> int:
         "PREF_APPEND_HTTP_PROXY, false",
         "Android HTTP proxy is opt-in; HEV uses SOCKS",
     )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxPath.kt",
+        "fun addressesForProbe",
+        "2.9 TUN HTTPS isolates IPv4 from IPv6",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxTunLayerEvidence.kt",
+        "tunHttp4",
+        "2.9 TUN HTTP IPv4 evidence",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt",
+        "BLOCKING_PREFIXES",
+        "2.9 generated Reality/network drift is fail-closed",
+    )
+    must_contain(
+        "app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt",
+        "fun normalizeNetwork",
+        "tcp and raw are the same stream network",
+    )
+    must_contain(
+        "app/src/debug/java/com/v2ray/ang/vpn/HotfoxEngineeringRuntimeE2e.kt",
+        "object HotfoxEngineeringRuntimeE2e",
+        "2.9 engineering-runtime VPN E2E harness",
+    )
+    e2e_workflow = (ROOT / ".github/workflows/hotfox-vpn-e2e.yml").read_text(encoding="utf-8")
+    if "emulator_vpn_e2e.sh" not in e2e_workflow:
+        fail("VPN E2E workflow must invoke emulator_vpn_e2e.sh")
+    if "Connect/IP probes are not implemented yet" in e2e_workflow:
+        fail("VPN E2E workflow is still a placeholder")
     bootstrap = (ROOT / "bootstrap/bootstrap_source.sh").read_text(encoding="utf-8")
     if "apply_hotfox_android_manifest.py" not in bootstrap:
         fail("bootstrap must patch AndroidManifest for Autopilot boot receiver")

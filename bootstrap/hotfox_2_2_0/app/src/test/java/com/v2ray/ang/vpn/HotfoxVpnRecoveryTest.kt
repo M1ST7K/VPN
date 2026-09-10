@@ -338,5 +338,92 @@ class HotfoxVpnRecoveryTest {
         HotfoxTunLayerEvidence.record(http = true, dns = false)
         assertTrue(HotfoxTunLayerEvidence.summary().contains("tunHttp=true"))
         assertTrue(HotfoxTunLayerEvidence.summary().contains("tunDns=false"))
+        HotfoxTunLayerEvidence.record(http = true, dns = null, http4 = true, http6 = false)
+        assertTrue(HotfoxTunLayerEvidence.summary().contains("tunHttp4=true"))
+        assertTrue(HotfoxTunLayerEvidence.summary().contains("tunHttp6=false"))
+    }
+
+    @Test
+    fun tunHttpsProbeKeepsIpv4IndependentOfIpv6() {
+        val v4 = java.net.InetAddress.getByName("1.1.1.1")
+        val v6 = java.net.InetAddress.getByName("2001:4860:4860::8888")
+        assertEquals(listOf(v4), HotfoxAddressFamilyPolicy.addressesForProbe(listOf(v6, v4), ipv4Only = true))
+        assertEquals(listOf(v6), HotfoxAddressFamilyPolicy.addressesForProbe(listOf(v6, v4), ipv4Only = false))
+        assertTrue(HotfoxAddressFamilyPolicy.addressesForProbe(listOf(v6), ipv4Only = true).isEmpty())
+    }
+
+    @Test
+    fun realityOrNetworkDriftIsBlockingGeneratedMismatch() {
+        val profile = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.VLESS).apply {
+            remarks = "Amsterdam"
+            server = "vpn.example"
+            serverPort = "443"
+            network = "tcp"
+            security = "reality"
+            password = "11111111-2222-3333-4444-555555555555"
+            sni = "www.example.com"
+            publicKey = "public-key-material"
+            shortId = "abcd"
+        }
+        val generated = HotfoxOutboundCompare.fromGeneratedJson(
+            """
+            {
+              "outbounds": [{
+                "protocol": "vless",
+                "settings": {"vnext":[{"address":"vpn.example","port":443,"users":[{"id":"11111111-2222-3333-4444-555555555555"}]}]},
+                "streamSettings": {
+                  "network": "ws",
+                  "security": "tls",
+                  "tlsSettings": {"serverName":"www.example.com"}
+                }
+              }]
+            }
+            """.trimIndent(),
+        )!!
+        val diffs = HotfoxOutboundCompare.mismatches(HotfoxOutboundCompare.fromProfile(profile), generated)
+        assertTrue(diffs.any { it.startsWith("network:") })
+        assertTrue(diffs.any { it.startsWith("security:") || it.startsWith("reality:") })
+        assertTrue(HotfoxOutboundCompare.Result(HotfoxOutboundCompare.fromProfile(profile), generated, diffs).blockingMismatch)
+    }
+
+    @Test
+    fun tcpAndRawNetworksAreNotBlockingDrift() {
+        val profile = com.v2ray.ang.dto.entities.ProfileItem.create(com.v2ray.ang.enums.EConfigType.VLESS).apply {
+            remarks = "Amsterdam"
+            server = "vpn.example"
+            serverPort = "443"
+            network = "tcp"
+            security = "reality"
+            publicKey = "pk"
+            shortId = "ab"
+            sni = "www.example.com"
+        }
+        val generated = HotfoxOutboundCompare.fromGeneratedJson(
+            """
+            {
+              "outbounds": [{
+                "protocol": "vless",
+                "settings": {"vnext":[{"address":"vpn.example","port":443,"users":[{"id":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}]}]},
+                "streamSettings": {
+                  "network": "raw",
+                  "security": "reality",
+                  "realitySettings": {"serverName":"www.example.com","publicKey":"pk","shortId":"ab"}
+                }
+              }]
+            }
+            """.trimIndent(),
+        )!!
+        val diffs = HotfoxOutboundCompare.mismatches(HotfoxOutboundCompare.fromProfile(profile), generated)
+        assertTrue(diffs.none { it.startsWith("network:") })
+        assertFalse(HotfoxOutboundCompare.Result(HotfoxOutboundCompare.fromProfile(profile), generated, diffs).blockingMismatch)
+    }
+
+    @Test
+    fun publicIpEvidenceRedactsAndCompares() {
+        assertEquals("203.0.113.x", HotfoxIpEvidence.redact("203.0.113.77"))
+        assertTrue(HotfoxIpEvidence.redact("2001:db8:1:2:3:4:5:6").endsWith(":x"))
+        assertTrue(HotfoxIpEvidence.changed("1.1.1.1", "8.8.8.8"))
+        assertFalse(HotfoxIpEvidence.changed("1.1.1.1", "1.1.1.1"))
+        assertFalse(HotfoxIpEvidence.changed("", "8.8.8.8"))
     }
 }

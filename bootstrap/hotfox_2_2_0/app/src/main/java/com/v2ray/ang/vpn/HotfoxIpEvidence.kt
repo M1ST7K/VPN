@@ -1,0 +1,27 @@
+package com.v2ray.ang.vpn
+
+/**
+ * Public-IP evidence for engineering-runtime E2E. Last octet / trailing
+ * IPv6 hextets are redacted so reports never look like credentials.
+ */
+object HotfoxIpEvidence {
+    fun redact(raw: String?): String {
+        val ip = raw?.trim().orEmpty()
+        if (ip.isEmpty()) return "none"
+        Regex("""^(\d{1,3}(?:\.\d{1,3}){2})\.\d{1,3}$""").matchEntire(ip)?.let {
+            return it.groupValues[1] + ".x"
+        }
+        if (ip.contains(':')) {
+            val parts = ip.split(':').filter { it.isNotEmpty() }
+            if (parts.size >= 2) return parts.take(3).joinToString(":") + ":x"
+        }
+        return "redacted"
+    }
+
+    fun changed(before: String?, during: String?): Boolean {
+        val left = before?.trim().orEmpty()
+        val right = during?.trim().orEmpty()
+        if (left.isEmpty() || right.isEmpty()) return false
+        return left != right
+    }
+}

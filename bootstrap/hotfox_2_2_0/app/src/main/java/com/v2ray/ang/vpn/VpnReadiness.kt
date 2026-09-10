@@ -15,12 +15,14 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.Socket
 import java.net.URI
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 import kotlinx.coroutines.delay
 import okhttp3.Credentials
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -195,20 +197,22 @@ object VpnReadiness {
 
     /**
      * Requires a validated HTTP or DNS response on a socket bound to TRANSPORT_VPN.
-     * TCP HTTPS is probed first so a UDP DNS timeout cannot be mistaken for the
-     * whole TUN path. Send-only or local HTTP inbound success is not TUN proof.
+     * TCP HTTPS is probed per address family, IPv4 first, so a fail-closed
+     * IPv6 blackhole cannot stall Happy Eyeballs and hide a working IPv4 path.
      */
     fun injectThroughVpn(context: Context): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return false
         val vpn = findVpnNetwork(cm) ?: run {
             LogUtil.w(AppConfig.TAG, "VpnReadiness: no TRANSPORT_VPN network to bind")
-            HotfoxTunLayerEvidence.record(http = false, dns = false)
+            HotfoxTunLayerEvidence.record(http = false, dns = false, http4 = false, http6 = false)
             return false
         }
-        val http = probeHttpThroughVpn(vpn)
+        val http4 = probeHttpThroughVpn(vpn, ipv4Only = true)
+        val http6 = if (http4) null else probeHttpThroughVpn(vpn, ipv4Only = false)
+        val http = http4 || http6 == true
         val dns = if (http) null else probeDnsThroughVpn(vpn)
-        HotfoxTunLayerEvidence.record(http = http, dns = dns)
+        HotfoxTunLayerEvidence.record(http = http, dns = dns, http4 = http4, http6 = http6)
         if (HotfoxTunLayerEvidence.injectSucceeded(http, dns)) return true
         LogUtil.w(AppConfig.TAG, "VpnReadiness: no HTTP/DNS response through VPN network")
         return false
@@ -469,10 +473,16 @@ object VpnReadiness {
         }
     }
 
-    private fun probeHttpThroughVpn(vpn: Network): Boolean {
+    private fun probeHttpThroughVpn(vpn: Network, ipv4Only: Boolean): Boolean {
         val client = OkHttpClient.Builder()
             .socketFactory(vpn.socketFactory)
             .proxy(Proxy.NO_PROXY)
+            .dns { hostname ->
+                val resolved = runCatching { Dns.SYSTEM.lookup(hostname) }.getOrElse { emptyList() }
+                val chosen = HotfoxAddressFamilyPolicy.addressesForProbe(resolved, ipv4Only)
+                if (chosen.isEmpty()) throw UnknownHostException(hostname)
+                chosen
+            }
             .connectTimeout(4, TimeUnit.SECONDS)
             .readTimeout(4, TimeUnit.SECONDS)
             .callTimeout(5, TimeUnit.SECONDS)

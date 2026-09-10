@@ -205,6 +205,18 @@ grep -q 'object HotfoxTunLayerEvidence' "$PROJECT/app/src/main/java/com/v2ray/an
   || fail "2.9 TUN HTTP vs DNS layers are not isolated"
 grep -q 'PREF_APPEND_HTTP_PROXY, false' "$PROJECT/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt" \
   || fail "Android HTTP proxy must be opt-in, not the HEV SOCKS path"
+grep -q 'fun addressesForProbe' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxPath.kt" \
+  || fail "TUN HTTPS probe must isolate IPv4 from IPv6"
+grep -q 'tunHttp4' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxTunLayerEvidence.kt" \
+  || fail "TUN HTTP IPv4 evidence missing"
+grep -q 'BLOCKING_PREFIXES' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt" \
+  || fail "generated Reality/network drift is not fail-closed"
+grep -q 'fun normalizeNetwork' "$PROJECT/app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt" \
+  || fail "tcp/raw network alias missing"
+grep -q 'object HotfoxEngineeringRuntimeE2e' "$PROJECT/app/src/debug/java/com/v2ray/ang/vpn/HotfoxEngineeringRuntimeE2e.kt" \
+  || fail "engineering-runtime VPN E2E harness missing"
+grep -q 'emulator_vpn_e2e.sh' "$ROOT/.github/workflows/hotfox-vpn-e2e.yml" \
+  || fail "VPN E2E workflow is still a placeholder"
 grep -q 'apply_hotfox_android_manifest.py' "$ROOT/bootstrap/bootstrap_source.sh" \
   || fail "AndroidManifest Autopilot patch is not applied during bootstrap"
 if find "$ROOT/bootstrap/hotfox_2_2_0" \( -name '*.jks' -o -name '*.keystore' \) | grep -q .; then

@@ -55,6 +55,7 @@ class HotfoxDiagnosticsBuilderTest {
         assertTrue(report.contains("tunEstablished="))
         assertTrue(report.contains("hevReceivedFd="))
         assertTrue(report.contains("tunHttp="))
+        assertTrue(report.contains("tunHttp4=") || report.contains("tunHttp="))
         assertTrue(report.contains("tunDns="))
         assertTrue(report.contains("socksHttps=none") || report.contains("socksHttps="))
         assertFalse(report.contains("hev=true"))

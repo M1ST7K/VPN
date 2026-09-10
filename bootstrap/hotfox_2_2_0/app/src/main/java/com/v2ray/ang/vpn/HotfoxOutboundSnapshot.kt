@@ -78,13 +78,25 @@ data class HotfoxInboundPorts(
 )
 
 object HotfoxOutboundCompare {
+    private val BLOCKING_PREFIXES = listOf(
+        "protocol",
+        "address",
+        "port",
+        "network",
+        "security",
+        "reality",
+        "publicKeyPresent",
+    )
+
     data class Result(
         val profile: HotfoxOutboundSnapshot?,
         val generated: HotfoxOutboundSnapshot?,
         val mismatches: List<String>,
     ) {
         val blockingMismatch: Boolean
-            get() = mismatches.any { it.startsWith("protocol") || it.startsWith("address") || it.startsWith("port") }
+            get() = mismatches.any { field ->
+                BLOCKING_PREFIXES.any { field.startsWith(it) }
+            }
 
         fun summary(): String = buildString {
             append("generatedPresent=${generated != null}")
@@ -180,7 +192,7 @@ object HotfoxOutboundCompare {
         if (profile.port != null && generated.port != null && profile.port != generated.port) {
             found += "port:${profile.port}!=${generated.port}"
         }
-        cmp("network", profile.network, generated.network)
+        cmp("network", normalizeNetwork(profile.network), normalizeNetwork(generated.network))
         cmp("security", profile.security, generated.security)
         cmp("flow", profile.flow, generated.flow)
         cmp("sni", profile.sni, generated.sni)
@@ -195,6 +207,11 @@ object HotfoxOutboundCompare {
         cmp("host", profile.host, generated.host)
         cmp("serviceName", profile.serviceName, generated.serviceName)
         return found
+    }
+
+    fun normalizeNetwork(raw: String): String {
+        val network = raw.trim().lowercase()
+        return if (network == "raw" || network == "tcp") "tcp" else network
     }
 
     fun record(profile: ProfileItem, generatedJson: String): Result {

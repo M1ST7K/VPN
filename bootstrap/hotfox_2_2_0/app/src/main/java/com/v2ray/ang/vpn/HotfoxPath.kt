@@ -1,5 +1,9 @@
 package com.v2ray.ang.vpn
 
+import java.net.Inet4Address
+import java.net.Inet6Address
+import java.net.InetAddress
+
 /**
  * 2.6 connection path: server + transport + security + optional entry/exit.
  *
@@ -148,5 +152,16 @@ object HotfoxAddressFamilyPolicy {
     fun usableFamily(ipv4Usable: Boolean, ipv6Usable: Boolean): AddressFamily? {
         if (!ipv4Usable && !ipv6Usable) return null
         return prefer(ipv4Usable, ipv6Usable)
+    }
+
+    /**
+     * TUN HTTPS probes must not mix address families. IPv4 and IPv6 are
+     * judged independently so a fail-closed IPv6 blackhole cannot stall
+     * Happy Eyeballs and hide a working IPv4 path (2.9 spec §19).
+     */
+    fun addressesForProbe(addresses: List<InetAddress>, ipv4Only: Boolean): List<InetAddress> {
+        val v4 = addresses.filterIsInstance<Inet4Address>()
+        val v6 = addresses.filterIsInstance<Inet6Address>().filter { !it.isLinkLocalAddress }
+        return if (ipv4Only) v4 else v6
     }
 }
