@@ -1,0 +1,26 @@
+name: HotFox review cap tests
+
+on:
+  push:
+    paths:
+      - ".github/scripts/**"
+      - ".github/workflows/hotfox-review-cap-tests.yml"
+      - "docs/AI_REVIEW_PHASE_ID"
+  pull_request:
+    paths:
+      - ".github/scripts/**"
+      - ".github/workflows/hotfox-review-cap-tests.yml"
+      - "docs/AI_REVIEW_PHASE_ID"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Phase-id cap unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run review-cap unit tests
+        run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
