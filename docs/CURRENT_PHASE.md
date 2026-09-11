@@ -1,3 +1,23 @@
+# CURRENT OWNER TASK — 18-SCREEN UI RECONSTRUCTION
+
+Status: **ASSIGNED — reference package committed; UI implementation and visual acceptance not yet executed by this handoff**.
+
+The owner explicitly requested rebuilding the Android UX/UI from the 18 supplied
+images while preserving every technical guarantee. This UI assignment may start now
+on `cursor/hotfox-ui-pixel-lock-rebuild`; it is not a new roadmap product phase.
+
+Read `design/HOTFOX_CURSOR_FULL_UI_REBUILD_PIXEL_LOCK_PROMPT.txt`,
+`.cursor/rules/23-hotfox-ui-pixel-lock.mdc` and all original images under
+`design/hotfox_18_final_style_reference/`. Start implementation in this run.
+Preserve runtime repair baseline `a729b1cbce719278840caf9ab09a5350e6d554e4`.
+Do not rewrite core/transport/state/security behavior for visual matching.
+
+The runtime-repair ledger below is retained as the prior technical status; this
+handoff does not close it, claim VPN E2E, or authorize RELEASE READY. UI fixture
+screenshots and zero-diff comparison do not replace runtime/device acceptance.
+
+---
+
 # CURRENT PHASE — RUNTIME REPAIR GATE (owner opened)
 
 Status: **ROUND 32 P0/P1 FIXES — phase-exit candidate; host CI/APK evidence must be this HEAD; emulator/physical still NOT EXECUTED**

@@ -1,698 +1,899 @@
-HOTFOX PROXY — FULL UI/UX PIXEL-LOCK REBUILD TASK FOR CURSOR
-====================================================================
-
-OWNER DIRECTIVE
-
-Полностью пересобери UI/UX HotFox по 18 утверждённым reference images.
-
-Это НЕ редизайн.
-Это НЕ «сделай похоже».
-Это НЕ «сохрани стиль».
-Это НЕ «улучши».
-Это НЕ «осовремень».
-Это НЕ творческая задача.
-
-Это RECONSTRUCTION / PIXEL-LOCK TASK.
-
-ГЛАВНОЕ ПРАВИЛО:
-18 reference images являются абсолютным VISUAL SOURCE OF TRUTH. Любое осознанное отклонение от них считается дефектом. Если этот prompt, текущий UI, Material defaults, старые tokens или мнение агента противоречат референсу — в визуальной части выигрывает reference image.
-
-Одновременно действует второй абсолютный принцип:
-НИКАКАЯ техническая часть HotFox не должна пострадать.
-
-====================================================================
-1. READ FIRST
-====================================================================
-
-До любых правок прочитай:
-1. `.cursor/rules/23-hotfox-ui-pixel-lock.mdc`
-2. `design/HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt`
-3. этот файл
-4. `design/hotfox_18_final_style_reference/MANIFEST.txt`
-5. все reference files в `design/hotfox_18_final_style_reference/`
-
-Не начинай реализацию, прочитав только один экран.
-Сначала пойми весь набор 01–18 как единую систему.
-
-====================================================================
-2. CANONICAL TECHNICAL CONTRACT — MUST SURVIVE UNCHANGED
-====================================================================
-
-Production VPN path conceptually remains:
-
-Android apps
-→ Android VpnService / TUN
-→ HEV / tun2socks
-→ local Xray SOCKS
-→ Xray outbound
-→ remote VPN server
-→ Internet
-
-`CONNECTED` / `Защищено` может появляться только из существующего canonical verified VPN session state.
-
-Нельзя считать protected только потому что:
-- VpnService запущен;
-- TUN создан;
-- Android показывает VPN key;
-- Xray process запущен;
-- SOCKS слушает;
-- HEV запущен;
-- сервер выбран;
-- ping прошёл;
-- закончилась UI animation.
-
-UI не создаёт второй state machine.
-UI не создаёт production `isConnected=true` самостоятельно.
-UI только отображает существующую правду.
-
-Сохрани без регрессии:
-- VpnService/TUN lifecycle;
-- Xray readiness/startup order;
-- HEV/tun2socks lifecycle;
-- protect/loop prevention;
-- DNS leak safety;
-- IPv6 route/fail-closed policy;
-- clean disconnect;
-- clean reconnect;
-- session generation / stale callback rejection;
-- bounded retry/failover;
-- network-change handling;
-- no duplicate session/service;
-- AUTO persisted mode;
-- AUTO resolved target;
-- manual sticky selection;
-- real latency/health only;
-- invalid/maintenance/blocked candidate exclusion;
-- Smart Routing;
-- per-app include/exclude;
-- domain/IP rules already supported;
-- DNS/IPv6/LAN policy;
-- Shadow;
-- Autopilot;
-- trusted-network logic;
-- cellular/Wi-Fi policy;
-- pause and manual-disconnect suppression;
-- captive portal behavior;
-- manual HTTPS subscription;
-- HotFox managed subscription;
-- backend-authoritative entitlement/payment truth;
-- external subscription independence where intended;
-- secure credential storage;
-- foreground notification;
-- Quick Settings tile;
-- update/provenance/diagnostics;
-- offline entitlement / last-known-good policy;
-- device registry;
-- state migration;
-- signed control-plane and security invariants.
-
-КАТЕГОРИЧЕСКИ НЕЛЬЗЯ ради UI:
-- ослаблять TLS/REALITY;
-- добавлять trust-all;
-- отключать readiness checks;
-- шунтировать canonical session state;
-- делать connection truth на UI layer;
-- добавлять production fake ping;
-- добавлять fake traffic;
-- добавлять fake expiry;
-- добавлять fake payment;
-- добавлять fake subscription status;
-- добавлять fake server health;
-- добавлять fake protection;
-- коммитить private subscription URL/UUID/private key/token/password.
-
-====================================================================
-3. VISUAL NO-FREEDOM CONTRACT
-====================================================================
-
-Не меняй по своему вкусу:
-- композицию;
-- порядок блоков;
-- margins/paddings;
-- высоты строк;
-- button geometry;
-- corner radii;
-- typography hierarchy;
-- font weight;
-- colors;
-- icon style;
-- divider position;
-- artwork placement;
-- bottom navigation;
-- screen hierarchy;
-- CTA copy;
-- headings;
-- labels;
-- line breaks, если они формируют композицию;
-- selected/unselected presentation;
-- error/success color semantics.
-
-Нельзя сказать «Material компонент почти такой же» и оставить его, если он визуально отличается от approved reference.
-
-Нельзя сказать «так лучше по Android guidelines» и изменить approved normal-scale layout. Accessibility/responsive variants делаются дополнительно, а canonical visual state остаётся locked.
-
-====================================================================
-4. NEGATIVE PROMPT — MUST ALWAYS APPLY
-====================================================================
-
-Никогда не добавляй самостоятельно:
-- generic Material 3 redesign;
-- default Material blue/purple surfaces;
-- standard blue AlertDialog;
-- glassmorphism;
-- neumorphism;
-- neon;
-- cyberpunk;
-- gaming aesthetic;
-- giant glowing VPN circle;
-- random gradients;
-- random shadows;
-- arbitrary cards;
-- card around every row;
-- fake dashboard;
-- fake world map;
-- fake graphs;
-- fake load/speed/threat indicators;
-- mixed icon packs;
-- text glyphs instead of proper icons;
-- emoji icons;
-- random badges;
-- decorative crowns unless exact reference literally has one;
-- technical/debug copy in normal UI;
-- TUN / HEV / SOCKS / Xray / session-generation terminology in normal UI;
-- new marketing copy;
-- new navigation destinations;
-- placeholder package names in production.
-
-PLANET NEGATIVE RULE:
-Не изобретай и не распространяй никакие новые planet/globe/planetary horizon/planetary arc/eclipse/celestial sphere/space-horizon motifs. Если такой мотив буквально существует в конкретном locked reference, можно повторить ТОЛЬКО то, что уже есть в ЭТОМ reference. Никогда не переноси его на другой экран.
-
-FOX RULE:
-Не добавляй лису туда, где её нет в exact reference. Не удаляй её там, где она есть. Не меняй фирменную лису на cartoon/mascot/другую лису.
-
-REFERENCE-ONLY MOTIF RULE:
-Любой декоративный мотив принадлежит только тому экрану, где он буквально присутствует в approved reference.
-
-====================================================================
-5. BASELINE BEFORE UI EDITS
-====================================================================
-
-До первой product-code правки:
-- `git status --short --branch`
-- `git rev-parse HEAD`
-- `git log --oneline --decorate -10`
-- зафиксировать исходный SHA;
-- выполнить canonical reconstruction/build flow из repo docs/CI;
-- доступные unit tests;
-- lint/static checks;
-- debug compile;
-- release compile where required;
-- secret/static verifiers.
-
-Сохрани baseline evidence под:
-`verification/ui_rebuild/baseline/`
-
-Отдельно запиши pre-existing failures, если они есть.
-
-====================================================================
-6. OLD FUNCTION → NEW CONTROL INVENTORY
-====================================================================
-
-Перед удалением старого UI создай:
-`verification/ui_rebuild/OLD_TO_NEW_INTERACTION_MAP.md`
-
-Для каждого действия укажи:
-- старый screen/component/control;
-- callback / command / navigation target;
-- новый control из approved reference;
-- источник state;
-- regression test/evidence.
-
-Минимально map:
-connect;
-stop connecting;
-disconnect;
-add subscription;
-HTTPS paste/import;
-QR;
-file;
-server list;
-AUTO;
-manual server;
-subscription;
-buy/renew/manage;
-settings;
-routing;
-per-app rules;
-DNS;
-IPv6;
-LAN;
-Shadow;
-Autopilot;
-pause;
-trusted networks;
-notifications;
-diagnostics;
-updates;
-Always-on/Kill Switch;
-Android settings.
-
-Ни одна существующая функция не должна исчезнуть из-за визуального rebuild.
-
-====================================================================
-7. REFERENCE ANALYSIS / GOLDEN CROP
-====================================================================
-
-Reference images являются presentation boards: outer title/callouts/phone mockup + actual phone UI.
-
-В Android приложение НЕ надо переносить outer presentation-board annotations.
-Target Android UI = экран ВНУТРИ телефона.
-
-Для каждого 01–18:
-- определить точные inner-phone screen bounds;
-- сохранить normalized golden crop;
-- не редактировать golden;
-- не color-correct;
-- не sharpen;
-- не beautify.
-
-Сохраняй:
-`verification/ui_rebuild/reference_analysis/01_golden_ui.*`
-...
-`18_golden_ui.*`
-
-Для каждого создать geometry notes:
-- viewport;
-- top/bottom safe inset;
-- left/right content inset;
-- header bounds;
-- H1 bounds/baseline;
-- body bounds;
-- artwork bounds;
-- CTA bounds;
-- row/card bounds;
-- divider y;
-- icon centers;
-- bottom-nav bounds.
-
-====================================================================
-8. IMPLEMENTATION LOOP — NO “CLOSE ENOUGH”
-====================================================================
-
-Для каждого canonical screen:
-REFERENCE
-→ MEASURE
-→ IMPLEMENT
-→ BUILD
-→ INSTALL/RENDER
-→ SCREENSHOT
-→ NORMALIZE
-→ PIXEL DIFF
-→ FIX
-→ REPEAT.
-
-Не закрывай screen со словами «похоже».
-
-Обязательный evidence:
-- reference/golden;
-- actual;
-- overlay;
-- absolute diff;
-- changed pixel %;
-- mean delta;
-- max delta;
-- diff bounding boxes.
-
-Dynamic values (system time, real ping, timer, traffic, expiry, real server data) можно стабилизировать TEST-ONLY fixture или маскировать только VALUE region. Нельзя маскировать неправильную геометрию, цвет, font, padding, radius или layout.
-
-Никакие deterministic screenshot fixtures не должны попадать в production runtime path.
-
-====================================================================
-9. IMPLEMENTATION ORDER — CONTINUE WITHOUT OWNER PAUSES
-====================================================================
-
-Group A: Screens 01–04
-Group B: Screens 05–07
-Group C: Screens 08–10
-Group D: Screens 11–13
-Group E: Screens 14–18
-
-После каждой группы:
-- compile/build;
-- relevant tests;
-- navigation checks;
-- state-binding checks;
-- fake-state scan;
-- secret scan;
-- screenshot/golden diff.
-
-Не спрашивай owner approval между группами.
-Не останавливайся после execution plan.
-После короткого плана СРАЗУ начинай implementation в этом же run.
-
-Останавливайся только если найден genuine blocker, который невозможно решить repo/local/CI средствами и требуется owner-only credential/device/data/action.
-
-====================================================================
-10. SCREEN-SPECIFIC BINDING
-====================================================================
-
-01 Splash / Brand Entry
-- recreate exact reference inner UI;
-- branded visual only as reference;
-- no fixed fake loading delay;
-- no white flash;
-- no technical state change.
-
-02 Onboarding / Connect HotFox
-- exact visual/reference copy;
-- existing subscription CTA → real add/import flow;
-- purchase → real hosted checkout/commercial flow;
-- browser return is NOT payment proof.
-
-03 Onboarding / AUTO
-- exact visual;
-- CTA binds existing persisted AUTO mode;
-- manual remains separate intent;
-- no fake server result/ping.
-
-04 Onboarding / Ready
-- exact visual;
-- real Android VPN permission flow;
-- no fake permission dialog;
-- no protected state before readiness.
-
-05 Main / Not Protected
-- primary functional style anchor;
-- exact reference composition;
-- server/subscription/Shadow/routing rows bind real state;
-- CTA binds real canonical connect/add flow;
-- no UI-owned truth.
-
-06 Connecting
-- exact progress visual;
-- no fake percentage;
-- human stage text from existing canonical state;
-- Stop binds canonical cancellation/disconnect;
-- no orphan Xray/HEV/TUN.
-
-07 Protected
-- green only canonical verified success;
-- real timer;
-- real traffic or unavailable;
-- real resolved server;
-- real routing/Shadow/subscription;
-- Disconnect clean teardown.
-
-08 Add Connection
-- recreate custom HotFox surface exactly;
-- preserve HTTPS/clipboard/QR/file/system-protection actions;
-- no default Material dialog substitution.
-
-09 HTTPS Subscription
-- exact form styling;
-- actual validation;
-- safe paste;
-- no secret logs;
-- URL hidden after storage as existing security policy requires;
-- manual external source remains supported.
-
-10 Servers
-- exact list/filters/AUTO/selected visuals;
-- real health/latency only;
-- manual sticky;
-- AUTO real selector;
-- stale health not fresh;
-- maintenance/invalid candidates handled by existing engine.
-
-11 Server Details
-- exact visual hierarchy;
-- real metadata only;
-- selecting server preserves intended manual semantics;
-- no fake throughput/load.
-
-12 Subscription
-- exact visual;
-- backend-authoritative state;
-- managed/external/no-access/expired/pending/stale/offline/device-limit variants in SAME style;
-- no browser-redirect payment success.
-
-13 Settings
-- exact locked hierarchy;
-- only real settings/functions;
-- no decorative fake toggles;
-- preserve diagnostics/update/about links.
-
-14 Smart Routing
-- exact UI;
-- bind existing routing model;
-- no new routing state machine;
-- preserve reconnect semantics;
-- preserve DNS/IPv6/LAN truth.
-
-15 Apps & Rules
-- exact UI;
-- actual installed-app list;
-- existing include/exclude/custom rules;
-- no `com.example.*` in production;
-- removed package graceful.
-
-16 Autopilot
-- exact UI;
-- bind existing Autopilot state machine;
-- preserve trusted Wi-Fi/cellular/pause/manual-disconnect/captive-portal logic;
-- no reconnect storm.
-
-17 Shadow
-- exact UI;
-- bind existing Shadow state;
-- do not expose protocol jargon;
-- no security downgrade;
-- manual server remains manual.
-
-18 Always-on / Kill Switch
-- exact UI;
-- show actual system-derived status where supported;
-- CTA opens correct Android VPN settings;
-- never fake ownership of Android system enforcement.
-
-====================================================================
-11. THEME / COMPONENT STRATEGY
-====================================================================
-
-Use existing UI framework. Do not migrate framework merely for aesthetics.
-
-Centralize shared design primitives where it does not distort references:
-- colors;
-- typography;
-- spacing;
-- radii;
-- icons;
-- primary/secondary buttons;
-- rows;
-- cards/surfaces;
-- top bars;
-- bottom nav;
-- info panels;
-- server rows;
-- sheets.
-
-But do not over-generalize: reference fidelity > abstraction cleverness.
-
-Do not ship whole-screen reference screenshots as production UI.
-Text remains real Android text.
-Buttons remain real controls.
-Dynamic data remains real state.
-Accessibility remains semantic.
-Decorative artwork may be dedicated asset where needed.
-
-====================================================================
-12. ACCESSIBILITY / RESPONSIVENESS
-====================================================================
-
-Canonical golden target:
-- Russian locale;
-- font scale 1.0;
-- documented emulator resolution/density;
-- dark mode;
-- deterministic system-bar configuration.
-
-Also preserve:
-- >=48dp touch targets;
-- TalkBack labels;
-- selected state semantics;
-- enabled/disabled semantics;
-- focus order;
-- critical meaning not color-only;
-- font scaling strategy;
-- gesture and 3-button nav safety.
-
-Accessibility variants must not alter the canonical normal-scale visual source of truth.
-
-====================================================================
-13. TECHNICAL CORE TOUCH POLICY
-====================================================================
-
-Prefer UI/presentation/resources/navigation adapters only.
-
-Create:
-`verification/ui_rebuild/TECHNICAL_CORE_TOUCHED.txt`
-
-Ideal content:
-`NONE`
-
-If not NONE, every core file must have:
-- path;
-- why absolutely required;
-- semantics before;
-- semantics after;
-- tests proving no regression.
-
-UI rebuild is NOT permission for architecture refactor, Xray update, parser rewrite, transport change, routing-priority change, payment-provider change, backend contract change, control-plane key change, or Autopilot-policy change.
-
-====================================================================
-14. REQUIRED REGRESSION VALIDATION
-====================================================================
-
-Keep/add coverage for:
-Connection:
-- protected only canonical;
-- clean disconnect/reconnect;
-- rapid connect/disconnect race;
-- stale callback rejection.
-
-AUTO:
-- persisted AUTO;
-- manual sticky;
-- stale latency invalidation;
-- invalid/maintenance candidate exclusion;
-- bounded failover.
-
-Routing:
-- include/exclude;
-- direct/proxy/block semantics already supported;
-- DNS;
-- IPv6;
-- LAN;
-- removed app.
-
-Subscription:
-- manual HTTPS;
-- external path during backend outage where allowed;
-- backend-authoritative entitlement;
-- payment redirect not proof;
-- secret redaction.
-
-Shadow:
-- no insecure downgrade;
-- bounded fallback;
-- manual selection preserved.
-
-Autopilot:
-- trusted network;
-- unknown Wi-Fi;
-- cellular;
-- pause;
-- manual disconnect suppression;
-- captive portal;
-- no reconnect storm.
-
-System:
-- notification truth;
-- Quick Settings canonical commands;
-- Always-on Android settings handoff;
-- no secret UI/log.
-
-====================================================================
-15. REQUIRED REPORTS
-====================================================================
-
-Create:
-`verification/ui_rebuild/HOTFOX_UI_REBUILD_MASTER_REPORT.md`
-`verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS.csv`
-`verification/ui_rebuild/HOTFOX_UI_BUGS.md`
-`verification/ui_rebuild/OLD_TO_NEW_INTERACTION_MAP.md`
-`verification/ui_rebuild/UI_CHANGED_FILES.txt`
-`verification/ui_rebuild/TECHNICAL_CORE_TOUCHED.txt`
-`verification/ui_rebuild/UNTESTED_UI_GAPS.md`
-
-Pixel CSV columns:
-screen_id,reference,actual,changed_pixels,changed_percent,mean_delta,max_delta,status,notes
-
-Final report must state:
-- base SHA;
-- final SHA;
-- 18/18 status;
-- each screen visual status;
-- residual differences and why;
-- tests/build/lint;
-- core touched yes/no;
-- fake-state scan;
-- secret scan;
-- accessibility status;
-- untested gaps.
-
-====================================================================
-16. COMMIT DISCIPLINE
-====================================================================
-
-Suggested commits:
-`ui(ref): establish HotFox pixel-locked design system`
-`ui(onboarding): recreate screens 01-04`
-`ui(connection): recreate screens 05-07`
-`ui(import): recreate screens 08-09`
-`ui(servers): recreate screens 10-11`
-`ui(subscription): recreate screen 12`
-`ui(settings): recreate screen 13`
-`ui(routing): recreate screens 14-15`
-`ui(autopilot): recreate screen 16`
-`ui(shadow): recreate screen 17`
-`ui(always-on): recreate screen 18`
-`test(ui): add golden screenshot verification`
-`docs(ui): publish final visual verification report`
-
-Do not put `[hotfox-phase-exit]` on ordinary implementation commits.
-
-====================================================================
-17. FINAL VISUAL SELF-REVIEW
-====================================================================
-
-Before marking complete ask for EVERY screen:
-- Did I change something because I thought it looked better? → revert.
-- Did I substitute Material default? → fix.
-- Did I add an extra motif? → remove.
-- Did I copy another screen's motif? → remove.
-- Did I invent planet/globe/arc? → remove.
-- Did I add fox where reference lacks it? → remove.
-- Did I remove required artwork? → restore.
-- Is font/weight/line-height wrong? → fix.
-- Is CTA geometry wrong? → fix.
-- Is nav wrong? → fix.
-- Is there fake production data? → remove.
-- Is a technical function missing after rebuild? → restore.
-- Is any core/security invariant weakened? → fix before completion.
-
-====================================================================
-18. COMPLETION
-====================================================================
-
-Work continuously through 18/18.
-Do not stop after making a plan.
-Do not wait for owner between groups.
-Do not call a screen done because it is merely attractive.
-
-UI task completion wording only:
-`18/18 HOTFOX UI REFERENCES RECREATED — VISUAL ENGINEERING GATE COMPLETE; final runtime/physical release validation remains separate.`
-
-Do NOT say `RELEASE READY` from UI work.
-
-START NOW:
-1. read all locked reference material;
-2. record baseline technical evidence;
-3. build old→new interaction map;
-4. analyze/crop reference screens;
-5. implement 01→18 group-by-group;
-6. run pixel diff and regression checks after every group;
-7. fix all available drift;
-8. run final build/tests/lint/static/secret checks;
-9. produce reports;
-10. stop only at 18/18 completion or a genuine owner-only blocker.
+HOTFOX — CURSOR: ПОЛНОЕ ВОССОЗДАНИЕ 18 ЭКРАНОВ UI/UX
+Версия задания: 2026-09-11 / immutable references + zero-tolerance acceptance
+==========================================================================
+
+0. ПОРУЧЕНИЕ ВЛАДЕЛЬЦА — НАЧНИ РЕАЛИЗАЦИЮ
+
+Полностью пересобери интерфейс существующего Android-приложения HotFox
+по приложенным 18 изображениям. Требуется работающий APK с этим интерфейсом,
+сохранением всех существующих функций и отсутствием технических регрессий.
+
+ЭТО ЗАДАЧА НА ВОССОЗДАНИЕ, А НЕ НА СОЗДАНИЕ НОВОГО ДИЗАЙНА.
+ГЛАВНОЕ ВИЗУАЛЬНОЕ ПРАВИЛО: 1:1, БЕЗ САМОВОЛЬНЫХ ОТКЛОНЕНИЙ.
+Не существует разрешения «сделать чуть лучше», «почти так же», «на свой вкус».
+Любая разница должна быть измерена; известная разница не становится PASS
+от красивого отчёта, высокого SSIM или слов «это ограничение платформы».
+
+При этом VPN обязан оставаться настоящим. Визуальное сходство не разрешает
+обман о защите, оплате, данных, возможностях Android или выполненных тестах.
+Совпадение внешнего вида и сохранность функций — независимые условия приёмки.
+Нельзя выполнить одно ценой другого.
+
+Рабочая ветка: cursor/hotfox-ui-pixel-lock-rebuild.
+Репозиторий: M1ST7K/VPN.
+Исходная техническая база: a729b1cbce719278840caf9ab09a5350e6d554e4.
+Это runtime-repair HEAD PR #4, а не старый main и не старый APK.
+UI-ветка уже содержит эту базу. Не начинай заново с main.
+Не force-push, не reset чужой работы, не закрывай и не мержи PR #4/#8.
+Если появились новые необходимые runtime-исправления, сначала изучи diff,
+сохрани их отдельно и интегрируй без потери изменений; запиши новый baseline.
+Не смешивай исправление reviewer-инфраструктуры PR #8 с визуальным заданием.
+
+Это явно порученная владельцем UI-задача поверх действующей технической базы.
+Историческое «не начинать следующий roadmap phase» не запрещает эту задачу.
+Это не новый коммерческий этап, не отмена runtime-repair и не RELEASE READY.
+Существующие требования к ревью, секретам, доступу и релизу сохраняются.
+
+ПРОЧИТАЙ ПЛАН, ЗАТЕМ В ЭТОМ ЖЕ ЗАПУСКЕ НАЧНИ КОД.
+Не ограничивайся планом, токенами темы, новым отчётом или одним главным экраном.
+Работай через все 18 состояний. Не запрашивай подтверждение между группами.
+
+1. ИСТОЧНИКИ И ПОРЯДОК ЧТЕНИЯ
+==========================================================================
+
+Прочитай:
+1) AGENTS.md;
+2) docs/CURRENT_PHASE.md и связанное актуальное runtime-repair задание;
+3) .cursor/rules/23-hotfox-ui-pixel-lock.mdc;
+4) этот файл полностью;
+5) design/HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt полностью;
+6) design/hotfox_18_final_style_reference/MANIFEST.txt;
+7) design/HOTFOX_REFERENCE_LOCK.json;
+8) design/HOTFOX_REFERENCE_CONFLICTS.md;
+9) ПОСМОТРИ каждое изображение 01–18 доступным image viewer.
+
+Обязательные файлы:
+- design/HOTFOX_18_FINAL_STYLE_REFERENCE.zip — оригинал ZIP, байты сохранены;
+- design/HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt — оригинал владельца;
+- design/hotfox_18_final_style_reference/ — распакованные оригиналы.
+
+Первые пять изображений имеют расширение .jpeg. Остальные — .png.
+Экран 05 имеет размер 1024×1536; остальные — 1448×1086.
+Это РАЗМЕРЫ ПРЕЗЕНТАЦИОННЫХ ЛИСТОВ, не разрешение Android viewport.
+Не переименовывай JPEG в PNG без декодирования и не меняй оригиналы вообще.
+Не заменяй оригинальный промт сокращённым пересказом.
+Не используй старые 3-экранные картинки вместо этого набора.
+
+Порядок приоритета для ВНЕШНЕГО ВИДА:
+- пиксели соответствующего изображения;
+- измерения, непосредственно привязанные к этим пикселям;
+- этот production prompt и журнал обнаруженных расхождений;
+- исходный текстовый recreation prompt;
+- прежние визуальные ТЗ и текущий UI.
+
+Порядок приоритета для ПОВЕДЕНИЯ:
+- существующие проверенные runtime/security инварианты;
+- реальные API Android, существующие domain commands и backend contracts;
+- старое поведение, которое необходимо сохранить;
+- визуальные элементы как точки вызова этих команд.
+
+Текст на макете не является доказательством, что сервер доступен,
+оплата прошла, VPN защищает, Android включил lockdown или есть лицензия.
+
+2. ЧТО ИМЕННО ВОССОЗДАЁТСЯ
+==========================================================================
+
+В APK реализуй содержимое дисплея внутри нарисованного телефона.
+Внешние заголовки листов, рамка и блики корпуса, камера, callout-панели,
+номера, соединительные линии, footer «UI/UX SPEC» — не элементы приложения.
+Не превращай приложение в просмотрщик презентационных листов.
+Не рисуй внутри APK второй телефон или системный hole-punch.
+
+Если делаешь отчётные presentation boards, оригинальная внешняя часть листа
+может служить окружением для честной вставки ФАКТИЧЕСКОГО скриншота приложения.
+Это только отчёт. Такой лист не заменяет actual PNG, UI tree и тесты действий.
+Не выдавай оригинальную картинку или imagegen-рендер за скриншот из APK.
+
+Внутри приложения:
+- текст — настоящий текст с доступностью и масштабированием;
+- кнопки — настоящие Android controls с обработчиками;
+- список — настоящий прокручиваемый список;
+- поля — настоящие редактируемые поля;
+- переключатели — реальные настройки, если их изменение поддержано;
+- данные — существующий state/repository/backend;
+- иллюстрация может быть растровым asset, интерфейс целиком — нет.
+
+3. НЕИЗМЕНЯЕМАЯ ТЕХНИЧЕСКАЯ ОСНОВА
+==========================================================================
+
+Сохрани production datapath:
+Android apps → VpnService/TUN → HEV/tun2socks → local SOCKS → Xray
+→ VPN outbound → remote server → Internet → response.
+
+Не меняй applicationId com.hotfox.vpn, minSdk 24, signing identity,
+формат данных пользователя, ядро, версии сетевых зависимостей или протоколы
+ради визуальной задачи. Не начинай миграцию на другой UI framework.
+
+Сейчас проект восстанавливается bootstrap/bootstrap_source.sh в V2rayNG/.
+V2rayNG/ — генерируемый игнорируемый каталог, не источник поставки изменений.
+Сохраняй изменения в versioned overlay bootstrap/hotfox_2_2_0/ и в необходимых
+существующих patch/bootstrap scripts. Проверь повторную чистую реконструкцию.
+Изменение только локального V2rayNG/ не считается реализацией задания.
+
+Изучи реальные точки привязки:
+- ui/MainActivity.kt — UI и часть команд; НЕ весь файл является «только UI»;
+- ui/HotfoxOnboardingActivity.kt;
+- ui/GroupServerFragment.kt;
+- ui/MainRecyclerAdapter.kt;
+- ui/HotfoxRoutingPrivacyActivity.kt;
+- ui/HotfoxAutopilotActivity.kt;
+- res/layout/activity_main.xml и другие текущие layouts;
+- res/values*, drawable, темы и ресурсы;
+- HotfoxEngineFacade.snapshot() — существующая UI-граница состояния.
+
+Пути выше относятся к bootstrap/hotfox_2_2_0/app/src/main/.
+Проверяй фактические символы на текущем SHA перед изменением.
+Не вводи UI-доступ к внутренностям coordinator в обход фасада.
+
+Обязательные инварианты:
+T01. Canonical session, generation и claim ownership сохраняются.
+T02. Защищено только после существующей production path verification.
+T03. VpnService старт/стоп остаются сериализованными и идемпотентными.
+T04. Animation completion не запускает CONNECTED и не пишет protection state.
+T05. UI lifecycle/recomposition/navigation не создают вторую сессию.
+T06. Native Xray sockets не возвращаются в собственный TUN.
+T07. Последний fix claim teardown inside admission commit lock сохраняется.
+T08. Ошибка bindProcessToNetwork не превращается в успешный старт.
+T09. Запуск HEV/SOCKS/Xray и rollback сохраняют прежний порядок/владение.
+T10. Старый callback не переписывает новую generation.
+T11. Отмена во время старта не позволяет отложенному start воскресить VPN.
+T12. Явный disconnect остаётся сильнее Autopilot/retry/route-restart.
+T13. Underlying network binding освобождается только правильным владельцем.
+T14. DNS не получает скрытый direct fallback при заявленной защите.
+T15. IPv6/NAT64 и ::/0 сохраняют действующую fail-closed политику.
+T16. LAN bypass не начинает обходить IPv6-защиту.
+T17. AUTO — persisted mode, первый пункт списка, не фиктивный GUID.
+T18. Ручной выбор не переключается в AUTO сам собой.
+T19. Resolved AUTO server показывается из текущей сессии.
+T20. Старый ping после handover не становится измерением новой сети.
+T21. Невалидные/недоступные/entitlement-blocked кандидаты не оживают ради списка.
+T22. CUSTOM/POLICYGROUP/PROXYCHAIN валидируются существующим корректным путём.
+T23. Генератор Xray использует один canonical routing snapshot.
+T24. outboundTag/balancerTag разрешаются из фактической конфигурации.
+T25. DOMAIN/CIDR/direct/proxy/block и include/exclude сохраняют семантику.
+T26. Обновление подписки не уничтожает working profile при сетевой ошибке.
+T27. Внешние HTTPS-конфигурации сохраняют предусмотренную независимость от backend.
+T28. Payment/entitlement authoritative на backend, return URL — не proof.
+T29. Keystore/storage migration и existing secret redaction сохраняются.
+T30. Shadow не ослабляет TLS/REALITY и не выдумывает поддержку сервера.
+T31. Autopilot сохраняет pause, manual-stop, trusted networks и captive portal.
+T32. Notification/QS остаются привязаны к canonical truth и текущим командам.
+T33. Offline entitlement, device registry, signed control plane сохраняются.
+T34. Settings screen не меняет настройки просто при открытии/отрисовке.
+T35. Android always-on/lockdown не симулируются локальным boolean.
+T36. Обновление UI не удаляет диагностические, import/export или прежние действия.
+
+Запрещён «рефакторинг ядра заодно». Если выявлен реальный дефект, зафиксируй
+его отдельно; не маскируй последствия новым UI и не объявляй регрессию принятой.
+Минимальное изменение технического интерфейса допускается только при доказанной
+необходимости и с отдельным diff, объяснением и focused regression evidence.
+Это не разрешение изменить сетевую семантику.
+
+4. НЕГАТИВНЫЙ PROMPT — ГЛОБАЛЬНЫЙ ЗАПРЕТ НА ОТКЛОНЕНИЯ
+==========================================================================
+
+Применяй перед каждой группой и при review каждого экрана:
+
+NO redesign. NO reinterpretation. NO creative freedom. NO modernization.
+NO approximation passed as identity. NO silent deviation. NO inspiration-only.
+NO alternate layout. NO invented spacing. NO changed hierarchy.
+NO substitute artwork. NO substitute font accepted without comparison.
+NO Material-default appearance unless it matches the exact source pixels.
+NO unrelated gradients. NO added glow. NO new planet. NO new orbit.
+NO new fox. NO new mascot. NO cross-screen decorative propagation.
+NO full-screen screenshot UI. NO fake controls. NO fake VPN state.
+NO baseline replacement. NO masking mismatches. NO weakened visual thresholds.
+
+Конкретные запреты:
+N01. Не менять порядок видимых блоков.
+N02. Не центрировать заголовок, если он расположен слева.
+N03. Не выравнивать слева заголовок, который на источнике центрирован.
+N04. Не менять отступы ради удобства существующего layout.
+N05. Не округлять все значения к 8dp, если измерение требует другого.
+N06. Не брать CSS 420×860 из исходного промта за размер дисплея.
+N07. Не использовать размеры board как dp телефона.
+N08. Не растягивать по разным осям, чтобы «влезло».
+N09. Не заменять кремовый цвет холодным белым.
+N10. Не менять оранжевый на жёлтый/красный/Material purple.
+N11. Не удалять исходный градиент или glow, уже видимый на конкретном экране.
+N12. Не добавлять glow/градиент, которого на данном экране нет.
+N13. Не делать glassmorphism, neumorphism, gaming/neon/cyberpunk.
+N14. Не делать generic VPN dashboard с огромной power-кнопкой.
+N15. Не добавлять карту мира, speedometer, графики или threat counter.
+N16. Не добавлять карточку вокруг каждого элемента.
+N17. Не удалять существующую общую карточку строк.
+N18. Не унифицировать разные высоты/радиусы экранов вопреки источникам.
+N19. Не менять точную форму, положение и интенсивность фирменной иллюстрации.
+N20. Не генерировать «похожую» лису и не объявлять её оригинальной.
+N21. Не убирать лису с 06/09 из-за неполного текстового описания.
+N22. Не добавлять лису на 10–18, где её нет в собственном изображении.
+N23. Не превращать сетевой globe 03 в новую планету.
+N24. Не переносить планетарный горизонт 05 на функциональные экраны.
+N25. Не удалять уже присутствующий горизонт ради общей фразы в MANIFEST.
+N26. Не использовать emoji/Unicode вместо line icons и country assets.
+N27. Не менять stroke/cap/join/optical alignment иконки без измерения.
+N28. Не смешивать произвольные икон-паки.
+N29. Не заменять loading motif обычным Spinner/ProgressBar по умолчанию.
+N30. Не ставить проценты прогресса без измеримого источника.
+N31. Не делать «Остановить» или «Отключить» оранжевыми как Connect.
+N32. Не менять «Продолжить» на «Готово» на 04.
+N33. Не менять «Готово» на «Продолжить» на 16.
+N34. Не перефразировать статические подписи и CTA для удобства вёрстки.
+N35. Не сокращать длинный CTA и не скрывать текст ellipsis на canonical viewport.
+N36. Не переводить AUTO, Smart Routing, Shadow или HotFox произвольно.
+N37. Не вводить старый side rail/drawer.
+N38. Не возвращать старый трёхпунктовый bottom bar.
+N39. Не добавлять bottom bar на 14–17, где его нет.
+N40. Не убирать bottom bar с 18, где он виден.
+N41. Не исправлять nav 07 молча; смотри журнал расхождений.
+N42. Не показывать mock ping, сервер, expiry, timer, traffic в production.
+N43. Не превращать sample URL в рабочую встроенную подписку.
+N44. Не добавлять секреты в Git, PNG, XML dump, logcat, CI или prompt.
+N45. Не читать буфер обмена постоянно в фоне ради автоматизма.
+N46. Не заменять Android VPN consent собственным фальшивым диалогом.
+N47. Не рисовать системный статус 9:41 в production вместо SystemUI.
+N48. Не объявлять Kill Switch включённым после нажатия настройки.
+N49. Не скрывать ошибки, empty states и unavailable capability.
+N50. Не удалять working callbacks вместе со старым layout.
+N51. Не менять network defaults при создании composable/view/activity.
+N52. Не обновлять golden файлы скриншотами текущей реализации.
+N53. Не исключать из diff заголовки, CTA, навигацию или artwork.
+N54. Не применять blur/denoise/sharpen/color-correction к эталону или actual.
+N55. Не выравнивать actual автоматически по reference для сокрытия сдвига.
+N56. Не принимать 99%, SSIM 0.99 или mean error <1 за ноль отличий.
+N57. Не превращать NOT_EXECUTED/BLOCKED в PASS.
+N58. Не ослаблять lint/static/security/functional tests ради зелёного CI.
+N59. Не скрывать technical diff в массовом форматировании.
+N60. Не выпускать production release и не мержить PR автоматически.
+
+5. BASELINE И КАРТА СОХРАНЕНИЯ ДЕЙСТВИЙ
+==========================================================================
+
+Сначала запиши git SHA, status, branch, локальные несохранённые изменения.
+Не удаляй чужие изменения; используй отдельный checkout/worktree при конфликте.
+Проверь SHA-256 оригиналов командой integrity из раздела 11.
+Выполни существующую reconstruction и available baseline gates.
+Отдели прежние failures от внесённых; отсутствие тестового устройства не PASS.
+
+До удаления старого UI создай OLD_TO_NEW_INTERACTION_MAP.md:
+old control → old command/callback → new control → state source → evidence.
+Map должен включать ВСЕ доступные старые действия, а не только красивые 18 кадров.
+
+Обязательный минимум:
+connect, cancel start, disconnect, retry, AUTO, manual select, server details,
+server search, latency test, subscription refresh, HTTPS import, clipboard,
+QR, file, add/remove source, managed/external access, purchase/renew/manage,
+restore access, device management, subscription expiry, routing mode,
+apps include/exclude, custom rules, DNS, IPv6, LAN, Autopilot, pause,
+trusted Wi-Fi, cellular policy, captive portal, Shadow, notifications,
+QS tile, diagnostics, privacy, about, existing updates/export flows,
+Always-on VPN / Kill Switch и возврат из Android Settings.
+
+Старые функции, не показанные в 18 кадрах, должны оставаться доступны
+через соответствующие существующие разделы/вторичные сценарии.
+Не встраивай дополнительные controls в locked кадр просто для инвентаризации.
+Не прячь рабочую функцию навсегда. Расхождение полноты функций и макета
+фиксируй явно, сделай доступным через логичный уже существующий переход.
+
+6. ИЗМЕРЕНИЕ И РЕСУРСЫ
+==========================================================================
+
+Для каждого screen ID заполни measurements/<ID>.json:
+- source path и SHA-256;
+- размер листа;
+- координаты дисплея в координатах оригинала;
+- app-controlled viewport отдельно от рамки/SystemUI;
+- source pixel → canonical pixel → dp transform;
+- safe insets, status/navigation bars;
+- bounds каждого H1/body/CTA/card/row/artwork;
+- text baselines, font family/файл/hash, weight, size, lineHeight, tracking;
+- line breaks и точные статические строки;
+- colors sampled from source с координатами и контекстом;
+- radii, strokes, divider coordinates, icon bounds;
+- z-order, clipping, alpha, background assets;
+- fixture ID, target device profile, animation sample time;
+- неизвестные величины со статусом UNRESOLVED, не выдуманные числа.
+
+Геометрия каждого телефона на листах разная. Один общий crop для 18 файлов
+недопустим. Размеры измерять на полном оригинале, не на preview из чата.
+Pixel source не равен dp; округление переводов проверять обратным отображением.
+Не угадывай шрифт по фразе «Inter / SF Pro / похожий».
+Нужен точный доступный шрифт с кириллицей и сохранённой лицензией.
+При отсутствии оригинального font asset измерь кандидаты и запиши остаточный diff.
+Не называй подобранный шрифт точным без доказательства.
+
+Исходный ZIP содержит flattened boards, а не Figma/PSD/layered assets.
+Нельзя обещать восстановление скрытых лис/фона/букв пиксель в пиксель,
+если нужные пиксели перекрыты кнопкой, линией-выноской или корпусом телефона.
+Извлечение неизменённого декоративного фрагмента допустимо, когда он пригоден
+без перерисовки и не содержит UI-текст/controls/чужие выноски.
+Не inpaint и не перегенерируй reference. Недостающий оригинальный asset
+фиксируй как ASSET_SOURCE_MISSING с точной областью и нужным файлом.
+Сделай всю независимую часть работы; не останавливай 18 экранов из-за одной лисы.
+
+Layout, typography, icons и artwork допускают отдельные ресурсы для отдельных
+экранов. Shared component допустим только когда не создаёт визуального компромисса.
+Нативные press/focus/disabled states должны сохранять эту геометрию.
+Touch target расширять невидимым hit-area без увеличения нарисованной иконки.
+
+7. КОНКРЕТНОЕ ЗАДАНИЕ НА КАЖДЫЙ ЭКРАН
+==========================================================================
+
+Формулировки ниже сверены с картинками. Картинка всегда побеждает пересказ.
+Все sample values ниже — только deterministic UI fixtures, не реальные данные.
+
+01 — 01_splash_brand_entry.jpeg
+------------------------------
+Визуально: большая фирменная лиса на тёмном фоне с существующим оранжевым
+горизонтом; оранжевый HotFox ниже; «БОЛЬШЕ, ЧЕМ VPN»; тонкий loading track.
+Нет CTA, нижних вкладок, списка или дополнительного слогана.
+Сохрани позу/свет/масштаб/положение лисы и именно эту композицию.
+Поведение: корректный cold/warm start существующего приложения.
+Загрузка не блокирует main thread и не добавляет искусственную задержку.
+Startup/Android splash transition не создаёт белой вспышки/двойного брендинга.
+Время показа следует настоящему запуску. Фиксация кадра допустима только в тесте.
+Проверка: быстрый запуск, process restore, отсутствие изменения VPN state.
+
+02 — 02_onboarding_connect_hotfox.jpeg
+-------------------------------------
+HotFox сверху. H1 «Подключите\nHotFox».
+Body: «Добавьте свою подписку или продолжите с уже существующим доступом.»
+Лиса с исходным фоном ниже текста; широкая orange CTA над separator.
+CTA «У меня уже есть подписка», стрелка справа.
+Secondary «Купить доступ», заметно тише основного действия.
+Не добавлять pricing grid и рекламные badges.
+Поведение: existing subscription → import/add; purchase → существующий
+поддержанный checkout/access flow. Возврат браузера не даёт entitlement.
+Проверка: оба пути, Back, cancel, backend unavailable, повторный вход.
+
+03 — 03_onboarding_auto.jpeg
+---------------------------
+H1 «Лучший сервер —\nавтоматически».
+Body: «HotFox сам выберет подходящий сервер и переключится при необходимости.»
+Центральная illustration: line globe, пунктирные круги, оранжевые точки.
+Не заменять лисой, планетой или картой мира.
+CTA «Использовать AUTO», secondary «Выбрать вручную».
+Поведение: AUTO пишет существующий persisted AUTO mode; manual открывает выбор.
+Никакой фиктивной локации/пинга. Ручной выбор сохраняется через restart.
+Проверка: выбор AUTO/manual, отсутствие второго state store, no candidates.
+
+04 — 04_onboarding_ready.jpeg
+----------------------------
+H1 «Всё готово». Body о проверке соединения перед «Защищено».
+Иллюстрация двух server rows с orange check в исходных концентрических кольцах.
+Info: «Android попросит разрешение создать VPN-подключение.»
+Orange CTA «Продолжить», стрелка справа. Никаких зелёных protected обещаний.
+Поведение: официальный VpnService.prepare/существующий consent flow.
+Отказ/отмена разрешения не запускают сессию и не дают protected UI.
+Проверка: consent granted/denied/already granted, recreation во время consent.
+
+05 — 05_main_not_protected.jpeg
+------------------------------
+Это главный visual anchor, но не шаблон, которым можно заменить остальные кадры.
+HotFox слева, gear справа. H1 «Не защищено» слева, body ниже.
+Большая лиса/существующий светящийся горизонт под заголовком.
+Orange «Подключить» с arrow. Общая rounded surface с четырьмя строками:
+1 Сервер / «Авто-выбор выключен» / «Не выбран»;
+2 Подписка / «Добавьте подписку» / «Не подключена»;
+3 Shadow / «Дополнительная защита» / «Выкл»;
+4 Маршрутизация / «Приложения и правила» / «По умолчанию».
+Подсказка «Добавьте подписку, чтобы начать» и строка о внешних конфигурациях.
+Bottom: «Главная / Серверы / Подписка / Настройки», активна Главная.
+Порядок четырёх быстрых строк не такой, как на 06/07; не унифицировать.
+Поведение: если нет профиля, Connect ведёт в импорт, не делает fake session.
+При наличии валидного профиля Connect вызывает текущую каноническую команду.
+Gear и Settings destination работают. Только реальные runtime row values.
+Проверка: no-subscription/valid/expired/invalid, double tap, rotation, return.
+
+06 — 06_connecting.png
+---------------------
+H1 «Подключаем...», body «Проверяем соединение...».
+Внутри телефона ЛИСА В ОРАНЖЕВОМ КОЛЬЦЕ с точками; не bar chart.
+Под ней четыре stage lines с индикаторами:
+«Выбираем сервер...», «Устанавливаем соединение...»,
+«Проверяем доступ...», «Применяем правила...».
+На эталоне активна первая строка; остальные muted.
+Далее AUTO с флагом и «Нидерланды, Амстердам»;
+Маршрутизация / Smart / «Оптимизируем...»;
+Shadow / «Дополнительная защита» / «Подбираем маршрут...»;
+Подписка / «Премиум» / «Активна».
+Тёмная CTA «Остановить» со stop icon.
+Bottom как 05, активна Главная.
+Поведение: stage lines проецируют существующие stages, не новую машину состояний.
+Если в engine нет отдельного stage, не выдавай придуманный шаг за событие.
+Порядок реальных технических стадий не менять ради визуальных подписей.
+Прогресс indeterminate, без придуманного ETA/процента.
+Stop вызывает existing cancel/stop и остаётся доступным на всех стадиях.
+Проверка: stop на каждой границе, late callback, handover, slow/error readiness.
+
+07 — 07_protected.png
+--------------------
+HotFox и gear; центрированный зелёный H1 «Защищено».
+Timer «00:12:37» только для test fixture.
+Лиса и исходный горизонт. Два счётчика на общей поверхности:
+↓ «12,4 МБ» / «Загружено», ↑ «3,6 МБ» / «Отправлено».
+Server card: «Текущий сервер», «Нидерланды, Амстердам»,
+«Выбран автоматически», флаг, chevron.
+Потом Маршрутизация / Smart; Shadow / Авто; Подписка / Активна.
+Route illustration «Вы — HotFox — Интернет», строго как источник.
+Тёмная «Отключить», не orange Connect.
+На ЭТОМ источнике bottom второй пункт подписан «Соединение» и выделен оранжевым;
+это отличается от 05/06/10. Не менять исходник и не скрывать отличие в отчёте.
+Подробнее: design/HOTFOX_REFERENCE_CONFLICTS.md, REF-03.
+Поведение: только verified session; timer от session clock, traffic из stats,
+не новый UI counter. При потере проверки canonical UI сразу теряет protected.
+Нельзя держать зелёный headline до конца анимации после технической ошибки.
+Проверка: connect verified, lost readiness, reconnect, disconnect, app background.
+
+08 — 08_add_connection.png
+-------------------------
+Настоящий bottom sheet над затемнённым экраном 05, на фоне видна лиса.
+Drag handle, «Добавить подключение», close X; исходная высота/радиусы/scrim.
+Пять строк в этом порядке:
+HTTPS-подписка / Добавьте ссылку на подписку;
+Из буфера обмена / Автоматически определим ссылку;
+QR-код / Сканировать QR-код подключения;
+Из файла / Выберите файл на устройстве;
+Always-on VPN / Kill Switch / Импорт и быстрая настройка.
+Все иконки/chevrons как источник. Не превращать sheet в отдельный generic dialog.
+Поведение: HTTPS → 09; paste → существующий parser; QR → реальный scanner;
+file → Android document picker; последняя строка → 18, не parser подписки.
+Сохранить форматную проверку, cancel, ошибки разрешений и пустого clipboard.
+Swipe/Back/X закрывают sheet без изменения сохранённой конфигурации.
+Не записывать/отправлять clipboard до пользовательского действия.
+
+09 — 09_https_subscription.png
+-----------------------------
+Back и HotFox. H1 «HTTPS-подписка». Body о загрузке доступных серверов.
+Rounded URL input, link icon, divider, orange «Вставить» справа внутри поля.
+Sample display «https://sub.hotfox...» — не встроенный URL для сети.
+Lock note под полем. Orange «Добавить» располагается сразу под note,
+НЕ закреплена у нижней границы телефона.
+Ниже кнопки большая ЛИСА с существующим горизонтом — не один glow.
+Поведение: ввод/редактирование/paste/submit реально работают через current importer.
+Валидация пустого/неправильного URL, HTTPS/TLS policy, ограниченный запрос,
+cancel, network error и отсутствие duplicate import сохраняются.
+После сохранения применяются existing masking/secure storage правила.
+Keyboard/IME не скрывают ввод и CTA; error state не теряет введённое без причины.
+Fixtures не попадают в release resources с личными значениями.
+
+10 — 10_servers.png
+------------------
+HotFox и search сверху. H1 «Серверы», пояснение.
+Первая отдельная orange-outlined AUTO row: «Лучший сервер автоматически».
+Group «ПОПУЛЯРНЫЕ ЛОКАЦИИ»: Нидерланды/Амстердам/32 мс,
+Германия/Франкфурт/38 мс, Франция/Париж/42 мс,
+Великобритания/Лондон/46 мс, США/Нью-Йорк/64 мс.
+Group «ДРУГИЕ ЛОКАЦИИ»: Канада/Торонто/68 мс в видимой части.
+Это только fixture. Actual список поступает из реальных профилей.
+Флаги, страна/город, signal icon, latency и chevron — с исходной геометрией.
+Bottom активен «Серверы»; никаких default/sub двух колонок.
+Поведение: first AUTO остаётся отдельно от списка GUID; search реально фильтрует.
+Реальные health/latency, неизвестное значение не превращать в «32 мс»/зелёный.
+Manual row/details и AUTO не изменяют друг друга неявно.
+Не вводить новый ranking algorithm ради группы «популярные».
+Проверка: empty/no matches/many servers/stale latency/offline/manual persistence.
+
+11 — 11_server_details.png
+-------------------------
+Back/HotFox; «Детали сервера»; пояснение.
+Server summary: flag, Нидерланды, Амстердам, 32 мс, recommended badge.
+Rows: Статус / Доступен; Нагрузка / Низкая;
+Маршрутизация / Smart; Shadow / Доступно; Автовыбор / Можно включить.
+Orange «Выбрать сервер», note о переходе AUTO → ручной выбор.
+Bottom активен Серверы.
+Поведение: recommended/load/availability только из реальных данных.
+При unknown capability не лгать и не менять core, чтобы нарисовать green.
+Выбрать сервер меняет existing manual selection transaction;
+если reconnect нужен, использовать существующий безопасный путь.
+Проверка: selected/deleted/invalid/unknown health, AUTO → manual, Back.
+
+12 — 12_subscription.png
+-----------------------
+Back/HotFox; «Подписка»; text об active access и server verification.
+Summary: crown, «HotFox Premium», «Активна», описание.
+Rows: Действует до / 12 марта 2026; Устройств / 2 из 5;
+Проверка оплаты / Проверено сервером; Автопродление / Выключено;
+Восстановить доступ; HTTPS-подписка / Можно добавить.
+Orange «Управлять подпиской», dark «Продлить доступ»; bottom Подписка.
+Дата/статусы в test fixture должны иметь соответствующий frozen clock,
+иначе «Активна» рядом с истёкшей датой — не доказательство корректности.
+Production использует backend-authoritative entitlement и текущую дату.
+Внешнюю подписку нельзя объявлять проверенной платёжным сервером HotFox.
+Поведение: manage, renew, restore, device list, HTTPS реально открывают current flows.
+Проверка: active/expired/pending/no subscription/external/offline/device-limit,
+backend failure, forged browser return, expired cached entitlement.
+
+13 — 13_settings.png
+-------------------
+Back/HotFox; «Настройки»; пояснение.
+«ОСНОВНЫЕ НАСТРОЙКИ»: Autopilot, Always-on VPN / Kill Switch, Уведомления.
+«СЕТЬ И ПОДКЛЮЧЕНИЯ»: Диагностика, Локальная сеть, DNS, IPv6.
+«ПРОЧЕЕ»: О приложении, Политика конфиденциальности.
+На source версия «2.0.0 (2025)» — тестовый visual sample;
+production показывает BuildConfig/current metadata, не меняет versionName.
+Bottom активен Настройки. Статусы right-aligned как в исходнике.
+Поведение: все строки ведут в реальные настройки/действия. Нет dead chevrons.
+Открытие страницы не активирует Autopilot/LAN/notifications само по себе.
+Сохрани существующие diagnostics/update/about/license/privacy возможности.
+Проверка: возврат из каждого раздела, denied notifications, process restore.
+
+14 — 14_smart_routing.png
+------------------------
+Back/HotFox; «Smart Routing»; body про правила приложений/трафика.
+Одна surface: Режим / Smart; Приложения и правила;
+DNS / Через VPN; Локальная сеть / toggle / Разрешена;
+IPv6 / Защищать; Custom rules; Переподключение / Не требуется.
+Orange «Применить», info note. НЕТ bottom tab bar.
+Поведение: отображает current routing snapshot и draft изменений.
+Apply сохраняет через текущий owner/transaction/restart gate.
+Статус «Не требуется» не hardcoded при изменении, требующем reconnect.
+Не добавлять direct DNS/IPv6 bypass только потому, что это перечислено в выноске.
+Unsupported режимы честно unavailable; не менять network semantics ради текста.
+Проверка: Smart/global/custom, LAN, DNS, IPv6, cancel draft, apply + rapid stop.
+
+15 — 15_apps_and_rules.png
+-------------------------
+Back/HotFox; H1 «Приложения\nи правила», пояснение.
+Segment «Только выбранные / Все кроме выбранных», выбран первый.
+Search «Поиск приложений...». List fixture:
+Telegram / org.telegram.messenger — checked;
+Chrome / com.android.chrome — checked;
+Банк / com.sberbank.online — unchecked;
+YouTube / com.google.android.youtube — checked;
+Maps / com.google.android.apps.maps — unchecked.
+Ниже: Пользовательские правила / 3 активных;
+Выбрано / 3 из 42; orange «Сохранить правила». Без bottom bar.
+Production список/icon/package — через существующий installed-app provider.
+Не генерировать такие package names как якобы установленные.
+Поведение: include/exclude сохраняют текущую семантику TUN builder;
+selected count следует реальному draft; поиск не теряет выбор.
+Save не запускает новый несогласованный VPN restart и не сбрасывает другие rules.
+Проверка: app uninstall, search, empty selection, system app filter, persist/reopen.
+
+16 — 16_autopilot.png
+--------------------
+Back/HotFox; «Autopilot»; «Автоматическая защита по вашим правилам.»
+Primary surface Autopilot / Включён с ORANGE switch.
+Rows: Новые сети Wi-Fi / Подключать; Мобильная сеть / Подключать;
+Доверенные сети / 2 сети; Пауза / Не активна;
+Captive portal / Ожидать входа; Уведомления / Включены.
+Orange «Готово», info note. Нет bottom bar.
+Не красить этот switch в зелёный как LAN 14 ради component consistency.
+Поведение: existing Autopilot config/events; не собственный background timer.
+Manual stop/pause не отменяются при возврате на экран или сохранении настроек.
+Проверка: enabled/disabled, Wi-Fi/cellular, trusted network, pause expiry,
+captive portal, Doze/return, no reconnect storm.
+
+17 — 17_shadow.png
+-----------------
+Back/HotFox; «Shadow»; body про дополнительную защиту в сложных сетях.
+Щит с тонкими световыми линиями/точками, без лисы/планеты.
+Rows: Статус / Готов; Режим / Авто;
+Активируется / При сложных сетях; Совместимость / Поддерживается;
+Подробнее / Как работает. Orange «Оставить AUTO». Нет bottom bar.
+Поведение: вывод фактического Shadow state/capability; mode через existing store.
+«Готов» не означает активный защищённый tunnel и не меняет главный статус.
+Не подменять неработающий fallback красивой shield animation.
+Проверка: auto/off/unavailable, bounded fallback, manual target, no TLS downgrade.
+
+18 — 18_always_on_kill_switch.png
+--------------------------------
+Back/HotFox; H1 «Always-on VPN»; пояснение; исходный shield illustration.
+Rows: Always-on VPN / Не настроено; Блокировать без VPN / Не настроено;
+Статус / Выключено; Как это работает / Подробная информация.
+Orange «Открыть настройки Android», info note о данных Android.
+Bottom bar виден, активны Настройки.
+Поведение: opens real Android VPN Settings через поддержанный existing путь.
+Возврат читает доступное Android state, а не локальный success flag.
+Если данное API/OEM не раскрывает состояние, показывать honest unknown;
+не притворяться, что нажатие CTA включило системное enforcement.
+Always-on и block-without-VPN — разные системные настройки.
+Не реализовывать fake переключатель блокировки внутри обычного приложения.
+Проверка: open/return/no handler/API 24+/unknown state/permission revoke.
+
+8. АНИМАЦИЯ И СОСТОЯНИЯ, КОТОРЫХ НЕТ НА СТАТИЧНОМ МАКЕТЕ
+==========================================================================
+
+Один статичный кадр не задаёт duration/easing/полную траекторию.
+Зафиксируй measured keyframe и реализуй минимальное спокойное движение,
+не меняющее layout и не добавляющее новых объектов.
+Параметры timing документируй как implementation choice, не «взято с изображения».
+
+Для 06 допустима анимация существующего кольца/точек/активной stage line.
+Не вращать всю лису, весь экран или unrelated rings.
+Не заменять artwork loading bars из текстовой выноски.
+UI animation не задерживает технический stop/error/protection loss.
+Animation clock отдельно от session clock. В tests возможно остановить только UI clock.
+
+Для navigation/sheets: сохранить Android Back, swipe dismiss и state restoration.
+Повторный tap не открывает несколько копий, не запускает несколько imports.
+Lifecycle cancellation не роняет service, который принадлежит приложению/системе.
+Соблюдай reduced animation/system animator duration scale; no busy loops.
+
+Обязательные состояния сверх 18 эталонных кадров:
+- empty, loading, success, error, unavailable capability;
+- revoked/denied VPN permission;
+- no subscription, invalid/expired subscription, backend unavailable;
+- no servers, no search results, stale ping;
+- no internet, timeout, cancellation, network handover;
+- keyboard shown, long names, large font, process recreation;
+- pending payment, restore failed, offline entitlement;
+- unknown Android always-on/lockdown status.
+
+Для них используй уже измеренные primitives и существующее честное поведение.
+Не объявляй pixel match к несуществующему изображению.
+Не выдумывай backend/state для красивого error/success сценария.
+
+9. ACCESSIBILITY И РАЗНЫЕ УСТРОЙСТВА
+==========================================================================
+
+Pixel lock проверяется в объявленном canonical capture profile.
+На других density/size/fontScale система закономерно растеризует иначе;
+это не право поменять дизайн canonical кадра и не обещание одинаковых пикселей
+на разных физических экранах.
+
+Сохрани TalkBack, настоящие labels/roles/selected/checked/enabled states.
+48dp hit targets можно обеспечивать невидимой областью касания.
+При fontScale >1.0 сохранять доступность CTA/прокрутку/читаемость,
+не отключать системное масштабирование ради screenshot match.
+При gesture/3-button navigation соблюдать WindowInsets без двойного padding.
+Русский locale, реальные кириллические glyphs, нет □/missing glyph.
+Не форсировать LTR для пользовательских данных, если это ломает Android text.
+
+Проверь baseline profile и доступные representative варианты малого/высокого
+экрана, API 24 и современного API, fontScale 1.0/1.3/2.0.
+Это layout/accessibility evidence, отдельное от нулевого diff canonical profile.
+Не требуй физический телефон для начала всей UI реализации.
+
+10. ИЗМЕРЯЕМАЯ ВИЗУАЛЬНАЯ ПРИЁМКА
+==========================================================================
+
+Нулевой допуск: changed_pixels == 0 и max_channel_delta == 0
+для ВСЕХ пикселей заранее объявленной сравниваемой области.
+Ни «1px», ни «0.1%», ни высокий SSIM не считаются точным совпадением.
+Нельзя добавлять tolerance flag и менять эталон, чтобы пройти проверку.
+
+Не путай три результата:
+A. Originals integrity: файлы действительно те, что дал владелец.
+B. Reference fidelity: app pixels сравнены с исходным reference target.
+C. Regression stability: сегодняшняя реализация совпала со вчерашним screenshot.
+B обязателен. Один C не доказывает верность изображениям владельца.
+
+До реализации заморозь comparison contract для каждого ID:
+- точный source SHA;
+- app viewport crop/координаты;
+- renderer/API/system image/width/height/density/fontScale;
+- locale/timezone/night mode/insets/navigation mode;
+- font file/hash и color space;
+- test-only fixture state, frozen date/session clock/traffic/latency;
+- точный animation sample time, settled-layout condition;
+- source-to-canonical transform и алгоритм, если неизбежен;
+- список пикселей вне app ownership, если такие исключены, с причиной.
+
+Оригиналы не редактировать. Производный crop сохранять отдельно с provenance.
+Для разницы размеров нет автоматического resize. Для смещения нет auto-align.
+Если render profile нельзя привести к declared target, результат BLOCKED,
+а не «всё равно PASS, масштаб отличается».
+
+SystemUI, рамка корпуса, camera cutout и внешние выноски принадлежат не APK.
+Отделение этих областей — явное определение app viewport, не полное совпадение
+всего исходного board. Любой excluded pixel делает claim FULL_BOARD_IDENTITY
+неприменимым. Отчёт обязан указать точную область проверки.
+
+Не маскировать динамический текст: для visual test использовать deterministic
+state на границе presentation с теми же strings/fonts/geometry, что в production.
+Так проверяются и цифры, и baseline, и контейнер. Fixtures только debug/androidTest
+или отдельный test renderer, без release entry point и реальной VPN симуляции.
+
+Без controlled clock/fixture визуальный тест runtime screen помечается отдельным
+smoke result. Нельзя вырезать из comparison все «неудобные» значения.
+Значения sample URL/expiry/ping никогда не заменяют реальные production values.
+
+Никакие masks для app-controlled text/CTA/icons/artwork/layout не разрешены.
+Нельзя «приблизить» reference под actual blur/filter/resample/paint operations.
+Если JPEG/antialias/font/flattened artwork оставляют ненулевой diff, честно
+запиши FAIL или BLOCKED с причиной и областью; не ослабляй acceptance.
+Для недоступного original asset запиши конкретно, что необходимо для достижения 0.
+Не зацикливайся бесконечно при доказанной нехватке исходников: выполни независимые
+части, собери доказательства и оставь честный остаточный blocker.
+
+Для каждого кадра публикуй:
+<ID>_reference.png, <ID>_actual.png, <ID>_overlay.png, <ID>_diff.png,
+<ID>_capture.json, <ID>_metrics.json, relevant UI hierarchy / action evidence.
+Actual — из APK/render path данного commit. Не reference, не генерация и не макет.
+Metrics: dimensions, pixel count, changed pixels/percent, channel MAE/max,
+diff bbox, ref/actual SHA-256, source SHA, candidate SHA, fixture/profile IDs.
+
+Проверка родственных экранов не заменяет самостоятельную проверку 18/18.
+Все 18 должны иметь actual и независимый status.
+MISSING/NOT_EXECUTED/BLOCKED — не ноль отличий.
+
+11. ПРИЛОЖЕННЫЕ ПРОВЕРКИ
+==========================================================================
+
+Из корня репозитория:
+python3 verification/ui_rebuild/verify_reference_lock.py integrity
+python3 verification/ui_rebuild/verify_reference_lock.py core
+
+Первая команда сверяет originals SHA, dimensions и содержимое ZIP.
+Вторая сравнивает protected technical files с зафиксированной runtime-базой.
+core PASS означает отсутствие изменений этих файлов, не доказательство VPN E2E
+и не доказательство корректности callbacks внутри изменённого MainActivity.
+Добавленные runtime files и bootstrap/CI изменения проверяются отдельным diff.
+
+Для уже подготовленных одинаковых по размеру target/actual:
+python3 verification/ui_rebuild/verify_reference_lock.py pixels \
+  --reference PATH_TO_DECLARED_REFERENCE_PNG \
+  --actual PATH_TO_ACTUAL_PNG \
+  --out DIRECTORY_FOR_EVIDENCE
+
+Comparator не генерирует screenshots, не знает источник переданного reference
+и не сертифицирует 18 экранов одним вызовом. Capture provenance и source binding
+обязательны в отчёте. Self-comparison — только test comparator, не приёмка UI.
+Comparator возвращает nonzero при любом изменённом пикселе/ошибке/размере.
+Нет tolerance, auto-mask, blur или auto-update-golden.
+Не меняй verifier/lock JSON ради прохождения.
+
+12. ПОРЯДОК РЕАЛИЗАЦИИ
+==========================================================================
+
+Этап A — baseline + source analysis:
+verify original assets, record SHA, reconstruct existing app, run baseline,
+map actions, establish measured profile/geometry/assets, document source conflicts.
+
+Этап B — presentation primitives:
+точные colors/fonts/backgrounds/icons, controls, rows, sheets, nav variants;
+не ломать existing commands. Добавить test-only fixture entry mechanism.
+
+Этап C — 01–04 onboarding, 05–07 connection, 08–09 import,
+10–11 servers, 12 subscription, 13 settings, 14–15 routing,
+16 Autopilot, 17 Shadow, 18 system protection.
+Порядок групп может учитывать зависимости ресурсов, но результат — все 18.
+После каждой группы: targeted build, relevant action/state tests,
+actual screenshots, diff, исправление выявленных отклонений.
+Не тратить время на полный unrelated test suite после каждого 1dp исправления.
+
+Этап D — интеграция и regression:
+полный navigation path, сохранение настроек, реальные action callbacks,
+reconstruction from clean checkout, release exclusion of test fixtures,
+существующие functional/unit/lint/static/security gates.
+
+Этап E — финальный evidence:
+18 screenshots + diffs + metrics + accessible APK + SHA provenance,
+полный список outstanding mismatch/blocker, exact commit CI links.
+Зелёный build без screenshot comparison не закрывает UI задачу.
+
+13. ТЕХНИЧЕСКАЯ РЕГРЕССИЯ: КОНКРЕТНЫЕ GATES
+==========================================================================
+
+Сначала используй команды/параметры актуального CI и инструкции bootstrap.
+Не запускай неизвестные/не существующие скрипты по догадке.
+Существующие Android команды выполняются из reconstructed V2rayNG/:
+./gradlew :app:assemblePlaystoreDebug
+./gradlew :app:testPlaystoreDebugUnitTest
+./gradlew :app:lintPlaystoreDebug
+./gradlew :app:assemblePlaystoreRelease
+
+Из корня репозитория:
+bash bootstrap/verify_payload.sh
+bash bootstrap/verify_hotfox_2_2_0.sh
+python3 verification/static_check_2_2_0.py
+
+И актуальные meaningful secret/runtime/static gates из workflow.
+Старый grep на три вкладки разрешено обновить под явное новое UI требование
+с эквивалентной semantic navigation test. Это не разрешение ослабить проверку
+AUTO row/state/security, удалить тест или отключить lint целиком.
+Не менять trusted AI_REVIEW_PHASE_ID/reviewer scripts в этой UI задаче.
+
+Обязательные focused regression сценарии:
+R01 connect → verified → UI Protected;
+R02 connect → cancel на каждой startup boundary;
+R03 rapid connect/stop/connect и late callback;
+R04 protected → error/revoke → отсутствие false Protected;
+R05 Activity recreation/background не дублируют start/stop;
+R06 Wi-Fi/cellular handover и ручной stop во время restart;
+R07 AUTO persisted/manual sticky/no candidates/stale latency;
+R08 manual subscription import/paste/QR/file/cancel/invalid/TLS failure;
+R09 managed/external entitlement и forged checkout return;
+R10 routing apply/rollback/reconnect и include/exclude;
+R11 DNS/IPv6/LAN settings без неявного обхода;
+R12 Autopilot pause/manual-stop/trusted/captive portal;
+R13 Shadow no insecure fallback;
+R14 notification/QS/action state совпадают с canonical session;
+R15 always-on Settings return/unknown state;
+R16 installation/update с сохранением existing user state;
+R17 отсутствие test fixtures/секретов в release artifact;
+R18 все ранее доступные действия отражены в interaction map.
+
+Повторно используй существующие тесты; добавляй тест на реальную новую boundary,
+а не на повторение constants, очевидных из реализации.
+Не требуй приватную подписку в Git. При доступном authorized runtime fixture
+прогони существующий VPN E2E harness. Без доступа — NOT_EXECUTED с причиной.
+Для device-wide proxy proof нужен клиентский трафик через TUN и внешний IP
+до/во время/после подключения при подходящей тестовой топологии.
+SOCKS-only request и эмульторный screenshot не доказывают device-wide VPN.
+
+14. ОБЯЗАТЕЛЬНЫЕ ОТЧЁТЫ И СТАТУСЫ
+==========================================================================
+
+Каталог verification/ui_rebuild/:
+HOTFOX_UI_REBUILD_MASTER_REPORT.md
+HOTFOX_PIXEL_DIFF_RESULTS.csv
+HOTFOX_UI_BUGS.md
+OLD_TO_NEW_INTERACTION_MAP.md
+UI_CHANGED_FILES.txt
+TECHNICAL_CORE_TOUCHED.txt
+UNTESTED_UI_GAPS.md
+measurements/<ID>.json
+captures/<ID>/...
+
+CSV минимум:
+screen_id,source_sha256,reference_sha256,actual_sha256,candidate_sha,
+profile_id,fixture_id,width,height,changed_pixels,changed_percent,
+mean_channel_delta,max_channel_delta,diff_bbox,status,notes
+
+Статусы по отдельности:
+ORIGINALS_INTEGRITY = PASS / FAIL;
+SCREEN_IMPLEMENTATION = IMPLEMENTED / PARTIAL / NOT_STARTED;
+REFERENCE_PIXEL_MATCH = EXACT / FAIL / BLOCKED / NOT_EXECUTED;
+FUNCTIONAL_REGRESSION = PASS / FAIL / NOT_EXECUTED;
+CORE_SNAPSHOT = UNCHANGED / CHANGED;
+ANDROID_BUILD = PASS / FAIL / NOT_EXECUTED;
+RUNTIME_VPN_E2E = PASS / FAIL / NOT_EXECUTED;
+PHYSICAL_DEVICE_E2E = PASS / FAIL / NOT_EXECUTED.
+
+EXACT допустим только при 0 changed pixels, 0 max delta, валидном provenance
+и заранее объявленной области. Не используй EXACT для «основные элементы похожи».
+18/18 EXACT нельзя ставить при 17 PASS и одном missing/blocked.
+IMPLEMENTED не значит EXACT. EXACT с fixture не значит runtime E2E PASS.
+
+TECHNICAL_CORE_TOUCHED.txt должен содержать NONE, если это подтверждено diff.
+Если core менялся: каждый файл, зачем, изменение semantics, regression evidence.
+Отдельно review командных блоков внутри UI файлов, которые hash gate не защищает.
+Сохрани baseline failures и незавершённый runtime gate PR #4 честно.
+
+APK должен быть построен из финального candidate SHA; записать SHA-256 файла,
+variant/version/package и CI run/artifact URL. Не ссылаться только на mutable
+hotfox-dev-latest, которое может перезаписываться другой веткой.
+Подписанный релиз не выпускать без существующего предусмотренного процесса.
+Предоставить соответствующие исходники/лицензионные уведомления вместе с APK.
+
+15. АВТОНОМНОЕ ПРОДОЛЖЕНИЕ И ОСТАНОВКА
+==========================================================================
+
+Работай самостоятельно между группами: implement → build → compare → fix.
+При CI failure исправь причину и продолжи. Не объявляй завершение при запуске CI.
+Используй обычные commits во время реализации. Финальный coherent checkpoint
+ревью — по действующей политике после зелёных required gates, не на каждый commit.
+Не используй [hotfox-phase-exit] для этого пакета задания и промежуточных UI правок.
+Не мержи main/PR и не меняй protections/reviewer policies ради «не останавливаться».
+
+Если есть инфраструктурный blocker: сначала выполни всё независимое.
+Если нельзя воспроизвести отдельный asset без оригинала: продолжай остальные
+экраны, подготовь actual/diff и точный список недостающих исходников.
+Не спрашивай «продолжать?» и не проси владельца нажать Build за тебя.
+Не задавай повторно уже решённые вопросы о стиле — владелец выбрал эти изображения.
+
+Разрешённый финал успешного UI задания:
+«18/18: нулевой diff в объявленных canonical app viewports; реальные controls
+и callbacks проверены; технические gates перечислены; runtime/device статус указан».
+Такой финал допустим только при фактических доказательствах.
+
+Иначе финал:
+«Реализовано X/18; EXACT Y/18; остаются конкретные FAIL/BLOCKED и причины;
+готовые независимые части, APK/commit/evidence доступны».
+Не писать «1:1 ни пикселя» без нулевых результатов по всем целям.
+Не писать RELEASE READY без полного существующего runtime/physical release gate.
+
+СТАРТУЙ СЕЙЧАС. СОХРАНИ РАБОЧЕЕ ЯДРО. ВОССОЗДАЙ И ПРОВЕРЬ КАЖДЫЙ КАДР.

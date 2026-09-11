@@ -1,303 +1,1420 @@
-HOTFOX — 18 APPROVED REFERENCES — IMMUTABLE PIXEL-LOCK RECREATION MASTER
-=======================================================================
+
+HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt
+=================================================
 
 PURPOSE
 -------
-This document is a strict anti-drift visual contract for HotFox.
-The 18 approved reference images are primary truth. This text is secondary.
+This document is a strict recreation lock for the 18 archived HotFox reference boards.
+Its only purpose is to force recreation of those exact images with the smallest possible deviation.
 
 NON-NEGOTIABLE RULE
 -------------------
-THE APPROVED REFERENCE FOR A SCREEN WINS OVER EVERY PROSE DESCRIPTION, OLD COMPONENT, THEME TOKEN, MATERIAL DEFAULT, AGENT PREFERENCE OR DESIGN OPINION.
+THE 18 REFERENCE IMAGES ARE THE PRIMARY SOURCE OF TRUTH.
+THIS DOCUMENT IS SECONDARY.
+IF ANY WORD, spacing, icon, line break, proportion, tone, crop, highlight, alignment, or compositional decision in this document conflicts with a reference image, THE REFERENCE IMAGE WINS.
 
+CRITICAL EXECUTION RULE
+-----------------------
 You are not designing a new version.
-You are not improving.
-You are not reinterpreting.
-You are not modernizing.
-You are not adapting.
-You are not taking inspiration.
-You are recreating the UI inside each approved phone reference as literally as technically possible.
+You are not “improving”.
+You are not “reinterpreting”.
+You are not “modernizing”.
+You are not “adapting”.
+You are not “taking inspiration”.
 
-The correct result is not “same style”, “very close”, or “inspired by”.
-The correct result is: no intentional visual deviation.
+YOU ARE RECREATING THE PROVIDED 18 REFERENCE IMAGES AS LITERALLY AS POSSIBLE.
+
+That means:
+- same board structure
+- same aspect ratio
+- same phone size and position
+- same callout box count
+- same visual hierarchy
+- same text hierarchy
+- same dark premium visual language
+- same icon tone
+- same orange highlights
+- same background mood
+- same amount of glow
+- same premium UI/UX presentation mood
+- same wording and line breaks as closely as possible
+- same information architecture
+- same panel labeling logic
+- same footer/header rhythm
+- same board density
+
+If exact pixel identity is required, use the archived images as mandatory reference images at generation time.
+This document is meant to minimize drift, not to replace the originals as the ultimate target.
 
 REFERENCE SET
 -------------
-01_splash_brand_entry
-02_onboarding_connect_hotfox
-03_onboarding_auto
-04_onboarding_ready
-05_main_not_protected
-06_connecting
-07_protected
-08_add_connection
-09_https_subscription
-10_servers
-11_server_details
-12_subscription
-13_settings
-14_smart_routing
-15_apps_and_rules
-16_autopilot
-17_shadow
-18_always_on_kill_switch
+Archive title:
+HOTFOX_18_FINAL_STYLE_REFERENCE.zip
 
-Screen 05 is the strongest functional style anchor for subsequent application screens, but each screen's own reference remains authoritative for its exact details.
+Reference files:
+01_splash_brand_entry.jpeg
+02_onboarding_connect_hotfox.jpeg
+03_onboarding_auto.jpeg
+04_onboarding_ready.jpeg
+05_main_not_protected.jpeg
+06_connecting.png
+07_protected.png
+08_add_connection.png
+09_https_subscription.png
+10_servers.png
+11_server_details.png
+12_subscription.png
+13_settings.png
+14_smart_routing.png
+15_apps_and_rules.png
+16_autopilot.png
+17_shadow.png
+18_always_on_kill_switch.png
 
-GLOBAL VISUAL CHARACTER
------------------------
-Premium editorial Android UI.
-Dark, warm, restrained, precise, confident.
-Near-black background with subtle violet warmth.
-Cream typography, not cold pure white.
-HotFox orange used accurately and sparingly.
-Soft green reserved for real verified success.
-Fine line icons.
-Minimal visual noise.
-No generic utility/dashboard look.
-
-STARTING COLOR TOKENS — TUNE AGAINST REFERENCE
------------------------------------------------
-background deep: #05070D
-background main: #070912 / #090B14
-surface: #111119 / #15141D / #191720 depending on exact reference
-primary cream: #F5E9E1 / #F6EDE8
-secondary cream: rgba(246,237,232,.72)
-muted: rgba(246,237,232,.48-.56)
-HotFox orange: approximately #F78843 / #FF8E4D
-success green: approximately #76EA77
-hairline: rgba(255,255,255,.08-.12)
-
-These values are starting points only. Pixel comparison to the reference decides final values.
-
-TYPOGRAPHY LOCK
----------------
-Use one premium neutral grotesk family as close to the reference as the project legally allows.
-Do not substitute a visibly different desktop/novelty font.
-Use exact measured hierarchy per screen.
-Calibrate:
-- family;
-- size;
-- weight;
-- line-height;
-- tracking;
-- baseline;
-- wrapping;
-- max width;
-- tabular numerals for timer/metrics where required.
-
-Do not change Russian copy merely to make wrapping easier.
-
-GEOMETRY LOCK
--------------
-For every screen measure and record:
-- viewport;
-- safe insets;
-- left/right content inset;
-- header bounds;
-- title bounding box;
-- body bounding box;
-- artwork bounds;
-- card/surface bounds;
-- row heights;
-- divider positions;
-- icon centers;
-- CTA bounds/radius;
-- bottom-nav bounds;
-- text baselines.
-
-Implement from measurements, not intuition.
-
-ICON LOCK
----------
-Use a coherent fine line icon family.
-Match visual size, stroke, line caps, optical center and tint.
-Never use text glyphs or emoji in place of proper product icons.
-Do not mix unrelated icon families.
-
-CTA LOCK
---------
-Orange primary CTA only where the approved reference shows it.
-Match exact width, height, radius, label position and trailing icon.
-Do not add shadows/gradients/glow unless literally visible in the exact reference.
-Secondary actions remain secondary.
-
-SURFACE LOCK
-------------
-Do not wrap everything in cards.
-Reproduce only the surfaces/cards/rows visible in the exact reference.
-Match border alpha, radius, padding and divider positions.
-Never substitute a default Material card/dialog merely because it is convenient.
-
-NEGATIVE PROMPT — ABSOLUTE
---------------------------
-Never invent:
-- generic Material 3 redesign;
-- default Material blue/purple;
-- glassmorphism;
-- neumorphism;
-- neon;
-- cyberpunk;
-- gaming style;
-- giant glowing VPN power circle;
-- arbitrary cards;
-- random gradients;
-- random shadows;
-- fake graphs;
-- fake world maps;
-- fake speed/load/threat meters;
-- random badges;
-- mixed icon families;
-- emoji icons;
-- cold pure-white typography;
-- technical jargon in normal UI;
-- new marketing copy;
-- new navigation structure;
-- fake product state.
-
-PLANET / CELESTIAL NEGATIVE RULE
---------------------------------
-Never invent or propagate a new planet, globe, planetary arc, planetary horizon, eclipse, celestial sphere or space-horizon motif.
-If a motif is literally visible in the exact locked reference for one screen, reproduce only what is already there for that screen. Never copy it to another screen.
-
-FOX RULE
---------
-The approved fox is not a generic mascot.
-Do not add it where the exact reference does not show it.
-Do not remove it where the exact reference does show it.
-Do not transform it into a cartoon/cute/different fox.
-
-REFERENCE-ONLY MOTIF RULE
--------------------------
-Any decorative motif is owned by the specific reference where it appears. Motif propagation across screens is forbidden.
-
-FUNCTIONAL RECONSTRUCTION RULE
-------------------------------
-Do not cheat by shipping a full-screen screenshot as the Android UI.
-Text remains real Android text.
-Buttons remain controls.
-Rows remain accessible controls.
-Dynamic data remains bound to real state.
-Decorative artwork can be a dedicated asset where needed.
-
-SCREEN 01 — SPLASH
-------------------
-Recreate exact inner-phone splash composition, approved fox/artwork, HotFox branding, tagline/loading treatment and dark atmosphere. Do not add interactive UI. Do not impose a fake fixed loading delay.
-
-SCREEN 02 — CONNECT HOTFOX
---------------------------
-Recreate exact onboarding hierarchy: HotFox label, large title, explanatory body, approved artwork, orange existing-access CTA, secondary purchase action. No commercial implementation jargon.
-
-SCREEN 03 — AUTO
-----------------
-Recreate title/body/AUTO visual/primary CTA/manual secondary action exactly. Do not move its visual motif onto other screens. Production AUTO state remains real and persisted.
-
-SCREEN 04 — READY
------------------
-Recreate title/body/readiness illustration/Android permission note/Continue CTA exactly. Never expose TUN/HEV/SOCKS/Xray to normal users. Android permission remains the actual system flow.
-
-SCREEN 05 — MAIN NOT PROTECTED
-------------------------------
-Primary functional anchor. Recreate exact status hierarchy, artwork, CTA, quick rows, hint/info surface and bottom navigation shown in the locked reference. Bind rows to real server/subscription/Shadow/routing state.
-
-SCREEN 06 — CONNECTING
-----------------------
-Recreate exact title/subtitle/progress motif/server/routing/Shadow/subscription/Stop/navigation composition. No fake percent or premature green success.
-
-SCREEN 07 — PROTECTED
----------------------
-Recreate exact green success treatment, timer, traffic, server information, routing/Shadow/subscription, route visual, Disconnect and navigation. Green appears only for actual verified state in production.
-
-SCREEN 08 — ADD CONNECTION
---------------------------
-Recreate exact locked add-connection surface/sheet, options, icons, row spacing, dividers, dim behavior and system-protection entry. Never fall back to default blue/purple Material dialog.
-
-SCREEN 09 — HTTPS SUBSCRIPTION
-------------------------------
-Recreate exact title/body/input/paste/privacy/CTA arrangement and background treatment. Production secrets must not be logged or permanently displayed in full after storage.
-
-SCREEN 10 — SERVERS
--------------------
-Recreate exact filters/AUTO/server rows/latency/selection/maintenance/navigation. Values are real in production; no fake pings or health.
-
-SCREEN 11 — SERVER DETAILS
---------------------------
-Recreate exact server detail hierarchy, metrics that are genuinely supported, status/capabilities and selection action. Do not fabricate throughput or load.
-
-SCREEN 12 — SUBSCRIPTION
-------------------------
-Recreate exact subscription visual hierarchy, status, expiry/device/actions/navigation. Dynamic entitlement data must be authoritative, not hardcoded.
-
-SCREEN 13 — SETTINGS
+REFERENCE DIMENSIONS
 --------------------
-Recreate exact grouping, density, rows, values, toggles and secondary navigation. No generic Android Settings restyle.
+Most boards:
+1448 x 1086 px
 
-SCREEN 14 — SMART ROUTING
+Exception:
+05_main_not_protected.jpeg
+1024 x 1536 px
+
+GLOBAL PRODUCTION MINDSET
 -------------------------
-Recreate exact routing hierarchy, mode/apps/rules/DNS/IPv6/LAN controls, information/action regions. Bind existing routing logic; do not invent another model.
+The result must feel like:
+- premium UI/UX presentation board
+- Android-focused mobile product design
+- editorial, cinematic, dark, controlled
+- sharp but not flashy
+- expensive but not gaudy
+- technical but never noisy
+- elegant and trustworthy
+- presentation-grade and implementation-ready
 
-SCREEN 15 — APPS & RULES
-------------------------
-Recreate exact search/mode/app rows/check states/rules/action structure. Production list is real installed apps, not placeholders.
-
-SCREEN 16 — AUTOPILOT
+ABSOLUTE PROHIBITIONS
 ---------------------
-Recreate exact master state, network policies, trusted networks, pause/captive portal presentation and actions. Bind existing Autopilot state machine.
+Do NOT:
+- invent new layouts
+- move the phone significantly left/right/up/down
+- change board ratio
+- switch to a different device model language
+- replace the device frame with a flat screenshot only
+- use random gradients unrelated to the references
+- use glassmorphism
+- use neumorphism
+- use gamer/neon/cyberpunk aesthetics
+- overuse green
+- overuse blur
+- add extra decorative shapes
+- add extra cards or floating widgets
+- invent new icons
+- switch to iOS-only visual chrome
+- simplify the boards into plain wireframes
+- change orange to red or yellow
+- change cream text to pure blue-white
+- remove the premium warm-dark atmosphere
+- compress or expand spacing arbitrarily
+- rewrite copy into different meaning
+- use a different bottom navigation structure where one already exists
+- invent new titles for callout boxes
+- add planet-like motifs where they do not exist in the reference image
+- remove existing key branded illustration where it is clearly part of the reference composition
 
-SCREEN 17 — SHADOW
-------------------
-Recreate exact title/body/status/mode/approved motif/information/action hierarchy. No protocol jargon or security weakening.
+GENERAL RECREATION FORMULA
+--------------------------
+For each output board:
+1. Start from the exact matching reference image from the 18-image archive.
+2. Match its board dimensions exactly.
+3. Match the central phone mockup scale and vertical position.
+4. Match the exact number of side callout panels.
+5. Match the board title line exactly in the same location and approximate line length.
+6. Match the small descriptor line under the title exactly in mood, tracking, casing, and spacing.
+7. Match the upper-right metadata labels (ANDROID / API 24+ / DARK / PRIVATE / PREMIUM or equivalent where present).
+8. Match the footer line with “HotFox” and “PRIVACY FREEDOM WITHOUT LIMITS” and the lower-right technical footer.
+9. Recreate the inner UI screen shown on the phone 1:1 in composition and information hierarchy.
+10. Match all callout connector lines, anchors, and directionality.
+11. Preserve the premium visual tone with the same restrained orange, same near-black background, same soft glow behavior, same cream typography.
 
-SCREEN 18 — ALWAYS-ON / KILL SWITCH
------------------------------------
-Recreate exact system-protection explanation, state rows, approved shield/artwork, help/info and Android-settings CTA. Do not fake control over Android-owned system settings.
+=================================================
+SECTION A — GLOBAL STYLE LOCK
+=================================================
 
-PIXEL-DIFF LOOP
----------------
-For every screen:
-1. preserve immutable reference;
-2. extract/normalize inner-phone golden crop;
-3. render implementation at canonical test viewport;
-4. capture actual screenshot;
-5. align/normalize;
-6. create overlay/diff/heatmap;
-7. calculate changed pixel count/percent, mean delta, max delta;
-8. inspect bounding clusters;
-9. fix;
-10. repeat.
+A1. BOARD CANVAS
+----------------
+Base background:
+- extremely dark navy-black / warm black
+- subtle blue-violet undertone
+- very soft vertical and radial tonal variation
+- no loud texture
+- no obvious stock pattern
+- feels deep, premium, technological, calm
 
-Do not mask visual errors.
-Only dynamic VALUE regions may be stabilized/masked; their geometry and typography still must match.
+Approximate background palette:
+--bg-0: #05070D
+--bg-1: #090B14
+--bg-2: #0C0F18
+--bg-violet-shadow: rgba(35, 24, 58, 0.18)
+--bg-blue-shadow: rgba(21, 33, 60, 0.16)
 
-REJECT A SCREEN IF
-------------------
-- element missing;
-- extra element;
-- wrong copy;
-- wrong title/line break causing meaningful composition drift;
-- wrong color;
-- wrong typography;
-- wrong geometry;
-- wrong artwork/crop;
-- wrong CTA;
-- wrong navigation;
-- wrong icon family;
-- wrong row order/height;
-- wrong radius/border;
-- default Material replacement;
-- decorative motif copied from another screen;
-- fake product state introduced.
+Suggested CSS-like interpretation:
+:root {
+  --hf-bg-main: #070912;
+  --hf-bg-deep: #05070D;
+  --hf-bg-panel: rgba(16, 19, 30, 0.78);
+  --hf-bg-panel-border: rgba(145, 150, 170, 0.18);
+  --hf-text-main: #F6EDE8;
+  --hf-text-secondary: rgba(246, 237, 232, 0.78);
+  --hf-text-muted: rgba(246, 237, 232, 0.52);
+  --hf-orange: #F78843;
+  --hf-orange-bright: #FF8E4D;
+  --hf-orange-dim: rgba(247, 136, 67, 0.30);
+  --hf-green: #76EA77;
+  --hf-line: rgba(255,255,255,0.12);
+  --hf-callout-stroke: rgba(255,255,255,0.18);
+}
 
-PRODUCT TRUTH
+Background behavior:
+- soft edge glow behind phone
+- no hard vignette
+- no flat monochrome slab
+- slightly illuminated vertical zone around the phone
+- small highlights can appear near orange elements
+
+A2. TYPOGRAPHY SYSTEM
+---------------------
+Language mix:
+- Russian primary
+- English appears selectively in UI labels and metadata
+- preserve exact Russian copy as shown in references
+
+Tone:
+- premium, calm, informative, authoritative
+- not corporate-bureaucratic
+- not playful
+- not aggressive
+
+Suggested type family:
+- Inter / SF Pro / similar neutral grotesk
+- must feel modern, smooth, readable, not condensed
+- do not use serif
+- do not use futuristic novelty type
+
+Weight behavior:
+- board H1: bold / semibold
+- board subtitle: regular, high tracking, uppercase/small caps style where appropriate
+- phone UI H1: bold or semibold
+- phone UI body: regular/medium
+- callout titles: semibold/bold
+- callout bullets: regular
+- metadata: medium/light with expanded tracking
+
+Tracking behavior:
+- subtitles have noticeably increased letter spacing
+- metadata in upper-right also spaced out
+- footer slogan spaced out
+- do not overdo tracking on body copy
+
+Approximate size rhythm for 1448x1086 boards:
+- board title: 60–72 px
+- board subtitle: 15–22 px with generous tracking
+- metadata labels: 13–18 px
+- callout numbers: 24–34 px
+- callout titles: 22–34 px
+- callout bullets: 14–22 px
+- phone wordmark “HotFox”: 16–26 px
+- phone main screen title: 34–72 px depending on screen
+- phone body copy: 13–22 px
+- CTA text: 20–32 px
+- bottom nav labels: 11–18 px
+
+A3. COLOR LOCK
+--------------
+Primary text:
+- cream / warm white
+- never cold blue-white
+- never grey-only
+Approx:
+#F5E9E1 to #FFF4ED depending on glow
+
+Secondary text:
+- muted cream/grey
+Approx:
+rgba(245, 233, 225, 0.72)
+
+Muted meta:
+- darker muted cream / grey-violet
+Approx:
+rgba(245, 233, 225, 0.45)
+
+Brand orange:
+- rich warm orange
+- slightly copper / sunset tint
+- not red-orange
+- not yellow-orange
+Approx:
+#F78843 to #FF8E4D
+
+Green:
+- reserved exclusively for true protected/active success semantics
+- bright but soft, not neon toxic green
+Approx:
+#76EA77 / #7AF27D
+
+Borders:
+- subtle grey-white opacity
+- never heavy outlines
+- panels must feel refined
+
+A4. PHONE MOCKUP LOCK
+---------------------
+The phone is always a realistic premium Android device mockup:
+- black/dark frame
+- centered
+- realistic bezel
+- centered hole-punch front camera
+- light reflection on metallic frame
+- rounded corners
+- soft shadow / glow into background
+
+Do not:
+- flatten the mockup
+- remove bezel entirely
+- switch to iPhone notch
+- make the phone too small
+- make the phone too wide
+- distort perspective
+- rotate device
+- present as angled 3D product shot
+
+A5. CALLOUT PANELS LOCK
+-----------------------
+The boards are not simple screenshots.
+They are annotated presentation boards.
+
+Each board includes:
+- multiple left callout panels
+- multiple right callout panels
+- thin connector lines from panels to the phone
+- numbered sections
+- small icon or symbol beside some callout titles
+- rounded dark translucent panel backgrounds
+- fine soft border
+- consistent internal padding
+
+Panel style:
+- rounded rectangle
+- subtle border
+- dark translucent fill
+- enough blur/glow to feel premium but not glassmorphic
+
+Bullet style:
+- short explanatory bullets
+- consistent indent
+- no huge paragraphs
+- highly readable
+
+A6. METADATA LOCK
+-----------------
+Upper-right compact metadata generally reads in this family:
+ANDROID • API 24+
+DARK • PRIVATE • PREMIUM
+
+This cluster must:
+- stay top-right
+- be small
+- be spaced out
+- feel technical and premium
+
+Footer cluster:
+Bottom-left:
+HotFox
+PRIVACY FREEDOM WITHOUT LIMITS
+
+Bottom-right:
+v2.0 • UI/UX SPEC • 2025
+or the exact board footer as shown
+
+Must remain in place and style.
+
+A7. INNER UI LOCK
+-----------------
+The UI displayed inside each phone must feel like the same product family:
+- same dark background
+- same typography
+- same orange CTA style
+- same icon language
+- same row/card language
+- same bottom navigation language where applicable
+- same overall padding logic
+
+General inner UI tokens:
+--screen-bg: #0A0C14
+--screen-bg-deep: #070910
+--card-bg: rgba(23, 23, 31, 0.92)
+--card-border: rgba(255,255,255,0.08)
+--row-divider: rgba(255,255,255,0.10)
+--cta-fill: #F78A43
+--cta-text-dark: #1A120D
+--input-bg: rgba(19, 20, 30, 0.98)
+
+Button style:
+- broad rounded rectangle pill
+- strong orange fill
+- dark text
+- arrow icon on right
+- clean centered label
+
+Secondary action style:
+- textual, lighter
+- not louder than primary CTA
+
+A8. ICON LOCK
 -------------
-References lock visual examples. Production values must come from real state.
-No hardcoded production ping/traffic/server/expiry/device/payment/protection values.
-Test-only screenshot fixtures are allowed only in test code for deterministic golden comparison.
+All icons must be coherent.
+Use a single line-icon family or closely matched family.
 
-FINAL RULE
-----------
-If you changed something because you thought it looked better, revert it.
-If you cannot cite reference evidence for a visual deviation, remove the deviation.
-If technical truth and screenshot example differ, preserve technical truth while keeping the locked geometry/style and show a truthful dynamic value/state.
+Do not mix:
+- outline and filled randomly
+- thick and thin randomly
+- geometric and doodle-like randomly
+- Material icons and arbitrary glyphs incoherently
 
-REFERENCE FIDELITY OVER CREATIVITY. ZERO INTENTIONAL DRIFT.
+Icons must feel:
+- crisp
+- premium
+- minimal
+- Android-compatible
+- not cartoonish
+
+=================================================
+SECTION B — ABSOLUTE COPY LOCK
+=================================================
+
+All text content should be matched to the reference image as closely as technically possible.
+Preserve:
+- wording
+- punctuation
+- use of ellipsis
+- capitalization
+- hyphenation style
+- line breaks when visible
+- numbering of callout groups
+- footer labels
+- navigation labels
+- CTA labels
+- row labels
+- status wording
+
+If line breaks vary slightly due to rendering engine differences, keep the visual block shape as close as possible.
+
+DO NOT paraphrase unless absolutely necessary.
+DO NOT shorten for convenience.
+DO NOT expand with new explanatory text.
+
+=================================================
+SECTION C — SCREEN-BY-SCREEN RECREATION LOCK
+=================================================
+
+-----------------------------------------------
+SCREEN 01
+FILE: 01_splash_brand_entry.jpeg
+TITLE: Экран 1 — Splash / Brand Entry (Final v2.0)
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Board showing splash / launch screen with brand entry emphasis.
+
+BOARD HEADER
+- Top-left small wordmark: HotFox in orange
+- Large title:
+  “Экран 1 — Splash / Brand Entry (Final v2.0)”
+- Subtitle below:
+  “ПРЕМИУМ. БЫСТРО. УЗНАВАЕМО. БЕЗ ЛИШНЕЙ ЗАДЕРЖКИ.”
+  Maintain high tracking and elegant spacing.
+
+BOARD RIGHT META
+- ANDROID • API 24+
+- DARK • PRIVATE • PREMIUM
+
+PHONE CONTENT
+The phone shows:
+- dark background
+- prominent fox illustration in premium 3D / sculptural style
+- glowing orange edge light
+- a curved warm-orange illuminated arc behind the fox in upper-mid background as in the reference
+- word “HotFox” large in orange near lower third
+- small tagline below:
+  “БОЛЬШЕ, ЧЕМ VPN”
+- thin horizontal loading indicator below
+- Android status bar at top, 9:41, correct icons
+- no buttons, no menus, no extra UI clutter
+
+IMPORTANT VISUAL LOCK
+- The fox is the hero.
+- The splash must feel elegant, cinematic, and instantly recognizable.
+- Do not crowd the screen.
+- Keep the fox vertically centered but slightly lower than the arc’s center.
+- The arc and fox must feel integrated, not pasted.
+
+CALLOUT PANELS
+Left side count: 5
+Right side count: 5
+
+Left panels:
+1. Бренд-иллюстрация
+2. Быстрый вход
+3. Интеграция фона
+4. Типографика
+5. Индикатор загрузки
+
+Right panels:
+6. Android-логика
+7. Минимум отвлечений
+8. Визуальный ритм
+9. Атмосфера бренда
+10. Системная чистота
+
+Do not change numbering or headings.
+
+KEY PHONE UI DETAILS
+- “HotFox” must be bold and warm orange.
+- Loading line must be short, elegant, glowing slightly.
+- Tagline is small and spaced.
+
+-----------------------------------------------
+SCREEN 02
+FILE: 02_onboarding_connect_hotfox.jpeg
+TITLE: Экран 2 — Подключите HotFox (Final v2.0)
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Onboarding / first meaningful entry with one clear decision.
+
+BOARD HEADER
+- HotFox small orange wordmark top-left
+- Large board title:
+  “Экран 2 — Подключите HotFox (Final v2.0)”
+- Subtitle:
+  “ПЕРВЫЙ ВХОД. ЧЁТКИЙ ВЫБОР. БЕЗ КОММЕРЧЕСКОГО ШУМА.”
+
+PHONE CONTENT
+Inside the phone:
+- top-left inside UI: HotFox in orange
+- large H1:
+  “Подключите
+   HotFox”
+- body copy:
+  “Добавьте свою подписку или
+   продолжите с уже существующим
+   доступом.”
+- lower half: fox illustration and glowing arc integrated behind it
+- main orange CTA:
+  “У меня уже есть подписка”
+  arrow on right
+- secondary action below:
+  “Купить доступ”
+- minimalist bottom home indicator
+
+IMPORTANT UX LOCK
+- One primary action.
+- One clearly secondary action.
+- No extra explanations.
+- No noisy commerce patterns.
+- Fox acts as brand trust asset.
+
+CALLOUTS
+Left side:
+1. Иерархия onboarding
+2. Главный выбор
+3. Покупка vs существующий доступ
+4. Бренд-иллюстрация
+5. Воздух и ритм
+
+Right side:
+6. Главный CTA
+7. Вторичное действие
+8. Чистый копирайтинг
+9. Android-совместимость
+10. Премиальный характер
+
+PHONE LAYOUT LOCK
+- H1 in upper left within the device
+- body under H1
+- illustration under body
+- CTA sits above bottom secondary link
+- CTA wide, orange, premium, rounded
+- secondary action centered and lighter
+
+-----------------------------------------------
+SCREEN 03
+FILE: 03_onboarding_auto.jpeg
+TITLE: Экран 3 — AUTO (Final v2.0)
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Onboarding explanation of AUTO server selection.
+
+BOARD HEADER
+Title:
+“Экран 3 — AUTO (Final v2.0)”
+Subtitle:
+“АВТОМАТИЧЕСКИЙ ВЫБОР. СПОКОЙНО. ПОНЯТНО. БЕЗ ТЕХНИЧНОСТИ.”
+
+PHONE CONTENT
+- top-left inside UI: HotFox
+- H1:
+  “Лучший сервер —
+   автоматически”
+- Body:
+  “HotFox сам выберет подходящий
+   сервер и переключится при
+   необходимости.”
+- visual below: abstract orbit / route style visualization with central globe-like symbol
+- bottom orange CTA:
+  “Использовать AUTO”
+- secondary text button:
+  “Выбрать вручную”
+
+CRITICAL STYLE LOCK
+- This is still same family as screen 2.
+- Do not switch to technical dashboard look.
+- Keep the orbit illustration clean, centered, elegant, restrained.
+- Orange dots/orbits subtle and premium.
+- Preserve the specific composition from the reference.
+
+CALLOUTS
+Left:
+1. Объяснение AUTO
+2. Польза вместо алгоритма
+3. Иллюстрация маршрута
+4. Единый стиль HotFox
+5. Иерархия текста
+
+Right:
+6. Основной CTA
+7. Ручной сценарий
+8. Воздух и баланс
+9. Android-практичность
+10. Премиальный тон
+
+-----------------------------------------------
+SCREEN 04
+FILE: 04_onboarding_ready.jpeg
+TITLE: Экран 4 — Всё готово (Final v2.0)
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Pre-connection readiness / expectation setting before VPN permission.
+
+BOARD HEADER
+Title:
+“Экран 4 — Всё готово (Final v2.0)”
+Subtitle:
+“ПОДГОТОВКА К ПОДКЛЮЧЕНИЮ. ЧЕСТНО. СПОКОЙНО. БЕЗ ТЕХНИЧЕСКОГО ШУМА.”
+
+PHONE CONTENT
+- top-left inside UI: HotFox
+- H1:
+  “Всё готово”
+- body:
+  “HotFox проверяет соединение
+   перед тем, как показать статус
+   «Защищено».”
+- centered readiness/server icon illustration with orange check accent
+- note near bottom:
+  “Android попросит разрешение
+   создать VPN-подключение.”
+- bottom orange CTA:
+  “Продолжить”
+
+CRITICAL UX LOCK
+- It must communicate readiness, not false success.
+- “Продолжить” is correct and must not become “Готово”.
+- Tone is calm, trustworthy.
+
+CALLOUTS
+Left:
+1. Семантика CTA
+2. Подготовка к VPN permission
+3. Иллюстрация готовности
+4. Текст без жаргона
+5. Иерархия и фокус
+
+Right:
+6. Безопасное ожидание
+7. Android-логика
+8. Визуальный баланс
+9. Премиальный характер
+10. Готовность к следующему шагу
+
+-----------------------------------------------
+SCREEN 05
+FILE: 05_main_not_protected.jpeg
+TITLE: Главный экран — Не защищено (Final v2.0)
+BOARD SIZE: 1024 x 1536
+-----------------------------------------------
+
+ROLE
+Main home screen, disconnected / not protected state.
+This is the anchor screen for the core UI style.
+Treat this screen as one of the strongest style references for all later functional screens.
+
+BOARD HEADER
+- Small HotFox wordmark top-left
+- Large board title:
+  “Главный экран — Не защищено (Final v2.0)”
+- subtitle:
+  “ПРЕМИУМ. ЧИСТО. ПОНЯТНО. БЕЗ КОМПРОМИССОВ.”
+
+PHONE CONTENT
+- Android status bar
+- top-left inside UI: HotFox
+- settings icon top-right
+- giant status title:
+  “Не защищено”
+- secondary status text:
+  “Ваше соединение не защищено”
+- branded fox illustration and orange arc integrated in mid section
+- wide orange primary CTA:
+  “Подключить”
+  with arrow icon on the right
+- rounded list/card block with 4 rows:
+  1. Сервер — Авто-выбор выключен — Не выбран
+  2. Подписка — Добавьте подписку — Не подключена
+  3. Shadow — Дополнительная защита — Выкл
+  4. Маршрутизация — Приложения и правила — По умолчанию
+- information hint panel:
+  “Добавьте подписку, чтобы начать”
+  “Поддерживаются HotFox и внешние конфигурации.”
+- bottom navigation with 4 tabs:
+  Главная / Серверы / Подписка / Настройки
+  active tab: Главная
+
+BOARD CALLOUTS
+Left:
+1. Статус
+2. Бренд-иллюстрация
+3. Главный CTA
+4. Быстрые настройки
+5. Подсказка
+
+Right:
+6. Настройки
+7. Пустое состояние
+8. Статусы рядов
+9. Нижняя навигация
+10. Система
+
+PHONE UI STYLE LOCK
+- This screen sets the row/card look.
+- Rounded dark panel with subtle border.
+- Each row includes icon, title, subtitle, trailing value, optional chevron.
+- Bottom nav uses consistent line icons.
+
+CRITICAL NOTE
+All later screens 06–18 must remain visually compatible with this one.
+
+-----------------------------------------------
+SCREEN 06
+FILE: 06_connecting.png
+TITLE: Экран 6 — Подключаем... (Final v2.0)
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Connection-in-progress state, calm and honest.
+
+BOARD HEADER
+Title:
+“Экран 6 — Подключаем... (Final v2.0)”
+Subtitle:
+“СТАТУС ПОДКЛЮЧЕНИЯ. СПОКОЙНО. ПРАВДИВО. БЕЗ ЛОЖНОГО УСПЕХА.”
+
+PHONE CONTENT
+- top-left HotFox
+- large H1:
+  “Подключаем...”
+- status line under H1:
+  “Проверяем соединение...”
+- central animated/progress motif: circular/orbit-like ring with vertical orange bars in the middle
+- server pill / row:
+  “AUTO • Нидерланды, Амстердам”
+- list rows below:
+  Маршрутизация — Smart
+  Shadow — Подбираем маршрут...
+  Подписка — Активна
+- dark secondary button:
+  “Остановить”
+- bottom nav with 4 tabs, active “Соединение”
+  and additional tabs such as Сервера, Профиль, Настройки exactly as shown in the reference
+
+CALLOUTS
+Left:
+1. Честный прогресс
+2. Стабильная композиция
+3. Этап подключения
+4. AUTO и выбор сервера
+5. Маршрутизация и Shadow
+
+Right:
+6. Нет ложного успеха
+7. Действие «Остановить»
+8. Премиальный ритм
+9. Android-практичность
+10. Укрепление доверия
+
+CRITICAL LOCK
+- Must feel directly derived from screen 5.
+- Same product family, darker center, same premium orange.
+- No generic spinner. Use the exact central progress style from reference.
+- Stop button is dark, not orange.
+
+-----------------------------------------------
+SCREEN 07
+FILE: 07_protected.png
+TITLE: Экран 7 — Защищено (Final v2.0)
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Connected and verified state.
+
+BOARD HEADER
+Title:
+“Экран 7 — Защищено (Final v2.0)”
+Subtitle:
+“ПРОВЕРЕННОЕ СОЕДИНЕНИЕ. МЯГКИЙ SUCCESS. ПРОЗРАЧНАЯ ИНФОРМАЦИЯ.”
+
+PHONE CONTENT
+- top-left HotFox
+- top-right settings and overflow menu
+- large green success status:
+  “Защищено”
+- timer:
+  “00:12:37”
+- traffic counters:
+  “↓ 12,4 МБ”
+  “↑ 3,6 МБ”
+- main server card:
+  label:
+  “Текущий сервер”
+  value:
+  “Нидерланды, Амстердам”
+  small line:
+  “Выбран автоматически”
+  left flag/circle marker
+- rows:
+  Маршрутизация — Smart
+  Shadow — Авто
+  Подписка — Активна
+- route / chain visualization:
+  “Вы — HotFox — Интернет”
+  with three icons, central fox icon highlighted
+- dark secondary button:
+  “Отключить”
+- bottom nav with active connection tab
+
+CALLOUTS
+Left:
+1. Настоящее состояние «Защищено»
+2. Сдержанное использование зелёного
+3. Таймер и метрики трафика
+4. Текущий сервер
+5. Маршрут соединения
+
+Right:
+6. Семантика отключения
+7. Нижняя навигация
+8. Премиальная атмосфера
+9. Android-читаемость
+10. Долгосрочное доверие
+
+LOCK NOTES
+- Green must be reserved and elegant.
+- Do not turn whole screen green.
+- Keep the server card premium and soft.
+- The route visualization must remain in the exact conceptual location.
+
+-----------------------------------------------
+SCREEN 08
+FILE: 08_add_connection.png
+TITLE: Add connection board in same HotFox style
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Board for the “Add connection” entry / add source flow.
+
+Because the exact supplied board for screen 08 is part of the approved archive, match that board exactly.
+It should read as the next logical annotated presentation board in the same system.
+
+PHONE CONTENT EXPECTATION
+- HotFox header inside phone
+- add/import connection screen or sheet in same premium style
+- one clear primary title related to adding connection
+- options for source selection, likely including:
+  HTTPS-подписка
+  Буфер обмена / QR / файл or similar
+- same orange CTA or selection emphasis where present in the reference
+- same card/row language
+
+EXECUTION LOCK
+- use the archive image 08_add_connection.png as direct source of truth
+- reproduce all callout titles and bullets exactly from that image
+- preserve exact phone composition, rows, icons, and hierarchy
+- preserve all connector lines and panel positions
+
+-----------------------------------------------
+SCREEN 09
+FILE: 09_https_subscription.png
+TITLE: Экран 9 — HTTPS-подписка (Final v2.0)
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+HTTPS subscription import form.
+
+BOARD HEADER
+Title:
+“Экран 9 — HTTPS-подписка (Final v2.0)”
+Subtitle:
+“БЕЗОПАСНЫЙ ИМПОРТ. ПОНЯТНЫЙ ВВОД. ЧИСТАЯ ФОРМА БЕЗ ЛИШНЕГО ШУМА.”
+
+PHONE CONTENT
+- back arrow top-left inside phone
+- HotFox in orange next to back
+- H1:
+  “HTTPS-подписка”
+- body:
+  “Вставьте ссылку на подписку,
+   и HotFox загрузит доступные
+   серверы автоматически.”
+- input field with link icon
+- visible typed URL beginning with:
+  “https://sub.hotfox...”
+- action text inside input on right:
+  “Вставить”
+- privacy note with lock icon:
+  “Ссылка будет скрыта после сохранения
+   и надёжно храниться на устройстве.”
+  Match spelling exactly as reference if needed.
+- lower warm orange arc/illustrative background accent integrated in the bottom area
+- orange CTA:
+  “Добавить”
+- footer line under CTA or subtle separator as reference shows
+
+CALLOUTS
+Left:
+1. Безопасный импорт подписки
+2. Понятная пошаговая логика
+3. Чистая текстовая иерархия
+4. Доверительный дизайн формы
+5. Удобство вставки ссылки
+
+Right:
+6. Семантика кнопки и CTA
+7. Приватность и маскировка
+8. Android-читабельность
+9. Премиальный визуальный язык
+10. Готовность к развитию
+
+IMPORTANT LOCK
+- This screen must NOT become a generic form page.
+- It must still feel cinematic and HotFox-like.
+- Preserve exact note positions and CTA dominance.
+
+-----------------------------------------------
+SCREEN 10
+FILE: 10_servers.png
+TITLE: Servers board in same HotFox style
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Server selection overview in the same board system.
+
+EXECUTION LOCK
+Use 10_servers.png as the direct truth.
+Recreate exactly.
+
+EXPECTED PHONE STRUCTURE
+- screen title for servers
+- server list with countries/cities or server options
+- same premium row list style
+- likely one selected/active state
+- same bottom navigation style
+- same consistent orange highlights
+- same presentation board with title, subtitle, side annotations, footer metadata
+
+MANDATORY
+- preserve all callout section numbers and names exactly
+- preserve list density
+- preserve row styling and icon treatment
+- preserve any status or selected state exactly
+- preserve title and subtitle wording as shown in the approved image
+
+-----------------------------------------------
+SCREEN 11
+FILE: 11_server_details.png
+TITLE: Server Details board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Detailed selected server screen.
+
+EXECUTION LOCK
+Use the archived image directly as truth.
+
+Expected characteristics:
+- same premium annotated presentation board
+- a detailed server page inside the phone
+- likely country/city, ping/status, and actions
+- same dark + orange system
+- same phone framing and board format
+- same callout density as reference
+
+Do not improvise new server facts or new structure.
+Match exactly what is in 11_server_details.png.
+
+-----------------------------------------------
+SCREEN 12
+FILE: 12_subscription.png
+TITLE: Subscription board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Subscription overview screen.
+
+EXECUTION LOCK
+Use the reference as truth.
+The resulting board must preserve:
+- subscription status structure
+- same typography
+- same metrics arrangement
+- same CTA logic
+- same annotation board layout
+
+Expected phone UI:
+- top title for subscription
+- subscription state / active state
+- structured information rows or metrics
+- same HotFox style
+- same bottom or action zone as in the reference
+
+Do not re-architect.
+Recreate.
+
+-----------------------------------------------
+SCREEN 13
+FILE: 13_settings.png
+TITLE: Settings board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Settings overview.
+
+EXECUTION LOCK
+This board must remain within the same product family.
+No Android Settings redesign.
+No raw wireframe.
+
+Expected phone UI:
+- settings title
+- grouped list/rows
+- same row language established by screen 5
+- clear hierarchy
+- orange highlights only where present
+- same annotated board with left/right callouts
+
+Recreate all callout titles and bullets exactly from 13_settings.png.
+
+-----------------------------------------------
+SCREEN 14
+FILE: 14_smart_routing.png
+TITLE: Smart Routing board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Smart routing configuration screen.
+
+EXECUTION LOCK
+Use 14_smart_routing.png directly as source of truth.
+
+Expected content:
+- Smart Routing title
+- explanatory text
+- toggles/rules/mode structure
+- same premium functional UI
+- same presentation board logic
+
+Preserve:
+- exact control arrangement
+- exact CTA or action area if shown
+- exact annotation count and naming
+
+-----------------------------------------------
+SCREEN 15
+FILE: 15_apps_and_rules.png
+TITLE: Apps & Rules board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Per-app routing / rules screen.
+
+EXECUTION LOCK
+Use 15_apps_and_rules.png as the immutable layout source.
+
+Expected characteristics:
+- app/rules list
+- search or segmented mode if present
+- check states or toggles
+- same visual family
+- same panel annotation style
+
+Do not simplify the list.
+Do not invent placeholders unless they are already in the reference.
+Match reference.
+
+-----------------------------------------------
+SCREEN 16
+FILE: 16_autopilot.png
+TITLE: Autopilot board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Autopilot / automatic protection behavior screen.
+
+EXECUTION LOCK
+Use 16_autopilot.png as truth.
+
+Expected content:
+- Autopilot title
+- automation rules, triggers, or trust logic
+- same dark UI system
+- same callout board system
+- same phone position and formatting
+
+Match exactly.
+
+-----------------------------------------------
+SCREEN 17
+FILE: 17_shadow.png
+TITLE: Shadow board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+Shadow extra-protection / advanced protection screen.
+
+EXECUTION LOCK
+Use 17_shadow.png as truth.
+
+Expected phone UI:
+- Shadow title
+- explanatory copy
+- state / availability / mode or action
+- same premium dark-orange family
+- same board annotation layout
+
+No technical clutter beyond what exists in the reference.
+No redesign.
+Exact recreation.
+
+-----------------------------------------------
+SCREEN 18
+FILE: 18_always_on_kill_switch.png
+TITLE: Always-on VPN / Kill Switch board
+BOARD SIZE: 1448 x 1086
+-----------------------------------------------
+
+ROLE
+System-level protection / Android settings handoff screen.
+
+EXECUTION LOCK
+Use 18_always_on_kill_switch.png as truth.
+
+Expected content:
+- Always-on VPN or Kill Switch explanatory UI
+- system-setting style explanation while staying inside HotFox visual language
+- CTA / state rows matching reference
+- same annotation board format
+
+Recreate all details exactly.
+
+=================================================
+SECTION D — SHARED IMPLEMENTATION TOKENS
+=================================================
+
+These are auxiliary CSS/UI tokens to keep the family visually coherent while still obeying each reference image.
+
+:root {
+  --board-width-landscape: 1448px;
+  --board-height-landscape: 1086px;
+  --board-width-portrait: 1024px;
+  --board-height-portrait: 1536px;
+
+  --phone-width-landscape-board: 420px; /* approximate visual presence */
+  --phone-height-landscape-board: 860px;
+  --phone-width-portrait-board: 735px; /* relative internal board scaling */
+  --phone-height-portrait-board: 1290px;
+
+  --radius-board-panel: 24px;
+  --radius-phone: 48px;
+  --radius-card: 28px;
+  --radius-btn: 28px;
+  --radius-input: 24px;
+
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-28: 28px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-56: 56px;
+
+  --stroke-1: 1px;
+  --stroke-2: 2px;
+  --panel-border: rgba(255,255,255,0.14);
+  --hairline: rgba(255,255,255,0.10);
+
+  --shadow-phone: 0 24px 60px rgba(0,0,0,0.55);
+  --glow-orange-soft: 0 0 40px rgba(247,136,67,0.18);
+  --glow-orange-mid: 0 0 80px rgba(247,136,67,0.22);
+}
+
+Board layout sketch:
+.board {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(55% 65% at 50% 45%, rgba(44,32,72,0.22) 0%, rgba(44,32,72,0.04) 40%, rgba(0,0,0,0) 80%),
+    linear-gradient(180deg, #080A12 0%, #05070D 100%);
+}
+
+.board__title {
+  position: absolute;
+  left: 48px;
+  top: 38px;
+  color: var(--hf-text-main);
+  font-weight: 700;
+}
+
+.board__subtitle {
+  position: absolute;
+  left: 48px;
+  top: 112px;
+  color: var(--hf-text-muted);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+.board__meta {
+  position: absolute;
+  right: 54px;
+  top: 58px;
+  text-align: right;
+  color: var(--hf-text-secondary);
+  letter-spacing: 0.22em;
+}
+
+.phone {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -45%);
+  border-radius: 48px;
+  box-shadow: var(--shadow-phone);
+}
+
+.callout {
+  background: rgba(13,16,26,0.62);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 22px;
+  padding: 20px 24px;
+  backdrop-filter: blur(4px);
+}
+
+IMPORTANT:
+These tokens are guides only.
+The final must still visually trace the actual reference image, even if a literal CSS rendering engine would need value nudging.
+
+=================================================
+SECTION E — PIXEL LOCK CHECKLIST
+=================================================
+
+Before accepting any recreated board, verify ALL of the following.
+
+E1. BOARD-LEVEL CHECK
+---------------------
+[ ] Dimensions match the reference
+[ ] Board title matches reference
+[ ] Subtitle matches reference
+[ ] Upper-right metadata matches reference
+[ ] Footer bottom-left matches reference
+[ ] Footer bottom-right matches reference
+[ ] Callout count matches reference
+[ ] Callout numbering matches reference
+[ ] Callout headings match reference
+[ ] Callout bullets preserve same meaning and count
+[ ] Phone position matches reference
+[ ] Phone scale matches reference
+[ ] Connector line count and directions match reference
+[ ] Background mood matches reference
+[ ] Orange hue matches reference
+[ ] Text color warmth matches reference
+
+E2. INNER SCREEN CHECK
+----------------------
+[ ] Status bar matches Android style used in the reference
+[ ] HotFox wordmark position matches reference
+[ ] Main H1 matches reference
+[ ] Body copy matches reference
+[ ] Illustration matches reference
+[ ] CTA wording matches reference
+[ ] CTA color and shape match reference
+[ ] Card/row shape matches reference
+[ ] Icons match reference style
+[ ] Navigation structure matches reference
+[ ] Active/inactive states match reference
+[ ] Success color appears only where appropriate
+[ ] No extra elements added
+[ ] No reference elements removed
+
+E3. STRICT NEGATIVE CHECK
+-------------------------
+Reject the output if:
+- title wording changed
+- board ratio changed
+- phone became smaller/larger in a meaningful way
+- panel count changed
+- typography became colder or flatter
+- CTA changed text or position
+- fox disappeared from screens where it exists
+- green became too aggressive on protected state
+- screen 5 core style got replaced by a generic settings list
+- any screen looks like a different product
+- premium dark mood is lost
+- background becomes plain flat black
+- extra design “improvements” appear
+- rows/icons are inconsistent
+- copy is paraphrased
+- footer/meta blocks move significantly
+- annotation density changes
+- the result feels “inspired by” rather than “recreated from”
+
+=================================================
+SECTION F — RECOMMENDED MASTER PROMPT FOR ANY REGENERATION
+=================================================
+
+Use the following as the main instruction when recreating any or all of the boards:
+
+MASTER PROMPT
+-------------
+Recreate the provided HotFox reference board(s) as literally and as faithfully as possible. The supplied reference images are the sole visual source of truth. Produce a near-identical premium UI/UX presentation board, not a redesign. Match the exact board aspect ratio, phone placement, dark cinematic background, typography hierarchy, orange accents, cream text, annotation box count and positions, callout numbering, connector lines, footer labels, upper-right metadata, and every visible UI element inside the phone. Do not invent, reinterpret, simplify, modernize, or improve anything. Preserve all Russian copy, all CTA labels, all navigation labels, all state labels, all row structures, all icon semantics, and the exact HotFox visual language. Keep the same Android-oriented premium presentation style. Where the reference includes the fox illustration or curved orange glow/arc, preserve it exactly in placement and visual role. Where a screen is functional rather than illustrative, keep the same restrained premium approach. No extra UI, no extra effects, no alternate layouts, no paraphrased copy, and no deviations in style. The output should look like the same image recreated 1:1.
+
+SHORT EXECUTION LOCK
+--------------------
+1:1 recreation only.
+Reference wins over text.
+No redesign.
+No improvement.
+No variation.
+No reinterpretation.
+No drift.
+
+=================================================
+SECTION G — PER-SCREEN MINI PROMPTS
+=================================================
+
+Use these when recreating single boards one by one.
+
+01 MINI PROMPT
+Recreate “Экран 1 — Splash / Brand Entry (Final v2.0)” exactly as in the reference board. Keep the 1448x1086 presentation format, the fox hero splash inside the centered Android phone, the curved orange glow behind the fox, the large orange HotFox title inside the phone, the loading line, the exact annotation panels and their numbering, the dark premium background, and all header/footer metadata exactly in the same style and structure.
+
+02 MINI PROMPT
+Recreate “Экран 2 — Подключите HotFox (Final v2.0)” exactly. Match the centered phone, H1, explanatory copy, fox illustration in the lower half, orange CTA “У меня уже есть подписка”, secondary action “Купить доступ”, all side callout panels, and the exact premium dark editorial style.
+
+03 MINI PROMPT
+Recreate “Экран 3 — AUTO (Final v2.0)” exactly. Preserve the orbit/globe illustration, the H1 “Лучший сервер — автоматически”, the body copy, the orange CTA “Использовать AUTO”, the secondary action “Выбрать вручную”, and every annotation panel and line.
+
+04 MINI PROMPT
+Recreate “Экран 4 — Всё готово (Final v2.0)” exactly. Preserve the readiness icon illustration, the explanatory copy about checking connection before showing “Защищено”, the note about Android VPN permission, the orange CTA “Продолжить”, and the exact board annotation system.
+
+05 MINI PROMPT
+Recreate “Главный экран — Не защищено (Final v2.0)” exactly. This is the anchor HotFox home screen. Preserve the portrait board format 1024x1536, large “Не защищено” status, fox hero illustration, orange “Подключить” CTA, the four list rows, the info hint panel, the bottom navigation, all callouts, and the exact premium Android style.
+
+06 MINI PROMPT
+Recreate “Экран 6 — Подключаем... (Final v2.0)” exactly. Preserve the central progress motif with orange bars, the “Проверяем соединение...” status, server pill “AUTO • Нидерланды, Амстердам”, route-related rows, dark “Остановить” button, bottom nav, and all left/right callout panels.
+
+07 MINI PROMPT
+Recreate “Экран 7 — Защищено (Final v2.0)” exactly. Preserve the soft green success headline, timer, traffic counters, server card with “Нидерланды, Амстердам” and “Выбран автоматически”, rows for Маршрутизация/Shadow/Подписка, route visualization “Вы — HotFox — Интернет”, dark “Отключить” button, bottom nav, and all annotation panels.
+
+08 MINI PROMPT
+Recreate the approved HotFox “Добавить подключение” board exactly from 08_add_connection.png. Preserve the exact presentation-board composition, phone UI, title/subtitle, source-selection structure, callout panels, connector lines, and premium HotFox style.
+
+09 MINI PROMPT
+Recreate “Экран 9 — HTTPS-подписка (Final v2.0)” exactly. Preserve the input field with “https://sub.hotfox...”, the “Вставить” action inside the field, the lock/privacy note, the bottom orange glow, the CTA “Добавить”, and all annotated presentation elements.
+
+10 MINI PROMPT
+Recreate the approved “Серверы” HotFox board exactly from 10_servers.png. Preserve all list structure, selected states, board annotations, header/footer, and premium UI styling.
+
+11 MINI PROMPT
+Recreate the approved “Детали сервера” HotFox board exactly from 11_server_details.png. Preserve server info structure, action hierarchy, annotations, and overall style.
+
+12 MINI PROMPT
+Recreate the approved “Подписка” HotFox board exactly from 12_subscription.png. Preserve subscription information hierarchy, metrics, actions, annotations, and overall premium UI language.
+
+13 MINI PROMPT
+Recreate the approved “Настройки” HotFox board exactly from 13_settings.png. Preserve grouped settings rows, annotations, and the same product family style.
+
+14 MINI PROMPT
+Recreate the approved “Smart Routing” HotFox board exactly from 14_smart_routing.png. Preserve routing settings, explanatory copy, annotations, and exact board composition.
+
+15 MINI PROMPT
+Recreate the approved “Приложения и правила” HotFox board exactly from 15_apps_and_rules.png. Preserve app/rules structure, any search or segmented controls, annotations, and style.
+
+16 MINI PROMPT
+Recreate the approved “Autopilot” HotFox board exactly from 16_autopilot.png. Preserve automation logic UI, annotations, and family-consistent premium layout.
+
+17 MINI PROMPT
+Recreate the approved “Shadow” HotFox board exactly from 17_shadow.png. Preserve the Shadow explanatory screen, its state/action structure, annotations, and the same restrained dark-orange visual system.
+
+18 MINI PROMPT
+Recreate the approved “Always-on VPN / Kill Switch” HotFox board exactly from 18_always_on_kill_switch.png. Preserve the system-setting assistance UI, annotations, and final board structure exactly.
+
+=================================================
+SECTION H — FINAL INSTRUCTION TO EXECUTOR
+=================================================
+
+If you are rebuilding these boards:
+- use the original 18 archived images as mandatory references
+- treat this file as a style lock and anti-drift guardrail
+- never substitute your own design judgment where the references already define the answer
+- choose fidelity over creativity every time
+
+The correct result is not:
+“very close”
+or
+“same style”
+or
+“inspired by”
+
+The correct result is:
+“as close to the provided image as possible, with no intentional deviation.”
+
+END OF FILE

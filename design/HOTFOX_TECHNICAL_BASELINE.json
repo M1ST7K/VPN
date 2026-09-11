@@ -1,0 +1,942 @@
+{
+  "runtime_base_sha": "a729b1cbce719278840caf9ab09a5350e6d554e4",
+  "protected_files": [
+    {
+      "path": ".github/scripts/hotfox_ai_review.py",
+      "sha256": "b799949ec17b59c1f28836bea85b43630b5bfdeb943218223b4791f5994f7df5"
+    },
+    {
+      "path": ".github/scripts/hotfox_ai_review_cap.py",
+      "sha256": "216d4f8bc47a28d6597bf5f4c8d67ecbda9cbaef27d95ace05042657557702fc"
+    },
+    {
+      "path": ".github/scripts/install_hotfox_android_sdk.sh",
+      "sha256": "9f298ca2a93c97870f9662b56117e5dbaad752883fc1240128308614e82938e8"
+    },
+    {
+      "path": ".github/scripts/test_hotfox_ai_review_cap.py",
+      "sha256": "c00f917123ba70acbdf2947676e72b39a2a4582800ea5bbbc961ea6324d0a015"
+    },
+    {
+      "path": ".github/workflows/hotfox-ai-review.yml",
+      "sha256": "fbcae2f893fddaa0ae19e10001d3a1e600a76b657045bb0d7f70bb77a6ccdbbf"
+    },
+    {
+      "path": ".github/workflows/hotfox-bootstrap-ci.yml",
+      "sha256": "0ebd9382887dc6a933e8fcf662e62daeb00841d7f86c9ea29230ad501ad8684c"
+    },
+    {
+      "path": ".github/workflows/hotfox-phase-exit-review.yml",
+      "sha256": "22f5330a3ddb3223174d12015bee78baa317b2a5aa9210f1cf6b188de7e9c997"
+    },
+    {
+      "path": ".github/workflows/hotfox-review-cap-tests.yml",
+      "sha256": "21b081ef25a2ff86fef047b96d2cbf8bb66d3472ada826ed5e303d033d1451d7"
+    },
+    {
+      "path": ".github/workflows/hotfox-vpn-e2e.yml",
+      "sha256": "c8b94f391180d5cd6676ec11b2442dd6d833d0659f3a6ab50f83d34c12578ccf"
+    },
+    {
+      "path": "bootstrap/README.md",
+      "sha256": "4aac621a33a4587ad2e600b4726c903fddf3429ce0091c4fc0e4a9d8bae70784"
+    },
+    {
+      "path": "bootstrap/apply_hotfox_android_manifest.py",
+      "sha256": "5c16fb121103d0c0e60e989d345c279d9019780fb851a19a08835a410c649900"
+    },
+    {
+      "path": "bootstrap/apply_hotfox_utils_isxray.py",
+      "sha256": "784cecef899c603567a550a533383dacf0dccf1adb2f64b574d4d1afbb08883c"
+    },
+    {
+      "path": "bootstrap/assets/drawable/hotfox_logo.xml",
+      "sha256": "040cb554e0210b1e11ffcf2acccb150a971e779b34d7b29e62479b012295ced4"
+    },
+    {
+      "path": "bootstrap/bootstrap_source.sh",
+      "sha256": "3ef3fbe44fe1d2e937401f0d0b15bc233e087a25b188df9facc234d94752cc85"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/build.gradle.kts",
+      "sha256": "9b83d4a2a9e8f9123dd781c7141c4a013309d9c3d995203e92fd94d08193f873"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/AndroidManifest.xml",
+      "sha256": "2e0ca61a95228e7d6827ebd71f08c49e1820255a1915bb43eec04266da293ced"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/commerce/HostedCheckoutFixture.kt",
+      "sha256": "83012a04599881fda08ac43757cccd3d8e37e7332b75339c7f5027bbf8595ba2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/commerce/HotfoxDebugCommerce.kt",
+      "sha256": "f3d582e4f1923cdd811f0cd536ae395769fb53a02b7970b5e1c5923787c940f6"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/commerce/SandboxCommerceBackend.kt",
+      "sha256": "9783a965603fc8cbf624cc1e46d1837e6eef917baa169f94d1be9257112700bb"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/commerce/SandboxManifest.kt",
+      "sha256": "a8e1660d8e07673ccdedee9d4e3c0cd19697534eb80dc53409f87903d1112b09"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/commerce/SandboxPaymentE2e.kt",
+      "sha256": "1917c6148f249d37527a97d2e08a45f2550232faf537ba0edc9ceccd2010c37b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/vpn/HotfoxEngineeringE2eActivity.kt",
+      "sha256": "dce8999f9b8b1fb5c045e48f2677aeb8e8fa1e4e449dc66c8a692949ed6ac3d6"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/vpn/HotfoxEngineeringRuntimeE2e.kt",
+      "sha256": "a4378e47d20f6c31c0363e5be78b9e77fda6f5bda899af9830972aa500fc5a76"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/AesGcmSecretBox.kt",
+      "sha256": "be4c594314a483c6c9ec5acd014468787c9c4dc8fc4e0ef276a964061fb3eb15"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/AndroidKeystoreSecretStore.kt",
+      "sha256": "4c82bbde0b3df1b29e367550bf43a08b096b0ca834e095bd0872a1696923ba0b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CheckoutIdempotency.kt",
+      "sha256": "01c0e5d100c6bcf00d2035df0183ccd764eb863062113402a1f26c46f1e80b5b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CheckoutReturnParser.kt",
+      "sha256": "d432445ca5c3b508753af64af67773977b777fa15b74a4972626f26a8b9dbcb3"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CommerceAccessResolver.kt",
+      "sha256": "17d17b327e8ffe2435a1db00175b70508d7028a1e0058f5f229a8d6148463cc5"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CommerceCoordinator.kt",
+      "sha256": "fd7e881f6dd151a863452610c96d86a2a24467be72fc59a58c96527b39fdcfa3"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CommerceModels.kt",
+      "sha256": "876bd807c6b9cda621a491f93b92c0075fc6e90eee80ad10a47d8c02b797c4d7"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CommercePreferences.kt",
+      "sha256": "7c4541b09f52a6ae9d906629157c6cbac800d2688d79e1f26cb6abea4df81fe8"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CommerceStores.kt",
+      "sha256": "ad61c1b9e3bd50742442e14c9682fb788f4f4ec37ef746601b0d161491aca62e"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CommerceSubscriptionSync.kt",
+      "sha256": "bfb779628fa3fcdd99c40d7fe2aa5a34cafb03bd6d415942b6fecd0eac2b3118"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/CommercialPresentationState.kt",
+      "sha256": "0d488b38b40ee1727abe6a225c41b02245999dcd92b7467e8f0d25dad035e092"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/EntitlementParser.kt",
+      "sha256": "78f20c47b2f6935a9ac52d3dcba59ac15e696a50d9efc3a1f17cb5e8357c6343"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/EntitlementStateMachine.kt",
+      "sha256": "1a6394e10c9c930b78f97b8dc6751611fd2831ddedb95f94114d74b0d2b014c5"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceBackend.kt",
+      "sha256": "b40695ea0c9be2a986d2dfbe809ae49b1221e516e86bbb7b24733ffc1db089aa"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/HotfoxCommerceFactory.kt",
+      "sha256": "297577e9c7afcc14c4886e7ab5ae4d5036a2e99b18ca5347abe311e9161034ac"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/HotfoxManifestRefresh.kt",
+      "sha256": "c9b13a28f7e7acf61a9d9d6406ea372c68a0ac148e4a214edefaf1968eb5a0ee"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/HttpHotfoxCommerceBackend.kt",
+      "sha256": "a286c5a3614a0e3dec514ea399daf87f08d3d7bcd5961ad21415cc250662b693"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/InMemorySecretStore.kt",
+      "sha256": "a3a57cdefc481d54d647b71a1686fa59036dd40e4f65dcee8c9b1119ce424697"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/ManagedConfigParser.kt",
+      "sha256": "359f47f78fb401dd5aa60621738dcac5b0241ef6e24c5a0c8d168b8443ba15f2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/ManagedManifestApplicator.kt",
+      "sha256": "7babf7d2747b962dfd4b006e98bcb72d55ed9c2f562965032fac5d20ed4479a1"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/ManagedManifestParser.kt",
+      "sha256": "000b372671738f3bc68be435936fe4087d251a2c999f244da95a9209bacef17c"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/ManagedServerStore.kt",
+      "sha256": "7b5f9eefa2e4f6f52aa6ee3137b22e24013e1703d1d04f9221073d51c5006fe4"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/ManifestRefreshPolicy.kt",
+      "sha256": "f09d54e23bc48d82817006cb9c0fb6bd66d536b1183303467c194016eba6867e"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/OrderStateMachine.kt",
+      "sha256": "2110107c4cc084e0b7250b0d3cea3c198e5085696bb3e728d6837195383fdcdf"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/SecretStore.kt",
+      "sha256": "06a10cced8ba1b6a73e736fbf0166634e654c7d6f0a95086ecf8f826774b7b21"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/UnavailableCommerceBackend.kt",
+      "sha256": "ba526a6634de02af1e8f0e9ea82b9af409c32718f4a5fff006305e6f8e39244a"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/VpnConnectHandoff.kt",
+      "sha256": "7f5b5b798b96fbdae2fab6db58bd58aa8fc15b4940fec4365cd37fcc2bca85e6"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/commerce/WebhookReconciliation.kt",
+      "sha256": "c2f2659bcf441c727ee2b3d3a90e91589842cea1b20e69870868b825f80d46f4"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/core/CoreServiceManager.kt",
+      "sha256": "d036c2a539d7fbdcbf0653b2a54c42dd72f9ad43f8a7fa74cd98316803d4da07"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/handler/AngConfigManager.kt",
+      "sha256": "0db1b4b52544b145164866eabcd7808f672dfad51a324fa8320566bd598b2d4f"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/handler/NotificationManager.kt",
+      "sha256": "52608c364d64c57a63723dc81ef4efbef5fb6c3d26c81cbec4b3a849ee5a7988"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxApiCompatibility.kt",
+      "sha256": "b7041be0bcac7610d3cb07391b959872cf6c09010c9868946764bbcfa0185507"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxControlPlane.kt",
+      "sha256": "a92fe8bb424b9fb3fe94196df9aeec4ed2f5b616297c5dbfd1d2003e71a792aa"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxDeviceRegistry.kt",
+      "sha256": "dc9e14fcec9caf66d0a1938cd0282c165578241fe9b42cb1b376699b14c45147"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxJsonFields.kt",
+      "sha256": "f1107276791d937d421ee3c9d0f3114e671aab3348a820dbe56178154c0dbfdf"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxNodeDrain.kt",
+      "sha256": "f0c1b0c93b76fb74e300b72490c2298d2e1cc1e2ebf36ad4f5d9132916f8103e"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxOfflinePolicy.kt",
+      "sha256": "cf1d25ec32ebb5474a5771ca49b30f51881e667ca89fc6d480a5ddd356380ca4"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxOpsCrypto.kt",
+      "sha256": "54ad427d614d7f576c0b7502439bd6e1b1db515804427c357fc43f72614813ff"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxPlatformInventory.kt",
+      "sha256": "0533bf63de34547d4f77fd7b8f277edc486347f1682d205cc28dc7125a574f44"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxPrivacyTelemetry.kt",
+      "sha256": "e1dff0fef9af89d4eef7daa9378fd42873e91786ef0dab904a3b60a19da1da7a"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxRelease.kt",
+      "sha256": "9ea2608c61e2b27b7669adab6b825887ed38366b11be805fc1d0fee9a7276d83"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxServiceHealth.kt",
+      "sha256": "099ddf6ac9d7970b73bed8665a53c6ca441204a826dd57b28ac5fe02c5cd023e"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxStateMigration.kt",
+      "sha256": "04bcc77da56f9269b22e7462dade50fbb32e2b05c61b46287dd60f8342a204e0"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ops/HotfoxUpdate.kt",
+      "sha256": "cef5e090cd1a40e2e3164d20f0e3f5beb7a4dc915e47c535f49b93640f224af7"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/root/RootManager.kt",
+      "sha256": "926ad8cb6dbc2ff09fb8aa211b50200229268a58685a4572a41edc1bd7bdbd50"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/root/RootShell.kt",
+      "sha256": "678d6ed2edbfea32a49ba9990c1142cfc917e32a86a78d42cb1d1ad34ba08b76"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/CoreProxyOnlyService.kt",
+      "sha256": "6002b4f61f604b3c7881fc9b9ab23f7ac83f4ec0fa5bbbb7d2e6ba5ae52f74fe"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/CoreRootService.kt",
+      "sha256": "0f725ddf67ebe1ed445821a7783f407b7d78d726fa34235e2a7de7781a10665b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/CoreTestService.kt",
+      "sha256": "13b02d2ad256e4d34c8540c5b20ea287f4eab21310d8e9c01a2476ac148db9b3"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/CoreVpnService.kt",
+      "sha256": "339c81eac23d2eca0e127d1a32dd98693765e05784bb7ea9fae61f92e077e523"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/HotfoxHealthMonitor.kt",
+      "sha256": "06a5294b6b59b88d8096d15dbd3a5df31e14ba5baae399c60290b6f0db1c0bce"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/QSTileService.kt",
+      "sha256": "f31f43c162889d59d25ea6619d3aeeb281883ac1f2e7787f039ef0eee4a21a4b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/RealPingWorkerService.kt",
+      "sha256": "2bcf0dc62ecb96eb58fd6e86032e0056406d8820a72a15a81e9c2ac9fd170e44"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/service/TProxyService.kt",
+      "sha256": "51847d668651da78331b34583593c205dd8a81d348b5c5f08c16a1d27d8a908f"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/util/BoundedProcess.kt",
+      "sha256": "d1e4b30fd0359a50dfa59553f1c879dd0b8d0e766499ca06992f1612d49f28e3"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/util/HttpUtil.kt",
+      "sha256": "a88e433c6bbc2c82d601d2cf301760b508f28806bd07ca3e83324a965f657cc2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/util/ProcessWaitCompat.kt",
+      "sha256": "cea91d857c77884239b327e73d2fb96f0190bfe5ce6e63a201f13857f9942360"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/util/SecretRedactor.kt",
+      "sha256": "c93c77daa5e32b8fcefc42e50864c9de46d059332b91c8fbba221211d06a1b07"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/util/SubscriptionUserInfoParser.kt",
+      "sha256": "474dfca954022b5ad61e52ae5e10eaccd2b05118378e660f786e40ed3acdf408"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/viewmodel/MainViewModel.kt",
+      "sha256": "6a81807aff53725c9c650564a074148c84e5aded8189e96d222f16fffcb35047"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/AutoCandidateFilter.kt",
+      "sha256": "fae931982da6ea109297c9dfbc1fc26d5371ec14d45223a18b5ea3a315b41dc3"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/AutoCommercialEligibility.kt",
+      "sha256": "81b2a10bd69fe5712e8941f03236727f0acfd8c84fe8346fd018aae72232adb9"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/AutoSelectionPolicy.kt",
+      "sha256": "779c462095f7f8ac7029147253ef84caa4e630f28b47aaae97790806ca9ae822"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/ConnectionDoctor.kt",
+      "sha256": "7079fe81b8e3c4bcc2d2d141f9100e889e537362dbd52a3c27169227e72466e5"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/ConnectionErrorUiMapper.kt",
+      "sha256": "315ae00a677af3bac9e6c3e2da3bf8c73d2ca74e4657045464391f1cd7516f93"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/ConnectionUiMapper.kt",
+      "sha256": "fbeb1a2ae1eff073083ee67f8babe405fd87939d0073546d5021cc89358e5e3b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/DnsBootstrapCache.kt",
+      "sha256": "ec6276728ef6b79884693c9ec85e80df9aa5fcf7b58c61e4b69a037a9ed49590"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HealthProbeEngine.kt",
+      "sha256": "a15bf7e12b7cac62576ffdf36aa18a08e6bcb84662cdaf1adbd583fa5de4dbc0"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutoFailover.kt",
+      "sha256": "1940af43185f512946f4c683852a1cd78aa6e7b58bbbd69ce05e078d4a992c0b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilot.kt",
+      "sha256": "b4fd0926dc8aec788d3af62ff62f98c276aeb5287a4797df28bdf848bb306ec6"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotBootReceiver.kt",
+      "sha256": "7e3b83a6d380febf2e1f6f65bf83eb3b5ac298f697984f197eb11d56a665a7a6"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotPauseReceiver.kt",
+      "sha256": "cee775ff9c123b70bed552743f508aed6f5e0eaf4787c4e711313ec91419de51"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxAutopilotRuntime.kt",
+      "sha256": "2eed9ae96c5b96f628aaed94fc0c7699b947d992357f6594d2bf5c8170c242aa"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxDiagnosticsBuilder.kt",
+      "sha256": "771be3204196ffe251204c58076d42ae65dbc7b5970a27895992a784a83323a0"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxEngineFacade.kt",
+      "sha256": "43e24f2870f63492baafa4f2bae4f6aa8271d9a118e00ea2ff8a25f043e5a49a"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxExpectedPlan.kt",
+      "sha256": "fb084843c7cd80341254c6efbbdcfe0fb34d7ee36649101b19348d6922394709"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxHevSocksTarget.kt",
+      "sha256": "e6ae1f929e0c13638e9c9f2e1843d41dcbbbb74a87cf00feffedffe6db26b821"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxImportUiRefresh.kt",
+      "sha256": "b217abfac76cd2acc7209e884a893160b6d44d492470877c2fb88edb8caab961"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxInboundIsolation.kt",
+      "sha256": "2b1a2bfdc53004ce76e23c5233725b40d63013ea46fb2aa2df7943d324eacd55"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxIpEvidence.kt",
+      "sha256": "913eb866edddaeb27a6fbe6bbe908143071a79b61f5594546ccd82e3aeddcdba"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxLatencyDisplay.kt",
+      "sha256": "dcf913d32952262eeb19caee2718ebbc377a1cf8294887e357b1ec9925f6bd25"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxLocalHttpProxyPolicy.kt",
+      "sha256": "8885ead58eb1caf838bbd5f62d9c99f30ad706ff3e83d27b255088bac533f2ca"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxMotion.kt",
+      "sha256": "4bb962ed43c13820d542b1b4fda320257ce6f9bbbaf975cc24de12775b7c234f"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxOnboarding.kt",
+      "sha256": "aed912a721bed54cf2b761d341c14874459efc7e13eddf32af8816a3ddbbf4ec"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxOutboundSnapshot.kt",
+      "sha256": "2e463c798437f2d13f468a70976ff8b3ad678184a91818cce8fba817f819765d"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxPath.kt",
+      "sha256": "8f7bca742e8abf2b057397281c80774514300d2dc652b76574123ebe9c9301ff"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxPathScore.kt",
+      "sha256": "7a44d84c19dc74a5f15612ab00902bed04e3bf0b64312eebbd9de38b582cfcf8"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxPremiumViewState.kt",
+      "sha256": "d4b5cef035957a1da991f167e679201bc0f5315f19be7ac0a7bf945759695003"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxResolvedTargetDisplay.kt",
+      "sha256": "887a289261c8c7f59adc58fae9b80de7a3fc999353fd2ab14d72e5fabecf03bf"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouteBarsView.kt",
+      "sha256": "93a5e7ebabd6fd4fd159276340de67c8a14497d7f7fd567f09b16d8a0e2b7763"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRouting.kt",
+      "sha256": "14201e373127a55e4be5a659ac5f52837402e4628863f3ce1621c13e35a0d8c0"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingApply.kt",
+      "sha256": "0af10dd601d97aa3031035c618319f863a2398150d50e49f46a9e93cd0a1a061"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingDataPlane.kt",
+      "sha256": "d7e0de108241b0f982a81f5d19a7a7bebb0725eb974fe26c7b020c4600f4bd5a"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingRestart.kt",
+      "sha256": "2eebe6d835f81f3218c5829dbbdd82322a0e2d860ba948f052e43e6a73886a2f"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingStore.kt",
+      "sha256": "03a96102fe0aa673fc14cd0e58e4e2beae8cb0c1a4e3d246b9dffa0344ceac6e"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxSelfHeal.kt",
+      "sha256": "8b63c98587058c03a1c36a1dfb7b3ed16c977277e994f8d827cafc2a9f0343f2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxServerPresentation.kt",
+      "sha256": "38541c2025fe517a7e2300784290e41a95f612f3a8b0b727c8d5dbdfe0cae39d"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt",
+      "sha256": "0a8fff118031292470db48019cab9aaeb0edc47d6eef483d2d20b53573ba1b81"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowFailover.kt",
+      "sha256": "a91c8444dd9023be25b0966c1ac50f7d764c5c6954ac7dfb52c885ae079da4ba"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowPolicy.kt",
+      "sha256": "2755cbf63a0e222ed19b44afb8234aefd09c6da8d968c822f4272ef6ef2b7222"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxShadowStore.kt",
+      "sha256": "3eafc45c03649468b718b9814ae14bd2665e4e75c456122d14af0515139325c7"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxSocketProtect.kt",
+      "sha256": "c8cb5683f914ea5305277df6ec70b70293e45176620b3b882ce83ec620155dea"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxSocksIsolation.kt",
+      "sha256": "f088a76e3a9028a474e251b801f66c00d66b4487b3d339dd65781db7e1a816d1"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxSubscriptionPresentation.kt",
+      "sha256": "ff8ce6e14c66d03a50cfecf1bcf1dbcfaae958f55295d68c8a596386c7393f70"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxSubscriptionTitle.kt",
+      "sha256": "a7db7869609e06869e0904a72e1eda09f908eea7102b00ff898bed0fd96a31b4"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxTrafficAccumulator.kt",
+      "sha256": "732789e6a64d3dcb54930f6d38a41ed9a35397bb33c63ef883fa320ebb12e9f8"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxTrafficFormatter.kt",
+      "sha256": "2e3762bddef5f41b24c694afc73d762c81c5d7010b0c84272c969998c10b568f"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxTunLayerEvidence.kt",
+      "sha256": "e61eb410b09cb31665b5e110e1f3ab914ad99b2d1757d4035ed8610301e274e2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxTunSelfExclusion.kt",
+      "sha256": "54233d47d1d764ca235dc2a66644bee98ecb8b8954d4282fa96dfb2507a9f9f3"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayCapability.kt",
+      "sha256": "53bd02fc45f4a4da96c1c8a6770c4d5200f7c49d4de8024c7a56d8fd17d60cd6"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayRouting.kt",
+      "sha256": "e3b875afd540a7c72796d6f05f64413490d6ded8d58a365636745e96cdde63ab"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxXrayTagResolver.kt",
+      "sha256": "45522daaf4255482457001c9a33096bbbd72d24ba5dfd2213c5a5fc6aa1bb906"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/NetworkCapabilityCache.kt",
+      "sha256": "0aa2e496f82da52630d6129fc1d0365c9926f9dda40f6260674b6d4eb4d9c61f"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/NotificationUiMapper.kt",
+      "sha256": "e023eb5beebcda83c0c9a2a60ca2cbb3fb46d076256e90c7278e87ac80d7deed"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/QsTileUiMapper.kt",
+      "sha256": "7065690324a1b1eb95f135566fa764f370da5ae7f10b9fb0a033153952ca4691"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/ServerHealth.kt",
+      "sha256": "5da44e20aed00ff924e22a85253643c6b191c02cc52e5f2521c6bf862db434fa"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/ServerHealthRepository.kt",
+      "sha256": "65120fa5a82c1ee6866f44b9c6a777c9f58b627a960fdc10a25e42c93c44710d"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/TunFdEvidence.kt",
+      "sha256": "a74919c0d4976c58cb8510444599ff43ff95a88514b23705b389c1564479a3b2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnAdmissionGate.kt",
+      "sha256": "5ebd8aa42a73fb01ada6695ce94016ea19cf5c4e82bb702de43c61648d3a24e2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnConnectionStage.kt",
+      "sha256": "64085c3255641438862731731936bee6e9d7afc3b9376cf563e36e8a26fb12c2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnLoopPrevention.kt",
+      "sha256": "afe978bdd86b8d28f318ed2338025231069d79b2d982ccc8cb7097b2fb5bc6e9"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnPathVerification.kt",
+      "sha256": "d881f91756a3d5a318e0921d2fd16653048176d9a7000b0b7b19f28e9c31cfd9"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnProtectEvidence.kt",
+      "sha256": "f99b9dbd7c38991922cad4ca0fbbb8e86f5413253fdc187b0a71c3a8b3d34a3b"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnReadiness.kt",
+      "sha256": "9530d2b9c5f17ede34b341904a9e4f9ccd9def39a8cbdd0bd986aa9050f872e8"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnRestartGate.kt",
+      "sha256": "726b3afb382dd61f44f7d3e686ac3c0abd7178cee954d3e7ec9e0b7c47d3c31a"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnSessionCoordinator.kt",
+      "sha256": "5545aedf8ac0813af42bdce9253ae2a50c9dcc78b0da9a502bd96fe72284312e"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/VpnSessionState.kt",
+      "sha256": "fba6a2731753a451e122592cff0edaf519a4648952e59ea7a1af42c5ff38332a"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/XrayShutdownGate.kt",
+      "sha256": "e6c594d5f7791373f22f93ffd27bc49b4bb3638801544ceeefa84a4613827a91"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/release/java/com/v2ray/ang/commerce/HotfoxDebugCommerce.kt",
+      "sha256": "6fbc58ae6b7d242322fd6fe9c02c5d18c7d068f3b1722a9a3528ab2d39b2ccd5"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/HotfoxSubscriptionParsingTest.kt",
+      "sha256": "91aac8325a629b01ff90961a5ebce2d08fb2bfcbde995b63dd388ea2b5903a81"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/SecretRedactorTest.kt",
+      "sha256": "94bd91cc3361e74555aef5bb9b405d97e31310877a10dcc9c907401fa3a11e14"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/commerce/HotfoxCommerceFoundationTest.kt",
+      "sha256": "00e1d526efbb3b1356f3e60d50e5e3730e4f450bd4fe0d5af87b480ba075e939"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/commerce/HotfoxCommercePaymentE2eTest.kt",
+      "sha256": "e21bd7f2e45d7d5eb8974e0769dbf973a5b0adb64e38d97b1f54a72472532dd8"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/ops/HotfoxMaturePlatformTest.kt",
+      "sha256": "c8e60eaf23b0c531cf5ff6ae29fda5a35cb8251976abe83de6f660df35828ebc"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/ops/HotfoxOpsTest.kt",
+      "sha256": "754b248ee2f8c2adf434612e63749d8ff96af7fb5a21f9de45cc0ec3194efd31"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/util/BoundedProcessTest.kt",
+      "sha256": "70e58cdbee62e4015fa16ebee51edfba812f1ffceaea58a7fc7b25a517f1f161"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/AutoCommercialEligibilityTest.kt",
+      "sha256": "8cd74986b26287dc2d55e48ebbab11666275d371c8b3ca241de20a17610a9a13"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/ConnectionErrorUiMapperTest.kt",
+      "sha256": "897bef407d587f555be842f40b9494e2a98906cf039e728e93dbeae0c704b4b1"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/ConnectionUiMapperTest.kt",
+      "sha256": "6af5c65a94fba2d0c1234acb01e125339b275c85097897551fd2862689ce1667"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxAutoFailoverTest.kt",
+      "sha256": "0e63de32ff6aeba87bafebc029f3ca7ce08359c9d0f29429eedca34a3a7f1ae9"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxAutoSelectionTest.kt",
+      "sha256": "3dfb04d742c919060693d3a395843d7a82a54f5a9adcbe7a794a35a411dca0cf"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxAutopilotTest.kt",
+      "sha256": "f1418043f37c30b92fc20f980ca72a880dce3895d7556e3c6c9bbd7b6f58028d"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxDiagnosticsBuilderTest.kt",
+      "sha256": "e5e0ed68fa4fc63cdc87b5417cc32c3ae797210197fdded71a72778c9871e478"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxOnboardingFlowTest.kt",
+      "sha256": "167a4ff104f014fcbfa85f3f2026b66d74ae253e3814e0bc86e3b1df96a4e438"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxPremiumViewStateTest.kt",
+      "sha256": "16acd757b5517dab07f9cf07ee30a484d124948e65e1d80db3f76c332c5dee39"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxRoutingRestartTest.kt",
+      "sha256": "007711b89883fcb7f341bd0629fb62d915f7cb8f3ab0907531114ee1b5dcc899"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxRoutingTest.kt",
+      "sha256": "181f66e046d86452eb66a6ae4a209dbcdba84f6e103cda38687c9fd27ef58d42"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxRuntimeRepairTest.kt",
+      "sha256": "1aabf6af4efc054a0e068d4c970378a15ea353457d0eff151eccc0be48054862"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxServerPresentationTest.kt",
+      "sha256": "76ce41c7014f7ecdafa9f32e3d98aecbc177aa8a31d9a381912dabad5c3df1b2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxServerSelectionTest.kt",
+      "sha256": "135d39d270c88baf41ce27f7c82b949f054d546dbe64dea5faee7b95fd8ea9c2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxShadowTest.kt",
+      "sha256": "d2b950365f51c2850b52e7763307a0b09984300eefd4764a72d1bee840eb26d3"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxSubscriptionPresentationTest.kt",
+      "sha256": "41a40b540fb419ad3ee7f56975a0ff61e9a731b9233af5d6c612239f928256e2"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxTrafficAccumulatorTest.kt",
+      "sha256": "ae764b3784ea827e98cbd1e24b617084e60b11cf1ca6e2a9b4e00c4a515f94ea"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxTrafficFormatterTest.kt",
+      "sha256": "bbb92867e4895c7fd5741eec01353e91c74caf521ad8d4c4f7ebb0db5dfa03db"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxVpnRecoveryTest.kt",
+      "sha256": "9f76f90377c3391f225096d0feca6a1c2f1c2911c93c80a6fbbad5fea1ac4720"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxXrayRoutingTest.kt",
+      "sha256": "192a818dce329bfb3acf6944798d893a79e4c2f409f8ab13694019a3ea475aa8"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/NotificationAndQsUiMapperTest.kt",
+      "sha256": "af62092a394fd42fb5d80e3b00b487e6f793915571e0ff9cd28fb4ae1f99b984"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/VpnAdmissionGateTest.kt",
+      "sha256": "793cdcd9a2a88851ef8d9c2bd2828f4203417d5f612fbfddd6fd44a63aa1d068"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/VpnReadinessTest.kt",
+      "sha256": "7809e1d36fb62ee92dddea8b1e971c782fdad587b8a118341f24754b175d486c"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/VpnRestartGateTest.kt",
+      "sha256": "5538ad532ce6b5f61f3e256a1ede8536964ecc25af1828cf5381d664cb9cc8e0"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/VpnSessionCoordinatorTest.kt",
+      "sha256": "8f41f669b7ec54da29154b0751c1cb98603894cd42f1e58905783a024407c19c"
+    },
+    {
+      "path": "bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/XrayShutdownGateTest.kt",
+      "sha256": "b1779db71249cfb3b6695c031bc4472428d1392ddec97c251034ac9c68d277e1"
+    },
+    {
+      "path": "bootstrap/payload/part-000.b64",
+      "sha256": "afa09259fd7e7920eb32410c5f8e5d8ee4d082c26777cdbc081bdfcd8443bd8e"
+    },
+    {
+      "path": "bootstrap/payload/part-001.b64",
+      "sha256": "07077868b643af272ea7878e7a8b277e6f91b2857e304abdd2d1332a47248a57"
+    },
+    {
+      "path": "bootstrap/payload/part-002.b64",
+      "sha256": "7bc1eed379357eac9be0e73ea4c3fddab522ed24f93c2b269a3f744356625026"
+    },
+    {
+      "path": "bootstrap/payload/part-003.b64",
+      "sha256": "c3b8875c0f1e6ac5431ff24250abccb7cdf3e742024adafbc9a595695a1df9f2"
+    },
+    {
+      "path": "bootstrap/payload/part-004.b64",
+      "sha256": "88a35e6a78625c1a556afc7e95b2a1018fa283b161316d763a481ce3b34d75dd"
+    },
+    {
+      "path": "bootstrap/payload/part-005.b64",
+      "sha256": "8eb21612cc3a4412b9f142b86e67e412d943d14185b5cb6c400f595cbc9b9943"
+    },
+    {
+      "path": "bootstrap/payload/part-006.b64",
+      "sha256": "63004f98cad88d17a9dfed2cc271153d409f40df3ddf9ab78bed01475aace72c"
+    },
+    {
+      "path": "bootstrap/payload/part-007.b64",
+      "sha256": "7d7c1b1fc5134520b48226e1d42d6a10faa16ef1b4ec4c98171abe183377af8d"
+    },
+    {
+      "path": "bootstrap/payload/part-008.b64",
+      "sha256": "6c70b8900c3ac48a68ce57646a6c0dd16533e625c6ffca60eb7a1736c3679e94"
+    },
+    {
+      "path": "bootstrap/payload/part-009.b64",
+      "sha256": "ff6f80eddd319603f482607abe63b384f98db2c8c0b59b742f7b3e3577ace246"
+    },
+    {
+      "path": "bootstrap/payload/part-010.b64",
+      "sha256": "8da6eafb4f4a47b692f4141bf705aca0f170d43d8120b8c44e9e08ec5d4dccec"
+    },
+    {
+      "path": "bootstrap/payload/part-011.b64",
+      "sha256": "4cc91cea31886ba05f1de171421b23ccd4eeef667c41aa39ab53d4d0795ed1f7"
+    },
+    {
+      "path": "bootstrap/payload/part-012.b64",
+      "sha256": "ffb45feb71d0cd753e97491f05d209bb737bfa9e75288ee1836b149cc57083c2"
+    },
+    {
+      "path": "bootstrap/payload/part-013.b64",
+      "sha256": "743bca5a6c8901f891a1c6b11b1d2645e3a30052058a4bbd4d6752aeb3df65ae"
+    },
+    {
+      "path": "bootstrap/payload/part-014.b64",
+      "sha256": "8b62363fcdf8d61f0b392fd0a8b3aef2d0685be16445032855d79eb19566ca16"
+    },
+    {
+      "path": "bootstrap/payload/part-015.b64",
+      "sha256": "03f6d3f73fc69624b6a2e3c32199bc75deb8be979db615311b3060fec5c7dd84"
+    },
+    {
+      "path": "bootstrap/payload/part-016.b64",
+      "sha256": "1ba1f5b5526bf704c64ce19cd065510e056c5c3500272c59341d6e3800023ddc"
+    },
+    {
+      "path": "bootstrap/payload/part-017.b64",
+      "sha256": "62302a7cb396deb94c7fae3487f1fc92b75de81edbab777834353647db0611c1"
+    },
+    {
+      "path": "bootstrap/payload/part-018.b64",
+      "sha256": "056815af8c29f5d177aa64b2bd910e22660871c0b1ee1a6f4e2cab208cb4536a"
+    },
+    {
+      "path": "bootstrap/payload/part-019.b64",
+      "sha256": "2ed286e034400ee17ca202bb94caf492fed4490a4a98db27b425a1ab46781547"
+    },
+    {
+      "path": "bootstrap/payload/part-020.b64",
+      "sha256": "f6ec63221d8b94b0c6bbda4c0fb160bd75dbc357703f457bbe7b029711d492dd"
+    },
+    {
+      "path": "bootstrap/payload/part-021.b64",
+      "sha256": "9da93da45b9733cc3a99025eff17d7e74ae19284fae0b2f703f44c755f25cae6"
+    },
+    {
+      "path": "bootstrap/payload/part-022-00.b64",
+      "sha256": "b3e16f3109e8638969234b0cc950e4034d2841349ba46b417534cca8bb8deef2"
+    },
+    {
+      "path": "bootstrap/payload/part-022-01.b64",
+      "sha256": "9d7ed551361ec5ea2dff3c951eadcedfa64704147a069ab59a9f820ce789cdf4"
+    },
+    {
+      "path": "bootstrap/payload/part-022-02.b64",
+      "sha256": "353357e887b0d491c8cb488c133e924bf09925b1eca11b6400f1e574423b6b53"
+    },
+    {
+      "path": "bootstrap/payload/part-022-03.b64",
+      "sha256": "f718b8b72e2b64aba4f2e785ecfee3df051f82b651d8dff6be8eb2c8d6784c5c"
+    },
+    {
+      "path": "bootstrap/payload/part-022-04.b64",
+      "sha256": "bccfb2c13c7e399e414b0e2113691b68b95bf55281d072a50cab3224a821d1a4"
+    },
+    {
+      "path": "bootstrap/payload/part-022-05.b64",
+      "sha256": "5fbd4d911aa4f254d187c4590282944f46aaf21057938dd861ab35b4c4cc70cb"
+    },
+    {
+      "path": "bootstrap/payload/part-022-06.b64",
+      "sha256": "f47e5697833a3bc9a65c48fc9f036859656f3410e5f307848073419e9bb0247d"
+    },
+    {
+      "path": "bootstrap/payload/part-022-07.b64",
+      "sha256": "ff781f1e3efcb4736d8ea59a048d9030f5bab5e0da4ca5c9548a5e493cef6926"
+    },
+    {
+      "path": "bootstrap/payload/part-022-08.b64",
+      "sha256": "78e346856e53cf9f50b44caa27d42fdb48faff88c0e7d97e3c76b36ff7cb649b"
+    },
+    {
+      "path": "bootstrap/payload/part-022-09.b64",
+      "sha256": "f775fe62d3ae6a57ebc769eda4e0ec22e7c2fea952a2f5b9e9f4605a2cdee7e3"
+    },
+    {
+      "path": "bootstrap/payload/part-022-10.b64",
+      "sha256": "dcc7b24a793beeb748c01bb20db9497b5864c3ae9f3143fbad1566e6ee824c8e"
+    },
+    {
+      "path": "bootstrap/payload/part-022-11.b64",
+      "sha256": "ada716257942c3075a76059276bdfa4f398b6fa332f795e23b22b8286231c9f7"
+    },
+    {
+      "path": "bootstrap/payload/part-022-12.b64",
+      "sha256": "cebb8a0d857b900d73a1a2103464e758752121e2eec619d777a1fc192d69e12d"
+    },
+    {
+      "path": "bootstrap/payload/part-022-13.b64",
+      "sha256": "125a388cdccff04855e9ecbceb279268563856f4a006cf7cc01c9fc255d12751"
+    },
+    {
+      "path": "bootstrap/payload/part-022-14.b64",
+      "sha256": "75df26cff2a518e3c0f13367d75308e681d425d22f9dfd9ac2a0d26defce0540"
+    },
+    {
+      "path": "bootstrap/payload/part-022-15.b64",
+      "sha256": "ef0f925f64b9cd2956e0374fcd8273932d36af720a74fb75bce449b24079df1d"
+    },
+    {
+      "path": "bootstrap/payload/part-023.b64",
+      "sha256": "4852da2f193aa453a87425189944d4d269d899fd8f67aaf1b389d02345cf06e9"
+    },
+    {
+      "path": "bootstrap/payload/part-024.b64",
+      "sha256": "d85745ab1d8b8a2a56f7671f75e3d833bd19b50bf48292c2d71c89c239d3ca43"
+    },
+    {
+      "path": "bootstrap/verify_hotfox_2_2_0.sh",
+      "sha256": "a79d2fa1097949dfc5bb045ee7ba2a9d62736f8427cf734e934c94456593f866"
+    },
+    {
+      "path": "bootstrap/verify_payload.sh",
+      "sha256": "eb06db97c6dd6f82bfec3a9ef06c20531842c746d02ef3371ce875839c214c45"
+    },
+    {
+      "path": "bootstrap/verify_reconstruction.sh",
+      "sha256": "87951263c49d0ed7f8bf050bfa21ba7d08313b23fec440a27a0e030639152595"
+    },
+    {
+      "path": "verification/ci_run_emulator_ui_smoke.sh",
+      "sha256": "a25fbf5dca1cca67e70df7d6b0fd1026de2a5d870fdbd0875c1196549aa5f586"
+    },
+    {
+      "path": "verification/ci_run_vpn_e2e.sh",
+      "sha256": "351121c46dede7b0184a155d02064e97d310a37172b7220b01c6599dd5469c1d"
+    },
+    {
+      "path": "verification/emulator_ui_smoke.sh",
+      "sha256": "5bcac3382f2b12ef53f7ce83d92d1017867fb9c66612b22fed3e0804c38b3c14"
+    },
+    {
+      "path": "verification/emulator_vpn_e2e.sh",
+      "sha256": "1dc9fdf531ef1f22785ae38d8b9403dd226a8eddc7afcbc7f0c77566ca604223"
+    },
+    {
+      "path": "verification/sandbox_gradle_flag_check.sh",
+      "sha256": "521df4ac1ee6e95e0603c72111c0fb03221b1104441d256a33473a1daa063e90"
+    },
+    {
+      "path": "verification/static_check_2_2_0.py",
+      "sha256": "1edbe2f59b8eb559c5d9782ad1387e90ce60fbc40e9801c2a33e2d7b76d68509"
+    }
+  ],
+  "scope_note": "Existing bootstrap, CI, verification and non-presentation code. UI callbacks and side effects require independent functional review."
+}
