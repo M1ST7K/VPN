@@ -352,6 +352,19 @@
                 android:resource="@xml/cache_paths" />
         </provider>
 
+        <receiver
+            android:name="com.v2ray.ang.vpn.HotfoxAutopilotBootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.v2ray.ang.vpn.HotfoxAutopilotPauseReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
