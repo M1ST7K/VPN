@@ -102,6 +102,10 @@
         <item name="materialButtonStyle">@style/HotFox.PrimaryButton</item>
     </style>
 
+    <style name="HotFox" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/hf_asset_cream</item>
+    </style>
+
     <style name="HotFox.PrimaryButton" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/hf_native_primary</item>
         <item name="backgroundTint">@null</item>
