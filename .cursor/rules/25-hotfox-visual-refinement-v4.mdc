@@ -1,0 +1,23 @@
+---
+description: HotFox visual refinement V4 owner override
+alwaysApply: true
+---
+
+# HotFox Visual Refinement V4
+
+- Current UI is not visually accepted until 18/18 screenshot evidence and comparison exist.
+- Owner override: never use decorative planets, planetary arcs, planetary horizons, eclipses, celestial bodies, or orbital motifs.
+- `hf_fox_planet` must have zero production references.
+- `hf_shadow_orbits` in its current orbital/celestial form must have zero production references.
+- Exact per-screen reference wins over generic tokens, except the newer owner celestial-removal override.
+- Asset kit is a parts bin, not automatic visual truth.
+- Do not use universal Material defaults as final design.
+- Content-over-containers: avoid unnecessary large rounded cards.
+- All dark HotFox screens must use light status/navigation bar icons.
+- No content may be clipped or hidden behind bottom navigation.
+- Do not show vertical scrollbars unless the exact reference does.
+- Debug-only screenshot fixtures are allowed under src/debug to produce deterministic visual states, but they must not mutate production VPN, entitlement, payment, server, subscription, traffic, or connection truth.
+- Production CONNECTED/Защищено remains gated by real readiness.
+- Missing screenshot is not PASS.
+- 18/18 references, captures, overlay/diff evidence required before claiming visual completion.
+- RELEASE READY remains separate and requires final runtime gates.
