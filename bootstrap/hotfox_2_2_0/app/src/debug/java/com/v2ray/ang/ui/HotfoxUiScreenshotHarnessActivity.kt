@@ -19,7 +19,9 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
             return
         }
         HotfoxUiVisualOverride.clear()
-        startActivity(intentFor(scenario))
+        val next = intentFor(scenario)
+        next.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(next)
         finish()
     }
 
@@ -128,7 +130,6 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
         return Intent(this, MainActivity::class.java)
             .putExtra(MainActivity.EXTRA_SKIP_ONBOARDING, true)
             .putExtra(MainActivity.EXTRA_OPEN_SECTION, section)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
 
     companion object {

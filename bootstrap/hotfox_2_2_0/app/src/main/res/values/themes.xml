@@ -100,6 +100,25 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
         <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
         <item name="materialButtonStyle">@style/HotFox.PrimaryButton</item>
+        <item name="bottomSheetDialogTheme">@style/HotFox.BottomSheetDialog</item>
+    </style>
+
+    <style name="HotFox.BottomSheetDialog" parent="Theme.Material3.Dark.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.52</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/hf_asset_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="bottomSheetStyle">@style/HotFox.BottomSheetStyle</item>
+    </style>
+
+    <style name="HotFox.BottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="HotFox" parent="@android:style/TextAppearance">

@@ -11,6 +11,26 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "verification" / "ui_rebuild" / "actual_v4"
 PKG = "com.hotfox.vpn"
 HARNESS = f"{PKG}/com.v2ray.ang.ui.HotfoxUiScreenshotHarnessActivity"
+EXPECTED = {
+    "01": "HotfoxSplashActivity",
+    "02": "HotfoxOnboardingActivity",
+    "03": "HotfoxOnboardingActivity",
+    "04": "HotfoxOnboardingActivity",
+    "05": "MainActivity",
+    "06": "MainActivity",
+    "07": "MainActivity",
+    "08": "MainActivity",
+    "09": "HotfoxHttpsImportActivity",
+    "10": "MainActivity",
+    "11": "HotfoxServerDetailsActivity",
+    "12": "MainActivity",
+    "13": "HotfoxSettingsActivity",
+    "14": "HotfoxRoutingPrivacyActivity",
+    "15": "PerAppProxyActivity",
+    "16": "HotfoxAutopilotActivity",
+    "17": "HotfoxShadowActivity",
+    "18": "HotfoxAlwaysOnActivity",
+}
 SCENARIOS = [
     "01_SPLASH",
     "02_ONBOARD_CONNECT",
@@ -51,7 +71,29 @@ def wait_for_device() -> None:
     raise SystemExit("emulator did not boot")
 
 
+def resumed_activity() -> str:
+    out = adb("shell", "dumpsys", "activity", "activities", check=False).stdout
+    for line in out.splitlines():
+        if "topResumedActivity=" in line:
+            return line.strip()
+    return out[-400:]
+
+
+def wait_resumed(needle: str, timeout: float = 12.0) -> str:
+    deadline = time.time() + timeout
+    last = ""
+    while time.time() < deadline:
+        last = resumed_activity()
+        if needle in last:
+            time.sleep(0.4)
+            return last
+        time.sleep(0.25)
+    raise SystemExit(f"timeout waiting for {needle}: {last}")
+
+
 def capture(screen_id: str, scenario: str) -> Path:
+    adb("shell", "am", "force-stop", PKG, check=False)
+    time.sleep(0.4)
     adb(
         "shell",
         "am",
@@ -63,9 +105,19 @@ def capture(screen_id: str, scenario: str) -> Path:
         "scenario",
         scenario,
     )
-    time.sleep(1.8 if screen_id != "08" else 2.4)
+    wait_resumed(EXPECTED[screen_id])
+    if screen_id == "08":
+        time.sleep(1.5)
     remote = f"/sdcard/hotfox_ui_{screen_id}.png"
-    adb("shell", "screencap", "-p", remote)
+    last_err = None
+    for attempt in range(3):
+        pulled = adb("shell", "screencap", "-p", remote, check=False)
+        if pulled.returncode == 0:
+            break
+        last_err = pulled.stderr
+        time.sleep(0.5)
+    else:
+        raise RuntimeError(f"screencap failed: {last_err}")
     dest = OUT / f"{screen_id}.png"
     adb("pull", remote, str(dest))
     adb("shell", "rm", remote, check=False)

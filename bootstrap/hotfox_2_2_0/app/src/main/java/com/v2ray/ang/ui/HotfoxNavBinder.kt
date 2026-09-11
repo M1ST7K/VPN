@@ -1,7 +1,6 @@
 package com.v2ray.ang.ui
 
 import android.content.Intent
-import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -43,30 +42,22 @@ object HotfoxNavBinder {
         val muted = ContextCompat.getColor(root.context, R.color.hf_asset_muted)
         val orange = ContextCompat.getColor(root.context, R.color.hf_asset_orange)
 
-        homeIcon?.setImageResource(if (connectionActive && selected == Destination.HOME) R.drawable.hf_home_active else R.drawable.hf_home_muted)
-        serversIcon?.setImageResource(
-            when {
-                selected == Destination.SERVERS -> R.drawable.hf_servers_orange
-                selected == Destination.HOME && !connectionActive -> R.drawable.hf_servers_orange
-                else -> R.drawable.hf_servers_muted
-            },
-        )
+        homeIcon?.setImageResource(if (selected == Destination.HOME) R.drawable.hf_home_active else R.drawable.hf_home_muted)
+        serversIcon?.setImageResource(if (selected == Destination.SERVERS) R.drawable.hf_servers_orange else R.drawable.hf_servers_muted)
         subIcon?.setImageResource(if (selected == Destination.SUBSCRIPTION) R.drawable.hf_crown_orange else R.drawable.hf_crown_muted)
         settingsIcon?.setImageResource(if (selected == Destination.SETTINGS) R.drawable.hf_settings_active else R.drawable.hf_settings_muted)
 
         homeLabel?.setText(connectionLabelRes)
-        homeLabel?.setTextColor(if (connectionActive && selected == Destination.HOME) orange else muted)
-        serversLabel?.setTextColor(
-            when {
-                selected == Destination.SERVERS -> orange
-                selected == Destination.HOME && !connectionActive -> orange
-                else -> muted
+        homeLabel?.setTextColor(
+            if (selected == Destination.HOME) {
+                if (connectionActive) orange else cream
+            } else {
+                muted
             },
         )
+        serversLabel?.setTextColor(if (selected == Destination.SERVERS) orange else muted)
         subLabel?.setTextColor(if (selected == Destination.SUBSCRIPTION) orange else muted)
         settingsLabel?.setTextColor(if (selected == Destination.SETTINGS) orange else muted)
-        homeLabel?.setTextColor(homeLabel.currentTextColor)
-        cream.let { }
     }
 
     fun openMain(activity: android.app.Activity, extra: String? = null) {

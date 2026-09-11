@@ -1,10 +1,14 @@
 package com.v2ray.ang.ui
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.drawable.toDrawable
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.v2ray.ang.R
 import com.v2ray.ang.databinding.SheetHotfoxAddConnectionBinding
@@ -36,5 +40,18 @@ class HotfoxAddConnectionSheet : BottomSheetDialogFragment() {
         return binding.root
     }
 
-    override fun getTheme(): Int = R.style.HotFoxEditorialTheme
+    override fun getTheme(): Int = R.style.HotFox_BottomSheetDialog
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        dialog.setOnShowListener {
+            dialog.window?.apply {
+                setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+                setDimAmount(0.52f)
+            }
+            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?.setBackgroundColor(Color.TRANSPARENT)
+        }
+        return dialog
+    }
 }

@@ -48,6 +48,9 @@ class PerAppProxyActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (HotfoxUiVisualOverride.appsFixture) {
+            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
         setContentView(binding.root)
         HotfoxSystemUi.applyDarkEditorialBars(this)
         HotfoxSystemUi.hideScrollbars(binding.root)

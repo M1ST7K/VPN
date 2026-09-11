@@ -322,7 +322,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             onSubscription = { showSection(UiSection.SUBSCRIPTION) },
             onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
             connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
-            connectionActive = !protectedLook && section == UiSection.CONNECTION,
+            connectionActive = section == UiSection.CONNECTION,
         )
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
         if (section == UiSection.SUBSCRIPTION) {
@@ -1250,7 +1250,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             onSubscription = { showSection(UiSection.SUBSCRIPTION) },
             onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
             connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
-            connectionActive = !protectedLook && currentSection == UiSection.CONNECTION,
+            connectionActive = currentSection == UiSection.CONNECTION,
         )
         headline.let { }
     }
@@ -1262,11 +1262,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     private fun applyDebugPresentationIfPresent() {
         applyDebugConnectionChromeIfPresent()
         if (HotfoxUiVisualOverride.showAddSheet && supportFragmentManager.findFragmentByTag("add") == null) {
-            binding.root.post {
+            binding.root.postDelayed({
                 if (!isFinishing) {
                     HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
                 }
-            }
+            }, 450L)
         }
     }
 
@@ -1294,6 +1294,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             R.color.hf_asset_cream
         }
         updateStatusText(headlineRes, colorRes)
+        binding.connectAction.text = when (visual) {
+            ConnectionVisualState.CONNECTED -> getString(R.string.hotfox_disconnect)
+            ConnectionVisualState.CONNECTING -> getString(R.string.hotfox_headline_connecting)
+            else -> getString(R.string.hotfox_connect)
+        }
         if (visual == ConnectionVisualState.CONNECTED) {
             binding.tvVpnStatus.text = "00:00:00"
             binding.tvDownloaded.text = "0 MB"
@@ -1497,9 +1502,14 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val health = selectedGuid?.let { HotfoxServerSelection.health.snapshot(it) }
         val delayLabel = HotfoxLatencyDisplay.format(health = health, delayMs = delayMs)
         val countryOrHint = presentation.country
-            ?: selected?.description?.takeIf { it.isNotBlank() }
-        binding.tvSelectedServerHint.text = listOfNotNull(countryOrHint, delayLabel).joinToString(" · ")
-            .ifBlank { getString(R.string.hotfox_choose_location) }
+            ?.takeIf { it.isNotBlank() && it != "—" && it != "_" }
+            ?: selected?.description?.takeIf { it.isNotBlank() && it != "—" && it != "_" }
+        val hint = listOfNotNull(
+            countryOrHint,
+            delayLabel?.takeIf { it.isNotBlank() && it != "—" && it != "_" },
+        ).joinToString(" · ")
+        binding.tvSelectedServerHint.isVisible = hint.isNotBlank()
+        binding.tvSelectedServerHint.text = hint
         if (lastServerLabel != null && lastServerLabel != selectedLabel) {
             binding.selectedServerCard.alpha = 0.55f
             binding.selectedServerCard.animate().alpha(1f).setDuration(280L).start()
