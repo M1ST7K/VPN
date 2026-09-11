@@ -21,6 +21,7 @@ import com.v2ray.ang.vpn.ConnectionUiMapper
  */
 object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
     private val main = Handler(Looper.getMainLooper())
+    private var paintGeneration = 0
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (HotfoxUiVisualOverride.holdSplash && activity is HotfoxSplashActivity) {
@@ -36,18 +37,35 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
     override fun onActivityResumed(activity: Activity) {
         paint(activity)
         main.post { paint(activity) }
-        if (
-            HotfoxUiVisualOverride.serversFixture ||
-            HotfoxUiVisualOverride.showAddSheet ||
-            HotfoxUiVisualOverride.appsFixture ||
-            HotfoxUiVisualOverride.subscriptionFixture
-        ) {
-            main.postDelayed({ paint(activity) }, 450L)
-            main.postDelayed({ paint(activity) }, 1200L)
-        }
+        main.postDelayed({ paint(activity) }, 450L)
+        main.postDelayed({ paint(activity) }, 1600L)
+        main.postDelayed({ paint(activity) }, 4000L)
+        scheduleRepeatingPaint(activity)
     }
 
-    override fun onActivityPaused(activity: Activity) = Unit
+    private fun scheduleRepeatingPaint(activity: Activity) {
+        val needsRepeat = HotfoxUiVisualOverride.subscriptionFixture ||
+            HotfoxUiVisualOverride.serversFixture ||
+            HotfoxUiVisualOverride.showAddSheet ||
+            HotfoxUiVisualOverride.connectionChrome != null ||
+            HotfoxUiVisualOverride.appsFixture
+        if (!needsRepeat) return
+        paintGeneration += 1
+        val generation = paintGeneration
+        val tick = object : Runnable {
+            override fun run() {
+                if (generation != paintGeneration) return
+                if (activity.isFinishing || activity.isDestroyed) return
+                paint(activity)
+                main.postDelayed(this, 700L)
+            }
+        }
+        main.postDelayed(tick, 700L)
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        paintGeneration += 1
+    }
     override fun onActivityStopped(activity: Activity) = Unit
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
     override fun onActivityDestroyed(activity: Activity) = Unit
@@ -133,7 +151,7 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
             )
         }
         val recycler = activity.findViewById<RecyclerView>(R.id.recycler_view) ?: return
-        recycler.adapter = PerAppProxyAdapter(apps, activity.viewModel)
+        recycler.adapter = HotfoxUiQaAppAdapter(apps)
         activity.findViewById<TextView>(R.id.tv_selected_count)?.text =
             apps.count { it.isSelected == 1 }.toString()
         activity.findViewById<TextView>(R.id.tv_custom_rules_count)?.text = "3"
