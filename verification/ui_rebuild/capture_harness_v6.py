@@ -62,8 +62,22 @@ def run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, check=check, text=True, capture_output=True)
 
 
-def adb(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return run(["adb", *args], check=check)
+def adb(*args: str, check: bool = True, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["adb", *args],
+        check=check,
+        text=True,
+        capture_output=True,
+        timeout=timeout,
+    )
+
+
+def anr_window_count() -> int:
+    try:
+        out = adb("shell", "dumpsys", "window", check=False, timeout=20).stdout
+    except subprocess.TimeoutExpired:
+        return 0
+    return out.count("Application Not Responding:")
 
 
 def wait_for_device() -> None:
@@ -82,34 +96,26 @@ def lock_ru_locale() -> None:
     time.sleep(0.6)
     app_locales = adb("shell", "cmd", "locale", "get-app-locales", PKG, check=False).stdout
     persist = adb("shell", "getprop", "persist.sys.locale", check=False).stdout
-    pkg = adb("shell", "dumpsys", "package", PKG, check=False).stdout
-    locale_lines = "\n".join(
-        line for line in pkg.splitlines() if "locale" in line.lower()
-    )[:2000]
     LOCALE_PROOF.write_text(
         "cmd locale get-app-locales:\n"
         f"{app_locales.strip()}\n\n"
         "persist.sys.locale:\n"
-        f"{persist.strip()}\n\n"
-        "dumpsys package locale lines:\n"
-        f"{locale_lines}\n",
+        f"{persist.strip()}\n",
         encoding="utf-8",
     )
-    print(f"locale lock written to {LOCALE_PROOF}")
-    print(app_locales.strip() or "(empty get-app-locales)")
+    print(f"locale lock written to {LOCALE_PROOF}", flush=True)
+    print(app_locales.strip() or "(empty get-app-locales)", flush=True)
 
 
 def resumed_activity() -> str:
-    out = adb("shell", "dumpsys", "activity", "activities", check=False).stdout
+    try:
+        out = adb("shell", "dumpsys", "activity", "activities", check=False, timeout=20).stdout
+    except subprocess.TimeoutExpired:
+        return ""
     for line in out.splitlines():
         if "topResumedActivity=" in line:
             return line.strip()
     return out[-400:]
-
-
-def anr_window_count() -> int:
-    out = adb("shell", "dumpsys", "window", check=False).stdout
-    return out.count("Application Not Responding:")
 
 
 def dismiss_system_anr(max_tries: int = 10) -> None:
@@ -137,7 +143,6 @@ def wait_resumed(needle: str, timeout: float = 120.0) -> str:
 def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
     adb("shell", "am", "force-stop", PKG, check=False)
     time.sleep(0.8)
-    adb("shell", "cmd", "locale", "set-app-locales", PKG, "--locales", "ru-RU", check=False)
     started = adb(
         "shell",
         "am",
@@ -171,8 +176,16 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
                 continue
             image = Image.open(dest).convert("RGB")
             pixels = np.asarray(image)
-            if float(pixels.mean()) < 14 or float(pixels.std()) < 12:
-                last_err = "android splash or blank frame"
+            mean = float(pixels.mean())
+            std = float(pixels.std())
+            r, g, b = pixels[:, :, 0], pixels[:, :, 1], pixels[:, :, 2]
+            orange = ((r > 180) & (g > 70) & (g < 190) & (b < 130)).mean()
+            top_mean = float(pixels[:240].mean())
+            if mean < 14 or std < 12 or orange < 0.0003 or top_mean > 70:
+                last_err = (
+                    f"android splash or blank frame mean={mean:.1f} std={std:.1f} "
+                    f"orange={orange:.5f} top_mean={top_mean:.1f}"
+                )
                 time.sleep(3.0)
                 continue
             adb("shell", "rm", remote, check=False)
@@ -206,10 +219,10 @@ def main() -> int:
             continue
         try:
             path = capture(out_dir, sid, scenario)
-            print(f"CAPTURED {sid} {scenario} {path.stat().st_size}")
+            print(f"CAPTURED {sid} {scenario} {path.stat().st_size}", flush=True)
         except Exception as exc:  # noqa: BLE001
             missing.append(f"{sid}:{scenario}:{exc}")
-            print(f"FAIL {sid} {scenario} {exc}", file=sys.stderr)
+            print(f"FAIL {sid} {scenario} {exc}", file=sys.stderr, flush=True)
     if missing:
         print("MISSING", *missing, sep="\n")
         return 1

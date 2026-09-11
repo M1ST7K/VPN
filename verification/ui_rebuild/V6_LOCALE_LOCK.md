@@ -14,13 +14,7 @@ adb shell cmd locale set-app-locales com.hotfox.vpn --locales ru-RU
 adb shell am force-stop com.hotfox.vpn
 ```
 
-Debug harness also applies AndroidX per-app locales once at process start:
-
-```kotlin
-AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ru-RU"))
-```
-
-This lives only in `src/debug` (`HotfoxUiScreenshotHarnessActivity`). Release/production localization behavior is unchanged.
+Debug screenshot capture does **not** call `AppCompatDelegate.setApplicationLocales` inside the harness. That recreate mid-handoff dropped server/app fixture injection. Locale is applied from adb before `am start`.
 
 ## Proof dump
 

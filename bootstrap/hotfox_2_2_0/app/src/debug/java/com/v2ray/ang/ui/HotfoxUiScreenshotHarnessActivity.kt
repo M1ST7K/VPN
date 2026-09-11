@@ -3,19 +3,18 @@ package com.v2ray.ang.ui
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import com.v2ray.ang.vpn.HotfoxOnboardingFlow
 
 /**
  * Debug-only launcher for deterministic UI screenshots.
  * Reuses production layouts. Does not mark VPN CONNECTED, write entitlement,
  * invent servers in production stores, or enable purchase.
+ * Capture locale is set by adb `cmd locale set-app-locales ... ru-RU`
+ * before launch so this activity does not recreate mid-handoff.
  */
 class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lockQaLocale()
         HotfoxSystemUi.applyDarkEditorialBars(this)
         val scenario = HotfoxUiScreenshotScenario.fromId(intent.getStringExtra(EXTRA_SCENARIO))
         if (scenario == null) {
@@ -27,13 +26,6 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
         next.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(next)
         finish()
-    }
-
-    private fun lockQaLocale() {
-        val wanted = LocaleListCompat.forLanguageTags("ru-RU")
-        if (AppCompatDelegate.getApplicationLocales().toLanguageTags() != "ru-RU") {
-            AppCompatDelegate.setApplicationLocales(wanted)
-        }
     }
 
     private fun intentFor(scenario: HotfoxUiScreenshotScenario): Intent {

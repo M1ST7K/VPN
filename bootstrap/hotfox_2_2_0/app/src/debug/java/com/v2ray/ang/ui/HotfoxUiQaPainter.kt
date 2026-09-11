@@ -136,9 +136,24 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
             activity.findViewById<TextView>(R.id.tv_subscription_url)?.text = "https://sub.example/***"
         }
         if (HotfoxUiVisualOverride.serversFixture) {
-            val recycler = activity.findViewById<RecyclerView>(R.id.recycler_view) ?: return
+            val recycler = findVisibleRecycler(activity) ?: return
             recycler.adapter = HotfoxUiQaServerAdapter(HotfoxUiVisualOverride.referenceServers)
         }
+    }
+
+    private fun findVisibleRecycler(activity: Activity): RecyclerView? {
+        val root = activity.findViewById<View>(android.R.id.content) ?: activity.window?.decorView ?: return null
+        return findVisibleRecycler(root)
+    }
+
+    private fun findVisibleRecycler(view: View): RecyclerView? {
+        if (view is RecyclerView && view.isShown) return view
+        if (view is android.view.ViewGroup) {
+            for (i in 0 until view.childCount) {
+                findVisibleRecycler(view.getChildAt(i))?.let { return it }
+            }
+        }
+        return null
     }
 
     private fun paintApps(activity: PerAppProxyActivity) {
