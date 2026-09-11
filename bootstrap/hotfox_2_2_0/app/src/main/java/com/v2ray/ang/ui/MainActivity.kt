@@ -250,11 +250,22 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.actionSubscriptionUpdate.setOnClickListener { updateCurrentSubscription() }
         binding.actionSubscriptionImport.setOnClickListener { showAddDialog() }
         binding.actionSubscriptionAdd.setOnClickListener { showAddDialog() }
+        binding.actionSubscriptionManage.setOnClickListener { startHotfoxCheckout() }
+        binding.actionSubscriptionRenew.setOnClickListener { startHotfoxCheckout() }
+        binding.rowSubscriptionPayment.setOnClickListener { refreshCommercialState() }
+        binding.rowSubscriptionAuto.setOnClickListener { showSection(UiSection.SERVERS) }
+        binding.rowSubscriptionRestore.setOnClickListener { showRestoreDialog() }
+        binding.rowSubscriptionHttps.setOnClickListener {
+            startActivity(Intent(this, HotfoxHttpsSubscriptionActivity::class.java))
+        }
         binding.tvSubscriptionUrl.setOnClickListener { copySubscriptionUrl() }
         binding.actionPremiumBuy.setOnClickListener { startHotfoxCheckout() }
         binding.actionAlreadySubscribed.setOnClickListener { showAddDialog() }
         binding.actionRestoreAccess.setOnClickListener { showRestoreDialog() }
         binding.actionEnterPromo.setOnClickListener { showPromoDialog() }
+        binding.layoutSubscriptionDetails.findViewById<View>(R.id.btn_header_back)?.setOnClickListener {
+            showSection(UiSection.CONNECTION)
+        }
 
         showSection(UiSection.CONNECTION)
     }
@@ -270,6 +281,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         paintNav(binding.navSettings, false)
         binding.btnHeaderSettings.isVisible = section == UiSection.CONNECTION
         binding.supportButton.isVisible = section == UiSection.SERVERS
+        binding.toolbar.isVisible = section != UiSection.SUBSCRIPTION
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
         if (section == UiSection.SUBSCRIPTION) {
             refreshCommercialCatalog()
@@ -351,9 +363,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun bindCommercialStatus(state: CommercialPresentationState, expiryKnown: Boolean) {
-        binding.tvSubscriptionState.text = commercialStatusLabel(state, null)
-        binding.tvSubscriptionState.setTextColor(
-            ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim),
+        binding.tvSubscriptionState.setText(R.string.hotfox_subscription_active_body)
+        binding.tvSubscriptionBadge.text = commercialStatusLabel(state, null)
+        binding.tvSubscriptionBadge.setTextColor(
+            ContextCompat.getColor(this, badgeColor(state)),
         )
         if (!expiryKnown) {
             binding.tvSubscriptionRemaining.text = getString(R.string.hotfox_expiry_unknown)
@@ -365,19 +378,79 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         expiry: SubscriptionPresentation.Status?,
     ): String {
         return when (state) {
-            CommercialPresentationState.HOTFOX_ACTIVE -> "● HotFox Premium"
-            CommercialPresentationState.EXTERNAL_ACTIVE -> "● Активна"
+            CommercialPresentationState.HOTFOX_ACTIVE -> getString(R.string.hotfox_subscription_badge_active)
+            CommercialPresentationState.EXTERNAL_ACTIVE -> getString(R.string.hotfox_subscription_badge_active)
             CommercialPresentationState.EXPIRING_SOON -> "● Скоро истекает"
             CommercialPresentationState.EXPIRED -> "● Истекла"
-            CommercialPresentationState.PAYMENT_PENDING -> "○ Оплата ожидается"
+            CommercialPresentationState.PAYMENT_PENDING -> getString(R.string.hotfox_subscription_payment_pending)
             CommercialPresentationState.PAYMENT_FAILED -> "○ Оплата не прошла"
             CommercialPresentationState.PAYMENT_CANCELLED -> "○ Оплата отменена"
             CommercialPresentationState.ENTITLEMENT_PROVISIONING -> "○ Выдаём доступ"
-            CommercialPresentationState.ENTITLEMENT_ACTIVE_SYNC_FAILED -> "● Доступ есть, синхронизация не удалась"
-            CommercialPresentationState.BACKEND_UNAVAILABLE -> "○ Коммерческий сервис недоступен"
-            CommercialPresentationState.RESTORE_REQUIRED -> "○ Нужно восстановить доступ"
-            CommercialPresentationState.NO_ACCESS -> "○ Нет доступа"
+            CommercialPresentationState.ENTITLEMENT_ACTIVE_SYNC_FAILED -> "● Доступ есть"
+            CommercialPresentationState.BACKEND_UNAVAILABLE -> "○ Сервис недоступен"
+            CommercialPresentationState.RESTORE_REQUIRED -> "○ Нужно восстановить"
+            CommercialPresentationState.NO_ACCESS -> getString(R.string.hotfox_sub_status_unknown)
         }.takeIf { expiry == null || state != CommercialPresentationState.NO_ACCESS }
+            ?: when (expiry) {
+                SubscriptionPresentation.Status.ACTIVE -> getString(R.string.hotfox_subscription_badge_active)
+                SubscriptionPresentation.Status.EXPIRED -> "● Истекла"
+                SubscriptionPresentation.Status.UNKNOWN -> "○ Срок не указан"
+                SubscriptionPresentation.Status.MISSING -> "○ Нет доступа"
+                null -> CommerceAccessResolver.labelKey(state)
+            }
+    }
+
+    private fun badgeColor(state: CommercialPresentationState): Int = when (state) {
+        CommercialPresentationState.HOTFOX_ACTIVE,
+        CommercialPresentationState.EXTERNAL_ACTIVE,
+        -> R.color.hotfox_success
+        CommercialPresentationState.EXPIRED,
+        CommercialPresentationState.PAYMENT_FAILED,
+        CommercialPresentationState.PAYMENT_CANCELLED,
+        CommercialPresentationState.RESTORE_REQUIRED,
+        CommercialPresentationState.EXPIRING_SOON,
+        CommercialPresentationState.ENTITLEMENT_ACTIVE_SYNC_FAILED,
+        CommercialPresentationState.PAYMENT_PENDING,
+        CommercialPresentationState.ENTITLEMENT_PROVISIONING,
+        -> R.color.hotfox_orange
+        else -> R.color.hotfox_cream_muted
+    }
+
+    private fun bindLockedSubscriptionExtras(state: CommercialPresentationState) {
+        binding.tvSubscriptionState.setText(R.string.hotfox_subscription_active_body)
+        val devices = com.v2ray.ang.ops.HotfoxDeviceRegistry.activeCount()
+        binding.tvSubscriptionDevices.text = if (devices > 0) {
+            getString(
+                R.string.hotfox_subscription_devices_value,
+                devices,
+                com.v2ray.ang.ops.HotfoxDeviceRegistry.DEFAULT_LIMIT,
+            )
+        } else {
+            getString(R.string.hotfox_server_unavailable_metric)
+        }
+        when (state) {
+            CommercialPresentationState.HOTFOX_ACTIVE,
+            CommercialPresentationState.EXTERNAL_ACTIVE,
+            -> {
+                binding.tvSubscriptionPayment.setText(R.string.hotfox_subscription_payment_ok)
+                binding.tvSubscriptionPayment.setTextColor(ContextCompat.getColor(this, R.color.hotfox_success))
+            }
+            CommercialPresentationState.PAYMENT_PENDING -> {
+                binding.tvSubscriptionPayment.setText(R.string.hotfox_subscription_payment_pending)
+                binding.tvSubscriptionPayment.setTextColor(ContextCompat.getColor(this, R.color.hotfox_orange))
+            }
+            else -> {
+                binding.tvSubscriptionPayment.setText(R.string.hotfox_subscription_payment_unknown)
+                binding.tvSubscriptionPayment.setTextColor(ContextCompat.getColor(this, R.color.hotfox_cream_muted))
+            }
+        }
+        binding.tvSubscriptionAuto.setText(
+            if (HotfoxServerSelection.isAutoMode()) R.string.hotfox_settings_on else R.string.hotfox_settings_off,
+        )
+        binding.tvSubscriptionHttps.setText(R.string.hotfox_subscription_https_hint)
+        binding.tvSubscriptionBadge.text = commercialStatusLabel(state, null)
+        binding.tvSubscriptionBadge.setTextColor(ContextCompat.getColor(this, badgeColor(state)))
+    }
             ?: when (expiry) {
                 SubscriptionPresentation.Status.ACTIVE -> "● Активна"
                 SubscriptionPresentation.Status.EXPIRED -> "● Истекла"
@@ -1452,6 +1525,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.tvSubscriptionServers.text = serverCount.toString()
             binding.tvSubscriptionSnapshot.text = ""
             binding.tvSubscriptionQuick.setText(R.string.hotfox_row_subscription)
+            bindLockedSubscriptionExtras(commercialState)
             return
         }
 
@@ -1465,6 +1539,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             bindCommercialStatus(commercialState, expiryKnown = false)
             binding.tvSubscriptionSnapshot.text = ""
             binding.tvSubscriptionQuick.setText(R.string.hotfox_row_subscription)
+            bindLockedSubscriptionExtras(commercialState)
             return
         }
 
@@ -1475,28 +1550,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val shown = HotfoxSubscriptionPresentation.fromExpiryEpochSeconds(
             expireAtEpochSeconds = subscription.expireAtEpochSeconds,
             serverCount = serverCount,
-        )
-        binding.tvSubscriptionState.text = commercialStatusLabel(commercialState, shown.status)
-        binding.tvSubscriptionState.setTextColor(
-            ContextCompat.getColor(
-                this,
-                when (commercialState) {
-                    CommercialPresentationState.HOTFOX_ACTIVE,
-                    CommercialPresentationState.EXTERNAL_ACTIVE,
-                    -> R.color.hotfox_success_bright
-                    CommercialPresentationState.EXPIRED,
-                    CommercialPresentationState.PAYMENT_FAILED,
-                    CommercialPresentationState.PAYMENT_CANCELLED,
-                    CommercialPresentationState.RESTORE_REQUIRED,
-                    -> R.color.hotfox_orange
-                    CommercialPresentationState.EXPIRING_SOON,
-                    CommercialPresentationState.ENTITLEMENT_ACTIVE_SYNC_FAILED,
-                    CommercialPresentationState.PAYMENT_PENDING,
-                    CommercialPresentationState.ENTITLEMENT_PROVISIONING,
-                    -> R.color.hotfox_orange
-                    else -> R.color.hotfox_editorial_text_dim
-                },
-            )
         )
         binding.tvSubscriptionTraffic.text = if (subscription.totalBytes > 0L) {
             getString(
@@ -1514,6 +1567,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             shown.remainingDays == 0 -> getString(R.string.hotfox_days_left, 0)
             else -> getString(R.string.hotfox_days_left, shown.remainingDays)
         }
+        bindLockedSubscriptionExtras(commercialState)
         binding.tvSubscriptionSnapshot.text = listOfNotNull(
             shown.expiryLabel?.let { "до $it" },
             shown.remainingDays?.let { getString(R.string.hotfox_days_left, it) },

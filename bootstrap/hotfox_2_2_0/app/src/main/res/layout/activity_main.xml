@@ -674,37 +674,121 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="sans-serif-medium" android:text="@string/hotfox_subscription_heading" android:textColor="@color/hotfox_cream" android:textSize="32sp" />
-                    <TextView android:id="@+id/tv_subscription_state" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="@string/hotfox_sub_status_unknown" android:textColor="@color/hotfox_cream_muted" android:textSize="14sp" />
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Больше свободы.\nБольше интернета для тебя." android:textColor="@color/hotfox_editorial_text_dim" android:textSize="13sp" />
+                    <include
+                        android:id="@+id/subscription_sub_header"
+                        layout="@layout/include_hotfox_sub_header" />
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="110dp" android:layout_marginTop="34dp" android:orientation="horizontal">
-                        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_sub_valid_until" android:textColor="@color/hotfox_editorial_text_dim" android:textSize="10sp" />
-                            <TextView android:id="@+id/tv_subscription_expire" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:fontFamily="serif" android:text="—" android:textColor="@color/hotfox_editorial_text" android:textSize="28sp" />
-                            <TextView android:id="@+id/tv_subscription_remaining" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/hotfox_expiry_unknown" android:textColor="@color/hotfox_editorial_text_dim" android:textSize="11sp" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:fontFamily="sans-serif-medium" android:text="@string/hotfox_subscription_heading" android:textColor="@color/hotfox_cream" android:textSize="32sp" />
+                    <TextView android:id="@+id/tv_subscription_state" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/hotfox_subscription_active_body" android:textColor="@color/hotfox_cream_muted" android:textSize="15sp" />
+
+                    <LinearLayout
+                        android:id="@+id/card_subscription_premium"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:background="@drawable/hotfox_rows_card"
+                        android:gravity="center_vertical"
+                        android:minHeight="72dp"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+                        <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_hotfox_line_crown" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:id="@+id/tv_subscription_premium_title" style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_subscription_premium_card" />
+                            <TextView android:id="@+id/tv_subscription_premium_hint" style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/hotfox_subscription_premium_hint" />
                         </LinearLayout>
-                        <View android:layout_width="1dp" android:layout_height="72dp" android:background="@color/hotfox_editorial_line" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.65" android:gravity="end" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_sub_servers" android:textColor="@color/hotfox_editorial_text_dim" android:textSize="10sp" />
-                            <TextView android:id="@+id/tv_subscription_servers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="0" android:textColor="@color/hotfox_editorial_text" android:textSize="34sp" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_sub_locations" android:textColor="@color/hotfox_editorial_text_dim" android:textSize="10sp" />
+                        <TextView android:id="@+id/tv_subscription_badge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/hotfox_chip_off" android:paddingStart="8dp" android:paddingTop="4dp" android:paddingEnd="8dp" android:paddingBottom="4dp" android:text="@string/hotfox_sub_status_unknown" android:textColor="@color/hotfox_success" android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/hotfox_rows_card"
+                        android:orientation="vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="10dp">
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
+                            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_info" />
+                            <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_sub_valid_until" />
+                            <TextView android:id="@+id/tv_subscription_expire" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
+                            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_settings" />
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                                <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_subscription_devices" />
+                                <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_subscription_devices_hint" />
+                            </LinearLayout>
+                            <TextView android:id="@+id/tv_subscription_devices" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_server_unavailable_metric" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/row_subscription_payment"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:background="@drawable/hotfox_row_ripple"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_shield" />
+                            <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_subscription_payment" />
+                            <TextView android:id="@+id/tv_subscription_payment" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_subscription_payment_unknown" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/row_subscription_auto"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:background="@drawable/hotfox_row_ripple"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_refresh" />
+                            <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_subscription_autodetect" />
+                            <TextView android:id="@+id/tv_subscription_auto" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/row_subscription_restore"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:background="@drawable/hotfox_row_ripple"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_lock" />
+                            <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_restore_access" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_hotfox_line_chevron" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/row_subscription_https"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:background="@drawable/hotfox_row_ripple"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_link" />
+                            <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_https_title" />
+                            <TextView android:id="@+id/tv_subscription_https" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_subscription_https_hint" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
                         </LinearLayout>
                     </LinearLayout>
 
-                    <TextView android:id="@+id/tv_subscription_traffic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/hotfox_traffic_unknown" android:textColor="@color/hotfox_editorial_text_dim" android:textSize="10sp" />
+                    <TextView android:id="@+id/tv_subscription_remaining" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <TextView android:id="@+id/tv_subscription_servers" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <TextView android:id="@+id/tv_subscription_traffic" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <TextView android:id="@+id/tv_subscription_url" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <TextView android:id="@+id/action_subscription_update" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <TextView android:id="@+id/action_subscription_import" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <TextView android:id="@+id/action_subscription_add" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="44dp" android:text="@string/hotfox_sub_url_label" android:textColor="@color/hotfox_editorial_text_dim" android:textSize="10sp" />
-                    <TextView android:id="@+id/tv_subscription_url" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:ellipsize="middle" android:maxLines="1" android:text="—" android:textColor="@color/hotfox_editorial_text" android:textIsSelectable="true" android:textSize="11sp" />
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="10dp" android:background="@color/hotfox_editorial_line" />
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="62dp" android:layout_marginTop="46dp" android:orientation="horizontal">
-                        <TextView android:id="@+id/action_subscription_update" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="48dp" android:text="@string/hotfox_sub_update" android:textColor="@color/hotfox_editorial_text" android:textSize="12sp" />
-                        <View android:layout_width="1dp" android:layout_height="28dp" android:layout_gravity="center_vertical" android:background="@color/hotfox_editorial_line" />
-                        <TextView android:id="@+id/action_subscription_import" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.15" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="48dp" android:text="@string/hotfox_sub_import" android:textColor="@color/hotfox_editorial_text" android:textSize="12sp" />
-                        <View android:layout_width="1dp" android:layout_height="28dp" android:layout_gravity="center_vertical" android:background="@color/hotfox_editorial_line" />
-                        <TextView android:id="@+id/action_subscription_add" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="48dp" android:text="@string/hotfox_sub_add" android:textColor="@color/hotfox_editorial_text" android:textSize="12sp" />
-                    </LinearLayout>
+                    <FrameLayout android:layout_width="match_parent" android:layout_height="@dimen/hotfox_cta_height" android:layout_marginTop="20dp">
+                        <TextView android:id="@+id/action_subscription_manage" style="@style/HotFoxCtaPrimary" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:paddingEnd="44dp" android:text="@string/hotfox_subscription_manage" />
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="end|center_vertical" android:layout_marginEnd="22dp" android:src="@drawable/ic_hotfox_cta_arrow" />
+                    </FrameLayout>
+                    <TextView android:id="@+id/action_subscription_renew" style="@style/HotFoxCtaSecondary" android:layout_width="match_parent" android:layout_height="48dp" android:clickable="true" android:focusable="true" android:text="@string/hotfox_subscription_renew" />
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>

@@ -75,7 +75,14 @@
     </style>
 
     <style name="BrandedSwitch" parent="AppThemeDayNight">
-        <item name="colorPrimary">@color/color_fab_active</item>
+        <item name="colorPrimary">@color/hotfox_orange</item>
+        <item name="colorControlActivated">@color/hotfox_orange</item>
+    </style>
+
+    <style name="HotFoxSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="thumbTint">@color/hotfox_switch_thumb</item>
+        <item name="trackTint">@color/hotfox_switch_track</item>
+        <item name="android:colorForeground">@color/hotfox_orange</item>
     </style>
 
 

@@ -46,34 +46,54 @@
                 android:text="@string/hotfox_server_details_body" />
 
             <LinearLayout
+                android:id="@+id/card_details_server"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/hotfox_rows_card"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:gravity="center_vertical"
+                android:minHeight="72dp"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="14dp">
 
-                <TextView
-                    android:id="@+id/tv_details_title"
-                    style="@style/HotFoxTextHeadline"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_details_country"
-                    style="@style/HotFoxTextBody"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp" />
+                    <TextView
+                        android:id="@+id/tv_details_title"
+                        style="@style/HotFoxTextHeadline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp" />
 
-                <TextView
-                    android:id="@+id/tv_details_latency"
-                    style="@style/HotFoxTextHeadline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:textSize="15sp" />
+                    <TextView
+                        android:id="@+id/tv_details_country"
+                        style="@style/HotFoxTextBody"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_details_latency"
+                        style="@style/HotFoxTextHeadline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/hotfox_success"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_hotfox_line_chevron" />
             </LinearLayout>
 
             <LinearLayout
@@ -86,16 +106,53 @@
                 android:paddingEnd="10dp">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
-                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_server_status" />
+                    <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_shield" />
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_server_status" />
                     <TextView android:id="@+id/tv_details_status" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_server_unavailable_metric" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
-                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_server_load" />
+                    <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_bolt" />
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_server_load" />
                     <TextView android:id="@+id/tv_details_load" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_server_unavailable_metric" />
                 </LinearLayout>
-                <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
-                    <TextView android:id="@+id/tv_details_mode_label" style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_smart_routing" />
+                <LinearLayout
+                    android:id="@+id/row_details_routing"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/hotfox_row_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_route" />
+                    <TextView android:id="@+id/tv_details_mode_label" style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_row_routing" />
                     <TextView android:id="@+id/tv_details_mode" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/row_details_shadow"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/hotfox_row_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_shadow" />
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_row_shadow" />
+                    <TextView android:id="@+id/tv_details_shadow" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/row_details_auto"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/hotfox_row_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_refresh" />
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_server_autoselect" />
+                    <TextView android:id="@+id/tv_details_auto" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -105,7 +162,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/hotfox_server_unavailable_metric" />
+                android:text="@string/hotfox_server_manual_note" />
 
             <FrameLayout
                 android:layout_width="match_parent"

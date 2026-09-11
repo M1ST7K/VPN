@@ -54,12 +54,48 @@
         android:paddingEnd="10dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
-            <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_shadow_status_label" />
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_shield" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_status_label" />
+                <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_body" android:maxLines="1" android:ellipsize="end" />
+            </LinearLayout>
             <TextView android:id="@+id/tv_shadow_status" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
         <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
-            <TextView android:id="@+id/tv_shadow_mode" style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_shadow_mode" />
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_settings" />
+            <TextView android:id="@+id/tv_shadow_mode" style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_shadow_mode" />
             <TextView android:id="@+id/tv_shadow_mode_value" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_bolt" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_activates" />
+                <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_activates_hint" />
+            </LinearLayout>
+            <TextView style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_activates_value" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_globe" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_compat" />
+                <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_compat_hint" />
+            </LinearLayout>
+            <TextView android:id="@+id/tv_shadow_compat" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_compat_value" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/row_shadow_more"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/hotfox_row_ripple"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_info" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_more" />
+                <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_shadow_more_hint" />
+            </LinearLayout>
+            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_hotfox_line_chevron" />
         </LinearLayout>
     </LinearLayout>
 

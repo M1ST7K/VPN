@@ -18,6 +18,13 @@ class HotfoxShadowActivity : AppCompatActivity() {
             HotfoxShadowStore.setShadowAuto(!HotfoxShadowStore.isShadowAuto())
             render()
         }
+        binding.rowShadowMore.setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.hotfox_shadow_more)
+                .setMessage(R.string.hotfox_shadow_note)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
         render()
     }
 

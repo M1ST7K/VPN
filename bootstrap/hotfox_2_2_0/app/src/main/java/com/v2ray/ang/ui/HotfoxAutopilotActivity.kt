@@ -29,11 +29,20 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
         binding = ActivityHotfoxAutopilotBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnAutopilotToggle.setOnClickListener { togglePolicy() }
+        binding.switchAutopilot.setOnClickListener { togglePolicy() }
         binding.btnAutopilotPause.setOnClickListener { showPause() }
         binding.btnAutopilotProtection.setOnClickListener { showProtection() }
         binding.btnAutopilotTrusted.setOnClickListener { showTrusted() }
         binding.rowAutopilotWifi.setOnClickListener { toggleWifi() }
         binding.rowAutopilotCellular.setOnClickListener { toggleCellular() }
+        binding.rowAutopilotNotifications.setOnClickListener {
+            runCatching {
+                startActivity(
+                    android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName),
+                )
+            }
+        }
         binding.btnAutopilotDone.setOnClickListener { finish() }
         HotfoxChrome.bindBack(this)
         render()
@@ -46,7 +55,8 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
 
     private fun render() {
         val policy = HotfoxAutopilotStore.policy()
-        binding.btnAutopilotToggle.setText(
+        binding.switchAutopilot.isChecked = policy.enabled
+        binding.tvAutopilotEnabledHint.setText(
             if (policy.enabled) R.string.hotfox_autopilot_enabled else R.string.hotfox_autopilot_disabled,
         )
         binding.tvAutopilotWifiValue.setText(
@@ -66,7 +76,11 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
             ?: HotfoxAutopilotLabels.protectionLabel(HotfoxAutopilotStore.protectionLevel())
         val captive = decision?.intent == HotfoxConnectionIntent.WAIT_FOR_CAPTIVE_PORTAL
         binding.tvAutopilotCaptive.setText(
-            if (captive) R.string.hotfox_error_captive_title else R.string.hotfox_autopilot_captive_idle,
+            if (captive) R.string.hotfox_error_captive_title else R.string.hotfox_autopilot_captive_wait,
+        )
+        val notificationsOn = androidx.core.app.NotificationManagerCompat.from(this).areNotificationsEnabled()
+        binding.tvAutopilotNotifications.setText(
+            if (notificationsOn) R.string.hotfox_notifications_on else R.string.hotfox_notifications_off,
         )
     }
 

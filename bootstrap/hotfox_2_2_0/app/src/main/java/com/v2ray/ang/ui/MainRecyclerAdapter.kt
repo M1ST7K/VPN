@@ -68,8 +68,9 @@ class MainRecyclerAdapter(
         val delay = aff?.testDelayMillis ?: 0L
         val health = HotfoxServerSelection.health.snapshot(guid)
         holder.itemMainBinding.tvTestResult.text = HotfoxLatencyDisplay.format(health = health, delayMs = delay)
+        holder.itemMainBinding.tvTestResult.visibility = View.VISIBLE
         holder.itemMainBinding.ivFavorite.alpha = if (aff?.favorite == true) 1f else 0.34f
-        holder.itemMainBinding.layoutFavorite.visibility = View.VISIBLE
+        holder.itemMainBinding.layoutFavorite.visibility = View.GONE
         holder.itemMainBinding.ivFavorite.setColorFilter(
             ContextCompat.getColor(
                 context,
@@ -100,11 +101,11 @@ class MainRecyclerAdapter(
         )
 
         val isSelected = !HotfoxServerSelection.isAutoMode() && guid == MmkvManager.getSelectServer()
+        holder.itemMainBinding.ivRowMark.visibility = View.GONE
+        holder.itemMainBinding.infoContainer.setBackgroundResource(android.R.color.transparent)
+        holder.itemMainBinding.layoutFavorite.visibility = View.GONE
         holder.itemMainBinding.tvName.setTextColor(
-            ContextCompat.getColor(
-                context,
-                if (isSelected) R.color.hotfox_editorial_text else R.color.hotfox_editorial_text,
-            )
+            ContextCompat.getColor(context, R.color.hotfox_editorial_text),
         )
         holder.itemMainBinding.tvName.alpha = if (isSelected) 1f else 0.88f
 
@@ -129,18 +130,26 @@ class MainRecyclerAdapter(
     private fun bindAutoRow(holder: MainViewHolder) {
         val context = holder.itemMainBinding.root.context
         val auto = HotfoxServerSelection.isAutoMode()
-        holder.itemMainBinding.tvName.text = context.getString(R.string.hotfox_auto_server)
-        holder.itemMainBinding.tvStatistics.text = context.getString(R.string.hotfox_auto_server_hint)
-        holder.itemMainBinding.tvTestResult.text = if (auto) "●" else ""
-        holder.itemMainBinding.tvTestResult.setTextColor(ContextCompat.getColor(context, R.color.hotfox_orange))
+        holder.itemMainBinding.tvName.text = context.getString(R.string.hotfox_auto_row_title)
+        holder.itemMainBinding.tvStatistics.text = context.getString(R.string.hotfox_auto_row_hint)
+        holder.itemMainBinding.tvTestResult.text = ""
+        holder.itemMainBinding.tvTestResult.visibility = View.GONE
         holder.itemMainBinding.tvType.visibility = View.GONE
-        holder.itemMainBinding.layoutFavorite.visibility = View.INVISIBLE
-        holder.itemMainBinding.layoutMore.visibility = View.GONE
-        holder.itemMainBinding.tvName.alpha = if (auto) 1f else 0.72f
+        holder.itemMainBinding.layoutFavorite.visibility = View.GONE
+        holder.itemMainBinding.layoutMore.visibility = View.VISIBLE
+        holder.itemMainBinding.ivRowMark.visibility = View.VISIBLE
+        holder.itemMainBinding.ivRowMark.setImageResource(R.drawable.ic_hotfox_line_globe)
+        holder.itemMainBinding.infoContainer.setBackgroundResource(
+            if (auto) R.drawable.hotfox_auto_row_selected else android.R.color.transparent,
+        )
+        holder.itemMainBinding.tvName.alpha = 1f
         holder.itemMainBinding.infoContainer.setOnClickListener {
             adapterListener?.onSelectServer(HotfoxServerSelection.AUTO_GUID)
         }
         holder.itemMainBinding.infoContainer.setOnLongClickListener(null)
+        holder.itemMainBinding.layoutMore.setOnClickListener {
+            adapterListener?.onSelectServer(HotfoxServerSelection.AUTO_GUID)
+        }
     }
 
     fun removeServerSub(guid: String, position: Int) {

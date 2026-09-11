@@ -59,6 +59,13 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
             }
             render()
         }
+        binding.rowRoutingReconnect.setOnClickListener {
+            val policy = com.v2ray.ang.vpn.HotfoxAutopilotStore.policy()
+            com.v2ray.ang.vpn.HotfoxAutopilotStore.setPolicy(
+                policy.copy(reconnectOnRestore = !policy.reconnectOnRestore),
+            )
+            render()
+        }
         render()
     }
 
@@ -90,6 +97,10 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
         )
         binding.tvRoutingIpv6Value.setText(
             if (ipv6) R.string.hotfox_routing_ipv6_on else R.string.hotfox_routing_ipv6_off,
+        )
+        val reconnect = com.v2ray.ang.vpn.HotfoxAutopilotStore.policy().reconnectOnRestore
+        binding.tvRoutingReconnectValue.setText(
+            if (reconnect) R.string.hotfox_routing_reconnect_on else R.string.hotfox_routing_reconnect_off,
         )
     }
 

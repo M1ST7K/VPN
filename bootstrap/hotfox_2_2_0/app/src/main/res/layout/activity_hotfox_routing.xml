@@ -65,7 +65,10 @@
                 android:focusable="true"
                 android:gravity="center_vertical">
                 <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_apps" />
-                <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="@string/hotfox_routing_apps" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_apps" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_apps_hint" />
+                </LinearLayout>
                 <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_hotfox_line_chevron" />
             </LinearLayout>
 
@@ -76,7 +79,11 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical">
-                <TextView android:id="@+id/tv_routing_dns" style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_routing_dns" />
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_globe" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_routing_dns" style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_dns" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_dns_hint" />
+                </LinearLayout>
                 <TextView android:id="@+id/tv_routing_dns_value" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                 <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
             </LinearLayout>
@@ -88,7 +95,11 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical">
-                <TextView android:id="@+id/tv_routing_lan" style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_routing_lan" />
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_route" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_routing_lan" style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_lan" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_lan_hint" />
+                </LinearLayout>
                 <TextView android:id="@+id/tv_routing_lan_value" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
             </LinearLayout>
 
@@ -101,6 +112,7 @@
                 android:gravity="center_vertical">
                 <TextView android:id="@+id/tv_routing_ipv6" style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_routing_ipv6" />
                 <TextView android:id="@+id/tv_routing_ipv6_value" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
             </LinearLayout>
 
             <LinearLayout
@@ -112,6 +124,22 @@
                 android:gravity="center_vertical">
                 <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_routing_custom" />
                 <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_hotfox_line_chevron" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_routing_reconnect"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/hotfox_row_height"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_refresh" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_reconnect" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_routing_reconnect_hint" />
+                </LinearLayout>
+                <TextView android:id="@+id/tv_routing_reconnect_value" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

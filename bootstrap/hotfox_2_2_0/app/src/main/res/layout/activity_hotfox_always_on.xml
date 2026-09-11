@@ -60,12 +60,45 @@
             android:paddingEnd="10dp">
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
-                <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_always_on_status" />
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_shield" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_status" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_system_hint" />
+                </LinearLayout>
                 <TextView android:id="@+id/tv_always_on_status" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_not_configured" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
-                <TextView style="@style/HotFoxTextHeadline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/hotfox_always_on_kill_switch" />
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_lock" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_kill_switch" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_system_hint" />
+                </LinearLayout>
                 <TextView android:id="@+id/tv_always_on_kill" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_not_configured" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="6dp" android:src="@drawable/ic_hotfox_line_chevron" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_info" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_android_status" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_android_status_hint" />
+                </LinearLayout>
+                <TextView android:id="@+id/tv_always_on_android" style="@style/HotFoxTextMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_not_configured" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/row_always_on_how"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/hotfox_row_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_hotfox_line_apps" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView style="@style/HotFoxTextHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_how" />
+                    <TextView style="@style/HotFoxTextMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/hotfox_always_on_how_hint" />
+                </LinearLayout>
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_hotfox_line_chevron" />
             </LinearLayout>
         </LinearLayout>
 

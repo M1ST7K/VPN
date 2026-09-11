@@ -18,6 +18,13 @@ class HotfoxAlwaysOnActivity : AppCompatActivity() {
         HotfoxChrome.bindBack(this)
         HotfoxChrome.bindBottomNav(this, HotfoxChrome.SETTINGS)
         binding.btnAlwaysOnOpen.setOnClickListener { openAndroidVpnSettings() }
+        binding.rowAlwaysOnHow.setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.hotfox_always_on_how)
+                .setMessage(R.string.hotfox_always_on_help)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
         render()
     }
 
@@ -29,6 +36,7 @@ class HotfoxAlwaysOnActivity : AppCompatActivity() {
     private fun render() {
         binding.tvAlwaysOnStatus.setText(R.string.hotfox_always_on_not_configured)
         binding.tvAlwaysOnKill.setText(R.string.hotfox_always_on_not_configured)
+        binding.tvAlwaysOnAndroid.setText(R.string.hotfox_always_on_not_configured)
     }
 
     private fun openAndroidVpnSettings() {

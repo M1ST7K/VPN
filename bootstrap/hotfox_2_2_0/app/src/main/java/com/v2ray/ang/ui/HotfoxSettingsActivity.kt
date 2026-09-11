@@ -46,7 +46,7 @@ class HotfoxSettingsActivity : AppCompatActivity() {
         addRow(R.drawable.ic_hotfox_line_lock, R.string.hotfox_always_on_title, R.string.hotfox_always_on_status, R.string.hotfox_always_on_not_configured) {
             startActivity(Intent(this, HotfoxAlwaysOnActivity::class.java))
         }
-        addRow(R.drawable.ic_hotfox_line_bell, R.string.hotfox_settings_notifications, R.string.hotfox_settings_notifications_hint, 0) {
+        addRow(R.drawable.ic_hotfox_line_bell, R.string.hotfox_settings_notifications, R.string.hotfox_settings_notifications_hint, if (androidx.core.app.NotificationManagerCompat.from(this).areNotificationsEnabled()) R.string.hotfox_notifications_on else R.string.hotfox_notifications_off) {
             runCatching { startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)) }
         }
         addHeader(R.string.hotfox_settings_group_network)
