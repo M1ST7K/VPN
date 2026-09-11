@@ -1,0 +1,153 @@
+---
+description: HotFox 18-screen pixel-lock UI rebuild; approved references are absolute visual truth and technical core must not regress.
+alwaysApply: true
+---
+
+# HotFox UI/UX PIXEL-LOCK — OWNER OVERRIDE
+
+This rule is an owner directive for the current HotFox UI/UX rebuild.
+
+## 1. Absolute visual source of truth
+
+The 18 approved HotFox reference images under `design/hotfox_18_final_style_reference/` are the visual source of truth for this task.
+
+This is NOT a redesign. Do not reinterpret, modernize, simplify, improve, restyle, or creatively adapt the references. Recreate the UI shown INSIDE the phone in each reference as literally as technically possible.
+
+If any old UI, Material default, existing theme token, component abstraction, agent preference, or prose description conflicts with the reference image, the reference image wins for VISUAL presentation.
+
+No intentional visual drift is allowed. Differences must be treated as defects and iterated via screenshot/golden diff.
+
+## 2. Absolute technical non-regression
+
+The visual rebuild MUST NOT damage, replace, bypass, or weaken HotFox technical behavior.
+
+Preserve the canonical production path and truth model:
+
+`Android apps -> VpnService/TUN -> HEV/tun2socks -> local Xray SOCKS -> Xray outbound -> VPN server -> Internet`
+
+`CONNECTED` / `Защищено` remains derived only from the canonical verified VPN session state. Never infer protection from UI animation, VPN icon, TUN existence, running Xray, listening SOCKS, HEV, selected server, ping, or optimistic UI state.
+
+Do not create a second connection state machine or a UI-owned `isConnected` source of truth.
+
+Preserve all existing behavior and guarantees for:
+- VpnService/TUN ownership and lifecycle;
+- Xray readiness and HEV/tun2socks ordering;
+- DNS leak prevention;
+- IPv6 routing/fail-closed policy;
+- loop/protect behavior;
+- clean disconnect/reconnect;
+- stale async/session generation protection;
+- bounded retry/failover;
+- AUTO persisted mode and resolved target;
+- manual server selection stickiness;
+- real health/latency only;
+- Smart Routing and per-app include/exclude/custom rules;
+- DNS/IPv6/LAN policy;
+- HotFox Shadow;
+- HotFox Autopilot, trusted networks, cellular/Wi-Fi policy, pause and captive portal behavior;
+- manual HTTPS subscription import;
+- HotFox commercial flow and backend-authoritative entitlement;
+- offline entitlement/last-known-good policy;
+- device registry;
+- update/provenance/diagnostics;
+- foreground notification and Quick Settings tile;
+- state migration;
+- signed control-plane/security invariants;
+- no secrets in APK/logs/reports.
+
+Never weaken TLS/REALITY or add trust-all behavior.
+Never add production mocks/fake ping/fake traffic/fake expiry/fake entitlement/fake payment/fake protection.
+
+## 3. Negative visual prompt — no drift
+
+NEVER introduce unless literally present in THAT exact approved screen reference:
+- generic Material 3 redesign;
+- default blue/purple Material dialogs or controls;
+- glassmorphism;
+- neumorphism;
+- neon/cyberpunk/gamer styling;
+- giant glowing VPN power circle;
+- arbitrary cards;
+- arbitrary gradients;
+- arbitrary shadows;
+- random accent colors;
+- mixed icon families;
+- emoji as product icons;
+- fake charts, speedometers, load meters or threat counters;
+- new decorative illustrations;
+- new copy or engineering jargon;
+- TUN/HEV/SOCKS/Xray/session-generation terminology in normal user UI.
+
+### Planet rule
+Never invent or propagate any new planet, globe, planetary horizon, planetary arc, eclipse, celestial sphere, or space-horizon motif. A motif may be reproduced only if it is literally visible in that exact locked reference, and it must not be copied to another screen.
+
+### Fox rule
+Do not add the fox to a screen where the locked reference does not show it. Do not remove it where the reference shows it. Do not change it into a cartoon, mascot, or different fox identity.
+
+## 4. Reference-only motif rule
+
+A decorative motif present on screen A may not be copied to screen B unless screen B's own approved reference contains it. Cross-screen motif propagation is forbidden.
+
+## 5. Functional UI, not screenshot cheating
+
+Do not ship a full-screen screenshot bitmap instead of functional Android UI. Text must remain real text; controls must remain real controls; values must bind to real state; accessibility semantics must remain real. Dedicated decorative assets may be extracted/recreated only for non-interactive artwork where required by the locked references.
+
+## 6. Required execution sequence
+
+Before edits:
+1. record git SHA/status;
+2. run available baseline build/tests/lint/static checks;
+3. inventory old UI interactions and their callbacks;
+4. analyze all 18 references;
+5. create golden inner-phone crops / geometry notes where possible.
+
+Then implement continuously in groups:
+- A: 01-04 onboarding;
+- B: 05-07 connection;
+- C: 08-10 import/servers;
+- D: 11-13 details/subscription/settings;
+- E: 14-18 routing/automation/system.
+
+After each group, run build/tests and visual screenshot comparison. Do not wait for owner approval between groups. Do not stop after providing a plan. Continue until 18/18 are implemented or a genuine owner-only blocker exists.
+
+## 7. Pixel/golden verification
+
+For every screen produce reference/golden, actual screenshot, overlay/diff, and a result. Dynamic fields such as clock, actual ping, timer, traffic, real subscription expiry and real server names may use test-only deterministic fixtures or masked VALUE regions for comparison, but typography, baseline, geometry, padding, color, and container placement are still part of the visual gate.
+
+No production hardcoded sample data.
+
+## 8. Technical-core touch policy
+
+Prefer changing only UI/presentation/theme/resources/navigation adapters and screenshot tests. If technical-core code must be touched, keep the change minimal/read-only where possible, list it in `verification/ui_rebuild/TECHNICAL_CORE_TOUCHED.txt`, explain why, and add regression evidence.
+
+The ideal contents of that file are `NONE`.
+
+## 9. Required reports
+
+Create/update:
+- `verification/ui_rebuild/HOTFOX_UI_REBUILD_MASTER_REPORT.md`
+- `verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS.csv`
+- `verification/ui_rebuild/HOTFOX_UI_BUGS.md`
+- `verification/ui_rebuild/OLD_TO_NEW_INTERACTION_MAP.md`
+- `verification/ui_rebuild/UI_CHANGED_FILES.txt`
+- `verification/ui_rebuild/TECHNICAL_CORE_TOUCHED.txt`
+- `verification/ui_rebuild/UNTESTED_UI_GAPS.md`
+
+## 10. Completion wording
+
+UI completion does NOT mean `RELEASE READY`.
+
+Allowed UI completion wording:
+`18/18 HOTFOX UI REFERENCES RECREATED — VISUAL ENGINEERING GATE COMPLETE; final runtime/physical release validation remains separate.`
+
+Do not claim runtime/physical validation that was not executed.
+
+## 11. Final self-check
+
+If you changed anything because you personally thought it looked better: revert to reference.
+If you replaced custom reference UI with Material defaults: fix it.
+If you added a motif not present on the exact screen reference: remove it.
+If you created fake product state: remove it.
+If you created a second source of truth: remove it.
+If an old functional action disappeared: restore/map it.
+If any technical guarantee regressed: the task is not complete.
