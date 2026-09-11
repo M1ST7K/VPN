@@ -81,22 +81,83 @@
 
     <style name="HotFoxEditorialTheme" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/hotfox_orange</item>
-        <item name="colorOnPrimary">@color/hotfox_editorial_text</item>
+        <item name="colorOnPrimary">@color/hotfox_cta_on_orange</item>
         <item name="colorSecondary">@color/hotfox_orange</item>
-        <item name="colorSurface">@color/hotfox_editorial_bg</item>
-        <item name="colorOnSurface">@color/hotfox_editorial_text</item>
-        <item name="colorControlNormal">@color/hotfox_editorial_text</item>
-        <item name="android:textColorPrimary">@color/hotfox_editorial_text</item>
-        <item name="android:textColorSecondary">@color/hotfox_editorial_text_secondary</item>
-        <item name="colorSurfaceVariant">@color/hotfox_editorial_surface</item>
-        <item name="colorOnSurfaceVariant">@color/hotfox_editorial_text_secondary</item>
-        <item name="colorOutline">@color/hotfox_editorial_line</item>
-        <item name="colorOutlineVariant">@color/hotfox_editorial_line</item>
-        <item name="android:colorBackground">@color/hotfox_editorial_bg</item>
-        <item name="android:windowBackground">@color/hotfox_editorial_bg</item>
-        <item name="android:statusBarColor">@color/hotfox_editorial_bg</item>
-        <item name="android:navigationBarColor">@color/hotfox_editorial_bg</item>
+        <item name="colorSurface">@color/hotfox_bg_main</item>
+        <item name="colorOnSurface">@color/hotfox_cream</item>
+        <item name="colorControlNormal">@color/hotfox_cream</item>
+        <item name="android:textColorPrimary">@color/hotfox_cream</item>
+        <item name="android:textColorSecondary">@color/hotfox_cream_secondary</item>
+        <item name="colorSurfaceVariant">@color/hotfox_surface</item>
+        <item name="colorOnSurfaceVariant">@color/hotfox_cream_secondary</item>
+        <item name="colorOutline">@color/hotfox_hairline</item>
+        <item name="colorOutlineVariant">@color/hotfox_hairline</item>
+        <item name="android:colorBackground">@color/hotfox_bg_main</item>
+        <item name="android:windowBackground">@color/hotfox_bg_main</item>
+        <item name="android:statusBarColor">@color/hotfox_bg_main</item>
+        <item name="android:navigationBarColor">@color/hotfox_bg_main</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="android:alertDialogTheme">@style/HotFoxSheetDialog</item>
+        <item name="materialAlertDialogTheme">@style/HotFoxSheetDialog</item>
+    </style>
+
+    <style name="HotFoxPixelLockTheme" parent="HotFoxEditorialTheme" />
+
+    <style name="HotFoxSplashTheme" parent="HotFoxEditorialTheme">
+        <item name="android:windowBackground">@color/hotfox_bg_deep</item>
+        <item name="android:statusBarColor">@color/hotfox_bg_deep</item>
+        <item name="android:navigationBarColor">@color/hotfox_bg_deep</item>
+    </style>
+
+    <style name="HotFoxSheetDialog" parent="Theme.Material3.Dark.Dialog">
+        <item name="colorPrimary">@color/hotfox_orange</item>
+        <item name="colorOnPrimary">@color/hotfox_cta_on_orange</item>
+        <item name="colorSurface">@color/hotfox_bg_main</item>
+        <item name="colorOnSurface">@color/hotfox_cream</item>
+        <item name="android:windowBackground">@drawable/hotfox_sheet_bg</item>
+        <item name="android:backgroundDimAmount">0.72</item>
+        <item name="android:textColorPrimary">@color/hotfox_cream</item>
+        <item name="android:textColorSecondary">@color/hotfox_cream_secondary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/HotFoxDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/HotFoxDialogButton</item>
+        <item name="alertDialogStyle">@style/HotFoxAlertDialogStyle</item>
+    </style>
+
+    <style name="HotFoxAlertDialogStyle" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/HotFoxSheetShape</item>
+        <item name="shapeAppearanceOverlay">@style/HotFoxSheetShape</item>
+    </style>
+
+    <style name="HotFoxSheetShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <style name="HotFoxDialogButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/hotfox_orange</item>
+        <item name="rippleColor">@color/hotfox_orange</item>
+    </style>
+
+    <style name="HotFoxCtaPrimary">
+        <item name="android:layout_height">52dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:background">@drawable/hotfox_cta_primary_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/hotfox_cta_on_orange</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="HotFoxCtaSecondary">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/hotfox_cream_secondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>

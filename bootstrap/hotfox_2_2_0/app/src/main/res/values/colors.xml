@@ -3,11 +3,10 @@
     <color name="hotfox_navy">#1C1731</color>
     <color name="hotfox_deep_blue">#111A3D</color>
     <color name="hotfox_purple">#6F4ACB</color>
-    <color name="hotfox_orange">#F47B35</color>
-    <color name="hotfox_cream">#FFF3DB</color>
+    <color name="hotfox_brand_orange">#F47B35</color>
+    <color name="hotfox_brand_cream">#FFF3DB</color>
     <color name="hotfox_card">#FFFFFF</color>
     <color name="hotfox_card_soft">#F1EBF8</color>
-    <color name="hotfox_success">#25775D</color>
     <color name="colorPing">#9BE66F</color>
     <color name="colorPingRed">#E96B6B</color>
     <color name="colorConfigType">#f97910</color>
@@ -63,11 +62,30 @@
     <color name="md_theme_surfaceTint">#000000</color>
     <color name="md_theme_scrim">#000000</color>
 
-    <color name="hotfox_editorial_bg">#0C0B10</color>
-    <color name="hotfox_editorial_surface">#121017</color>
-    <color name="hotfox_editorial_text">#F1E9E2</color>
-    <color name="hotfox_editorial_text_secondary">#B9B0B2</color>
-    <color name="hotfox_editorial_text_dim">#847D82</color>
-    <color name="hotfox_editorial_line">#302A31</color>
-    <color name="hotfox_success_bright">#9BE66F</color>
+    <color name="hotfox_editorial_bg">#070912</color>
+    <color name="hotfox_editorial_surface">#15141D</color>
+    <color name="hotfox_editorial_text">#F6EDE8</color>
+    <color name="hotfox_editorial_text_secondary">#B8AFA9</color>
+    <color name="hotfox_editorial_text_dim">#8A817C</color>
+    <color name="hotfox_editorial_line">#1A1A24</color>
+    <color name="hotfox_success_bright">#76EA77</color>
+
+    <!-- Pixel-lock tokens. Starting values from the 18-screen recreation contract;
+         pixel comparison to full-resolution originals remains the visual gate. -->
+    <color name="hotfox_bg_deep">#05070D</color>
+    <color name="hotfox_bg_main">#070912</color>
+    <color name="hotfox_bg_alt">#090B14</color>
+    <color name="hotfox_surface">#15141D</color>
+    <color name="hotfox_surface_alt">#191720</color>
+    <color name="hotfox_surface_raised">#111119</color>
+    <color name="hotfox_cream">#F6EDE8</color>
+    <color name="hotfox_cream_primary">#F5E9E1</color>
+    <color name="hotfox_cream_secondary">#B8AFA9</color>
+    <color name="hotfox_cream_muted">#8A817C</color>
+    <color name="hotfox_orange">#F78843</color>
+    <color name="hotfox_orange_bright">#FF8E4D</color>
+    <color name="hotfox_success">#76EA77</color>
+    <color name="hotfox_hairline">#1AFFFFFF</color>
+    <color name="hotfox_scrim">#CC05070D</color>
+    <color name="hotfox_cta_on_orange">#05070D</color>
 </resources>
