@@ -300,11 +300,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenConnection.isVisible = section == UiSection.CONNECTION
         binding.screenServers.isVisible = section == UiSection.SERVERS
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
-        val active = ContextCompat.getColor(this, R.color.hotfox_editorial_text)
-        val muted = ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim)
-        binding.navConnection.setTextColor(if (section == UiSection.CONNECTION) active else muted)
-        binding.navServers.setTextColor(if (section == UiSection.SERVERS) active else muted)
-        binding.navSubscription.setTextColor(if (section == UiSection.SUBSCRIPTION) active else muted)
         binding.tvHeaderMicrocopy.text = when (section) {
             UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
             UiSection.SERVERS -> getString(R.string.hotfox_header_microcopy_servers)
