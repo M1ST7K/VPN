@@ -451,14 +451,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.tvSubscriptionBadge.text = commercialStatusLabel(state, null)
         binding.tvSubscriptionBadge.setTextColor(ContextCompat.getColor(this, badgeColor(state)))
     }
-            ?: when (expiry) {
-                SubscriptionPresentation.Status.ACTIVE -> "● Активна"
-                SubscriptionPresentation.Status.EXPIRED -> "● Истекла"
-                SubscriptionPresentation.Status.UNKNOWN -> "○ Срок не указан"
-                SubscriptionPresentation.Status.MISSING -> "○ Нет доступа"
-                null -> CommerceAccessResolver.labelKey(state)
-            }
-    }
 
     private fun refreshCommercialState() {
         lifecycleScope.launch {
