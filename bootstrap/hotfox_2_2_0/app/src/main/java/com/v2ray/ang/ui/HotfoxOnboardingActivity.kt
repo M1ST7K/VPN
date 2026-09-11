@@ -39,14 +39,24 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (HotfoxOnboardingStore.isComplete()) {
+        HotfoxSystemUi.applyDarkEditorialBars(this)
+        val fixtureStep = HotfoxUiVisualOverride.onboardingStep
+        if (fixtureStep == null && HotfoxOnboardingStore.isComplete()) {
             finishToMain()
             return
         }
         binding = ActivityHotfoxOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxSystemUi.hideScrollbars(binding.root)
         binding.btnOnboardingPrimary.setOnClickListener { onPrimary() }
         binding.btnOnboardingSecondary.setOnClickListener { onSecondary() }
+        if (fixtureStep != null) {
+            step = when (fixtureStep) {
+                "AUTO" -> HotfoxOnboardingFlow.Step.AUTO
+                "READY" -> HotfoxOnboardingFlow.Step.VPN_PERMISSION
+                else -> HotfoxOnboardingFlow.Step.WELCOME
+            }
+        }
         render()
     }
 
@@ -67,7 +77,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_connect_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_connect_body_ui)
-                binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_planet)
+                binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_bust)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = false

@@ -12,8 +12,10 @@ class HotfoxSettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
         binding = ActivityHotfoxSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxSystemUi.hideScrollbars(binding.root)
         binding.root.findViewById<android.view.View>(R.id.btn_header_back)?.apply {
             visibility = android.view.View.VISIBLE
             setOnClickListener { finish() }

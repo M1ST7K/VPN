@@ -13,7 +13,7 @@
 
     <TextView
         android:id="@+id/tv_onboarding_title"
-        style="@style/HotFox.ScreenTitle"
+        style="@style/HotFox.DisplayTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -40,7 +40,7 @@
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
-            android:src="@drawable/hf_fox_planet" />
+            android:src="@drawable/hf_fox_bust" />
 
         <ImageView
             android:id="@+id/img_onboarding_overlay"

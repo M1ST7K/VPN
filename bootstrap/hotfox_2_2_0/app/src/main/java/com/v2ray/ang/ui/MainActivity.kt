@@ -146,6 +146,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
         val skipOnboarding = intent?.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false) == true
         if (savedInstanceState == null && !skipOnboarding && HotfoxOnboardingStore.shouldPrompt()) {
             startActivity(Intent(this, HotfoxOnboardingActivity::class.java))
@@ -153,6 +154,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             return
         }
         setContentView(binding.root)
+        HotfoxSystemUi.hideScrollbars(binding.root)
         setupToolbar(binding.toolbar, false, "")
 
         // setup viewpager and tablayout
@@ -236,10 +238,13 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         runEntranceAnimations()
         refreshCommercialState()
         applyOpenSection(intent)
+        applyDebugPresentationIfPresent()
 
-        checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
+        if (HotfoxUiVisualOverride.scenarioId == null) {
+            checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
+            }
+            applyAutopilotOnProcessStart()
         }
-        applyAutopilotOnProcessStart()
     }
 
     private fun applyAutopilotOnProcessStart() {
@@ -381,7 +386,13 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.actionPremiumBuy.isEnabled = visiblePlans.isNotEmpty() &&
             !checkoutInFlight &&
             state != CommercialPresentationState.BACKEND_UNAVAILABLE
-        binding.actionPremiumBuy.alpha = if (binding.actionPremiumBuy.isEnabled) 1f else 0.45f
+        if (binding.actionPremiumBuy.isEnabled) {
+            binding.actionPremiumBuy.alpha = 1f
+            binding.actionPremiumBuy.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
+        } else {
+            binding.actionPremiumBuy.alpha = 1f
+            binding.actionPremiumBuy.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_disabled_text))
+        }
         renderPlanCatalog(visiblePlans)
     }
 
@@ -525,6 +536,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         super.onNewIntent(intent)
         setIntent(intent)
         applyOpenSection(intent)
+        applyDebugPresentationIfPresent()
         handlePossibleCheckoutReturn()
     }
 
@@ -1050,6 +1062,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             if (visual == ConnectionVisualState.CONNECTED) R.color.hf_asset_green else R.color.hf_asset_cream,
         )
         applyConnectionChrome(visual, headline)
+        applyDebugConnectionChromeIfPresent()
         if (ConnectionUiMapper.timerShouldRun(session) && headline == ConnectionUiMapper.Headline.CONNECTED) {
             startConnectionClock()
             setTestState(getString(R.string.connection_connected))
@@ -1198,8 +1211,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 binding.tvVpnStatus.setText(R.string.hotfox_connecting_body)
             }
             ConnectionVisualState.CONNECTED -> {
-                planet?.isVisible = true
-                bust?.isVisible = false
+                planet?.isVisible = false
+                bust?.isVisible = true
                 ring?.isVisible = false
                 stages?.isVisible = false
                 metrics?.isVisible = true
@@ -1209,8 +1222,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
             }
             else -> {
-                planet?.isVisible = true
-                bust?.isVisible = false
+                planet?.isVisible = false
+                bust?.isVisible = true
                 ring?.isVisible = false
                 stages?.isVisible = false
                 metrics?.isVisible = false
@@ -1240,6 +1253,52 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             connectionActive = !protectedLook && currentSection == UiSection.CONNECTION,
         )
         headline.let { }
+    }
+
+    /**
+     * Debug screenshot harness may force a presentation chrome.
+     * This never writes VPN session, entitlement, or traffic stores.
+     */
+    private fun applyDebugPresentationIfPresent() {
+        applyDebugConnectionChromeIfPresent()
+        if (HotfoxUiVisualOverride.showAddSheet && supportFragmentManager.findFragmentByTag("add") == null) {
+            binding.root.post {
+                if (!isFinishing) {
+                    HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
+                }
+            }
+        }
+    }
+
+    private fun applyDebugConnectionChromeIfPresent() {
+        val chrome = HotfoxUiVisualOverride.connectionChrome ?: return
+        val visual = when (chrome) {
+            HotfoxUiVisualOverride.CHROME_CONNECTING -> ConnectionVisualState.CONNECTING
+            HotfoxUiVisualOverride.CHROME_CONNECTED -> ConnectionVisualState.CONNECTED
+            else -> ConnectionVisualState.DISCONNECTED
+        }
+        val headline = when (visual) {
+            ConnectionVisualState.CONNECTING -> ConnectionUiMapper.Headline.CONNECTING
+            ConnectionVisualState.CONNECTED -> ConnectionUiMapper.Headline.CONNECTED
+            else -> ConnectionUiMapper.Headline.DISCONNECTED
+        }
+        applyConnectionChrome(visual, headline)
+        val headlineRes = when (visual) {
+            ConnectionVisualState.CONNECTED -> R.string.hotfox_headline_connected
+            ConnectionVisualState.CONNECTING -> R.string.hotfox_headline_connecting
+            else -> R.string.hotfox_headline_disconnected
+        }
+        val colorRes = if (visual == ConnectionVisualState.CONNECTED) {
+            R.color.hf_asset_green
+        } else {
+            R.color.hf_asset_cream
+        }
+        updateStatusText(headlineRes, colorRes)
+        if (visual == ConnectionVisualState.CONNECTED) {
+            binding.tvVpnStatus.text = "00:00:00"
+            binding.tvDownloaded.text = "0 MB"
+            binding.tvUploaded.text = "0 MB"
+        }
     }
 
     private fun startConnectionAnimation(state: ConnectionVisualState) {
@@ -1406,6 +1465,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         refreshSmartRouting()
         startLogoAnimation()
         applyRunningState(false, mainViewModel.isRunning.value == true)
+        applyDebugPresentationIfPresent()
         handlePossibleCheckoutReturn()
     }
 

@@ -16,6 +16,7 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
         binding = ActivityHotfoxRoutingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.root.findViewById<android.view.View>(R.id.btn_header_back)?.apply {

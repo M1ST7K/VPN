@@ -889,6 +889,25 @@ def main() -> int:
         "notification observes facade, not a second session owner",
     )
 
+    skip_dirs = {"build", "test", "androidTest", "debug"}
+    celestial_needles = ("hf_fox_planet", "hf_shadow_orbits")
+    for path in (PROJECT / "app" / "src" / "main").rglob("*"):
+        if not path.is_file():
+            continue
+        if path.suffix.lower() not in {".kt", ".java", ".xml"}:
+            continue
+        if path.name.startswith("hf_fox_planet") or "hf_shadow_orbits" in path.name:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for needle in celestial_needles:
+            if needle in text:
+                fail(f"forbidden celestial production ref {needle} in {path.relative_to(PROJECT)}")
+        if "HotfoxUiScreenshotHarness" in text or "HotfoxUiScreenshotScenario" in text:
+            fail(f"screenshot harness leaked into main source: {path.relative_to(PROJECT)}")
+
     secret_re = re.compile(
         r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}|"
         r"sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|rk_live_[A-Za-z0-9]+|"

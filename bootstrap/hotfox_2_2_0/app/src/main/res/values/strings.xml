@@ -745,6 +745,7 @@
     <string name="hotfox_payment_check">Payment check</string>
     <string name="hotfox_autorenew">Auto-renew</string>
     <string name="hotfox_settings_title_ui">Settings</string>
+    <string name="hotfox_settings_body_ui">Tune HotFox for how you actually use the device.</string>
     <string name="hotfox_settings_core">MAIN SETTINGS</string>
     <string name="hotfox_settings_network">NETWORK AND CONNECTIONS</string>
     <string name="hotfox_settings_other">OTHER</string>

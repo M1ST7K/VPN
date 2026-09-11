@@ -9,8 +9,12 @@ import com.v2ray.ang.vpn.HotfoxOnboardingStore
 class HotfoxSplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
         val binding = ActivityHotfoxSplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        if (HotfoxUiVisualOverride.holdSplash) {
+            return
+        }
         // No artificial delay: proceed after the first real layout of the cold/warm start.
         binding.root.post { continueToApp() }
     }

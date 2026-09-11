@@ -49,6 +49,8 @@ class PerAppProxyActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
+        HotfoxSystemUi.hideScrollbars(binding.root)
         bindHotfoxChrome()
 
         initList()

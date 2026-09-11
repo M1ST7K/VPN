@@ -25,13 +25,16 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
         guid = intent.getStringExtra(EXTRA_GUID).orEmpty()
-        if (guid.isBlank() || guid == HotfoxServerSelection.AUTO_GUID) {
+        val fixture = HotfoxUiVisualOverride.serverDetailsFixture
+        if (!fixture && (guid.isBlank() || guid == HotfoxServerSelection.AUTO_GUID)) {
             finish()
             return
         }
         binding = ActivityHotfoxServerDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxSystemUi.hideScrollbars(binding.root)
         binding.root.findViewById<View>(R.id.btn_header_back)?.apply {
             visibility = View.VISIBLE
             setOnClickListener { finish() }
@@ -63,6 +66,10 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
     }
 
     private fun render() {
+        if (HotfoxUiVisualOverride.serverDetailsFixture) {
+            renderFixture()
+            return
+        }
         val profile = MmkvManager.decodeServerConfig(guid)
         if (profile == null) {
             finish()
@@ -107,5 +114,23 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
         binding.tvRowAuto.setText(
             if (HotfoxServerSelection.isAutoMode()) R.string.hotfox_value_on else R.string.hotfox_value_off,
         )
+    }
+
+    /** Presentation-only fixture. Does not write server/subscription stores. */
+    private fun renderFixture() {
+        binding.tvServerName.text = "Amsterdam"
+        binding.tvServerCountry.text = getString(R.string.hotfox_unknown)
+        binding.imgServerFlag.visibility = View.VISIBLE
+        binding.imgServerFlag.setImageResource(R.drawable.hf_flag_nl)
+        binding.tvRowStatus.text = getString(R.string.hotfox_unknown)
+        binding.tvRowLoad.text = getString(R.string.hotfox_unknown)
+        binding.tvRowRouting.text = HotfoxRoutingStore.load().uiLabel()
+        binding.tvRowShadow.setText(
+            if (HotfoxShadowStore.isShadowAuto()) R.string.hotfox_onboarding_use_auto else R.string.hotfox_value_off,
+        )
+        binding.tvRowAuto.setText(
+            if (HotfoxServerSelection.isAutoMode()) R.string.hotfox_value_on else R.string.hotfox_value_off,
+        )
+        binding.btnSelectServer.isEnabled = false
     }
 }

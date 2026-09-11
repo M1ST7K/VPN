@@ -71,6 +71,7 @@
         android:layout_weight="1"
         android:fillViewport="true"
         android:overScrollMode="never"
+        android:scrollbars="none"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="16dp">
@@ -83,7 +84,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/hf_native_card"
+                android:background="@android:color/transparent"
                 android:orientation="vertical">
 
                 <LinearLayout

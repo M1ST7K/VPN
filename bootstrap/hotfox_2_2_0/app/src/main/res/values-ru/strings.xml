@@ -735,6 +735,7 @@
     <string name="hotfox_payment_check">Проверка оплаты</string>
     <string name="hotfox_autorenew">Автопродление</string>
     <string name="hotfox_settings_title_ui">Настройки</string>
+    <string name="hotfox_settings_body_ui">Настройте приложение под свои задачи и предпочтения.</string>
     <string name="hotfox_settings_core">ОСНОВНЫЕ НАСТРОЙКИ</string>
     <string name="hotfox_settings_network">СЕТЬ И ПОДКЛЮЧЕНИЯ</string>
     <string name="hotfox_settings_other">ПРОЧЕЕ</string>

@@ -112,5 +112,5 @@
         android:contentDescription="@null"
         android:importantForAccessibility="no"
         android:scaleType="fitCenter"
-        android:src="@drawable/hf_fox_planet" />
+        android:src="@drawable/hf_fox_bust" />
 </LinearLayout>
