@@ -27,8 +27,7 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         HotfoxSystemUi.applyDarkEditorialBars(this)
         guid = intent.getStringExtra(EXTRA_GUID).orEmpty()
-        val fixture = HotfoxUiVisualOverride.serverDetailsFixture
-        if (!fixture && (guid.isBlank() || guid == HotfoxServerSelection.AUTO_GUID)) {
+        if (guid.isBlank() || guid == HotfoxServerSelection.AUTO_GUID) {
             finish()
             return
         }
@@ -66,18 +65,12 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
     }
 
     private fun render() {
-        if (HotfoxUiVisualOverride.serverDetailsFixture) {
-            renderFixture()
-            return
-        }
         val profile = MmkvManager.decodeServerConfig(guid)
         if (profile == null) {
             finish()
             return
         }
         val presentation = HotfoxServerPresentation.fromRemark(profile.remarks)
-        binding.tvServerName.text = presentation.title
-        binding.tvServerCountry.text = presentation.country ?: getString(R.string.hotfox_unknown)
         val flag = when (presentation.country) {
             "Нидерланды" -> R.drawable.hf_flag_nl
             "Германия" -> R.drawable.hf_flag_de
@@ -87,16 +80,17 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
             "Канада" -> R.drawable.hf_flag_ca
             else -> 0
         }
-        if (flag != 0) {
-            binding.imgServerFlag.visibility = View.VISIBLE
-            binding.imgServerFlag.setImageResource(flag)
-        } else {
-            binding.imgServerFlag.visibility = View.GONE
-        }
         val aff = MmkvManager.decodeServerAffiliationInfo(guid)
         val delay = aff?.testDelayMillis ?: 0L
         val health = HotfoxServerSelection.health.snapshot(guid)
-        binding.tvRowStatus.text = HotfoxLatencyDisplay.format(health = health, delayMs = delay)
+        displayServer(
+            title = presentation.title,
+            country = presentation.country ?: getString(R.string.hotfox_unknown),
+            flagRes = flag,
+            statusLabel = HotfoxLatencyDisplay.format(health = health, delayMs = delay),
+            loadLabel = getString(R.string.hotfox_unknown),
+            selectEnabled = true,
+        )
         binding.imgServerHealth.setImageResource(
             when (health.availability) {
                 ServerAvailability.HEALTHY -> R.drawable.hf_signal_green
@@ -105,8 +99,6 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
                 ServerAvailability.UNKNOWN -> R.drawable.hf_signal_cream
             },
         )
-        // No production load metric exists; do not invent a percentage.
-        binding.tvRowLoad.text = getString(R.string.hotfox_unknown)
         binding.tvRowRouting.text = HotfoxRoutingStore.load().uiLabel()
         binding.tvRowShadow.setText(
             if (HotfoxShadowStore.isShadowAuto()) R.string.hotfox_onboarding_use_auto else R.string.hotfox_value_off,
@@ -116,21 +108,25 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
         )
     }
 
-    /** Presentation-only fixture. Does not write server/subscription stores. */
-    private fun renderFixture() {
-        binding.tvServerName.text = "Amsterdam"
-        binding.tvServerCountry.text = "Нидерланды"
-        binding.imgServerFlag.visibility = View.VISIBLE
-        binding.imgServerFlag.setImageResource(R.drawable.hf_flag_nl)
-        binding.tvRowStatus.text = "18 ms"
-        binding.tvRowLoad.text = "12%"
-        binding.tvRowRouting.text = HotfoxRoutingStore.load().uiLabel()
-        binding.tvRowShadow.setText(
-            if (HotfoxShadowStore.isShadowAuto()) R.string.hotfox_onboarding_use_auto else R.string.hotfox_value_off,
-        )
-        binding.tvRowAuto.setText(
-            if (HotfoxServerSelection.isAutoMode()) R.string.hotfox_value_on else R.string.hotfox_value_off,
-        )
-        binding.btnSelectServer.isEnabled = false
+    internal fun displayServer(
+        title: String,
+        country: String,
+        flagRes: Int,
+        statusLabel: String,
+        loadLabel: String,
+        selectEnabled: Boolean,
+    ) {
+        binding.tvServerName.text = title
+        binding.tvServerCountry.text = country
+        if (flagRes != 0) {
+            binding.imgServerFlag.visibility = View.VISIBLE
+            binding.imgServerFlag.setImageResource(flagRes)
+        } else {
+            binding.imgServerFlag.visibility = View.GONE
+        }
+        binding.tvRowStatus.text = statusLabel
+        // No production load metric exists; do not invent a percentage.
+        binding.tvRowLoad.text = loadLabel
+        binding.btnSelectServer.isEnabled = selectEnabled
     }
 }

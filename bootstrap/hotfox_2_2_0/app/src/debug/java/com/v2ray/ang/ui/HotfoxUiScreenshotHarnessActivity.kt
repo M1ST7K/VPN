@@ -3,6 +3,7 @@ package com.v2ray.ang.ui
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.v2ray.ang.vpn.HotfoxOnboardingFlow
 
 /**
  * Debug-only launcher for deterministic UI screenshots.
@@ -34,9 +35,9 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
                 )
                 Intent(this, HotfoxSplashActivity::class.java)
             }
-            HotfoxUiScreenshotScenario.ONBOARD_CONNECT -> onboard("CONNECT")
-            HotfoxUiScreenshotScenario.ONBOARD_AUTO -> onboard("AUTO")
-            HotfoxUiScreenshotScenario.ONBOARD_READY -> onboard("READY")
+            HotfoxUiScreenshotScenario.ONBOARD_CONNECT -> onboard(HotfoxOnboardingFlow.Step.WELCOME)
+            HotfoxUiScreenshotScenario.ONBOARD_AUTO -> onboard(HotfoxOnboardingFlow.Step.AUTO)
+            HotfoxUiScreenshotScenario.ONBOARD_READY -> onboard(HotfoxOnboardingFlow.Step.VPN_PERMISSION)
             HotfoxUiScreenshotScenario.DISCONNECTED -> main(
                 scenario.id,
                 section = MainActivity.SECTION_CONNECTION,
@@ -68,12 +69,8 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
                 serversFixture = true,
             )
             HotfoxUiScreenshotScenario.SERVER_DETAILS -> {
-                HotfoxUiVisualOverride.installDebugPresentation(
-                    scenarioId = scenario.id,
-                    serverDetailsFixture = true,
-                )
-                Intent(this, HotfoxServerDetailsActivity::class.java)
-                    .putExtra(HotfoxServerDetailsActivity.EXTRA_GUID, FIXTURE_GUID)
+                HotfoxUiVisualOverride.installDebugPresentation(scenarioId = scenario.id)
+                Intent(this, HotfoxUiQaServerDetailsActivity::class.java)
             }
             HotfoxUiScreenshotScenario.SUBSCRIPTION -> main(
                 scenario.id,
@@ -111,12 +108,12 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
         }
     }
 
-    private fun onboard(step: String): Intent {
+    private fun onboard(step: HotfoxOnboardingFlow.Step): Intent {
         HotfoxUiVisualOverride.installDebugPresentation(
             scenarioId = HotfoxUiScreenshotScenario.fromId(intent.getStringExtra(EXTRA_SCENARIO))?.id,
-            onboardingStep = step,
         )
         return Intent(this, HotfoxOnboardingActivity::class.java)
+            .putExtra(HotfoxOnboardingActivity.EXTRA_START_STEP, step.name)
     }
 
     private fun main(
@@ -142,6 +139,5 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_SCENARIO = "scenario"
-        const val FIXTURE_GUID = "debug-ui-fixture-server"
     }
 }

@@ -15,6 +15,10 @@ import com.v2ray.ang.vpn.HotfoxOnboardingStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
 
 class HotfoxOnboardingActivity : AppCompatActivity() {
+    companion object {
+        const val EXTRA_START_STEP = "hotfox_onboarding_start_step"
+    }
+
     private lateinit var binding: ActivityHotfoxOnboardingBinding
     private var step = HotfoxOnboardingFlow.firstStep()
 
@@ -40,8 +44,8 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         HotfoxSystemUi.applyDarkEditorialBars(this)
-        val fixtureStep = HotfoxUiVisualOverride.onboardingStep
-        if (fixtureStep == null && HotfoxOnboardingStore.isComplete()) {
+        val startStep = intent.getStringExtra(EXTRA_START_STEP)
+        if (startStep.isNullOrBlank() && HotfoxOnboardingStore.isComplete()) {
             finishToMain()
             return
         }
@@ -50,12 +54,9 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
         HotfoxSystemUi.hideScrollbars(binding.root)
         binding.btnOnboardingPrimary.setOnClickListener { onPrimary() }
         binding.btnOnboardingSecondary.setOnClickListener { onSecondary() }
-        if (fixtureStep != null) {
-            step = when (fixtureStep) {
-                "AUTO" -> HotfoxOnboardingFlow.Step.AUTO
-                "READY" -> HotfoxOnboardingFlow.Step.VPN_PERMISSION
-                else -> HotfoxOnboardingFlow.Step.WELCOME
-            }
+        if (!startStep.isNullOrBlank()) {
+            step = runCatching { HotfoxOnboardingFlow.Step.valueOf(startStep) }
+                .getOrDefault(HotfoxOnboardingFlow.Step.WELCOME)
         }
         render()
     }

@@ -1,12 +1,8 @@
 package com.v2ray.ang.ui
 
 /**
- * Presentation-only override used by the debug screenshot harness.
- *
- * Production code may read these fields (null/false is a no-op) but must never
- * write them. Writing is reserved for debug-only callers.
- *
- * This object does not mutate VPN, entitlement, payment, server, subscription,
+ * Debug-only screenshot presentation state. Not compiled into release.
+ * Does not mutate VPN, entitlement, payment, server, subscription,
  * traffic, or connection stores.
  */
 object HotfoxUiVisualOverride {

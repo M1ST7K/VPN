@@ -2,7 +2,6 @@ package com.v2ray.ang.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.TextUtils
 import android.text.Editable
@@ -45,13 +44,10 @@ class PerAppProxyActivity : BaseActivity() {
 
     private var adapter: PerAppProxyAdapter? = null
     private var appsAll: List<AppInfo>? = null
-    private val viewModel: PerAppProxyViewModel by viewModels()
+    internal val viewModel: PerAppProxyViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (HotfoxUiVisualOverride.appsFixture) {
-            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-        }
         setContentView(binding.root)
         HotfoxSystemUi.applyDarkEditorialBars(this)
         HotfoxSystemUi.hideScrollbars(binding.root)
@@ -130,24 +126,6 @@ class PerAppProxyActivity : BaseActivity() {
     }
 
     private fun initList() {
-        if (HotfoxUiVisualOverride.appsFixture && HotfoxUiVisualOverride.referenceApps.isNotEmpty()) {
-            val placeholder = ColorDrawable(0xFF2A2730.toInt())
-            val apps = HotfoxUiVisualOverride.referenceApps.map { row ->
-                AppInfo(
-                    appName = row.appName,
-                    packageName = row.packageName,
-                    appIcon = placeholder,
-                    isSystemApp = false,
-                    isSelected = if (row.selected) 1 else 0,
-                )
-            }
-            appsAll = apps
-            adapter = PerAppProxyAdapter(apps, viewModel)
-            binding.recyclerView.adapter = adapter
-            findViewById<TextView>(R.id.tv_selected_count)?.text = apps.count { it.isSelected == 1 }.toString()
-            findViewById<TextView>(R.id.tv_custom_rules_count)?.text = "3"
-            return
-        }
         runCatching { showLoading() }
 
         lifecycleScope.launch {

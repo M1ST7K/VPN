@@ -79,9 +79,6 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
         // preference made names, Reality/XHTTP badges and latency compete for too little width.
         binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
         binding.recyclerView.adapter = adapter
-        if (HotfoxUiVisualOverride.serversFixture) {
-            adapter.notifyDataSetChanged()
-        }
 
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback(adapter, allowSwipe = false))
         itemTouchHelper?.attachToRecyclerView(binding.recyclerView)

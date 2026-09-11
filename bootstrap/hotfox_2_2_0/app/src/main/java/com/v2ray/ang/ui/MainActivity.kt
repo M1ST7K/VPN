@@ -121,7 +121,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         SETTINGS,
     }
 
-    private enum class ConnectionVisualState {
+    internal enum class ConnectionVisualState {
         DISCONNECTED,
         CONNECTING,
         CONNECTED,
@@ -238,13 +238,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         runEntranceAnimations()
         refreshCommercialState()
         applyOpenSection(intent)
-        applyDebugPresentationIfPresent()
 
-        if (HotfoxUiVisualOverride.scenarioId == null) {
-            checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
-            }
-            applyAutopilotOnProcessStart()
+        checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }
+        applyAutopilotOnProcessStart()
     }
 
     private fun applyAutopilotOnProcessStart() {
@@ -396,19 +393,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         renderPlanCatalog(visiblePlans)
     }
 
-    /** Debug screenshot density only. Does not write entitlement or subscription stores. */
-    private fun applySubscriptionVisualFixture() {
-        binding.layoutPremiumOnboarding.isVisible = false
-        binding.layoutSubscriptionDetails.isVisible = true
-        binding.tvSubscriptionState.text = "● HotFox Premium"
-        binding.tvSubscriptionExpire.text = "31.12.2026"
-        binding.tvSubscriptionRemaining.text = "110 дней"
-        binding.tvSubscriptionServers.text = "6"
-        binding.tvSubscriptionTraffic.setText(R.string.hotfox_traffic_unknown)
-        binding.tvSubscriptionUrl.text = "https://sub.example/***"
-        binding.tvSubscriptionSnapshot.text = ""
-    }
-
     private fun bindCommercialStatus(state: CommercialPresentationState, expiryKnown: Boolean) {
         binding.tvSubscriptionState.text = commercialStatusLabel(state, null)
         binding.tvSubscriptionState.setTextColor(
@@ -549,7 +533,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         super.onNewIntent(intent)
         setIntent(intent)
         applyOpenSection(intent)
-        applyDebugPresentationIfPresent()
         handlePossibleCheckoutReturn()
     }
 
@@ -1075,7 +1058,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             if (visual == ConnectionVisualState.CONNECTED) R.color.hf_asset_green else R.color.hf_asset_cream,
         )
         applyConnectionChrome(visual, headline)
-        applyDebugConnectionChromeIfPresent()
         if (ConnectionUiMapper.timerShouldRun(session) && headline == ConnectionUiMapper.Headline.CONNECTED) {
             startConnectionClock()
             setTestState(getString(R.string.connection_connected))
@@ -1156,7 +1138,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    private fun updateStatusText(textRes: Int, colorRes: Int) {
+    internal fun updateStatusText(textRes: Int, colorRes: Int) {
         binding.tvConnectLabel.animate().cancel()
         binding.tvConnectLabel.setText(textRes)
         binding.tvConnectLabel.setTextColor(ContextCompat.getColor(this, colorRes))
@@ -1200,7 +1182,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    private fun applyConnectionChrome(
+    internal fun applyConnectionChrome(
         visual: ConnectionVisualState,
         headline: ConnectionUiMapper.Headline,
     ) {
@@ -1268,54 +1250,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         headline.let { }
     }
 
-    /**
-     * Debug screenshot harness may force a presentation chrome.
-     * This never writes VPN session, entitlement, or traffic stores.
-     */
-    private fun applyDebugPresentationIfPresent() {
-        applyDebugConnectionChromeIfPresent()
-        if (HotfoxUiVisualOverride.showAddSheet && supportFragmentManager.findFragmentByTag("add") == null) {
-            binding.root.postDelayed({
-                if (!isFinishing) {
-                    HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
-                }
-            }, 450L)
-        }
-    }
-
-    private fun applyDebugConnectionChromeIfPresent() {
-        val chrome = HotfoxUiVisualOverride.connectionChrome ?: return
-        val visual = when (chrome) {
-            HotfoxUiVisualOverride.CHROME_CONNECTING -> ConnectionVisualState.CONNECTING
-            HotfoxUiVisualOverride.CHROME_CONNECTED -> ConnectionVisualState.CONNECTED
-            else -> ConnectionVisualState.DISCONNECTED
-        }
-        val headline = when (visual) {
-            ConnectionVisualState.CONNECTING -> ConnectionUiMapper.Headline.CONNECTING
-            ConnectionVisualState.CONNECTED -> ConnectionUiMapper.Headline.CONNECTED
-            else -> ConnectionUiMapper.Headline.DISCONNECTED
-        }
-        applyConnectionChrome(visual, headline)
-        val headlineRes = when (visual) {
-            ConnectionVisualState.CONNECTED -> R.string.hotfox_headline_connected
-            ConnectionVisualState.CONNECTING -> R.string.hotfox_headline_connecting
-            else -> R.string.hotfox_headline_disconnected
-        }
-        val colorRes = if (visual == ConnectionVisualState.CONNECTED) {
-            R.color.hf_asset_green
-        } else {
-            R.color.hf_asset_cream
-        }
-        updateStatusText(headlineRes, colorRes)
-        binding.connectAction.text = when (visual) {
-            ConnectionVisualState.CONNECTED -> getString(R.string.hotfox_disconnect)
-            ConnectionVisualState.CONNECTING -> getString(R.string.hotfox_headline_connecting)
-            else -> getString(R.string.hotfox_connect)
-        }
-        if (visual == ConnectionVisualState.CONNECTED) {
-            binding.tvVpnStatus.text = "00:00:00"
-            binding.tvDownloaded.text = "0 MB"
-            binding.tvUploaded.text = "0 MB"
+    internal fun presentAddConnectionSheet() {
+        if (supportFragmentManager.findFragmentByTag("add") == null) {
+            HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
         }
     }
 
@@ -1483,7 +1420,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         refreshSmartRouting()
         startLogoAnimation()
         applyRunningState(false, mainViewModel.isRunning.value == true)
-        applyDebugPresentationIfPresent()
         handlePossibleCheckoutReturn()
     }
 
@@ -1538,10 +1474,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             MmkvManager.decodeAllServerList().size
         }
         val commercialState = CommerceCoordinator.get(this).presentationSnapshot()
-        if (HotfoxUiVisualOverride.subscriptionFixture) {
-            applySubscriptionVisualFixture()
-            return
-        }
         applyCommercialOnboarding(commercialState)
 
         if (subscription == null && CommerceAccessResolver.showPremiumOnboarding(commercialState)) {
