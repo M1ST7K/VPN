@@ -1,0 +1,29 @@
+# Legacy art usage BEFORE asset-first rebuild
+
+HEAD: `8d6aeb6f4f09d8498c4d1c27083e054f0ddb4d68`  
+Tree: versioned overlay `bootstrap/hotfox_2_2_0` + reconstructed `V2rayNG` after rsync.
+
+## Screenshot-derived composites named in the supervisory prompt
+
+| Resource | File present? | Layouts/code refs | Replacement from kit |
+| --- | --- | --- | --- |
+| `hotfox_art_fox_planet_*` | NO | none | `hf_fox_planet` (drawable-nodpi) |
+| `hotfox_art_globe_orbits.png` | NO | none | `hf_auto_orbits` + `hf_globe_orange` on screen 03 only |
+| `hotfox_art_server_ready.png` | NO | none | `hf_ready_orbits` + `hf_ready_servers` + `hf_ready_check` on screen 04 only |
+| `hotfox_art_shadow_shield.png` | NO | none | `hf_shadow_orbits` + `hf_shadow_shield` on screen 17 only |
+| `hotfox_art_always_on_shield.png` | NO | none | `hf_always_on_shield` on screen 18 only |
+
+This HEAD already has **zero production references** to those screenshot-crop names. They are not in overlay drawables.
+
+## Related leftover visuals (not the named crops)
+
+| Resource | File | Refs | Planned replacement |
+| --- | --- | --- | --- |
+| `hotfox_logo.xml` | `V2rayNG/.../drawable/hotfox_logo.xml` | `nav_header.xml`, `activity_renewal.xml` | `hf_brand_wordmark` |
+| `nav_header_bg.png` | grey Material gradient PNG | `nav_header.xml` (drawer locked/gone) | solid `hf_asset_background` |
+| `hotfox_connect_action_bg.xml` | XML shape | `activity_main.xml` `connect_action` / buy CTA | `hf_native_primary` / `hf_native_secondary` |
+| `hotfox_space_background.xml` | solid `md_theme_background` | none in overlay layouts | unused; kit background color |
+| `ic_hotfox_power_36.xml` | vector | hidden FAB | keep for binding; FAB stays gone |
+| `ic_hotfox_smart_route_24.xml` | vector | `smart_routing_icon` | `hf_routing_cream` |
+
+Production refs to named screenshot-derived composites: **0**.
