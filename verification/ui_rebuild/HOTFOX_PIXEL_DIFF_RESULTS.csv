@@ -1,19 +1,19 @@
 screen_id,reference,actual,changed_pixels,changed_percent,mean_delta,max_delta,status,notes
-01_splash_brand_entry,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout; SHA-256 in MANIFEST.txt
-02_onboarding_connect_hotfox,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-03_onboarding_auto,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-04_onboarding_ready,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-05_main_not_protected,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-06_connecting,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-07_protected,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-08_add_connection,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-09_https_subscription,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-10_servers,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-11_server_details,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-12_subscription,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-13_settings,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-14_smart_routing,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-15_apps_and_rules,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-16_autopilot,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-17_shadow,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
-18_always_on_kill_switch,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+01_splash_brand_entry,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+02_onboarding_connect_hotfox,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+03_onboarding_auto,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+04_onboarding_ready,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+05_main_not_protected,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+06_connecting,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+07_protected,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+08_add_connection,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+09_https_subscription,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+10_servers,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+11_server_details,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+12_subscription,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+13_settings,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+14_smart_routing,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+15_apps_and_rules,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+16_autopilot,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+17_shadow,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
+18_always_on_kill_switch,ORIGINALS_PRESENT,NOT_CAPTURED,,,,,NOT_EXECUTED,inner-phone golden cropped; emulator screenshot missing
