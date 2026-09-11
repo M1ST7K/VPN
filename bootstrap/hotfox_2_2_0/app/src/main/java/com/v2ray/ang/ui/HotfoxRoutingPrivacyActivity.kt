@@ -18,9 +18,30 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotfoxRoutingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.findViewById<android.view.View>(R.id.btn_header_back)?.apply {
+            visibility = android.view.View.VISIBLE
+            setOnClickListener { finish() }
+        }
         binding.btnRoutingMode.setOnClickListener { showModePicker() }
         binding.btnRoutingAdvanced.setOnClickListener {
-            startActivity(Intent(this, RoutingSettingActivity::class.java))
+            startActivity(Intent(this, PerAppProxyActivity::class.java))
+        }
+        binding.switchRoutingLan.setOnCheckedChangeListener { _, isChecked ->
+            val snapshot = HotfoxRoutingStore.load()
+            if (snapshot.lanAccess != isChecked) {
+                HotfoxRoutingStore.saveLan(isChecked)
+                toast(R.string.hotfox_route_changed)
+                if (CoreServiceManager.isRunning()) {
+                    CoreServiceManager.restartForRouting(this)
+                }
+                render()
+            }
+        }
+        binding.btnRoutingApply.setOnClickListener {
+            if (CoreServiceManager.isRunning()) {
+                CoreServiceManager.restartForRouting(this)
+            }
+            finish()
         }
         render()
     }
@@ -42,6 +63,7 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
                 HotfoxRoutingMode.CUSTOM -> R.string.hotfox_route_custom_summary
             },
         )
+        binding.switchRoutingLan.isChecked = snapshot.lanAccess
     }
 
     private fun showModePicker() {

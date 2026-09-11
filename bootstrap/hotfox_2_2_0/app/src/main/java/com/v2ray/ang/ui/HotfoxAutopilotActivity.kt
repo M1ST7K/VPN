@@ -28,10 +28,22 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotfoxAutopilotBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.btnAutopilotToggle.setOnClickListener { togglePolicy() }
+        binding.root.findViewById<android.view.View>(R.id.btn_header_back)?.apply {
+            visibility = android.view.View.VISIBLE
+            setOnClickListener { finish() }
+        }
+        binding.btnAutopilotToggle.setOnCheckedChangeListener { _, isChecked ->
+            val policy = HotfoxAutopilotStore.policy()
+            if (policy.enabled != isChecked) {
+                HotfoxAutopilotStore.setPolicy(policy.copy(enabled = isChecked))
+                HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
+                render()
+            }
+        }
         binding.btnAutopilotPause.setOnClickListener { showPause() }
         binding.btnAutopilotProtection.setOnClickListener { showProtection() }
         binding.btnAutopilotTrusted.setOnClickListener { showTrusted() }
+        binding.btnAutopilotDone.setOnClickListener { finish() }
         render()
     }
 
@@ -42,9 +54,7 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
 
     private fun render() {
         val policy = HotfoxAutopilotStore.policy()
-        binding.btnAutopilotToggle.setText(
-            if (policy.enabled) R.string.hotfox_autopilot_enabled else R.string.hotfox_autopilot_disabled,
-        )
+        binding.btnAutopilotToggle.isChecked = policy.enabled
         val decision = HotfoxAutopilotStore.lastDecision()
         binding.tvAutopilotDecision.text = decision?.uiLabel()
             ?: HotfoxAutopilotLabels.protectionLabel(HotfoxAutopilotStore.protectionLevel())
@@ -52,13 +62,6 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
         binding.tvAutopilotCaptive.setText(
             if (captive) R.string.hotfox_error_captive_title else R.string.hotfox_autopilot_captive_idle,
         )
-    }
-
-    private fun togglePolicy() {
-        val policy = HotfoxAutopilotStore.policy()
-        HotfoxAutopilotStore.setPolicy(policy.copy(enabled = !policy.enabled))
-        HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
-        render()
     }
 
     private fun showPause() {
