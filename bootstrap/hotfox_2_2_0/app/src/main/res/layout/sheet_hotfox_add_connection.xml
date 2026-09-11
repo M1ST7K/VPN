@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/hotfox_add_connection"
-            android:textSize="22sp" />
+            android:textSize="20sp" />
 
         <ImageButton
             android:id="@+id/btn_sheet_close"
@@ -44,7 +44,7 @@
     <LinearLayout
         android:id="@+id/row_add_https"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="52dp"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -52,8 +52,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:importantForAccessibility="no"
             android:src="@drawable/hf_link_cream" />
 
@@ -75,7 +75,7 @@
     <LinearLayout
         android:id="@+id/row_add_clipboard"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="52dp"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -83,8 +83,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:importantForAccessibility="no"
             android:src="@drawable/hf_clipboard_cream" />
 
@@ -106,7 +106,7 @@
     <LinearLayout
         android:id="@+id/row_add_qr"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="52dp"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -114,8 +114,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:importantForAccessibility="no"
             android:src="@drawable/hf_qr_cream" />
 
@@ -137,7 +137,7 @@
     <LinearLayout
         android:id="@+id/row_add_file"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="52dp"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -145,8 +145,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:importantForAccessibility="no"
             android:src="@drawable/hf_file_cream" />
 
@@ -168,7 +168,7 @@
     <LinearLayout
         android:id="@+id/row_add_always_on"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="52dp"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -176,8 +176,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:importantForAccessibility="no"
             android:src="@drawable/hf_shield_cream" />
 

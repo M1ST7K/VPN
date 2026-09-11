@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="220dp"
+    android:height="160dp"
+    android:viewportWidth="220"
+    android:viewportHeight="160">
+    <!-- Completion mark: stacked servers + check. No radar/orbit rings. -->
+    <path
+        android:fillColor="#1A1816"
+        android:pathData="M58,46 h86 a10,10 0 0,1 10,10 v18 a10,10 0 0,1 -10,10 h-86 a10,10 0 0,1 -10,-10 v-18 a10,10 0 0,1 10,-10 z"
+        android:strokeWidth="1.4"
+        android:strokeColor="#8E8297" />
+    <path
+        android:fillColor="#1A1816"
+        android:pathData="M58,90 h86 a10,10 0 0,1 10,10 v18 a10,10 0 0,1 -10,10 h-86 a10,10 0 0,1 -10,-10 v-18 a10,10 0 0,1 10,-10 z"
+        android:strokeWidth="1.4"
+        android:strokeColor="#8E8297" />
+    <path
+        android:fillColor="#FF9255"
+        android:pathData="M72,64 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#C5C1D3"
+        android:pathData="M84,64 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#FF9255"
+        android:pathData="M72,108 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#C5C1D3"
+        android:pathData="M84,108 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#FF803E"
+        android:pathData="M168,112 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M158,112 l8,8 16,-18"
+        android:strokeWidth="3.2"
+        android:strokeColor="#1A1816"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

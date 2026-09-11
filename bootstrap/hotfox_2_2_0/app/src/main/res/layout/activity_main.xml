@@ -100,7 +100,7 @@
 
                             <TextView
                                 android:id="@+id/tv_connect_label"
-                                style="@style/HotFox.DisplayTitle"
+                                style="@style/HotFox.HomeHeadline"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/hotfox_headline_disconnected" />
@@ -124,7 +124,7 @@
                     <FrameLayout
                         android:id="@+id/artwork_host"
                         android:layout_width="match_parent"
-                        android:layout_height="176dp"
+                        android:layout_height="140dp"
                         android:layout_marginTop="4dp">
 
                         <ImageView
@@ -135,13 +135,13 @@
 
                         <ImageView
                             android:id="@+id/img_art_bust"
-                            android:layout_width="200dp"
-                            android:layout_height="176dp"
+                            android:layout_width="168dp"
+                            android:layout_height="140dp"
                             android:layout_gravity="center"
                             android:contentDescription="@null"
                             android:importantForAccessibility="no"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/hf_fox_bust" />
+                            android:src="@drawable/hf_fox_bust_transparent" />
 
                         <ImageView
                             android:id="@+id/img_art_ring"
@@ -398,14 +398,14 @@
 
                     <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginTop="16dp">
+                        android:layout_height="48dp"
+                        android:layout_marginTop="12dp">
 
                         <TextView
                             android:id="@+id/connect_action"
                             android:layout_width="match_parent"
-                            android:layout_height="56dp"
-                            android:background="@drawable/hf_native_primary"
+                            android:layout_height="48dp"
+                            android:background="@drawable/hf_native_primary_compact"
                             android:clickable="true"
                             android:drawableEnd="@drawable/hf_arrow_right_ink"
                             android:focusable="true"
@@ -682,9 +682,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:background="@drawable/hf_native_group"
+                        android:background="@android:color/transparent"
                         android:gravity="center_vertical"
-                        android:minHeight="56dp"
+                        android:minHeight="48dp"
                         android:orientation="horizontal"
                         android:padding="12dp">
 
@@ -706,7 +706,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/hotfox_add_subscription_to_start"
                                 android:textColor="@color/hf_asset_cream"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -763,7 +763,7 @@
                         android:paddingEnd="8dp"
                         android:text="Все"
                         android:textColor="@color/hf_asset_cream"
-                        android:textSize="13sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/filter_favorites"
@@ -777,7 +777,7 @@
                         android:paddingEnd="8dp"
                         android:text="Избранные"
                         android:textColor="@color/hf_asset_muted"
-                        android:textSize="13sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/filter_countries"
@@ -791,7 +791,7 @@
                         android:paddingEnd="8dp"
                         android:text="Страны"
                         android:textColor="@color/hf_asset_muted"
-                        android:textSize="13sp" />
+                        android:textSize="14sp" />
 
                     <View
                         android:layout_width="0dp"
@@ -815,7 +815,7 @@
                             android:maxLines="1"
                             android:text="Пинг"
                             android:textColor="@color/hf_asset_orange"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -882,7 +882,7 @@
                             android:layout_marginTop="18dp"
                             android:text="@string/hotfox_premium_benefits"
                             android:textColor="@color/hf_asset_muted"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
 
                         <LinearLayout
                             android:id="@+id/layout_plan_catalog"

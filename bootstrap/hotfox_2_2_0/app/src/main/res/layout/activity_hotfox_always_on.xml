@@ -49,7 +49,7 @@
                 <LinearLayout
                     android:id="@+id/row_always_on"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -83,7 +83,7 @@
                 <LinearLayout
                     android:id="@+id/row_lockdown"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -117,10 +117,10 @@
 
             <Button
                 android:id="@+id/btn_open_android_vpn"
-                style="@style/HotFox.PrimaryButton"
+                style="@style/HotFox.PrimaryCompact"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="24dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
                 android:drawableEnd="@drawable/hf_arrow_right_ink"
                 android:text="@string/hotfox_open_android_settings" />
 

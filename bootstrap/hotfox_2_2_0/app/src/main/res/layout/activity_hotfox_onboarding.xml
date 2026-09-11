@@ -13,7 +13,7 @@
 
     <TextView
         android:id="@+id/tv_onboarding_title"
-        style="@style/HotFox.DisplayTitle"
+        style="@style/HotFox.ScreenTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -27,11 +27,15 @@
         android:layout_marginTop="10dp"
         android:text="@string/hotfox_onboarding_connect_body_ui" />
 
-    <FrameLayout
+    <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1">
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_marginTop="8dp">
 
         <ImageView
             android:id="@+id/img_onboarding_art"
@@ -40,7 +44,7 @@
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
-            android:src="@drawable/hf_fox_bust" />
+            android:src="@drawable/hf_fox_bust_transparent" />
 
         <ImageView
             android:id="@+id/img_onboarding_overlay"

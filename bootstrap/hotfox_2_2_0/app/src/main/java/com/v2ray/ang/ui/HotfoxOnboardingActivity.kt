@@ -77,7 +77,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_connect_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_connect_body_ui)
-                binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_bust)
+                binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_bust_transparent)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = false
@@ -89,9 +89,8 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             HotfoxOnboardingFlow.Step.AUTO -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_auto_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_auto_body_ui)
-                binding.imgOnboardingArt.setImageResource(R.drawable.hf_auto_orbits)
-                binding.imgOnboardingOverlay.setImageResource(R.drawable.hf_globe_orange)
-                binding.imgOnboardingOverlay.isVisible = true
+                binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_auto_routing)
+                binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = false
                 binding.btnOnboardingPrimary.setText(R.string.hotfox_onboarding_use_auto)
@@ -103,11 +102,9 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_ready_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_ready_body_ui)
-                binding.imgOnboardingArt.setImageResource(R.drawable.hf_ready_orbits)
-                binding.imgOnboardingOverlay.setImageResource(R.drawable.hf_ready_servers)
-                binding.imgOnboardingOverlay.isVisible = true
-                binding.imgOnboardingOverlay2.setImageResource(R.drawable.hf_ready_check)
-                binding.imgOnboardingOverlay2.isVisible = true
+                binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_ready_complete)
+                binding.imgOnboardingOverlay.isVisible = false
+                binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = true
                 binding.btnOnboardingPrimary.setText(R.string.hotfox_onboarding_continue)
                 binding.btnOnboardingSecondary.isVisible = false

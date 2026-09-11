@@ -396,6 +396,19 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         renderPlanCatalog(visiblePlans)
     }
 
+    /** Debug screenshot density only. Does not write entitlement or subscription stores. */
+    private fun applySubscriptionVisualFixture() {
+        binding.layoutPremiumOnboarding.isVisible = false
+        binding.layoutSubscriptionDetails.isVisible = true
+        binding.tvSubscriptionState.text = "● HotFox Premium"
+        binding.tvSubscriptionExpire.text = "31.12.2026"
+        binding.tvSubscriptionRemaining.text = "110 дней"
+        binding.tvSubscriptionServers.text = "6"
+        binding.tvSubscriptionTraffic.setText(R.string.hotfox_traffic_unknown)
+        binding.tvSubscriptionUrl.text = "https://sub.example/***"
+        binding.tvSubscriptionSnapshot.text = ""
+    }
+
     private fun bindCommercialStatus(state: CommercialPresentationState, expiryKnown: Boolean) {
         binding.tvSubscriptionState.text = commercialStatusLabel(state, null)
         binding.tvSubscriptionState.setTextColor(
@@ -1205,8 +1218,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = true
                 metrics?.isVisible = false
                 note?.isVisible = false
-                binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
-                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))
+                binding.connectAction.setBackgroundResource(R.drawable.hf_native_progress)
+                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_orange))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.hf_stop_cream, 0, 0, 0)
                 binding.tvVpnStatus.setText(R.string.hotfox_connecting_body)
             }
@@ -1525,6 +1538,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             MmkvManager.decodeAllServerList().size
         }
         val commercialState = CommerceCoordinator.get(this).presentationSnapshot()
+        if (HotfoxUiVisualOverride.subscriptionFixture) {
+            applySubscriptionVisualFixture()
+            return
+        }
         applyCommercialOnboarding(commercialState)
 
         if (subscription == null && CommerceAccessResolver.showPremiumOnboarding(commercialState)) {

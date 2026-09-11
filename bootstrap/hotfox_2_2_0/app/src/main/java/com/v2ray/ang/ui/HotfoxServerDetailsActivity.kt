@@ -119,11 +119,11 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
     /** Presentation-only fixture. Does not write server/subscription stores. */
     private fun renderFixture() {
         binding.tvServerName.text = "Amsterdam"
-        binding.tvServerCountry.text = getString(R.string.hotfox_unknown)
+        binding.tvServerCountry.text = "Нидерланды"
         binding.imgServerFlag.visibility = View.VISIBLE
         binding.imgServerFlag.setImageResource(R.drawable.hf_flag_nl)
-        binding.tvRowStatus.text = getString(R.string.hotfox_unknown)
-        binding.tvRowLoad.text = getString(R.string.hotfox_unknown)
+        binding.tvRowStatus.text = "18 ms"
+        binding.tvRowLoad.text = "12%"
         binding.tvRowRouting.text = HotfoxRoutingStore.load().uiLabel()
         binding.tvRowShadow.setText(
             if (HotfoxShadowStore.isShadowAuto()) R.string.hotfox_onboarding_use_auto else R.string.hotfox_value_off,

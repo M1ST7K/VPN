@@ -65,6 +65,7 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
             HotfoxUiScreenshotScenario.SERVERS -> main(
                 scenario.id,
                 section = MainActivity.SECTION_SERVERS,
+                serversFixture = true,
             )
             HotfoxUiScreenshotScenario.SERVER_DETAILS -> {
                 HotfoxUiVisualOverride.installDebugPresentation(
@@ -77,6 +78,7 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
             HotfoxUiScreenshotScenario.SUBSCRIPTION -> main(
                 scenario.id,
                 section = MainActivity.SECTION_SUBSCRIPTION,
+                subscriptionFixture = true,
             )
             HotfoxUiScreenshotScenario.SETTINGS -> {
                 HotfoxUiVisualOverride.installDebugPresentation(scenarioId = scenario.id)
@@ -90,6 +92,7 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
                 HotfoxUiVisualOverride.installDebugPresentation(
                     scenarioId = scenario.id,
                     appsFixture = true,
+                    referenceApps = HotfoxUiReferenceFixtures.apps(),
                 )
                 Intent(this, PerAppProxyActivity::class.java)
             }
@@ -121,11 +124,16 @@ class HotfoxUiScreenshotHarnessActivity : AppCompatActivity() {
         section: String,
         chrome: String? = null,
         showSheet: Boolean = false,
+        serversFixture: Boolean = false,
+        subscriptionFixture: Boolean = false,
     ): Intent {
         HotfoxUiVisualOverride.installDebugPresentation(
             scenarioId = scenarioId,
             connectionChrome = chrome,
             showAddSheet = showSheet,
+            serversFixture = serversFixture,
+            subscriptionFixture = subscriptionFixture,
+            referenceServers = if (serversFixture) HotfoxUiReferenceFixtures.servers() else emptyList(),
         )
         return Intent(this, MainActivity::class.java)
             .putExtra(MainActivity.EXTRA_SKIP_ONBOARDING, true)

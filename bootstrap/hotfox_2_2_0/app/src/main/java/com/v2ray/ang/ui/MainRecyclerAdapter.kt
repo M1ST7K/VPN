@@ -43,7 +43,14 @@ class MainRecyclerAdapter(
         }
     }
 
-    override fun getItemCount() = HotfoxServerListContract.itemCount(data.size)
+    override fun getItemCount(): Int {
+        val count = if (HotfoxUiVisualOverride.serversFixture) {
+            HotfoxUiVisualOverride.referenceServers.size
+        } else {
+            data.size
+        }
+        return HotfoxServerListContract.itemCount(count)
+    }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder !is MainViewHolder) return
@@ -53,6 +60,10 @@ class MainRecyclerAdapter(
             return
         }
         val dataIndex = position - 1
+        if (HotfoxUiVisualOverride.serversFixture) {
+            bindFixtureRow(holder, dataIndex)
+            return
+        }
         if (dataIndex !in data.indices) return
         val guid = data[dataIndex].guid
         val profile = data[dataIndex].profile
@@ -159,6 +170,26 @@ class MainRecyclerAdapter(
         holder.itemMainBinding.infoContainer.setOnLongClickListener(null)
     }
 
+    private fun bindFixtureRow(holder: MainViewHolder, dataIndex: Int) {
+        val rows = HotfoxUiVisualOverride.referenceServers
+        if (dataIndex !in rows.indices) return
+        val row = rows[dataIndex]
+        holder.itemMainBinding.tvName.text = row.title
+        holder.itemMainBinding.tvStatistics.text = row.country
+        holder.itemMainBinding.ivFlag.visibility = View.VISIBLE
+        holder.itemMainBinding.ivFlag.setImageResource(row.flagRes)
+        holder.itemMainBinding.tvTestResult.text = row.pingLabel
+        holder.itemMainBinding.tvTestResult.setTextColor(
+            ContextCompat.getColor(holder.itemMainBinding.root.context, R.color.hotfox_success_bright),
+        )
+        holder.itemMainBinding.tvType.visibility = View.GONE
+        holder.itemMainBinding.layoutFavorite.visibility = View.INVISIBLE
+        holder.itemMainBinding.layoutMore.visibility = View.GONE
+        holder.itemMainBinding.imgRowChevron.visibility = View.VISIBLE
+        holder.itemMainBinding.infoContainer.setOnClickListener(null)
+        holder.itemMainBinding.infoContainer.setOnLongClickListener(null)
+    }
+
     fun removeServerSub(guid: String, position: Int) {
         val idx = data.indexOfFirst { it.guid == guid }
         if (idx >= 0) {
@@ -184,7 +215,12 @@ class MainRecyclerAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return HotfoxServerListContract.viewType(position, data.size)
+        val count = if (HotfoxUiVisualOverride.serversFixture) {
+            HotfoxUiVisualOverride.referenceServers.size
+        } else {
+            data.size
+        }
+        return HotfoxServerListContract.viewType(position, count)
     }
 
     open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

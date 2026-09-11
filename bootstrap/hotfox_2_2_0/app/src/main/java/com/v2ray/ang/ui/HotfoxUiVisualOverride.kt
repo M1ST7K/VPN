@@ -10,6 +10,19 @@ package com.v2ray.ang.ui
  * traffic, or connection stores.
  */
 object HotfoxUiVisualOverride {
+    data class ReferenceServerRow(
+        val title: String,
+        val country: String,
+        val pingLabel: String,
+        val flagRes: Int,
+    )
+
+    data class ReferenceAppRow(
+        val appName: String,
+        val packageName: String,
+        val selected: Boolean,
+    )
+
     @Volatile
     var scenarioId: String? = null
         private set
@@ -38,6 +51,22 @@ object HotfoxUiVisualOverride {
     var appsFixture: Boolean = false
         private set
 
+    @Volatile
+    var serversFixture: Boolean = false
+        private set
+
+    @Volatile
+    var subscriptionFixture: Boolean = false
+        private set
+
+    @Volatile
+    var referenceServers: List<ReferenceServerRow> = emptyList()
+        private set
+
+    @Volatile
+    var referenceApps: List<ReferenceAppRow> = emptyList()
+        private set
+
     fun installDebugPresentation(
         scenarioId: String?,
         holdSplash: Boolean = false,
@@ -46,6 +75,10 @@ object HotfoxUiVisualOverride {
         showAddSheet: Boolean = false,
         serverDetailsFixture: Boolean = false,
         appsFixture: Boolean = false,
+        serversFixture: Boolean = false,
+        subscriptionFixture: Boolean = false,
+        referenceServers: List<ReferenceServerRow> = emptyList(),
+        referenceApps: List<ReferenceAppRow> = emptyList(),
     ) {
         this.scenarioId = scenarioId
         this.holdSplash = holdSplash
@@ -54,6 +87,10 @@ object HotfoxUiVisualOverride {
         this.showAddSheet = showAddSheet
         this.serverDetailsFixture = serverDetailsFixture
         this.appsFixture = appsFixture
+        this.serversFixture = serversFixture
+        this.subscriptionFixture = subscriptionFixture
+        this.referenceServers = referenceServers
+        this.referenceApps = referenceApps
     }
 
     fun clear() {

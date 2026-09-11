@@ -1,0 +1,7 @@
+threshold=14.0
+pct_alpha_0=78.60791241551756
+pct_alpha_255=20.43693037145568
+pct_partial=0.9551572130267673
+pct_dark_fg_alpha_lt_220=0.9225343335139355
+dark_fg_pixels=253012
+dark_translucent_pixels=14507

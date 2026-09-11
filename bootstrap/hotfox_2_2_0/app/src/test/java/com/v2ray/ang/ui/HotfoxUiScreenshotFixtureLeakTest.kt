@@ -2,6 +2,7 @@ package com.v2ray.ang.ui
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
@@ -16,6 +17,10 @@ class HotfoxUiScreenshotFixtureLeakTest {
         assertFalse(HotfoxUiVisualOverride.showAddSheet)
         assertFalse(HotfoxUiVisualOverride.serverDetailsFixture)
         assertFalse(HotfoxUiVisualOverride.appsFixture)
+        assertFalse(HotfoxUiVisualOverride.serversFixture)
+        assertFalse(HotfoxUiVisualOverride.subscriptionFixture)
+        assertTrue(HotfoxUiVisualOverride.referenceServers.isEmpty())
+        assertTrue(HotfoxUiVisualOverride.referenceApps.isEmpty())
     }
 
     @Test

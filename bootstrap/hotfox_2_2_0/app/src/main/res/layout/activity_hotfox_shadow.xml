@@ -18,16 +18,17 @@
         android:text="@string/hotfox_shadow_title" />
 
     <TextView
-        style="@style/HotFox.Body"
+        style="@style/HotFox.BodySecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:paddingEnd="40dp"
         android:text="@string/hotfox_shadow_body" />
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:layout_marginTop="8dp">
+        android:layout_height="180dp"
+        android:layout_marginTop="12dp">
 
         <ImageView
             android:layout_width="match_parent"
@@ -37,8 +38,8 @@
             android:src="@drawable/hf_native_network_topology" />
 
         <ImageView
-            android:layout_width="144dp"
-            android:layout_height="136dp"
+            android:layout_width="112dp"
+            android:layout_height="104dp"
             android:layout_gravity="center"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
@@ -53,7 +54,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="52dp"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
             android:paddingEnd="16dp">
@@ -82,7 +83,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="52dp"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
             android:paddingEnd="16dp">
@@ -112,10 +113,10 @@
 
     <Button
         android:id="@+id/btn_shadow_keep_auto"
-        style="@style/HotFox.PrimaryButton"
+        style="@style/HotFox.PrimaryCompact"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="24dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_keep_auto" />
 </LinearLayout>
