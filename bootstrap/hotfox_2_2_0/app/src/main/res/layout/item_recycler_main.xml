@@ -20,6 +20,17 @@
         android:paddingTop="10dp"
         android:paddingBottom="10dp">
 
+        <ImageView
+            android:id="@+id/iv_flag"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/hf_globe_orange"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/layout_indicator"
             android:layout_width="0dp"
@@ -68,6 +79,14 @@
             android:textColor="@color/hotfox_editorial_text_dim"
             android:textSize="13sp"
             tools:text="28 ms" />
+
+        <ImageView
+            android:id="@+id/img_row_chevron"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/hf_chevron_muted" />
 
         <LinearLayout
             android:id="@+id/layout_favorite"

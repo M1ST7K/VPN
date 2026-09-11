@@ -58,6 +58,21 @@ class MainRecyclerAdapter(
         val profile = data[dataIndex].profile
         val presentation = HotfoxServerPresentation.fromRemark(profile.remarks)
         holder.itemMainBinding.tvName.text = presentation.title
+        val flag = when (presentation.country) {
+            "Нидерланды" -> R.drawable.hf_flag_nl
+            "Германия" -> R.drawable.hf_flag_de
+            "Франция" -> R.drawable.hf_flag_fr
+            "Великобритания" -> R.drawable.hf_flag_gb
+            "США" -> R.drawable.hf_flag_us
+            "Канада" -> R.drawable.hf_flag_ca
+            else -> 0
+        }
+        if (flag != 0) {
+            holder.itemMainBinding.ivFlag.visibility = View.VISIBLE
+            holder.itemMainBinding.ivFlag.setImageResource(flag)
+        } else {
+            holder.itemMainBinding.ivFlag.visibility = View.GONE
+        }
         holder.itemMainBinding.tvStatistics.text = presentation.country
             ?: profile.description.takeIf { !it.isNullOrBlank() }
             ?: AngConfigManager.generateDescription(profile)
@@ -113,6 +128,7 @@ class MainRecyclerAdapter(
         holder.itemMainBinding.layoutRemove.visibility = View.GONE
         holder.itemMainBinding.layoutMore.visibility = View.GONE
         holder.itemMainBinding.layoutMore.setOnClickListener(null)
+        holder.itemMainBinding.imgRowChevron.visibility = View.VISIBLE
 
         holder.itemMainBinding.infoContainer.setOnClickListener {
             adapterListener?.onSelectServer(guid)
@@ -126,13 +142,16 @@ class MainRecyclerAdapter(
     private fun bindAutoRow(holder: MainViewHolder) {
         val context = holder.itemMainBinding.root.context
         val auto = HotfoxServerSelection.isAutoMode()
-        holder.itemMainBinding.tvName.text = context.getString(R.string.hotfox_auto_server)
+        holder.itemMainBinding.tvName.text = context.getString(R.string.hotfox_servers_best_auto)
         holder.itemMainBinding.tvStatistics.text = context.getString(R.string.hotfox_auto_server_hint)
+        holder.itemMainBinding.ivFlag.visibility = View.VISIBLE
+        holder.itemMainBinding.ivFlag.setImageResource(R.drawable.hf_globe_orange)
         holder.itemMainBinding.tvTestResult.text = if (auto) "●" else ""
         holder.itemMainBinding.tvTestResult.setTextColor(ContextCompat.getColor(context, R.color.hotfox_orange))
         holder.itemMainBinding.tvType.visibility = View.GONE
         holder.itemMainBinding.layoutFavorite.visibility = View.INVISIBLE
         holder.itemMainBinding.layoutMore.visibility = View.GONE
+        holder.itemMainBinding.imgRowChevron.visibility = View.GONE
         holder.itemMainBinding.tvName.alpha = if (auto) 1f else 0.72f
         holder.itemMainBinding.infoContainer.setOnClickListener {
             adapterListener?.onSelectServer(HotfoxServerSelection.AUTO_GUID)

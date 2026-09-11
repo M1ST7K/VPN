@@ -87,6 +87,11 @@ import kotlinx.coroutines.withContext
 class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelectedListener {
     companion object {
         const val EXTRA_SKIP_ONBOARDING = "hotfox_skip_onboarding"
+        const val EXTRA_OPEN_SECTION = "hotfox_open_section"
+        const val SECTION_CONNECTION = "connection"
+        const val SECTION_SERVERS = "servers"
+        const val SECTION_SUBSCRIPTION = "subscription"
+        const val SECTION_SETTINGS = "settings"
     }
 
     private val binding by lazy {
@@ -113,6 +118,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         CONNECTION,
         SERVERS,
         SUBSCRIPTION,
+        SETTINGS,
     }
 
     private enum class ConnectionVisualState {
@@ -195,6 +201,19 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 }.show()
         }
         setupEditorialNavigation()
+        binding.root.findViewById<android.view.View>(R.id.btn_header_settings)?.apply {
+            visibility = android.view.View.VISIBLE
+            setOnClickListener { startActivity(Intent(this@MainActivity, HotfoxSettingsActivity::class.java)) }
+        }
+        binding.root.findViewById<android.view.View>(R.id.row_subscription)?.setOnClickListener {
+            showSection(UiSection.SUBSCRIPTION)
+        }
+        binding.root.findViewById<android.view.View>(R.id.row_shadow)?.setOnClickListener {
+            startActivity(Intent(this, HotfoxShadowActivity::class.java))
+        }
+        binding.root.findViewById<android.view.View>(R.id.layout_connection_note)?.setOnClickListener {
+            HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
+        }
 
         binding.fab.setOnClickListener { handleFabAction() }
         binding.connectAction.setOnClickListener { handleFabAction() }
@@ -203,8 +222,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             showSection(UiSection.SERVERS)
             binding.viewPager.postDelayed({ locateSelectedServer() }, 180L)
         }
-        binding.smartRoutingCard.setOnClickListener { showSmartRoutingDialog() }
         binding.supportButton.setOnClickListener { showAddDialog() }
+        binding.smartRoutingCard.setOnClickListener {
+            startActivity(Intent(this, HotfoxRoutingPrivacyActivity::class.java))
+        }
 
         setupGroupTab()
         setupViewModel()
@@ -214,6 +235,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         refreshSmartRouting()
         runEntranceAnimations()
         refreshCommercialState()
+        when (intent?.getStringExtra(EXTRA_OPEN_SECTION)) {
+            SECTION_SERVERS -> showSection(UiSection.SERVERS)
+            SECTION_SUBSCRIPTION -> showSection(UiSection.SUBSCRIPTION)
+            SECTION_SETTINGS -> startActivity(Intent(this, HotfoxSettingsActivity::class.java))
+        }
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }
@@ -230,9 +256,14 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun setupEditorialNavigation() {
-        binding.navConnection.setOnClickListener { showSection(UiSection.CONNECTION) }
-        binding.navServers.setOnClickListener { showSection(UiSection.SERVERS) }
-        binding.navSubscription.setOnClickListener { showSection(UiSection.SUBSCRIPTION) }
+        HotfoxNavBinder.bind(
+            binding.root,
+            HotfoxNavBinder.Destination.HOME,
+            onHome = { showSection(UiSection.CONNECTION) },
+            onServers = { showSection(UiSection.SERVERS) },
+            onSubscription = { showSection(UiSection.SUBSCRIPTION) },
+            onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
+        )
 
         binding.filterAll.setOnClickListener {
             mainViewModel.setFavoriteOnly(false)
@@ -278,7 +309,25 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
             UiSection.SERVERS -> getString(R.string.hotfox_header_microcopy_servers)
             UiSection.SUBSCRIPTION -> getString(R.string.hotfox_header_microcopy_subscription)
+            UiSection.SETTINGS -> getString(R.string.hotfox_nav_settings)
         }
+        val dest = when (section) {
+            UiSection.CONNECTION -> HotfoxNavBinder.Destination.HOME
+            UiSection.SERVERS -> HotfoxNavBinder.Destination.SERVERS
+            UiSection.SUBSCRIPTION -> HotfoxNavBinder.Destination.SUBSCRIPTION
+            UiSection.SETTINGS -> HotfoxNavBinder.Destination.SETTINGS
+        }
+        val protectedLook = lastVisualState == ConnectionVisualState.CONNECTED && section == UiSection.CONNECTION
+        HotfoxNavBinder.bind(
+            binding.root,
+            dest,
+            onHome = { showSection(UiSection.CONNECTION) },
+            onServers = { showSection(UiSection.SERVERS) },
+            onSubscription = { showSection(UiSection.SUBSCRIPTION) },
+            onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
+            connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
+            connectionActive = !protectedLook && section == UiSection.CONNECTION,
+        )
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
         if (section == UiSection.SUBSCRIPTION) {
             refreshCommercialCatalog()
@@ -751,32 +800,12 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun showAddDialog() {
-        MaterialAlertDialogBuilder(this).setTitle("Добавить подключение")
-            .setItems(arrayOf("HTTPS-подписка", "Из буфера обмена", "QR-код", "Из файла", "Always-on / Kill Switch")) { _, i ->
-                when (i) {
-                    0 -> {
-                        val field = android.widget.EditText(this).apply {
-                            hint = "https://…"; setSingleLine(true)
-                            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI
-                            setPadding(36, 24, 36, 24)
-                        }
-                        MaterialAlertDialogBuilder(this).setTitle("Ссылка подписки").setView(field)
-                            .setPositiveButton("Добавить") { _, _ ->
-                                val value = field.text.toString().trim()
-                                if (value.startsWith("https://", true)) importBatchConfig(value)
-                                else toast("Нужна HTTPS-ссылка")
-                            }.setNegativeButton(android.R.string.cancel, null).show()
-                    }
-                    1 -> importClipboard()
-                    2 -> importQRcode()
-                    3 -> importConfigLocal()
-                    4 -> MaterialAlertDialogBuilder(this).setTitle("Защита при обрыве")
-                        .setMessage("В настройках Android откройте HotFox Proxy и включите «Постоянная VPN» и «Блокировать соединения без VPN». Блокировку обеспечивает Android. Прямые маршруты и исключённые приложения могут стать недоступны.")
-                        .setPositiveButton("Настройки Android") { _, _ -> startActivity(Intent(android.provider.Settings.ACTION_VPN_SETTINGS)) }
-                        .setNegativeButton(android.R.string.cancel, null).show()
-                }
-            }.show()
+        HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
     }
+
+    fun importClipboardFromUi() = importClipboard()
+    fun importQrFromUi() = importQRcode()
+    fun importFileFromUi() = importConfigLocal()
 
     private fun setupBottomNavigation() {
         // Primary navigation is the 3-item editorial bar (Соединение / Серверы / Подписка).
@@ -1016,7 +1045,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             ConnectionUiMapper.Headline.DISCONNECTED -> getString(R.string.hotfox_connect)
         }
         binding.fab.contentDescription = binding.connectAction.text
-        updateStatusText(headlineRes, R.color.hotfox_editorial_text)
+        updateStatusText(
+            headlineRes,
+            if (visual == ConnectionVisualState.CONNECTED) R.color.hf_asset_green else R.color.hf_asset_cream,
+        )
+        applyConnectionChrome(visual, headline)
         if (ConnectionUiMapper.timerShouldRun(session) && headline == ConnectionUiMapper.Headline.CONNECTED) {
             startConnectionClock()
             setTestState(getString(R.string.connection_connected))
@@ -1137,8 +1170,76 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         connectionClockJob?.cancel()
         connectionClockJob = null
         if (reset) {
-            binding.tvVpnStatus.text = "00:00:00"
+            binding.tvVpnStatus.setText(R.string.hotfox_disconnected_body)
         }
+    }
+
+    private fun applyConnectionChrome(
+        visual: ConnectionVisualState,
+        headline: ConnectionUiMapper.Headline,
+    ) {
+        val planet = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_planet)
+        val bust = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_bust)
+        val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
+        val stages = binding.root.findViewById<android.view.View>(R.id.layout_connecting_stages)
+        val metrics = binding.root.findViewById<android.view.View>(R.id.layout_protected_metrics)
+        val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
+        when (visual) {
+            ConnectionVisualState.CONNECTING -> {
+                planet?.isVisible = false
+                bust?.isVisible = true
+                ring?.isVisible = true
+                stages?.isVisible = true
+                metrics?.isVisible = false
+                note?.isVisible = false
+                binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
+                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))
+                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.hf_stop_cream, 0, 0, 0)
+                binding.tvVpnStatus.setText(R.string.hotfox_connecting_body)
+            }
+            ConnectionVisualState.CONNECTED -> {
+                planet?.isVisible = true
+                bust?.isVisible = false
+                ring?.isVisible = false
+                stages?.isVisible = false
+                metrics?.isVisible = true
+                note?.isVisible = false
+                binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
+                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))
+                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+            }
+            else -> {
+                planet?.isVisible = true
+                bust?.isVisible = false
+                ring?.isVisible = false
+                stages?.isVisible = false
+                metrics?.isVisible = false
+                note?.isVisible = true
+                binding.connectAction.setBackgroundResource(R.drawable.hf_native_primary)
+                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
+                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)
+                if (visual == ConnectionVisualState.DISCONNECTED) {
+                    binding.tvVpnStatus.setText(R.string.hotfox_disconnected_body)
+                }
+            }
+        }
+        val protectedLook = visual == ConnectionVisualState.CONNECTED && currentSection == UiSection.CONNECTION
+        HotfoxNavBinder.bind(
+            binding.root,
+            when (currentSection) {
+                UiSection.CONNECTION -> HotfoxNavBinder.Destination.HOME
+                UiSection.SERVERS -> HotfoxNavBinder.Destination.SERVERS
+                UiSection.SUBSCRIPTION -> HotfoxNavBinder.Destination.SUBSCRIPTION
+                UiSection.SETTINGS -> HotfoxNavBinder.Destination.SETTINGS
+            },
+            onHome = { showSection(UiSection.CONNECTION) },
+            onServers = { showSection(UiSection.SERVERS) },
+            onSubscription = { showSection(UiSection.SUBSCRIPTION) },
+            onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
+            connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
+            connectionActive = !protectedLook && currentSection == UiSection.CONNECTION,
+        )
+        headline.let { }
     }
 
     private fun startConnectionAnimation(state: ConnectionVisualState) {

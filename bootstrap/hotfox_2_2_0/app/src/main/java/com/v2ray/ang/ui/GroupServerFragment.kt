@@ -54,6 +54,12 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
             ownerActivity.restartV2Ray()
         }
     }
+    private val detailsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val guid = result.data?.getStringExtra(HotfoxServerDetailsActivity.EXTRA_GUID)
+        if (result.resultCode == android.app.Activity.RESULT_OK && !guid.isNullOrBlank()) {
+            setSelectServer(guid)
+        }
+    }
 
     companion object {
         private const val ARG_SUB_ID = "subscriptionId"
@@ -274,7 +280,14 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
         }
 
         override fun onSelectServer(guid: String) {
-            setSelectServer(guid)
+            if (guid == HotfoxServerSelection.AUTO_GUID) {
+                setSelectServer(guid)
+                return
+            }
+            detailsLauncher.launch(
+                Intent(ownerActivity, HotfoxServerDetailsActivity::class.java)
+                    .putExtra(HotfoxServerDetailsActivity.EXTRA_GUID, guid),
+            )
         }
 
         override fun onShare(guid: String, profile: ProfileItem, position: Int, more: Boolean) {
