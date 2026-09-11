@@ -1,0 +1,746 @@
+HOTFOX — ART DIRECTOR REFINEMENT MASTER V5
+STRICT 18-SCREEN VISUAL POLISH / REFERENCE-STATE FIXTURES / NO TEMPLATE UI
+
+READ EVERYTHING BEFORE EDITING.
+
+======================================================================
+0. STARTING POINT
+======================================================================
+
+Repository: M1ST7K/VPN
+Required branch: cursor/hotfox-ui-pixel-lock-rebuild
+V4 reviewed head: 81567d59071612c2fc5772d0bbd94f500081ddb6
+
+V4 is engineering-valid but visually NOT ACCEPTED.
+
+Confirmed from V4:
+- 18/18 emulator captures exist;
+- 18/18 comparisons exist;
+- 0/18 visual/pixel PASS;
+- debug-only screenshot harness exists;
+- build PASS;
+- tests 365/365 PASS;
+- static check PASS;
+- production CONNECTED truth preserved;
+- RELEASE READY = NO;
+- physical VPN E2E = NO.
+
+Do NOT throw away the working V4 harness.
+Do NOT do another architecture rewrite.
+This is an art-direction + geometry + presentation-state refinement pass.
+
+First read:
+- verification/ui_rebuild/HOTFOX_ART_DIRECTOR_REVIEW_FAIL_V5.md
+- verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V4.md
+- design/HOTFOX_CURSOR_VISUAL_REFINEMENT_MASTER_V4.txt
+- approved references and reference_v4/compare_v4 evidence.
+
+======================================================================
+1. OWNER VISUAL LAW — ABSOLUTE
+======================================================================
+
+HotFox must feel:
+- premium 2026;
+- dark editorial;
+- warm almost-black violet background;
+- warm cream typography;
+- restrained orange;
+- success green only for actual success state / debug success fixture;
+- typography-first;
+- controlled negative space;
+- thin separators;
+- minimal container chrome;
+- coherent icon family;
+- clean intentional composition.
+
+Forbidden:
+- generic Material dashboard;
+- generic Android settings clone;
+- huge card stacks;
+- glass;
+- neon;
+- cyberpunk;
+- gamer UI;
+- random glow;
+- full-screen screenshot bitmap;
+- baked text/buttons/lists;
+- fake release data;
+- visible image rectangles/mattes;
+- decorative planet;
+- planetary arc;
+- eclipse;
+- celestial horizon;
+- orbital/solar-system visual language.
+
+IMPORTANT V5 OWNER OVERRIDE:
+The “no orbit” rule now applies to ANY illustration that visually reads as a planetary/orbital system, including the current AUTO and Ready compositions.
+
+A routing/network diagram may use curves, but:
+- no closed orbit ellipse around a center;
+- no multiple concentric orbit rings;
+- no “planet with satellites” composition;
+- no solar-system/radar feel.
+
+Screen 03 must read “smart route selection/network intelligence”, not “planet”.
+Screen 04 must read “ready/completed”, not “radar/planet”.
+
+======================================================================
+2. PRODUCTION TRUTH VS VISUAL QA STATE
+======================================================================
+
+V4 used current empty/unavailable production states on screens that must be visually compared to populated approved boards.
+
+Production behavior MUST remain truthful.
+Visual reference harness SHOULD render the approved reference state.
+
+Define two concepts:
+
+A. PRODUCTION STATE
+- real imported servers only;
+- real subscription/entitlement;
+- real installed apps;
+- real VPN readiness;
+- real traffic;
+- real latency;
+- real Android Always-on status.
+
+B. DEBUG VISUAL REFERENCE STATE
+- deterministic data under `src/debug` only;
+- exists only for screenshot QA;
+- must match visual state shown by approved board;
+- MUST NOT write to release stores;
+- MUST NOT call VPN connection state setters;
+- MUST NOT leak secrets;
+- MUST NOT compile into release source set.
+
+Use debug fixtures for:
+01 splash hold
+02 onboarding connect
+03 AUTO
+04 ready
+05 disconnected
+06 connecting visual
+07 protected visual
+08 sheet
+09 HTTPS form
+10 reference server list / AUTO state
+11 reference server details
+12 reference subscription state
+13 settings
+14 reference routing selection
+15 fixture apps/rules
+16 autopilot
+17 shadow
+18 always-on
+
+For screens 10/11/12/15, fixture data should reproduce the same TYPE, COUNT and visual density as the approved board, while values can be safe deterministic placeholders if exact board text is not operationally meaningful.
+
+Do not show fake data in production APK.
+
+Add/reinforce tests proving fixture classes/resources are debug-only.
+
+======================================================================
+3. P0 — FIX FOX ARTWORK MATTE
+======================================================================
+
+Current `hf_fox_bust` has an opaque rectangular dark canvas that is visibly different from app background on:
+01/02/05/07/09.
+
+This is unacceptable.
+
+Create a clean transparent fox asset while preserving the same fox identity.
+
+DO NOT repeat the old broken alpha extraction that made dark fur semi-transparent.
+
+Required alpha algorithm / manual cleanup:
+1. Load source fox art.
+2. Sample background color distribution from outer border/corners.
+3. Classify connected background from image edges using color distance, not brightness alone.
+4. Preserve all non-background connected foreground.
+5. Morphologically close/fill the foreground mask so dark interior fur is retained.
+6. Alpha:
+   - outside silhouette = 0;
+   - interior = 255 or near 255;
+   - only outer anti-aliased contour may use partial alpha;
+   - feather width max ~1–2 px at target density, scaled proportionally.
+7. No internal checkerboard visibility.
+8. No rectangular matte.
+9. No planet/arc.
+10. No baked UI.
+
+Produce previews:
+verification/ui_rebuild/v5_assets/fox_checkerboard.png
+verification/ui_rebuild/v5_assets/fox_hotfox_bg.png
+verification/ui_rebuild/v5_assets/fox_alpha_diagnostic.png
+
+Alpha diagnostic must report:
+- percent alpha=0;
+- percent alpha=255;
+- percent 1..254;
+- dark foreground pixels alpha<220.
+
+Reject if dark fox body is materially translucent.
+
+Resource:
+prefer `hf_fox_bust_transparent` or an equivalent clear name.
+
+Replace all production and debug visual references to opaque fox bust where the matte is visible.
+
+If exact clean extraction is impossible from flattened source:
+- document the limitation;
+- continue all other V5 work;
+- do NOT silently invent a new fox identity.
+
+======================================================================
+4. TYPOGRAPHY SYSTEM V5
+======================================================================
+
+Do not rely on one global ScreenTitle.
+
+Build a measured type matrix from normalized references:
+verification/ui_rebuild/TYPOGRAPHY_MATRIX_V5.md
+
+For each 01–18 record:
+- title style;
+- size sp;
+- weight;
+- line height;
+- max width;
+- desired line break;
+- body size;
+- body line height;
+- eyebrow;
+- row title;
+- row caption;
+- runtime value;
+- nav label.
+
+Use native Android text.
+
+Rules:
+- warm cream, not pure white;
+- muted text must remain readable;
+- avoid huge title + huge body combination;
+- do not shrink filters to illegibility;
+- line breaks must be intentional;
+- no accidental ellipsis on primary information;
+- no awkward wrapping caused only by bad width allocation;
+- optical baseline alignment > mathematical centering.
+
+Shared style families may include compact/regular/display variants, but only after the matrix is measured.
+
+======================================================================
+5. SPACING / GRID SYSTEM V5
+======================================================================
+
+Create:
+verification/ui_rebuild/GEOMETRY_MATRIX_V5.md
+
+For every screen measure:
+- content left/right inset;
+- header top;
+- wordmark baseline;
+- title top/bottom;
+- body gap;
+- artwork bounding box;
+- CTA bounds;
+- card/group bounds;
+- nav bounds;
+- bottom safe space.
+
+Do not use “20dp everywhere” as the design method.
+
+Establish a base rhythm, e.g. 4/8dp, but exact reference anchors win.
+
+Negative space must be intentional:
+- if lower 40% is blank, prove reference also uses it or rebalance;
+- no screen may look like content failed to load unless that is the intended product state.
+
+======================================================================
+6. CTA SYSTEM — STOP USING ONE BUTTON EVERYWHERE
+======================================================================
+
+Audit every primary/secondary/disabled CTA.
+
+Define at least:
+- PrimaryFull
+- PrimaryCompact
+- SecondaryQuiet
+- TextAction
+- DisabledPrimary
+- ProgressPrimary
+
+All remain real native clickable/focusable controls where applicable.
+
+Visual rules:
+- orange is rare;
+- not every screen needs full-width orange;
+- visible height can be 48–56dp based on screen;
+- touch target min 48dp;
+- radius measured from reference, not always max-pill;
+- arrow size smaller and optically centered;
+- text baseline centered;
+- disabled state readable;
+- progress state clear.
+
+Specific:
+02: onboarding primary may stay prominent but refine width/radius.
+03: AUTO primary should not look identical to 02 if reference differs.
+04: Continue action balanced with permission note.
+05: Connect strong, but not comically dominant.
+09: Add/import action task-focused.
+14/15/16/17/18: subpage actions should normally be visually quieter than onboarding/home.
+
+======================================================================
+7. HEADER / CHROME SYSTEM
+======================================================================
+
+Implement exact header variants:
+- root: HotFox + optional gear/search;
+- subpage: back + HotFox;
+- splash: brand-only;
+- no-header where reference says.
+
+Measure:
+- visible wordmark size;
+- visible back/gear size;
+- 48dp semantic touch target;
+- title offset below header.
+
+Do not render a 48dp icon simply because touch target is 48dp.
+
+System bars:
+- keep light icons on all dark screens;
+- background continuous;
+- no status/nav bar seam.
+
+Bottom nav:
+- exact screen presence only;
+- improve inactive contrast;
+- reduce icon weight where needed;
+- active orange precise;
+- labels legible;
+- align icon optical centers;
+- no content collision.
+
+======================================================================
+8. ICON OPTICAL PASS
+======================================================================
+
+Create:
+verification/ui_rebuild/ICON_OPTICAL_AUDIT_V5.md
+
+Audit visible sizes for:
+gear, home, servers, crown, settings, back, lock, shield, bolt, globe/network, DNS, IPv6, info, chevrons, arrows.
+
+For each:
+- nominal dp;
+- optical correction if required;
+- stroke impression;
+- alignment.
+
+Do not alter semantic icon meaning.
+Do not introduce mixed icon libraries.
+
+======================================================================
+9. SCREEN-SPECIFIC EXECUTION
+======================================================================
+
+SCREEN 01 — SPLASH
+- transparent fox only;
+- no matte rectangle;
+- no celestial imagery;
+- rebalance hero with wordmark;
+- loading line subtle and aligned;
+- calm premium entrance;
+- debug hold only, no production fake delay.
+
+SCREEN 02 — ONBOARD CONNECT
+- transparent fox;
+- art no longer dominates entire screen;
+- title/body stronger than V4 tiny copy but calmer than V3 giant copy;
+- deliberate line breaks;
+- primary and secondary action spacing;
+- no generic template feel.
+
+SCREEN 03 — AUTO
+- REMOVE current solar-system/orbit composition.
+- Do not use `hf_auto_orbits` if it reads as closed orbital rings.
+- Replace with intelligent routing visual:
+  central AUTO/router/network hub,
+  asymmetrical nodes,
+  route candidates,
+  one selected path,
+  no globe-as-planet surrounded by rings.
+- If a globe is retained as icon, it is a flat network icon only.
+- rebalance lower whitespace.
+- exact title line break.
+
+SCREEN 04 — READY
+- remove multiple concentric orbital/radar rings;
+- keep server/check completion symbol;
+- use minimal completion geometry;
+- title/body/art/note/CTA form one vertical story;
+- no celestial/radar composition.
+
+SCREEN 05 — DISCONNECTED
+- transparent fox;
+- title smaller/lighter than V4;
+- body more subordinate;
+- hero height reduced and integrated;
+- Connect CTA less oversized;
+- lighten row group: lower border contrast, finer separators, better value alignment, less container weight;
+- Smart row subtitle readable;
+- replace large secondary info card with quieter inline notice or lighter surface if reference allows;
+- gear visually 20–24dp within 48dp hit target;
+- nav optically lighter.
+
+SCREEN 06 — CONNECTING
+- connection progress is the hero;
+- simplify background controls;
+- connection ring may be circular because it is literal progress, but must NOT look like orbit/planet;
+- clear stage typography;
+- distinguish running/complete/pending without noisy color;
+- ProgressPrimary communicates running state;
+- preserve cancellation semantics if supported.
+
+SCREEN 07 — PROTECTED
+- transparent fox;
+- calm success hierarchy;
+- green only on success title/indicator;
+- transfer metrics legible, not tiny;
+- route path legible;
+- reduce density and card noise;
+- debug visual fixture only for protected presentation;
+- production CONNECTED gate untouched.
+
+SCREEN 08 — ADD CONNECTION SHEET
+- reduce oversized title;
+- reduce row height and icon size;
+- target ~56–64dp visible row height unless exact reference differs;
+- 48dp minimum hit targets;
+- close glyph smaller;
+- handle subtle;
+- scrim lighter if reference supports;
+- maintain visible live home context;
+- preserve Back/drag/accessibility.
+
+SCREEN 09 — HTTPS
+- transparent fox or omit art if exact reference does not require;
+- form first;
+- URL field correct focus/error/paste semantics;
+- spacing compact;
+- CTA less generic;
+- no secrets in fixture or screenshots.
+
+SCREEN 10 — SERVERS
+- DEBUG VISUAL FIXTURE MUST POPULATE reference-like server rows.
+- Production remains truthful.
+- filters readable;
+- selected filter intentional;
+- AUTO/recommended row must not truncate primary label;
+- flags/ping/value hierarchy per reference;
+- no dead half-screen;
+- do not fake production catalog.
+
+SCREEN 11 — SERVER DETAILS
+- debug fixture with safe deterministic reference-like values;
+- right values align;
+- status/load/routing/shadow/auto rows clear;
+- no tiny gray values;
+- disabled/selected CTA readable;
+- no private URLs/config secrets.
+
+SCREEN 12 — SUBSCRIPTION
+- DEBUG reference state matches approved board presentation.
+- Production unavailable state remains truthful.
+- if reference shows active entitlement, debug fixture may show it.
+- do not modify production entitlement store.
+- no giant dead zone;
+- plan/status/actions hierarchy premium;
+- legal copy readable;
+- disabled commerce state separately polished.
+
+SCREEN 13 — SETTINGS
+- V4 removed cards but became too raw/sparse.
+- Keep content-over-containers.
+- Add subtle structure: thin separators, grouped spacing, compact row rhythm.
+- Reduce icon visual size.
+- Reduce header/title/body vertical footprint.
+- Strengthen section eyebrows.
+- Align chevrons.
+- bottom nav less dominant.
+- no scrollbar/clipping.
+
+SCREEN 14 — SMART ROUTING
+- group controls by function;
+- no tiny cluster in huge empty screen;
+- selected mode clear;
+- native LAN switch refined;
+- CTA contextual, not giant;
+- debug fixture may choose exact reference state;
+- production routing logic untouched.
+
+SCREEN 15 — APPS & RULES
+- DEBUG fixture MUST contain enough apps/rules to reproduce reference density.
+- production list still real installed apps.
+- segmented control/search refined;
+- rows use actual native semantics;
+- CTA connected to content, not floating alone at bottom;
+- no fixture leakage.
+
+SCREEN 16 — AUTOPILOT
+- reduce dead space;
+- switch optically smaller;
+- clarify rule hierarchy;
+- Wi-Fi/mobile/pause rows consistent;
+- CTA closer to decision flow;
+- persisted store untouched.
+
+SCREEN 17 — SHADOW
+- redraw topology with intentional asymmetrical routing paths;
+- no line should visually stab through the shield;
+- avoid arbitrary starburst;
+- no orbital ellipse;
+- nodes placed with purpose;
+- shield stroke thinner/more elegant;
+- body text narrower/smaller;
+- row grouping subtle;
+- CTA compact/quieter;
+- reduce lower dead zone.
+
+SCREEN 18 — ALWAYS-ON
+- rebalance shield/rows/CTA;
+- right-side status values readable;
+- CTA less dominant;
+- exact reference decides nav;
+- production status remains truthful;
+- debug fixture may render reference visual state without changing Android real state.
+
+======================================================================
+10. REFERENCE STATE MANIFEST
+======================================================================
+
+Create:
+verification/ui_rebuild/REFERENCE_STATE_MANIFEST_V5.json
+
+For each screen:
+- id;
+- reference file;
+- expected visual state;
+- production state required? yes/no;
+- debug fixture required? yes/no;
+- fixture fields and safe values;
+- forbidden fake production writes;
+- notes.
+
+This manifest must explain exactly why a debug state exists.
+
+======================================================================
+11. ASSET QA
+======================================================================
+
+Create:
+verification/ui_rebuild/ASSET_VISUAL_QA_V5.md
+
+Audit:
+- transparent fox alpha;
+- artwork bounds;
+- no matte;
+- no scaling distortion;
+- no forbidden orbits;
+- icon optical consistency;
+- correct density resources.
+
+No screenshot-derived large rectangle assets.
+
+======================================================================
+12. BUILD / CAPTURE LOOP
+======================================================================
+
+Do not batch all changes blindly.
+
+Cycle A:
+- fox alpha;
+- shared typography;
+- shared header/nav;
+- 01/02/05/07/09.
+Build → test → capture → compare.
+
+Cycle B:
+- 03/04 illustration redesign;
+- 06 connection/protected hierarchy.
+Build → capture → compare.
+
+Cycle C:
+- 08 sheet;
+- 10/11/12 reference-state fixtures;
+- 13 settings.
+Build → capture → compare.
+
+Cycle D:
+- 14/15/16;
+- fixture apps/routing state.
+Build → capture → compare.
+
+Cycle E:
+- 17/18;
+- final global polish.
+Then full 18/18 run.
+
+======================================================================
+13. VISUAL COMPARISON V5
+======================================================================
+
+Preserve V4 evidence.
+
+Write:
+verification/ui_rebuild/actual_v5/01.png ... 18.png
+verification/ui_rebuild/compare_v5/side_by_side/01.png ... 18.png
+verification/ui_rebuild/compare_v5/overlay/01.png ... 18.png
+verification/ui_rebuild/compare_v5/diff/01.png ... 18.png
+verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V5.csv
+
+For owner-overridden celestial removals, exact pixel equality to old board is impossible and not required.
+Mark those regions as OWNER_OVERRIDE.
+Geometry outside overridden regions still must be measured.
+
+======================================================================
+14. MANUAL ART-DIRECTOR SCORE
+======================================================================
+
+For each screen score 0–5:
+- composition;
+- hierarchy;
+- typography;
+- spacing;
+- asset integration;
+- controls;
+- chrome;
+- polish.
+
+Create:
+verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V5.csv
+
+Pass requires:
+- no category below 4;
+- average >= 4.3;
+- zero P0 defects;
+- screenshot exists;
+- comparison exists.
+
+Do not self-award 5 without evidence notes.
+
+======================================================================
+15. ENGINEERING GATES
+======================================================================
+
+Required:
+- reconstruct PASS;
+- :app:assemblePlaystoreDebug PASS;
+- :app:testPlaystoreDebugUnitTest PASS;
+- static_check_2_2_0.py PASS;
+- lint if environment supports;
+- screenshot fixture leak test PASS.
+
+Do not modify:
+VpnService truth,
+HEV/tun2socks,
+Xray readiness,
+DNS/IPv6 fail-closed,
+subscription security,
+payment truth,
+server truth,
+production traffic,
+production latency,
+CONNECTED gate.
+
+======================================================================
+16. STATIC RULES
+======================================================================
+
+Static checks should fail production if:
+- `hf_fox_planet` referenced;
+- `hf_shadow_orbits` referenced;
+- `hf_auto_orbits` remains used after V5 if it still looks solar-system-like;
+- debug fixture classes imported by src/main;
+- screenshot reference images imported to production res;
+- fixture strings/servers/apps leak into release source;
+- opaque `hf_fox_bust` remains referenced on matte-visible screens after transparent replacement.
+
+Archived source assets may remain in design kit. Zero production references is sufficient.
+
+======================================================================
+17. FINAL REPORT
+======================================================================
+
+Create:
+verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V5.md
+
+Must include:
+- branch/head;
+- changes by screen;
+- transparent fox alpha stats;
+- AUTO/Ready no-orbit proof;
+- reference-state fixture manifest status;
+- build/test/static/lint;
+- 18/18 captures;
+- 18/18 comparisons;
+- per-screen art-director score;
+- unresolved gaps;
+- production truth unchanged;
+- RELEASE READY = NO unless separate release gate truly executed;
+- physical device VPN E2E status.
+
+Generate one V5 contact sheet from actual_v5.
+
+======================================================================
+18. STOP CONDITIONS
+======================================================================
+
+Do NOT stop because:
+- production has no servers;
+- backend subscription unavailable;
+- no installed apps in emulator;
+- splash advances;
+- protected cannot be real on test environment.
+
+Those are solved by debug-only visual fixtures.
+
+Hard-stop only for:
+- corrupted/missing approved source;
+- impossible build environment after documented repair attempts;
+- change would require weakening production security truth;
+- fox transparent extraction genuinely cannot preserve identity and owner needs layered source.
+
+If fox extraction blocks, continue all other V5 work and report the artwork blocker separately.
+
+======================================================================
+19. COMMIT STRATEGY
+======================================================================
+
+Use auditable commits:
+1. ui(v5): integrate transparent fox and refine shared typography/chrome
+2. ui(v5): redesign AUTO and Ready without orbital language
+3. ui(v5): refine home connection states and add sheet
+4. test(v5): add reference-state server/subscription/app fixtures
+5. ui(v5): refine settings routing apps autopilot
+6. ui(v5): refine shadow and always-on
+7. qa(v5): add 18-screen captures comparisons and art-director scores
+
+Do NOT merge.
+
+======================================================================
+20. START NOW
+======================================================================
+
+1. Confirm branch/head/status.
+2. Read the V5 review.
+3. Inventory current opaque fox usage.
+4. Build the transparent fox asset with diagnostic evidence.
+5. Replace AUTO/Ready orbital compositions.
+6. Implement reference-state fixtures.
+7. Execute screen groups and capture after each group.
+8. Finish with 18/18 V5 evidence.
+9. Do not claim pixel-perfect unless it truly passes.
+10. Do not claim RELEASE READY.
