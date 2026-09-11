@@ -1,0 +1,384 @@
+HOTFOX V5.1 — RECOVERY + FIXTURE CONTAINMENT + EVIDENCE-FIRST VISUAL QA
+
+You are repairing the V5 pass on `cursor/hotfox-ui-pixel-lock-rebuild`.
+Do not merge. Do not claim RELEASE READY.
+
+START BY READING:
+- `verification/ui_rebuild/HOTFOX_V5_1_CORRECTIVE_AUDIT.md`
+- `.cursor/rules/27-hotfox-v51-containment-and-capture.mdc`
+- `verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V5.md`
+- `design/HOTFOX_CURSOR_ART_DIRECTOR_REFINEMENT_V5.txt`
+
+CURRENT PROBLEM
+
+The V5 code changed major UI behavior/presentation but produced 0/18 V5 screenshots because the old AVD stopped booting. Worse, the debug reference-state implementation leaked fixture-specific state/data/rendering into `src/main` via `HotfoxUiVisualOverride`, fixture branches in production classes, and hard-coded fake values in production source.
+
+This is now a P0 containment task before any more visual experimentation.
+
+======================================================================
+1. BASELINE / STATUS
+======================================================================
+
+Print and record:
+- current branch
+- current HEAD
+- git status
+- last 10 commits
+
+Expected branch: `cursor/hotfox-ui-pixel-lock-rebuild`.
+
+Preserve V4 evidence and all existing original references.
+Do not rewrite or delete V4 screenshots/comparisons.
+Do not delete the transparent fox candidate or new no-orbit vectors unless evidence proves they are bad.
+
+======================================================================
+2. FIXTURE LEAK — MUST FAIL FIRST
+======================================================================
+
+Run:
+`python3 verification/ui_rebuild/check_no_fixture_leak_v51.py`
+
+It is EXPECTED to fail on current V5 code.
+Record the failure in:
+`verification/ui_rebuild/V5_1_FIXTURE_LEAK_BEFORE.txt`
+
+Do not weaken the checker to make it pass.
+Do not rename the same leak to evade the checker.
+
+Known current violations include production source references to:
+- HotfoxUiVisualOverride
+- serverDetailsFixture
+- serversFixture
+- subscriptionFixture
+- appsFixture
+- referenceServers
+- referenceApps
+- renderFixture / applySubscriptionVisualFixture
+- hard-coded visual fixture values such as 18 ms / 12%
+
+======================================================================
+3. REQUIRED ARCHITECTURE FOR DEBUG VISUAL STATES
+======================================================================
+
+Goal: reference-state data and screenshot-only rendering behavior must physically live under `src/debug`.
+
+Production source may contain a GENERIC presentation seam only if required, but it must:
+- have no fake values;
+- have no screenshot-specific names;
+- have no fixture state singleton;
+- have no server/app/subscription fixture DTOs;
+- default to real production models;
+- not mutate VPN/security stores;
+- not alter production behavior when debug harness is absent.
+
+Preferred patterns, in order:
+
+A. Debug-specific Activity/subclass/presenter that reuses production views/components but supplies in-memory presentation models.
+B. Generic production presenter interface returning real production presentation data, with a debug implementation wired only in debug source set.
+C. A debug-only overlay/controller that locates existing views after production layout inflation and paints visual-only values without touching stores, provided production source needs no fixture branches.
+
+Avoid:
+- a mutable fixture singleton in src/main;
+- production `if (fixture)` branches;
+- fake values compiled into release;
+- BuildConfig.DEBUG scattered through production as the primary architecture.
+
+A small generic debug hook guarded by BuildConfig.DEBUG may be used only as a temporary migration bridge, but final V5.1 should remove fixture-specific names/data from main source and pass the strict checker.
+
+======================================================================
+4. REMOVE CURRENT LEAKS
+======================================================================
+
+Refactor all current fixture-specific main-source usage, including at least:
+- `HotfoxUiVisualOverride.kt` under src/main;
+- `MainActivity` fixture presentation branches;
+- `HotfoxServerDetailsActivity.renderFixture()` and hard-coded Amsterdam/18 ms/12%;
+- `GroupServerFragment` fixture branch;
+- `MainRecyclerAdapter` fixture rows;
+- `PerAppProxyActivity` fixture apps;
+- subscription fixture rendering in MainActivity.
+
+The debug harness may keep safe deterministic values, but only under `src/debug`.
+
+If shared DTOs are needed, use generic names such as `ServerRowPresentation` / `AppRowPresentation` only when they are legitimate production presentation models too. Do not create fake-only DTOs in main.
+
+======================================================================
+5. HARDEN LEAK TESTS
+======================================================================
+
+The old `HotfoxUiScreenshotFixtureLeakTest` is insufficient because it only checks for `HotfoxUiScreenshotHarness` and `HotfoxUiScreenshotScenario` in main source while allowing the actual override singleton to live there.
+
+Rewrite/add tests so release/main source rejects:
+- fixture-specific symbols;
+- screenshot-only fake values;
+- debug fixture DTOs;
+- imports/references to debug harness packages;
+- debug-only activity names.
+
+Run both:
+`python3 verification/ui_rebuild/check_no_fixture_leak_v51.py`
+`python3 verification/static_check_2_2_0.py`
+
+Both must PASS after refactor.
+
+Create:
+`verification/ui_rebuild/V5_1_FIXTURE_LEAK_AFTER.txt`
+with command output and zero hits.
+
+======================================================================
+6. DO NOT KEEP CODING BLINDLY — RESTORE A RENDERER
+======================================================================
+
+Before more broad typography/layout changes, restore screenshot capability.
+
+The previous agent reused `hotfox34` repeatedly. Do a CLEAN environment recovery:
+
+1. Stop all old processes:
+   - adb
+   - emulator
+   - qemu-system-x86_64
+   - netsimd
+2. Remove stale AVD lock files.
+3. `adb kill-server` then `adb start-server`.
+4. Verify `/dev/kvm` access and emulator binary version.
+5. DO NOT reuse the old AVD as the primary next attempt.
+6. Create a new AVD name, e.g. `HotFox_V51_API34_Clean`, from a clean API 34 x86_64 image.
+7. Boot without snapshot load/save.
+8. Wait for both:
+   - `adb devices` -> device
+   - `getprop sys.boot_completed` -> 1
+9. If hardware acceleration may be the cause, run one diagnostic boot with `-accel off` to separate KVM problems from image/emulator problems. Do not use that as the final performance configuration if it is unusably slow.
+10. If the system image itself is suspect, recreate/reinstall the API 34 image in the agent environment and make another NEW AVD.
+
+Do not declare environment-wide hard blocker just because the old AVD still hangs.
+
+======================================================================
+7. CLEAN CI/SECONDARY RUNNER FALLBACK
+======================================================================
+
+If a newly created local API 34 AVD still cannot reach adb after reasonable repair:
+
+Use a separate clean Android emulator runner for VISUAL QA only.
+
+Requirements:
+- no production secrets;
+- no private subscription URL;
+- debug fixture APK only;
+- API 34 target;
+- fixed locale/density/font scale/night mode;
+- action dependencies pinned to a stable exact revision where possible;
+- minimal GitHub Actions permissions;
+- screenshots uploaded as workflow artifacts;
+- no deployment/signing/release steps.
+
+A CI screenshot runner is preferable to continuing to modify UI without seeing it.
+
+Document whichever environment succeeds in:
+`verification/ui_rebuild/V5_1_CAPTURE_ENVIRONMENT.md`.
+
+======================================================================
+8. SMOKE CAPTURE BEFORE MORE VISUAL REWORK
+======================================================================
+
+Once adb works, capture CURRENT V5.1 code before more design changes.
+
+Mandatory smoke screens:
+01 Splash
+03 AUTO
+04 Ready
+05 Disconnected
+10 Servers reference state
+12 Subscription reference state
+15 Apps & Rules reference state
+17 Shadow
+
+Store under:
+`verification/ui_rebuild/actual_v5_1_smoke/`
+
+Create a smoke contact sheet.
+
+Do not proceed to another large design rewrite until these eight screens are visually inspected.
+
+======================================================================
+9. TRANSPARENT FOX — VERIFY IN APP
+======================================================================
+
+Keep the current transparent fox candidate only if screenshots prove:
+- no rectangular matte;
+- no holes through dark fur;
+- no visible checkerboard-through-body artifact;
+- no broken ear contour;
+- no neck notch visible at app scale;
+- same fox identity.
+
+Check actual screens 01/02/05/07/09.
+
+If contour damage exists, repair the alpha mask; do not regenerate a different fox.
+
+Update:
+`verification/ui_rebuild/ASSET_VISUAL_QA_V5_1.md`.
+
+======================================================================
+10. AUTO / READY — VERIFY, DON'T ASSUME
+======================================================================
+
+The new V5 vectors are not accepted until rendered.
+
+Screen 03:
+- must read as routing intelligence/topology;
+- no solar-system composition;
+- no closed orbital rings;
+- no globe treated as planet.
+
+Screen 04:
+- must read as ready/completed;
+- no concentric radar/orbit rings;
+- server/check remains clear.
+
+If smoke captures reveal generic/ugly vectors, refine them from evidence.
+
+======================================================================
+11. REFERENCE-STATE DATA MUST FOLLOW THE BOARD
+======================================================================
+
+Do not invent arbitrary row counts just to fill space.
+
+For screens 10/11/12/15:
+- inspect the approved reference;
+- match type/order/density of visible rows;
+- use safe deterministic values only in debug source;
+- never copy secrets;
+- never write fake values to production stores.
+
+Update `REFERENCE_STATE_MANIFEST_V5.json` to V5.1 if fixture shape changes.
+
+======================================================================
+12. ONLY AFTER SMOKE PASS — CONTINUE VISUAL REFINEMENT
+======================================================================
+
+Then continue the V5 art-direction goals:
+- typography matrix;
+- per-screen geometry;
+- contextual CTA hierarchy;
+- header/nav optical sizing;
+- Settings balance between raw list and heavy cards;
+- compact Add Connection sheet;
+- Shadow topology that supports rather than crosses the shield;
+- intentional negative space.
+
+No giant global restyle.
+Fix specific visual evidence.
+
+======================================================================
+13. FULL V5.1 EVIDENCE
+======================================================================
+
+Create new, separate evidence:
+- `verification/ui_rebuild/actual_v5_1/01.png` ... `18.png`
+- `verification/ui_rebuild/compare_v5_1/side_by_side/01.png` ... `18.png`
+- `verification/ui_rebuild/compare_v5_1/overlay/01.png` ... `18.png`
+- `verification/ui_rebuild/compare_v5_1/diff/01.png` ... `18.png`
+- `verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V5_1.csv`
+- `verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V5_1.csv`
+
+Do not overwrite V4 or V5 reports.
+
+Every screen requires:
+- actual screenshot;
+- comparison;
+- composition review;
+- typography review;
+- spacing review;
+- asset integration review;
+- controls/chrome review;
+- explicit PASS/FAIL.
+
+======================================================================
+14. BUILD / TEST GATES
+======================================================================
+
+After fixture containment and after final visual changes run:
+- reconstruct/bootstrap checks;
+- `:app:assemblePlaystoreDebug`;
+- `:app:testPlaystoreDebugUnitTest`;
+- `python3 verification/static_check_2_2_0.py`;
+- `python3 verification/ui_rebuild/check_no_fixture_leak_v51.py`;
+- Android lint if environment permits.
+
+Also inspect release/main source manually for fake fixture values.
+
+======================================================================
+15. PROTECTED TECHNICAL CORE
+======================================================================
+
+Do not change:
+Android apps -> VpnService/TUN -> HEV/tun2socks -> local Xray SOCKS -> Xray outbound -> VPN server -> Internet.
+
+Do not weaken:
+- readiness gate;
+- DNS no-bypass;
+- IPv6 fail-closed;
+- loop prevention;
+- stale async protection;
+- real latency/traffic;
+- subscription/entitlement truth;
+- payment truth;
+- Shadow security semantics;
+- Autopilot behavior.
+
+Production `CONNECTED/Защищено` only after real readiness.
+
+======================================================================
+16. REQUIRED FINAL REPORT
+======================================================================
+
+Create:
+`verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V5_1.md`
+
+It must explicitly state:
+- branch + HEAD;
+- fixture leak BEFORE and AFTER;
+- whether any fixture-specific symbol remains under src/main;
+- build/tests/static/leak gate;
+- capture environment used;
+- 18/18 capture status;
+- 18/18 comparison status;
+- transparent fox in-app status;
+- AUTO/Ready status;
+- art-director score per screen;
+- remaining gaps;
+- runtime VPN E2E status;
+- physical device status;
+- RELEASE READY = NO unless a separate final runtime/device gate really happened.
+
+======================================================================
+17. COMMIT STRATEGY
+======================================================================
+
+Use auditable commits:
+1. `fix(test): remove screenshot fixture leakage from production source`
+2. `test(ui): harden fixture leak gates`
+3. `infra(ui): recover clean API34 capture environment`
+4. `qa(ui): add V5.1 smoke captures`
+5. visual commits only after smoke evidence
+6. `qa(ui): add 18-screen V5.1 evidence and final report`
+
+Do not merge.
+
+======================================================================
+18. START NOW
+======================================================================
+
+First action:
+1. run the strict fixture leak checker and save its expected FAIL;
+2. remove fixture-specific behavior/data from `src/main` without reverting good V5 visual assets;
+3. make leak checker PASS;
+4. build/test;
+5. create a fresh API34 AVD with a NEW name;
+6. get the 8-screen smoke capture;
+7. only then continue visual refinement.
+
+Do not stop at planning.
+Do not hide behind the broken old AVD.
+Do not change more UI blind.
+Do not merge.
