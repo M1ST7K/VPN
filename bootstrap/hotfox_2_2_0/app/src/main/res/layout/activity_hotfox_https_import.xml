@@ -97,9 +97,9 @@
 
     <Button
         android:id="@+id/btn_https_add"
-        style="@style/HotFox.PrimaryButton"
+        style="@style/HotFox.SubpagePrimary"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="48dp"
         android:layout_marginTop="16dp"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_https_add" />

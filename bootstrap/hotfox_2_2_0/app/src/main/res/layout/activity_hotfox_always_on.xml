@@ -117,10 +117,14 @@
 
             <Button
                 android:id="@+id/btn_open_android_vpn"
-                style="@style/HotFox.PrimaryCompact"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
+                style="@style/HotFox.SubpagePrimary"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="44dp"
                 android:layout_marginTop="16dp"
+                android:minWidth="220dp"
+                android:paddingStart="22dp"
+                android:paddingEnd="22dp"
                 android:drawableEnd="@drawable/hf_arrow_right_ink"
                 android:text="@string/hotfox_open_android_settings" />
 

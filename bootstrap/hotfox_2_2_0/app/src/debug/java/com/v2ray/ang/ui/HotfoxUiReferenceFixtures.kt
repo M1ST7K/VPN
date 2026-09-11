@@ -16,13 +16,10 @@ object HotfoxUiReferenceFixtures {
     )
 
     fun apps(): List<HotfoxUiVisualOverride.ReferenceAppRow> = listOf(
-        HotfoxUiVisualOverride.ReferenceAppRow("Chrome", "com.android.chrome", true),
-        HotfoxUiVisualOverride.ReferenceAppRow("Messages", "com.google.android.apps.messaging", true),
-        HotfoxUiVisualOverride.ReferenceAppRow("YouTube", "com.google.android.youtube", false),
-        HotfoxUiVisualOverride.ReferenceAppRow("Maps", "com.google.android.apps.maps", false),
-        HotfoxUiVisualOverride.ReferenceAppRow("Photos", "com.google.android.apps.photos", false),
-        HotfoxUiVisualOverride.ReferenceAppRow("Clock", "com.google.android.deskclock", false),
-        HotfoxUiVisualOverride.ReferenceAppRow("Settings", "com.android.settings", false),
-        HotfoxUiVisualOverride.ReferenceAppRow("Files", "com.android.documentsui", false),
+        HotfoxUiVisualOverride.ReferenceAppRow("Telegram", "Мессенджер", true),
+        HotfoxUiVisualOverride.ReferenceAppRow("Chrome", "Браузер", true),
+        HotfoxUiVisualOverride.ReferenceAppRow("Банк", "Финансы", false),
+        HotfoxUiVisualOverride.ReferenceAppRow("YouTube", "Видео", true),
+        HotfoxUiVisualOverride.ReferenceAppRow("Maps", "Карты и навигация", false),
     )
 }

@@ -11,6 +11,7 @@ object HotfoxUiVisualOverride {
         val country: String,
         val pingLabel: String,
         val flagRes: Int,
+        val healthy: Boolean = false,
     )
 
     data class ReferenceAppRow(

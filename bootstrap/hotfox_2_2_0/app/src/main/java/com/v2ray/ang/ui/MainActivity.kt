@@ -1189,14 +1189,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val planet = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_planet)
         val bust = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_bust)
         val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
+        val rail = binding.root.findViewById<android.widget.ImageView>(R.id.img_connecting_rail)
         val stages = binding.root.findViewById<android.view.View>(R.id.layout_connecting_stages)
         val metrics = binding.root.findViewById<android.view.View>(R.id.layout_protected_metrics)
         val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
+        ring?.isVisible = false
+        planet?.isVisible = false
+        bust?.isVisible = true
         when (visual) {
             ConnectionVisualState.CONNECTING -> {
-                planet?.isVisible = false
-                bust?.isVisible = true
-                ring?.isVisible = true
+                rail?.isVisible = true
                 stages?.isVisible = true
                 metrics?.isVisible = false
                 note?.isVisible = false
@@ -1206,9 +1208,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 binding.tvVpnStatus.setText(R.string.hotfox_connecting_body)
             }
             ConnectionVisualState.CONNECTED -> {
-                planet?.isVisible = false
-                bust?.isVisible = true
-                ring?.isVisible = false
+                rail?.isVisible = false
                 stages?.isVisible = false
                 metrics?.isVisible = true
                 note?.isVisible = false
@@ -1217,9 +1217,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
             }
             else -> {
-                planet?.isVisible = false
-                bust?.isVisible = true
-                ring?.isVisible = false
+                rail?.isVisible = false
                 stages?.isVisible = false
                 metrics?.isVisible = false
                 note?.isVisible = true
@@ -1248,6 +1246,12 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             connectionActive = currentSection == UiSection.CONNECTION,
         )
         headline.let { }
+    }
+
+    /** Generic presentation seam: hide the runtime stage/warning line without touching VPN state. */
+    internal fun hideConnectionStageLine() {
+        binding.tvConnectionStage.visibility = android.view.View.GONE
+        binding.tvConnectionStage.text = ""
     }
 
     internal fun presentAddConnectionSheet() {

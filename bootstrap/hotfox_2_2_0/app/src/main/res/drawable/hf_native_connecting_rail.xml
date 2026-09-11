@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="28dp"
+    android:viewportWidth="320"
+    android:viewportHeight="28">
+    <!-- Segmented route rail under the fox. Not a ring, not satellites. -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M18,18 L86,10 L164,16 L238,8 L302,14"
+        android:strokeWidth="1.6"
+        android:strokeColor="#5E596B"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M18,18 L86,10"
+        android:strokeWidth="2.2"
+        android:strokeColor="#FF9255"
+        android:strokeLineCap="round" />
+    <path
+        android:fillColor="#FF9255"
+        android:pathData="M18,18 m-3.2,0 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0" />
+    <path
+        android:fillColor="#FF803E"
+        android:pathData="M86,10 m-2.8,0 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0" />
+    <path
+        android:fillColor="#8E8297"
+        android:pathData="M164,16 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0" />
+    <path
+        android:fillColor="#5E596B"
+        android:pathData="M238,8 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0" />
+    <path
+        android:fillColor="#4A4558"
+        android:pathData="M302,14 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0" />
+</vector>

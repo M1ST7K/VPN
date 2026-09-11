@@ -543,7 +543,7 @@
     <string name="hotfox_proxy_failed">Сервер недоступен</string>
     <string name="hotfox_add_subscription">Добавить подписку</string>
     <string name="hotfox_headline_connected">Защищено</string>
-    <string name="hotfox_headline_connecting">Подключение</string>
+    <string name="hotfox_headline_connecting">Подключаем...</string>
     <string name="hotfox_headline_selecting">Подбираем маршрут</string>
     <string name="hotfox_headline_verifying">Проверяем защиту</string>
     <string name="hotfox_headline_disconnected">Не защищено</string>

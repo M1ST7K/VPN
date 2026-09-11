@@ -48,7 +48,8 @@ internal class HotfoxUiQaServerAdapter(
         binding.ivFlag.visibility = View.VISIBLE
         binding.ivFlag.setImageResource(row.flagRes)
         binding.tvTestResult.text = row.pingLabel
-        binding.tvTestResult.setTextColor(ContextCompat.getColor(context, R.color.hotfox_success_bright))
+        val pingColor = if (row.healthy) R.color.hotfox_success_bright else R.color.hf_asset_muted
+        binding.tvTestResult.setTextColor(ContextCompat.getColor(context, pingColor))
         binding.imgRowChevron.visibility = View.VISIBLE
         binding.tvName.alpha = 0.88f
     }

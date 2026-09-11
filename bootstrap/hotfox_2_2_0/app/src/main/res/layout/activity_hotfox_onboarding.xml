@@ -27,15 +27,12 @@
         android:layout_marginTop="10dp"
         android:text="@string/hotfox_onboarding_connect_body_ui" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:layout_marginTop="8dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp">
 
         <ImageView
             android:id="@+id/img_onboarding_art"
@@ -105,7 +102,7 @@
         android:id="@+id/btn_onboarding_primary"
         style="@style/HotFox.PrimaryButton"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="52dp"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_already_have_subscription" />
 

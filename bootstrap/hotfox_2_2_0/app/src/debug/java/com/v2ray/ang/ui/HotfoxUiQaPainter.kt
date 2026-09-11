@@ -2,7 +2,6 @@ package com.v2ray.ang.ui
 
 import android.app.Activity
 import android.app.Application
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -50,6 +49,8 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
             HotfoxUiVisualOverride.connectionChrome != null ||
             HotfoxUiVisualOverride.appsFixture
         if (!needsRepeat) return
+        // Repeats only fixture labels/state. Production applyRunningState can
+        // overwrite chrome and the VPN-permission stage line; geometry stays in XML.
         paintGeneration += 1
         val generation = paintGeneration
         val tick = object : Runnable {
@@ -92,6 +93,11 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
                 else -> ConnectionUiMapper.Headline.DISCONNECTED
             }
             activity.applyConnectionChrome(visual, headline)
+            if (visual == MainActivity.ConnectionVisualState.CONNECTED ||
+                visual == MainActivity.ConnectionVisualState.CONNECTING
+            ) {
+                activity.hideConnectionStageLine()
+            }
             val headlineRes = when (visual) {
                 MainActivity.ConnectionVisualState.CONNECTED -> R.string.hotfox_headline_connected
                 MainActivity.ConnectionVisualState.CONNECTING -> R.string.hotfox_headline_connecting
@@ -108,7 +114,7 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
             val connect = activity.findViewById<TextView>(R.id.connect_action)
             connect?.text = when (visual) {
                 MainActivity.ConnectionVisualState.CONNECTED -> activity.getString(R.string.hotfox_disconnect)
-                MainActivity.ConnectionVisualState.CONNECTING -> activity.getString(R.string.hotfox_headline_connecting)
+                MainActivity.ConnectionVisualState.CONNECTING -> activity.getString(R.string.hotfox_stop)
                 else -> activity.getString(R.string.hotfox_connect)
             }
             if (visual == MainActivity.ConnectionVisualState.CONNECTED) {
@@ -140,17 +146,18 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         val rows = HotfoxUiVisualOverride.referenceApps
         if (rows.isEmpty()) return
-        val placeholder = ColorDrawable(0xFF2A2730.toInt())
         val apps = rows.map { row ->
             AppInfo(
                 appName = row.appName,
                 packageName = row.packageName,
-                appIcon = placeholder,
+                appIcon = HotfoxUiQaAppIcons.drawable(activity, row.packageName),
                 isSystemApp = false,
                 isSelected = if (row.selected) 1 else 0,
             )
         }
         val recycler = activity.findViewById<RecyclerView>(R.id.recycler_view) ?: return
+        recycler.isVerticalScrollBarEnabled = false
+        recycler.overScrollMode = View.OVER_SCROLL_NEVER
         recycler.adapter = HotfoxUiQaAppAdapter(apps)
         activity.findViewById<TextView>(R.id.tv_selected_count)?.text =
             apps.count { it.isSelected == 1 }.toString()
