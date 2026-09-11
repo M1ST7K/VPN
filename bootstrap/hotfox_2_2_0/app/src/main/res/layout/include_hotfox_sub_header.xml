@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/hotfox_sub_header"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/btn_header_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/hotfox_row_ripple"
+        android:clickable="true"
+        android:contentDescription="@android:string/cancel"
+        android:focusable="true"
+        android:padding="8dp"
+        android:src="@drawable/ic_hotfox_line_back" />
+
+    <TextView
+        android:id="@+id/tv_header_brand"
+        style="@style/HotFoxTextBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="HotFox" />
+</LinearLayout>

@@ -10,6 +10,7 @@ class HotfoxAppsRulesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = ActivityHotfoxAppsRulesBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxChrome.bindBack(this)
         binding.btnAppsOpen.setOnClickListener {
             startActivity(Intent(this, PerAppProxyActivity::class.java))
         }

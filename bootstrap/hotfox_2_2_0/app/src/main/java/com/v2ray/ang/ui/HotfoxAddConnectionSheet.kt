@@ -35,6 +35,7 @@ class HotfoxAddConnectionSheet : DialogFragment() {
         binding.rowAddQr.setOnClickListener { send(Action.QR) }
         binding.rowAddFile.setOnClickListener { send(Action.FILE) }
         binding.rowAddAlwaysOn.setOnClickListener { send(Action.ALWAYS_ON) }
+        binding.btnAddClose.setOnClickListener { dismissAllowingStateLoss() }
         return dialog
     }
 

@@ -64,28 +64,29 @@
 
     <color name="hotfox_editorial_bg">#070912</color>
     <color name="hotfox_editorial_surface">#15141D</color>
-    <color name="hotfox_editorial_text">#F6EDE8</color>
+    <color name="hotfox_editorial_text">#F5E6D8</color>
     <color name="hotfox_editorial_text_secondary">#B8AFA9</color>
     <color name="hotfox_editorial_text_dim">#8A817C</color>
-    <color name="hotfox_editorial_line">#1A1A24</color>
+    <color name="hotfox_editorial_line">#1F1B24</color>
     <color name="hotfox_success_bright">#76EA77</color>
 
-    <!-- Pixel-lock tokens. Starting values from the 18-screen recreation contract;
-         pixel comparison to full-resolution originals remains the visual gate. -->
+    <!-- Pixel-lock tokens calibrated to screen 05 (style anchor) and per-screen originals. -->
     <color name="hotfox_bg_deep">#05070D</color>
     <color name="hotfox_bg_main">#070912</color>
     <color name="hotfox_bg_alt">#090B14</color>
     <color name="hotfox_surface">#15141D</color>
     <color name="hotfox_surface_alt">#191720</color>
     <color name="hotfox_surface_raised">#111119</color>
-    <color name="hotfox_cream">#F6EDE8</color>
-    <color name="hotfox_cream_primary">#F5E9E1</color>
+    <color name="hotfox_cream">#F5E6D8</color>
+    <color name="hotfox_cream_primary">#F5E6D8</color>
     <color name="hotfox_cream_secondary">#B8AFA9</color>
     <color name="hotfox_cream_muted">#8A817C</color>
-    <color name="hotfox_orange">#F78843</color>
-    <color name="hotfox_orange_bright">#FF8E4D</color>
+    <color name="hotfox_orange">#FF7A2F</color>
+    <color name="hotfox_orange_bright">#FF7A2F</color>
     <color name="hotfox_success">#76EA77</color>
-    <color name="hotfox_hairline">#1AFFFFFF</color>
+    <color name="hotfox_hairline">#1F1B24</color>
     <color name="hotfox_scrim">#CC05070D</color>
-    <color name="hotfox_cta_on_orange">#05070D</color>
+    <color name="hotfox_cta_on_orange">#111111</color>
+    <color name="hotfox_info_fill">#1A1620</color>
+    <color name="hotfox_brand">#FF7A2F</color>
 </resources>

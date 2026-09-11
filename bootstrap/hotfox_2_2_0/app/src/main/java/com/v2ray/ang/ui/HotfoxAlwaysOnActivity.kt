@@ -15,6 +15,8 @@ class HotfoxAlwaysOnActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotfoxAlwaysOnBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxChrome.bindBack(this)
+        HotfoxChrome.bindBottomNav(this, HotfoxChrome.SETTINGS)
         binding.btnAlwaysOnOpen.setOnClickListener { openAndroidVpnSettings() }
         render()
     }
@@ -25,8 +27,8 @@ class HotfoxAlwaysOnActivity : AppCompatActivity() {
     }
 
     private fun render() {
-        binding.tvAlwaysOnStatus.setText(R.string.hotfox_always_on_unknown)
-        binding.tvAlwaysOnKill.setText(R.string.hotfox_always_on_unknown)
+        binding.tvAlwaysOnStatus.setText(R.string.hotfox_always_on_not_configured)
+        binding.tvAlwaysOnKill.setText(R.string.hotfox_always_on_not_configured)
     }
 
     private fun openAndroidVpnSettings() {

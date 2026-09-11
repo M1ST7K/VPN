@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/hotfox_bottom_nav"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/hotfox_bottom_nav_height"
+    android:background="@color/hotfox_bg_main"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/nav_connection"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_home"
+        android:drawableTop="@drawable/ic_hotfox_line_home"
+        android:drawablePadding="4dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:text="@string/hotfox_nav_home"
+        android:textColor="@color/hotfox_orange"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/nav_servers"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_servers"
+        android:drawableTop="@drawable/ic_hotfox_line_server"
+        android:drawablePadding="4dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:text="@string/hotfox_nav_servers"
+        android:textColor="@color/hotfox_cream_muted"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/nav_subscription"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_subscription"
+        android:drawableTop="@drawable/ic_hotfox_line_crown"
+        android:drawablePadding="4dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:text="@string/hotfox_nav_subscription"
+        android:textColor="@color/hotfox_cream_muted"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/nav_settings"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_settings"
+        android:drawableTop="@drawable/ic_hotfox_line_settings"
+        android:drawablePadding="4dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:text="@string/hotfox_nav_settings"
+        android:textColor="@color/hotfox_cream_muted"
+        android:textSize="12sp" />
+</LinearLayout>

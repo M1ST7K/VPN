@@ -52,4 +52,6 @@ docs/DEPENDENCY_VERIFICATION.md
 docs/README_HOTFOX.md
 docs/SECURITY_HOTFOX.md
 docs/THIRD_PARTY_NOTICES.md
-docs/VERIFICATION_REPORT_2.1.0.md
+# Extracted full-resolution presentation boards (the zip + MANIFEST are the source of truth)
+design/hotfox_18_final_style_reference/*.jpeg
+design/hotfox_18_final_style_reference/*.png

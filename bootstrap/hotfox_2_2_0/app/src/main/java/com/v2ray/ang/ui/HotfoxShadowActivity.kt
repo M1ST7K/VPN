@@ -13,6 +13,7 @@ class HotfoxShadowActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotfoxShadowBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxChrome.bindBack(this)
         binding.btnShadowToggle.setOnClickListener {
             HotfoxShadowStore.setShadowAuto(!HotfoxShadowStore.isShadowAuto())
             render()
@@ -23,6 +24,7 @@ class HotfoxShadowActivity : AppCompatActivity() {
     private fun render() {
         val on = HotfoxShadowStore.isShadowAuto()
         binding.tvShadowStatus.setText(if (on) R.string.hotfox_shadow_status_on else R.string.hotfox_shadow_status_off)
-        binding.btnShadowToggle.setText(if (on) R.string.hotfox_shadow_toggle_off else R.string.hotfox_shadow_toggle_on)
+        binding.tvShadowModeValue.setText(if (on) R.string.hotfox_shadow_mode_auto else R.string.hotfox_shadow_mode_off)
+        binding.btnShadowToggle.setText(if (on) R.string.hotfox_shadow_toggle_on else R.string.hotfox_shadow_toggle_off)
     }
 }

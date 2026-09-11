@@ -25,6 +25,7 @@ class HotfoxHttpsSubscriptionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotfoxHttpsSubscriptionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxChrome.bindBack(this)
         binding.btnHttpsPaste.setOnClickListener {
             val clip = runCatching { Utils.getClipboard(this) }.getOrNull().orEmpty()
             if (clip.isNotBlank()) binding.etHttpsUrl.setText(clip)

@@ -74,7 +74,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
         binding.tvOnboardingTitle.setText(if (titleId != 0) titleId else R.string.hotfox_onboarding_welcome_title)
         binding.tvOnboardingBody.setText(if (bodyId != 0) bodyId else R.string.hotfox_onboarding_welcome_body)
         binding.btnOnboardingPrimary.setText(if (primaryId != 0) primaryId else R.string.hotfox_onboarding_continue)
-        binding.ivOnboardingArtwork.isVisible = false
+        binding.ivOnboardingArtwork.isVisible = true
         binding.tvOnboardingAutoMark.isVisible = false
         binding.tvOnboardingNote.isVisible = false
         when (step) {
@@ -83,16 +83,18 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 binding.btnOnboardingSecondary.isVisible = true
                 binding.btnOnboardingPrimary.setText(R.string.hotfox_onboarding_existing)
                 binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_buy)
+                binding.ivOnboardingArtwork.setImageResource(R.drawable.hotfox_art_fox_planet_onboarding)
             }
             HotfoxOnboardingFlow.Step.AUTO -> {
                 binding.btnOnboardingSecondary.isVisible = true
                 binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_auto_manual)
-                binding.tvOnboardingAutoMark.isVisible = true
+                binding.tvOnboardingAutoMark.isVisible = false
+                binding.ivOnboardingArtwork.setImageResource(R.drawable.hotfox_art_globe_orbits)
             }
             HotfoxOnboardingFlow.Step.VPN_PERMISSION,
             HotfoxOnboardingFlow.Step.FIRST_CONNECTION -> {
                 binding.btnOnboardingSecondary.isVisible = false
-                binding.ivOnboardingArtwork.isVisible = true
+                binding.ivOnboardingArtwork.setImageResource(R.drawable.hotfox_art_server_ready)
                 binding.tvOnboardingNote.isVisible = true
                 binding.tvOnboardingNote.setText(R.string.hotfox_onboarding_ready_note)
             }

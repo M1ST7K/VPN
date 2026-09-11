@@ -6,7 +6,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:paddingStart="@dimen/hotfox_screen_inset"
-    android:paddingTop="28dp"
+    android:paddingTop="20dp"
     android:paddingEnd="@dimen/hotfox_screen_inset"
     android:paddingBottom="24dp">
 
@@ -30,24 +30,24 @@
         style="@style/HotFoxTextBody"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="12dp"
         android:text="@string/hotfox_onboarding_welcome_body" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="12dp">
+        android:layout_marginTop="8dp"
+        android:layout_weight="1">
 
         <ImageView
             android:id="@+id/iv_onboarding_artwork"
-            android:layout_width="@dimen/hotfox_artwork_size"
-            android:layout_height="@dimen/hotfox_artwork_size"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
-            android:src="@drawable/ic_hotfox_line_shield"
-            android:visibility="gone" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/hotfox_art_fox_planet_onboarding" />
 
         <TextView
             android:id="@+id/tv_onboarding_auto_mark"
@@ -68,23 +68,43 @@
         style="@style/HotFoxTextMeta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="16dp"
+        android:drawableStart="@drawable/ic_hotfox_line_info_circle"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
         android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_cta_height">
+
+        <TextView
+            android:id="@+id/btn_onboarding_primary"
+            style="@style/HotFoxCtaPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingEnd="44dp"
+            android:text="@string/hotfox_onboarding_continue" />
+
+        <ImageView
+            android:id="@+id/iv_onboarding_primary_arrow"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="22dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_hotfox_cta_arrow" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/btn_onboarding_secondary"
         style="@style/HotFoxCtaSecondary"
         android:layout_width="match_parent"
+        android:layout_marginTop="4dp"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/btn_onboarding_primary"
-        style="@style/HotFoxCtaPrimary"
-        android:layout_width="match_parent"
-        android:layout_marginTop="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:text="@string/hotfox_onboarding_continue" />
 </LinearLayout>

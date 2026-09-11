@@ -18,7 +18,8 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotfoxRoutingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.btnRoutingMode.setOnClickListener { showModePicker() }
+        HotfoxChrome.bindBack(this)
+        binding.btnRoutingMode.setOnClickListener { finish() }
         binding.rowRoutingMode.setOnClickListener { showModePicker() }
         binding.btnRoutingAdvanced.setOnClickListener {
             startActivity(Intent(this, RoutingSettingActivity::class.java))

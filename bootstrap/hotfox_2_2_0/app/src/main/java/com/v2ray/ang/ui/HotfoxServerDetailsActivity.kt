@@ -9,6 +9,7 @@ import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.vpn.HotfoxLatencyDisplay
 import com.v2ray.ang.vpn.HotfoxServerPresentation
 import com.v2ray.ang.vpn.HotfoxServerSelection
+import com.v2ray.ang.vpn.ServerAvailability
 
 class HotfoxServerDetailsActivity : AppCompatActivity() {
     companion object {
@@ -22,6 +23,8 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHotfoxServerDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxChrome.bindBack(this)
+        HotfoxChrome.bindBottomNav(this, HotfoxChrome.SERVERS)
         guid = intent.getStringExtra(EXTRA_GUID).orEmpty()
         render()
         binding.btnDetailsSelect.setOnClickListener {
@@ -48,7 +51,16 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
         } else {
             getString(R.string.hotfox_selected_server_label)
         }
-        binding.tvDetailsNote.text = getString(R.string.hotfox_server_unavailable_metric)
+        binding.tvDetailsNote.text = getString(R.string.hotfox_server_manual_note)
+        binding.tvDetailsLoad.setText(R.string.hotfox_server_unavailable_metric)
+        binding.tvDetailsStatus.setText(
+            when (health?.availability) {
+                ServerAvailability.HEALTHY,
+                ServerAvailability.DEGRADED -> R.string.hotfox_server_available
+                ServerAvailability.DEAD -> R.string.hotfox_server_unavailable
+                else -> R.string.hotfox_server_unavailable_metric
+            },
+        )
         binding.btnDetailsSelect.isEnabled = guid.isNotBlank()
     }
 }

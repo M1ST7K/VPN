@@ -32,6 +32,10 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
         binding.btnAutopilotPause.setOnClickListener { showPause() }
         binding.btnAutopilotProtection.setOnClickListener { showProtection() }
         binding.btnAutopilotTrusted.setOnClickListener { showTrusted() }
+        binding.rowAutopilotWifi.setOnClickListener { toggleWifi() }
+        binding.rowAutopilotCellular.setOnClickListener { toggleCellular() }
+        binding.btnAutopilotDone.setOnClickListener { finish() }
+        HotfoxChrome.bindBack(this)
         render()
     }
 
@@ -45,6 +49,18 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
         binding.btnAutopilotToggle.setText(
             if (policy.enabled) R.string.hotfox_autopilot_enabled else R.string.hotfox_autopilot_disabled,
         )
+        binding.tvAutopilotWifiValue.setText(
+            if (policy.connectUnknownWifi) R.string.hotfox_autopilot_connect else R.string.hotfox_autopilot_skip,
+        )
+        binding.tvAutopilotCellularValue.setText(
+            if (policy.connectCellular) R.string.hotfox_autopilot_connect else R.string.hotfox_autopilot_skip,
+        )
+        val trustedCount = HotfoxAutopilotStore.trusted().size
+        binding.tvAutopilotTrustedValue.text = getString(R.string.hotfox_autopilot_trusted_count, trustedCount)
+        val paused = HotfoxAutopilotStore.pause() != null
+        binding.tvAutopilotPauseValue.setText(
+            if (paused) R.string.hotfox_autopilot_pause_active else R.string.hotfox_autopilot_pause_idle,
+        )
         val decision = HotfoxAutopilotStore.lastDecision()
         binding.tvAutopilotDecision.text = decision?.uiLabel()
             ?: HotfoxAutopilotLabels.protectionLabel(HotfoxAutopilotStore.protectionLevel())
@@ -57,6 +73,20 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
     private fun togglePolicy() {
         val policy = HotfoxAutopilotStore.policy()
         HotfoxAutopilotStore.setPolicy(policy.copy(enabled = !policy.enabled))
+        HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
+        render()
+    }
+
+    private fun toggleWifi() {
+        val policy = HotfoxAutopilotStore.policy()
+        HotfoxAutopilotStore.setPolicy(policy.copy(connectUnknownWifi = !policy.connectUnknownWifi))
+        HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
+        render()
+    }
+
+    private fun toggleCellular() {
+        val policy = HotfoxAutopilotStore.policy()
+        HotfoxAutopilotStore.setPolicy(policy.copy(connectCellular = !policy.connectCellular))
         HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
         render()
     }

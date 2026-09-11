@@ -2,13 +2,16 @@
 <resources>
     <dimen name="hotfox_screen_inset">22dp</dimen>
     <dimen name="hotfox_screen_inset_end">22dp</dimen>
-    <dimen name="hotfox_title_size">40sp</dimen>
+    <dimen name="hotfox_title_size">32sp</dimen>
     <dimen name="hotfox_body_size">15sp</dimen>
-    <dimen name="hotfox_cta_height">52dp</dimen>
-    <dimen name="hotfox_cta_radius">18dp</dimen>
-    <dimen name="hotfox_row_height">56dp</dimen>
-    <dimen name="hotfox_bottom_nav_height">56dp</dimen>
+    <dimen name="hotfox_cta_height">56dp</dimen>
+    <dimen name="hotfox_cta_radius">28dp</dimen>
+    <dimen name="hotfox_row_height">72dp</dimen>
+    <dimen name="hotfox_bottom_nav_height">80dp</dimen>
     <dimen name="hotfox_icon_size">22dp</dimen>
     <dimen name="hotfox_artwork_size">168dp</dimen>
     <dimen name="hotfox_hairline">1dp</dimen>
+    <dimen name="hotfox_header_height">56dp</dimen>
+    <dimen name="hotfox_nav_icon">24dp</dimen>
+    <dimen name="hotfox_info_radius">16dp</dimen>
 </resources>

@@ -54,11 +54,11 @@ plus real browser/app traffic and acceptable DNS/IPv6 behavior.
 
 ## Phone UI contract
 
-Primary phone navigation is exactly the three editorial bottom destinations (bottom bar):
+Primary phone navigation is exactly the four editorial bottom destinations (bottom bar):
 
-`Соединение / Серверы / Подписка`
+`Главная / Серверы / Подписка / Настройки`
 
-Do not restore the old side rail/drawer or a competing second primary navigation system.
+This 4-destination chrome is locked by the approved 18-screen visual references (screen 05 is the style anchor). Do not restore a 3-tab bar, the old side rail/drawer, or a competing second primary navigation system.
 
 Preserve the HotFox direction: charcoal/purple-black canvas, warm cream typography, restrained orange accent, green only for real success, thin separators, clean contemporary server rows, visible state-aware route bars, no black-on-black icons and no square/missing-glyph placeholders.
 

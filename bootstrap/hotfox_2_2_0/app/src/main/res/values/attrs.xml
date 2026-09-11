@@ -9,21 +9,21 @@
     </style>
 
     <style name="HotFoxTextBrand">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textSize">13sp</item>
-        <item name="android:letterSpacing">0.12</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.0</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:textColor">@color/hotfox_cream_muted</item>
+        <item name="android:textColor">@color/hotfox_orange</item>
     </style>
 
     <style name="HotFoxTextDisplay">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textSize">40sp</item>
-        <item name="android:letterSpacing">-0.03</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:letterSpacing">-0.02</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/hotfox_cream</item>
-        <item name="android:lineSpacingMultiplier">1.02</item>
+        <item name="android:lineSpacingMultiplier">1.05</item>
     </style>
 
     <style name="HotFoxTextHeadline">

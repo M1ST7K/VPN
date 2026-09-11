@@ -89,6 +89,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     companion object {
         const val EXTRA_SKIP_ONBOARDING = "hotfox_skip_onboarding"
         const val EXTRA_COPY_DIAGNOSTICS = "hotfox_copy_diagnostics"
+        const val EXTRA_OPEN_SECTION = "hotfox_open_section"
+        const val SECTION_CONNECTION = "connection"
+        const val SECTION_SERVERS = "servers"
+        const val SECTION_SUBSCRIPTION = "subscription"
     }
 
     private val binding by lazy {
@@ -150,6 +154,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
         setContentView(binding.root)
         setupToolbar(binding.toolbar, false, "")
+        binding.toolbar.navigationIcon = null
 
         // setup viewpager and tablayout
         groupPagerAdapter = GroupPagerAdapter(this, emptyList())
@@ -157,15 +162,12 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.viewPager.isUserInputEnabled = true
 
         setupPrimaryNavigation()
-        binding.toolbar.setNavigationIcon(R.drawable.ic_settings_24dp)
-        binding.toolbar.navigationIcon?.mutate()?.setTint(
-            ContextCompat.getColor(this, R.color.hotfox_editorial_text)
-        )
-        binding.toolbar.navigationContentDescription = getString(R.string.hotfox_settings_content_description)
-        binding.toolbar.setNavigationOnClickListener {
+        binding.toolbar.navigationIcon = null
+        binding.btnHeaderSettings.setOnClickListener {
             requestActivityLauncher.launch(Intent(this, HotfoxSettingsActivity::class.java))
         }
         setupEditorialNavigation()
+        applyOpenSection(intent)
 
         binding.fab.setOnClickListener { handleFabAction() }
         binding.connectAction.setOnClickListener { handleFabAction() }
@@ -223,6 +225,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.navConnection.setOnClickListener { showSection(UiSection.CONNECTION) }
         binding.navServers.setOnClickListener { showSection(UiSection.SERVERS) }
         binding.navSubscription.setOnClickListener { showSection(UiSection.SUBSCRIPTION) }
+        binding.navSettings.setOnClickListener {
+            requestActivityLauncher.launch(Intent(this, HotfoxSettingsActivity::class.java))
+        }
 
         binding.filterAll.setOnClickListener {
             mainViewModel.setFavoriteOnly(false)
@@ -259,20 +264,30 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenConnection.isVisible = section == UiSection.CONNECTION
         binding.screenServers.isVisible = section == UiSection.SERVERS
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
-        val active = ContextCompat.getColor(this, R.color.hotfox_editorial_text)
-        val muted = ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim)
-        binding.navConnection.setTextColor(if (section == UiSection.CONNECTION) active else muted)
-        binding.navServers.setTextColor(if (section == UiSection.SERVERS) active else muted)
-        binding.navSubscription.setTextColor(if (section == UiSection.SUBSCRIPTION) active else muted)
-        binding.tvHeaderMicrocopy.text = when (section) {
-            UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
-            UiSection.SERVERS -> getString(R.string.hotfox_header_microcopy_servers)
-            UiSection.SUBSCRIPTION -> getString(R.string.hotfox_header_microcopy_subscription)
-        }
+        paintNav(binding.navConnection, section == UiSection.CONNECTION)
+        paintNav(binding.navServers, section == UiSection.SERVERS)
+        paintNav(binding.navSubscription, section == UiSection.SUBSCRIPTION)
+        paintNav(binding.navSettings, false)
+        binding.btnHeaderSettings.isVisible = section == UiSection.CONNECTION
+        binding.supportButton.isVisible = section == UiSection.SERVERS
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
         if (section == UiSection.SUBSCRIPTION) {
             refreshCommercialCatalog()
             refreshCommercialState()
+        }
+    }
+
+    private fun paintNav(view: android.widget.TextView, active: Boolean) {
+        val color = ContextCompat.getColor(this, if (active) R.color.hotfox_orange else R.color.hotfox_cream_muted)
+        view.setTextColor(color)
+        androidx.core.widget.TextViewCompat.setCompoundDrawableTintList(view, ColorStateList.valueOf(color))
+    }
+
+    private fun applyOpenSection(intent: Intent?) {
+        when (intent?.getStringExtra(EXTRA_OPEN_SECTION)) {
+            SECTION_SERVERS -> showSection(UiSection.SERVERS)
+            SECTION_SUBSCRIPTION -> showSection(UiSection.SUBSCRIPTION)
+            SECTION_CONNECTION -> showSection(UiSection.CONNECTION)
         }
     }
 
@@ -474,6 +489,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        applyOpenSection(intent)
         handlePossibleCheckoutReturn()
         if (intent?.getBooleanExtra(EXTRA_COPY_DIAGNOSTICS, false) == true) {
             copyDiagnostics()
@@ -988,9 +1004,33 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
         binding.fab.contentDescription = binding.connectAction.text
         val connectingUi = visual == ConnectionVisualState.CONNECTING
-        binding.connectingProgress.isVisible = connectingUi
+        val connectedUi = headline == ConnectionUiMapper.Headline.CONNECTED
+        val idleUi = visual == ConnectionVisualState.DISCONNECTED || visual == ConnectionVisualState.ERROR
+        binding.connectingProgress.isVisible = false
+        binding.connectingStages.isVisible = connectingUi
+        binding.ivConnectingRing.isVisible = connectingUi
+        binding.ivConnectionArtwork.setImageResource(
+            if (connectingUi) R.drawable.hotfox_art_fox_planet_connecting else R.drawable.hotfox_art_fox_planet_home,
+        )
+        orderConnectionRows(connectingUi || connectedUi)
+        binding.tvVpnStatus.isVisible = connectedUi
+        binding.trafficBlock.isVisible = connectedUi
+        binding.routeBars.isVisible = connectedUi
+        binding.routeLabels.isVisible = connectedUi
+        binding.infoSurface.isVisible = idleUi
+        binding.ivCtaArrow.isVisible = idleUi
+        binding.tvConnectSubtitle.isVisible = !connectedUi
+        binding.tvConnectSubtitle.setText(
+            when {
+                connectingUi -> R.string.hotfox_subtitle_connecting
+                connectedUi -> R.string.hotfox_subtitle_protected
+                else -> R.string.hotfox_subtitle_disconnected
+            },
+        )
+        highlightConnectingStage(headline)
+        placeCta(bottom = connectingUi || connectedUi)
         binding.connectAction.setBackgroundResource(
-            if (headline == ConnectionUiMapper.Headline.DISCONNECTED || headline == ConnectionUiMapper.Headline.ERROR) {
+            if (idleUi) {
                 R.drawable.hotfox_cta_primary_bg
             } else {
                 R.drawable.hotfox_cta_secondary_bg
@@ -999,11 +1039,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.connectAction.setTextColor(
             ContextCompat.getColor(
                 this,
-                if (headline == ConnectionUiMapper.Headline.DISCONNECTED || headline == ConnectionUiMapper.Headline.ERROR) {
-                    R.color.hotfox_cta_on_orange
-                } else {
-                    R.color.hotfox_editorial_text
-                },
+                if (idleUi) R.color.hotfox_cta_on_orange else R.color.hotfox_editorial_text,
             ),
         )
         binding.tvInfoHint.setText(
@@ -1097,6 +1133,46 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 binding.tvConnectionStage.visibility = View.GONE
             }
         }
+    }
+
+    private fun highlightConnectingStage(headline: ConnectionUiMapper.Headline) {
+        val active = ContextCompat.getColor(this, R.color.hotfox_orange)
+        val muted = ContextCompat.getColor(this, R.color.hotfox_cream_muted)
+        binding.tvStageSelect.setTextColor(if (headline == ConnectionUiMapper.Headline.SELECTING) active else muted)
+        binding.tvStageConnect.setTextColor(if (headline == ConnectionUiMapper.Headline.CONNECTING) active else muted)
+        binding.tvStageVerify.setTextColor(if (headline == ConnectionUiMapper.Headline.VERIFYING) active else muted)
+        binding.tvStageRules.setTextColor(muted)
+    }
+
+    private fun orderConnectionRows(protectedChrome: Boolean) {
+        val card = binding.connectionRowsCard
+        val server = binding.selectedServerCard
+        val subscription = binding.rowSubscriptionQuick
+        val shadow = binding.rowShadow
+        val routing = binding.smartRoutingCard
+        val desired = if (protectedChrome) {
+            listOf(server, routing, shadow, subscription)
+        } else {
+            listOf(server, subscription, shadow, routing)
+        }
+        if ((0 until card.childCount).map { card.getChildAt(it) } == desired) return
+        desired.forEach { card.removeView(it) }
+        desired.forEach { card.addView(it) }
+    }
+
+    private fun placeCta(bottom: Boolean) {
+        val row = binding.connectCtaRow
+        val parent = row.parent as? android.view.ViewGroup
+        val target = if (bottom) binding.ctaSlotBottom else binding.ctaSlotMid
+        if (parent === target) return
+        parent?.removeView(row)
+        target.addView(
+            row,
+            android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
+        )
     }
 
     private fun updateStatusText(textRes: Int, colorRes: Int) {
@@ -1327,6 +1403,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             autoPrefix = { getString(R.string.hotfox_auto_prefix, it) },
             shadowAuto = HotfoxShadowStore.isShadowAuto(),
         )
+        binding.tvServerRowTitle.text = when {
+            connecting && HotfoxServerSelection.isAutoMode() -> getString(R.string.hotfox_onboarding_auto_visual)
+            HotfoxServerSelection.isAutoMode() -> getString(R.string.hotfox_row_server)
+            else -> getString(R.string.hotfox_selected_server_label)
+        }
         binding.tvAutoMode.text = if (HotfoxServerSelection.isAutoMode()) {
             getString(R.string.hotfox_auto_server)
         } else {
