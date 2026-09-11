@@ -17,6 +17,15 @@ FORBIDDEN = (
     'renderFixture(',
     'applySubscriptionVisualFixture',
     'debug-ui-fixture-server',
+    'HotfoxUiScreenshotHarness',
+    'HotfoxUiScreenshotScenario',
+    'HotfoxUiQaPainter',
+    'HotfoxUiQaInstaller',
+    'HotfoxUiQaServerDetails',
+    'HotfoxUiReferenceFixtures',
+    'bindFixtureRow',
+    'applyDebugConnectionChromeIfPresent',
+    'applyDebugPresentationIfPresent',
 )
 
 SAFE_FIXTURE_LITERALS = (

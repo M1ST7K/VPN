@@ -1,0 +1,2 @@
+PASS: no fixture-specific HotFox V5.1 symbols/literals found in src/main
+EXIT:0
