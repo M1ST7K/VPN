@@ -2,6 +2,16 @@
     xmlns:tools="http://schemas.android.com/tools">
     <application>
         <activity
+            android:name="com.v2ray.ang.ui.HotfoxUiScreenshotHarnessActivity"
+            android:exported="true"
+            android:theme="@style/HotFoxEditorialTheme"
+            tools:ignore="ExportedActivity">
+            <intent-filter>
+                <action android:name="com.hotfox.vpn.action.UI_SCREENSHOT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name="com.v2ray.ang.vpn.HotfoxEngineeringE2eActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
