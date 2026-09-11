@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/hotfox_bottom_nav"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:background="@color/hf_asset_background"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
+
+    <LinearLayout
+        android:id="@+id/nav_home_item"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_home"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/nav_home_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:duplicateParentState="true"
+            android:importantForAccessibility="no"
+            android:src="@drawable/hf_home_muted" />
+
+        <TextView
+            android:id="@+id/nav_connection"
+            style="@style/HotFox.NavLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:minHeight="0dp"
+            android:text="@string/hotfox_nav_home" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_servers_item"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_servers"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/nav_servers_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/hf_servers_muted" />
+
+        <TextView
+            android:id="@+id/nav_servers"
+            style="@style/HotFox.NavLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/hotfox_nav_servers" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_subscription_item"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_subscription"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/nav_subscription_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/hf_crown_muted" />
+
+        <TextView
+            android:id="@+id/nav_subscription"
+            style="@style/HotFox.NavLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/hotfox_nav_subscription" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_settings_item"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/hotfox_nav_settings"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/nav_settings_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/hf_settings_muted" />
+
+        <TextView
+            android:id="@+id/nav_settings"
+            style="@style/HotFox.NavLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/hotfox_nav_settings" />
+    </LinearLayout>
+</LinearLayout>

@@ -98,5 +98,75 @@
         <item name="android:navigationBarColor">@color/hotfox_editorial_bg</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
+        <item name="materialButtonStyle">@style/HotFox.PrimaryButton</item>
+    </style>
+
+    <style name="HotFox.PrimaryButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/hf_native_primary</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:textColor">@color/hf_asset_ink</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="HotFox.SecondaryButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/hf_native_secondary</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:textColor">@color/hf_asset_cream</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="HotFox.TextButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/hf_asset_muted</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+    </style>
+
+    <style name="HotFox.ScreenTitle">
+        <item name="android:textColor">@color/hf_asset_cream</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="HotFox.Body">
+        <item name="android:textColor">@color/hf_asset_muted</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <style name="HotFox.RowTitle">
+        <item name="android:textColor">@color/hf_asset_cream</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="HotFox.RowCaption">
+        <item name="android:textColor">@color/hf_asset_muted</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="HotFox.NavLabel">
+        <item name="android:textColor">@color/hf_asset_muted</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 </resources>
