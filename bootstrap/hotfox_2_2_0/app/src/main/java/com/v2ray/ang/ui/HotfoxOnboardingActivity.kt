@@ -3,6 +3,7 @@ package com.v2ray.ang.ui
 import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -60,22 +61,47 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
     }
 
     private fun render() {
-        val titleId = resources.getIdentifier(HotfoxOnboardingFlow.titleResName(step), "string", packageName)
-        val bodyId = resources.getIdentifier(HotfoxOnboardingFlow.bodyResName(step), "string", packageName)
-        val primaryId = resources.getIdentifier(HotfoxOnboardingFlow.primaryResName(step), "string", packageName)
-        binding.tvOnboardingTitle.setText(if (titleId != 0) titleId else R.string.hotfox_onboarding_welcome_title)
-        binding.tvOnboardingBody.setText(if (bodyId != 0) bodyId else R.string.hotfox_onboarding_welcome_body)
-        binding.btnOnboardingPrimary.setText(if (primaryId != 0) primaryId else R.string.hotfox_onboarding_continue)
         when (step) {
+            HotfoxOnboardingFlow.Step.WELCOME,
+            HotfoxOnboardingFlow.Step.ACCESS,
+            -> {
+                binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_connect_title_ui)
+                binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_connect_body_ui)
+                binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_planet)
+                binding.imgOnboardingOverlay.isVisible = false
+                binding.imgOnboardingOverlay2.isVisible = false
+                binding.layoutOnboardingNote.isVisible = false
+                binding.btnOnboardingPrimary.setText(R.string.hotfox_already_have_subscription)
+                binding.btnOnboardingPrimary.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)
+                binding.btnOnboardingSecondary.isVisible = true
+                binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_buy_access)
+            }
             HotfoxOnboardingFlow.Step.AUTO -> {
+                binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_auto_title_ui)
+                binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_auto_body_ui)
+                binding.imgOnboardingArt.setImageResource(R.drawable.hf_auto_orbits)
+                binding.imgOnboardingOverlay.setImageResource(R.drawable.hf_globe_orange)
+                binding.imgOnboardingOverlay.isVisible = true
+                binding.imgOnboardingOverlay2.isVisible = false
+                binding.layoutOnboardingNote.isVisible = false
+                binding.btnOnboardingPrimary.setText(R.string.hotfox_onboarding_use_auto)
                 binding.btnOnboardingSecondary.isVisible = true
-                binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_auto_manual)
+                binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_choose_manual)
             }
-            HotfoxOnboardingFlow.Step.ACCESS -> {
-                binding.btnOnboardingSecondary.isVisible = true
-                binding.btnOnboardingSecondary.setText(R.string.hotfox_already_have_subscription)
+            HotfoxOnboardingFlow.Step.VPN_PERMISSION,
+            HotfoxOnboardingFlow.Step.FIRST_CONNECTION,
+            -> {
+                binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_ready_title_ui)
+                binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_ready_body_ui)
+                binding.imgOnboardingArt.setImageResource(R.drawable.hf_ready_orbits)
+                binding.imgOnboardingOverlay.setImageResource(R.drawable.hf_ready_servers)
+                binding.imgOnboardingOverlay.isVisible = true
+                binding.imgOnboardingOverlay2.setImageResource(R.drawable.hf_ready_check)
+                binding.imgOnboardingOverlay2.isVisible = true
+                binding.layoutOnboardingNote.isVisible = true
+                binding.btnOnboardingPrimary.setText(R.string.hotfox_onboarding_continue)
+                binding.btnOnboardingSecondary.isVisible = false
             }
-            else -> binding.btnOnboardingSecondary.isVisible = false
         }
         binding.btnOnboardingPrimary.contentDescription = binding.btnOnboardingPrimary.text
     }
@@ -87,13 +113,17 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 HotfoxServerSelection.setAutoMode(true)
                 go(HotfoxOnboardingFlow.Event.KEEP_AUTO)
             }
+            HotfoxOnboardingFlow.Step.ACCESS -> {
+                startActivity(Intent(this, HotfoxHttpsImportActivity::class.java))
+                go(HotfoxOnboardingFlow.Event.NEXT)
+            }
+            HotfoxOnboardingFlow.Step.WELCOME -> go(HotfoxOnboardingFlow.Event.NEXT)
             HotfoxOnboardingFlow.Step.FIRST_CONNECTION -> {
                 if (HotfoxOnboardingFlow.completesOnboarding(step, HotfoxOnboardingFlow.Event.FINISH)) {
                     HotfoxOnboardingStore.markComplete()
                     finishToMain()
                 }
             }
-            else -> go(HotfoxOnboardingFlow.Event.NEXT)
         }
     }
 
@@ -103,7 +133,9 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 HotfoxServerSelection.setAutoMode(false)
                 go(HotfoxOnboardingFlow.Event.MANUAL_SERVERS)
             }
-            HotfoxOnboardingFlow.Step.ACCESS -> go(HotfoxOnboardingFlow.Event.NEXT)
+            HotfoxOnboardingFlow.Step.WELCOME,
+            HotfoxOnboardingFlow.Step.ACCESS,
+            -> startActivity(Intent(this, RenewalActivity::class.java))
             else -> Unit
         }
     }

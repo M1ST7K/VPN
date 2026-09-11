@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hf_asset_background"
+    android:fitsSystemWindows="true">
+
+    <ImageView
+        android:id="@+id/img_splash_fox"
+        android:layout_width="match_parent"
+        android:layout_height="540dp"
+        android:layout_gravity="top"
+        android:layout_marginTop="24dp"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/hf_fox_planet" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="64dp">
+
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="44dp"
+            android:contentDescription="@string/hotfox_wordmark_cd"
+            android:scaleType="fitCenter"
+            android:src="@drawable/hf_brand_wordmark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:letterSpacing="0.12"
+            android:text="@string/hotfox_tagline_more_than_vpn"
+            android:textColor="@color/hf_asset_muted"
+            android:textSize="11sp" />
+
+        <FrameLayout
+            android:layout_width="220dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="28dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/hf_loading_track" />
+
+            <ImageView
+                android:id="@+id/img_splash_fill"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/hf_loading_fill" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>
