@@ -31,6 +31,7 @@ class MainRecyclerAdapter(
     private val adapterListener: MainAdapterListener?
 ) : RecyclerView.Adapter<MainRecyclerAdapter.BaseViewHolder>(), ItemTouchHelperAdapter {
     private var data: MutableList<ServersCache> = mutableListOf()
+    var detailsListener: ((String) -> Unit)? = null
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(newData: MutableList<ServersCache>?, position: Int = -1) {
@@ -111,8 +112,10 @@ class MainRecyclerAdapter(
         holder.itemMainBinding.layoutShare.visibility = View.GONE
         holder.itemMainBinding.layoutEdit.visibility = View.GONE
         holder.itemMainBinding.layoutRemove.visibility = View.GONE
-        holder.itemMainBinding.layoutMore.visibility = View.GONE
-        holder.itemMainBinding.layoutMore.setOnClickListener(null)
+        holder.itemMainBinding.layoutMore.visibility = View.VISIBLE
+        holder.itemMainBinding.layoutMore.setOnClickListener {
+            detailsListener?.invoke(guid)
+        }
 
         holder.itemMainBinding.infoContainer.setOnClickListener {
             adapterListener?.onSelectServer(guid)

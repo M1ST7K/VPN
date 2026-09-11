@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/hotfox_sheet_bg"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/hotfox_screen_inset"
+    android:paddingTop="20dp"
+    android:paddingEnd="@dimen/hotfox_screen_inset"
+    android:paddingBottom="28dp">
+
+    <TextView
+        android:id="@+id/tv_add_title"
+        style="@style/HotFoxTextDisplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/hotfox_add_connection_title"
+        android:textSize="32sp" />
+
+    <LinearLayout
+        android:id="@+id/row_add_https"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_row_height"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/hotfox_row_ripple"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/hotfox_icon_size"
+            android:layout_height="@dimen/hotfox_icon_size"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_hotfox_line_link" />
+
+        <TextView
+            style="@style/HotFoxTextHeadline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:text="@string/hotfox_add_https" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_hairline"
+        android:background="@color/hotfox_hairline" />
+
+    <LinearLayout
+        android:id="@+id/row_add_clipboard"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_row_height"
+        android:background="@drawable/hotfox_row_ripple"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/hotfox_icon_size"
+            android:layout_height="@dimen/hotfox_icon_size"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_hotfox_line_clipboard" />
+
+        <TextView
+            style="@style/HotFoxTextHeadline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:text="@string/hotfox_add_clipboard" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_hairline"
+        android:background="@color/hotfox_hairline" />
+
+    <LinearLayout
+        android:id="@+id/row_add_qr"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_row_height"
+        android:background="@drawable/hotfox_row_ripple"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/hotfox_icon_size"
+            android:layout_height="@dimen/hotfox_icon_size"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_hotfox_line_qr" />
+
+        <TextView
+            style="@style/HotFoxTextHeadline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:text="@string/hotfox_add_qr" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_hairline"
+        android:background="@color/hotfox_hairline" />
+
+    <LinearLayout
+        android:id="@+id/row_add_file"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_row_height"
+        android:background="@drawable/hotfox_row_ripple"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/hotfox_icon_size"
+            android:layout_height="@dimen/hotfox_icon_size"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_hotfox_line_file" />
+
+        <TextView
+            style="@style/HotFoxTextHeadline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:text="@string/hotfox_add_file" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_hairline"
+        android:background="@color/hotfox_hairline" />
+
+    <LinearLayout
+        android:id="@+id/row_add_always_on"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hotfox_row_height"
+        android:background="@drawable/hotfox_row_ripple"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/hotfox_icon_size"
+            android:layout_height="@dimen/hotfox_icon_size"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_hotfox_line_shield" />
+
+        <TextView
+            style="@style/HotFoxTextHeadline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:text="@string/hotfox_add_always_on" />
+    </LinearLayout>
+</LinearLayout>

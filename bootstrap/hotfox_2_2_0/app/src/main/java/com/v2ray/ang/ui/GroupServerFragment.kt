@@ -68,6 +68,12 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         adapter = MainRecyclerAdapter(mainViewModel, ActivityAdapterListener())
+        adapter.detailsListener = { guid ->
+            startActivity(
+                Intent(requireContext(), HotfoxServerDetailsActivity::class.java)
+                    .putExtra(HotfoxServerDetailsActivity.EXTRA_GUID, guid),
+            )
+        }
         binding.recyclerView.setHasFixedSize(true)
         // HOTFOX intentionally uses one readable server column on phones. The old two-column
         // preference made names, Reality/XHTTP badges and latency compete for too little width.

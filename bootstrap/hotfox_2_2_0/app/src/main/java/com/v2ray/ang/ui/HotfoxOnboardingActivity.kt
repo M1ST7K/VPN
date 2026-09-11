@@ -6,12 +6,20 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.R
+import com.v2ray.ang.commerce.CommerceCoordinator
 import com.v2ray.ang.commerce.CommercePreferences
+import com.v2ray.ang.commerce.CommerceResult
 import com.v2ray.ang.databinding.ActivityHotfoxOnboardingBinding
+import com.v2ray.ang.extension.toast
+import com.v2ray.ang.util.Utils
 import com.v2ray.ang.vpn.HotfoxOnboardingFlow
 import com.v2ray.ang.vpn.HotfoxOnboardingStore
 import com.v2ray.ang.vpn.HotfoxServerSelection
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HotfoxOnboardingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHotfoxOnboardingBinding
@@ -66,14 +74,27 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
         binding.tvOnboardingTitle.setText(if (titleId != 0) titleId else R.string.hotfox_onboarding_welcome_title)
         binding.tvOnboardingBody.setText(if (bodyId != 0) bodyId else R.string.hotfox_onboarding_welcome_body)
         binding.btnOnboardingPrimary.setText(if (primaryId != 0) primaryId else R.string.hotfox_onboarding_continue)
+        binding.ivOnboardingArtwork.isVisible = false
+        binding.tvOnboardingAutoMark.isVisible = false
+        binding.tvOnboardingNote.isVisible = false
         when (step) {
+            HotfoxOnboardingFlow.Step.WELCOME,
+            HotfoxOnboardingFlow.Step.ACCESS -> {
+                binding.btnOnboardingSecondary.isVisible = true
+                binding.btnOnboardingPrimary.setText(R.string.hotfox_onboarding_existing)
+                binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_buy)
+            }
             HotfoxOnboardingFlow.Step.AUTO -> {
                 binding.btnOnboardingSecondary.isVisible = true
                 binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_auto_manual)
+                binding.tvOnboardingAutoMark.isVisible = true
             }
-            HotfoxOnboardingFlow.Step.ACCESS -> {
-                binding.btnOnboardingSecondary.isVisible = true
-                binding.btnOnboardingSecondary.setText(R.string.hotfox_already_have_subscription)
+            HotfoxOnboardingFlow.Step.VPN_PERMISSION,
+            HotfoxOnboardingFlow.Step.FIRST_CONNECTION -> {
+                binding.btnOnboardingSecondary.isVisible = false
+                binding.ivOnboardingArtwork.isVisible = true
+                binding.tvOnboardingNote.isVisible = true
+                binding.tvOnboardingNote.setText(R.string.hotfox_onboarding_ready_note)
             }
             else -> binding.btnOnboardingSecondary.isVisible = false
         }
@@ -93,6 +114,11 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                     finishToMain()
                 }
             }
+            HotfoxOnboardingFlow.Step.WELCOME,
+            HotfoxOnboardingFlow.Step.ACCESS -> {
+                startActivity(Intent(this, HotfoxHttpsSubscriptionActivity::class.java))
+                go(HotfoxOnboardingFlow.Event.NEXT)
+            }
             else -> go(HotfoxOnboardingFlow.Event.NEXT)
         }
     }
@@ -103,8 +129,41 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 HotfoxServerSelection.setAutoMode(false)
                 go(HotfoxOnboardingFlow.Event.MANUAL_SERVERS)
             }
-            HotfoxOnboardingFlow.Step.ACCESS -> go(HotfoxOnboardingFlow.Event.NEXT)
+            HotfoxOnboardingFlow.Step.WELCOME,
+            HotfoxOnboardingFlow.Step.ACCESS -> startHostedCheckout()
             else -> Unit
+        }
+    }
+
+    /**
+     * Opens the existing hosted checkout. Browser return is never payment proof.
+     */
+    private fun startHostedCheckout() {
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                val coordinator = CommerceCoordinator.get(this@HotfoxOnboardingActivity)
+                coordinator.refreshPresentation()
+                val planId = coordinator.loadPlans().firstOrNull()?.id
+                    ?: coordinator.cachedPlans().firstOrNull()?.id
+                if (planId.isNullOrBlank()) {
+                    null
+                } else {
+                    coordinator.startCheckout(planId)
+                }
+            }
+            when (result) {
+                is CommerceResult.Ok -> {
+                    val url = result.value.checkoutUrl
+                    if (url.isNullOrBlank()) {
+                        toast(R.string.hotfox_buy_unavailable)
+                    } else {
+                        toast(R.string.hotfox_checkout_opened)
+                        Utils.openUri(this@HotfoxOnboardingActivity, url)
+                    }
+                    go(HotfoxOnboardingFlow.Event.NEXT)
+                }
+                else -> toast(R.string.hotfox_buy_unavailable)
+            }
         }
     }
 

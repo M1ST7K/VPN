@@ -19,8 +19,44 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
         binding = ActivityHotfoxRoutingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnRoutingMode.setOnClickListener { showModePicker() }
+        binding.rowRoutingMode.setOnClickListener { showModePicker() }
         binding.btnRoutingAdvanced.setOnClickListener {
             startActivity(Intent(this, RoutingSettingActivity::class.java))
+        }
+        binding.rowRoutingApps.setOnClickListener {
+            startActivity(Intent(this, HotfoxAppsRulesActivity::class.java))
+        }
+        binding.rowRoutingLan.setOnClickListener {
+            val snapshot = HotfoxRoutingStore.load()
+            HotfoxRoutingStore.saveLan(!snapshot.lanAccess)
+            toast(R.string.hotfox_route_changed)
+            if (CoreServiceManager.isRunning()) {
+                CoreServiceManager.restartForRouting(this)
+            }
+            render()
+        }
+        binding.rowRoutingDns.setOnClickListener {
+            val snapshot = HotfoxRoutingStore.load()
+            HotfoxRoutingStore.saveDns(!snapshot.dnsThroughVpn)
+            toast(R.string.hotfox_route_changed)
+            if (CoreServiceManager.isRunning()) {
+                CoreServiceManager.restartForRouting(this)
+            }
+            render()
+        }
+        binding.rowRoutingIpv6.setOnClickListener {
+            val enabled = com.v2ray.ang.handler.MmkvManager.decodeSettingsBool(
+                com.v2ray.ang.AppConfig.PREF_IPV6_ENABLED,
+            )
+            com.v2ray.ang.handler.MmkvManager.encodeSettings(
+                com.v2ray.ang.AppConfig.PREF_IPV6_ENABLED,
+                !enabled,
+            )
+            toast(R.string.hotfox_route_changed)
+            if (CoreServiceManager.isRunning()) {
+                CoreServiceManager.restartForRouting(this)
+            }
+            render()
         }
         render()
     }
@@ -41,6 +77,18 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
                 HotfoxRoutingMode.EXCLUDE_APPS -> R.string.hotfox_route_exclude_summary
                 HotfoxRoutingMode.CUSTOM -> R.string.hotfox_route_custom_summary
             },
+        )
+        binding.tvRoutingLanValue.setText(
+            if (snapshot.lanAccess) R.string.hotfox_route_lan_on else R.string.hotfox_route_lan_off,
+        )
+        binding.tvRoutingDnsValue.setText(
+            if (snapshot.dnsThroughVpn) R.string.hotfox_routing_dns_vpn else R.string.hotfox_routing_dns_direct,
+        )
+        val ipv6 = com.v2ray.ang.handler.MmkvManager.decodeSettingsBool(
+            com.v2ray.ang.AppConfig.PREF_IPV6_ENABLED,
+        )
+        binding.tvRoutingIpv6Value.setText(
+            if (ipv6) R.string.hotfox_routing_ipv6_on else R.string.hotfox_routing_ipv6_off,
         )
     }
 

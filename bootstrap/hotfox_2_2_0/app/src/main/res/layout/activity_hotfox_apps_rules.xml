@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hotfox_bg_main"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/hotfox_screen_inset"
+    android:paddingTop="28dp"
+    android:paddingEnd="@dimen/hotfox_screen_inset"
+    android:paddingBottom="16dp">
+
+    <TextView
+        style="@style/HotFoxTextDisplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/hotfox_apps_rules_title"
+        android:textSize="32sp" />
+
+    <TextView
+        style="@style/HotFoxTextBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/hotfox_apps_rules_body" />
+
+    <TextView
+        android:id="@+id/btn_apps_open"
+        style="@style/HotFoxCtaPrimary"
+        android:layout_width="match_parent"
+        android:layout_marginTop="28dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/hotfox_settings_apps" />
+</LinearLayout>

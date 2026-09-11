@@ -58,6 +58,11 @@ object HotfoxRoutingStore {
         HotfoxRoutingApply.bump()
     }
 
+    fun saveDns(enabled: Boolean) {
+        MmkvManager.encodeSettings(HotfoxRoutingPolicy.PREF_DNS_VPN, enabled)
+        HotfoxRoutingApply.bump()
+    }
+
     fun saveAds(enabled: Boolean) {
         MmkvManager.encodeSettings("hotfox_block_ads", enabled)
         HotfoxRoutingApply.bump()
