@@ -1,0 +1,96 @@
+HOTFOX — 18 FINAL STYLE REFERENCE FILES
+=======================================
+
+Этот набор зафиксирован как визуальная база для дальнейшего UI/UX HotFox.
+Оригинальные reference files являются абсолютным visual source of truth.
+
+ВАЖНЫЙ NEGATIVE PROMPT:
+НЕ ИЗОБРЕТАТЬ И НЕ РАСПРОСТРАНЯТЬ НОВЫЕ ПЛАНЕТЫ, ПЛАНЕТАРНЫЕ ДУГИ, ГОРИЗОНТЫ ПЛАНЕТ, ЗАТМЕНИЯ, ГЛОБУСЫ ИЛИ ДРУГУЮ ПЛАНЕТАРНУЮ/КОСМИЧЕСКУЮ ЭСТЕТИКУ.
+Если подобный мотив буквально присутствует в locked reference конкретного экрана, воспроизводить можно только то, что уже есть в этом exact reference, и никогда не переносить мотив на другой экран.
+
+Фирменные основы:
+- dark premium editorial Android UI;
+- почти чёрный warm-violet background;
+- cream typography;
+- restrained HotFox orange;
+- green только для real verified success;
+- единый набор fine line icons;
+- минимум визуального шума;
+- лиса только там, где она буквально есть в exact reference;
+- никакого creative drift;
+- никакой technical regression.
+
+ORIGINAL APPROVED FILES / SHA-256:
+01. Splash / Brand Entry
+    original: 01_splash_brand_entry.jpeg
+    sha256: 8b07bd2fdaba1618ce1ab9ccff07dda678e14df336db401328accb9a22bd200a
+
+02. Подключите HotFox
+    original: 02_onboarding_connect_hotfox.jpeg
+    sha256: 1bc006c1b48996e79d706118ab4e9aa35ca35a7999ccdd4cf157fcd4ca6145b4
+
+03. AUTO
+    original: 03_onboarding_auto.jpeg
+    sha256: 466ba7c4ddcded73bf1c9d55e14604f40825e1103bef3fa54f7394ac664fcd82
+
+04. Всё готово
+    original: 04_onboarding_ready.jpeg
+    sha256: 2af79525cf77459cbcef71db80b22f59a02fd86e8ece9d433d760f6f1ee923fb
+
+05. Главный экран — Не защищено
+    original: 05_main_not_protected.jpeg
+    sha256: 0ab581bb6d810a48b912eac3134f8df0438ee16995db6f1bb7620c8fa2ba0998
+
+06. Подключаем…
+    original: 06_connecting.png
+    sha256: d8e25ac3bec19d24d1d25e2e93912bc592807530db48c72a2913b73ab4ff4997
+
+07. Защищено
+    original: 07_protected.png
+    sha256: b685d00b6311d51e2b8ec9402058a9128450f8a4ce8ad68a62e3c3be77f8eb1e
+
+08. Добавить подключение
+    original: 08_add_connection.png
+    sha256: 9e48bcb4dbb9001e91efdd0c425b8620e010406f2b6d75e65eac38f596cdcbab
+
+09. HTTPS-подписка
+    original: 09_https_subscription.png
+    sha256: 41655c64d1a43ae6114ed416d60728058bbd6d40dcd8db33acde35af6baecedb
+
+10. Серверы
+    original: 10_servers.png
+    sha256: 6c2eb01c8a0644e8f44fb08b29c2e8631f40ea4a65ab8d39e0f29c2db0cd62ff
+
+11. Детали сервера
+    original: 11_server_details.png
+    sha256: 9e248acb335e9ec5b2682563f4b4566d137c3e5c3f2c1766cec5a8a21d0170e8
+
+12. Подписка
+    original: 12_subscription.png
+    sha256: 4e33f704fbe3a02d4cc3115c2aaca561a9981d76a68a8c03a6d64f9b6bb3b509
+
+13. Настройки
+    original: 13_settings.png
+    sha256: 7a25e843463f90aa16a9a51b070e877fb0ea1e153e8a1af8d96354f86282f6cf
+
+14. Smart Routing
+    original: 14_smart_routing.png
+    sha256: 180eb867456219206f492dbb7592d27411ff4b828cd5491ef6bc1a6b760e4b52
+
+15. Приложения и правила
+    original: 15_apps_and_rules.png
+    sha256: e1d195efdfab00161e10d832685ae088062f5be5fbe1ee2d31523c584a553e7f
+
+16. Autopilot
+    original: 16_autopilot.png
+    sha256: 3c50bf3d57d2fff638c388ea4cad28f6f10b0b4be63011b21f03c3d77a83567c
+
+17. Shadow
+    original: 17_shadow.png
+    sha256: cce2c1b6f70daf8fbe0f1ab742e0db4fb736b920afaae866e51ccd914acd94f0
+
+18. Always-on VPN / Kill Switch
+    original: 18_always_on_kill_switch.png
+    sha256: 799b3acec810f39c747a62fa31deb339068945a380b0a918b78a3dc96904feb8
+
+Repository `*.preview.webp` files are optimized visual working copies for agent/context use. They must never be mistaken for the immutable full-resolution originals identified by the SHA-256 values above. Pixel-diff claims requiring exact source pixels must use a full-resolution original with matching SHA-256.

@@ -1,0 +1,49 @@
+package com.v2ray.ang.ui
+
+import android.content.Intent
+import android.os.Bundle
+import android.provider.Settings
+import androidx.appcompat.app.AppCompatActivity
+import com.v2ray.ang.R
+import com.v2ray.ang.databinding.ActivityHotfoxAlwaysOnBinding
+import com.v2ray.ang.extension.toast
+
+class HotfoxAlwaysOnActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityHotfoxAlwaysOnBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityHotfoxAlwaysOnBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        HotfoxChrome.bindBack(this)
+        HotfoxChrome.bindBottomNav(this, HotfoxChrome.SETTINGS)
+        binding.btnAlwaysOnOpen.setOnClickListener { openAndroidVpnSettings() }
+        binding.rowAlwaysOnHow.setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.hotfox_always_on_how)
+                .setMessage(R.string.hotfox_always_on_help)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+        render()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        render()
+    }
+
+    private fun render() {
+        binding.tvAlwaysOnStatus.setText(R.string.hotfox_always_on_not_configured)
+        binding.tvAlwaysOnKill.setText(R.string.hotfox_always_on_not_configured)
+        binding.tvAlwaysOnAndroid.setText(R.string.hotfox_always_on_not_configured)
+    }
+
+    private fun openAndroidVpnSettings() {
+        val opened = runCatching {
+            startActivity(Intent(Settings.ACTION_VPN_SETTINGS))
+            true
+        }.getOrDefault(false)
+        if (!opened) toast(R.string.hotfox_always_on_unavailable)
+    }
+}

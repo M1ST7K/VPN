@@ -1,0 +1,1 @@
+Cursor Cloud/Background Agents should start with `AGENTS.md`, then execute `bootstrap/bootstrap_source.sh` when `V2rayNG/` is not present. After reconstruction, the Ultra Master Prompt and UI reference become available under `docs/` and are mandatory sources of truth for implementation.

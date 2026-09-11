@@ -1,0 +1,303 @@
+HOTFOX — 18 APPROVED REFERENCES — IMMUTABLE PIXEL-LOCK RECREATION MASTER
+=======================================================================
+
+PURPOSE
+-------
+This document is a strict anti-drift visual contract for HotFox.
+The 18 approved reference images are primary truth. This text is secondary.
+
+NON-NEGOTIABLE RULE
+-------------------
+THE APPROVED REFERENCE FOR A SCREEN WINS OVER EVERY PROSE DESCRIPTION, OLD COMPONENT, THEME TOKEN, MATERIAL DEFAULT, AGENT PREFERENCE OR DESIGN OPINION.
+
+You are not designing a new version.
+You are not improving.
+You are not reinterpreting.
+You are not modernizing.
+You are not adapting.
+You are not taking inspiration.
+You are recreating the UI inside each approved phone reference as literally as technically possible.
+
+The correct result is not “same style”, “very close”, or “inspired by”.
+The correct result is: no intentional visual deviation.
+
+REFERENCE SET
+-------------
+01_splash_brand_entry
+02_onboarding_connect_hotfox
+03_onboarding_auto
+04_onboarding_ready
+05_main_not_protected
+06_connecting
+07_protected
+08_add_connection
+09_https_subscription
+10_servers
+11_server_details
+12_subscription
+13_settings
+14_smart_routing
+15_apps_and_rules
+16_autopilot
+17_shadow
+18_always_on_kill_switch
+
+Screen 05 is the strongest functional style anchor for subsequent application screens, but each screen's own reference remains authoritative for its exact details.
+
+GLOBAL VISUAL CHARACTER
+-----------------------
+Premium editorial Android UI.
+Dark, warm, restrained, precise, confident.
+Near-black background with subtle violet warmth.
+Cream typography, not cold pure white.
+HotFox orange used accurately and sparingly.
+Soft green reserved for real verified success.
+Fine line icons.
+Minimal visual noise.
+No generic utility/dashboard look.
+
+STARTING COLOR TOKENS — TUNE AGAINST REFERENCE
+-----------------------------------------------
+background deep: #05070D
+background main: #070912 / #090B14
+surface: #111119 / #15141D / #191720 depending on exact reference
+primary cream: #F5E9E1 / #F6EDE8
+secondary cream: rgba(246,237,232,.72)
+muted: rgba(246,237,232,.48-.56)
+HotFox orange: approximately #F78843 / #FF8E4D
+success green: approximately #76EA77
+hairline: rgba(255,255,255,.08-.12)
+
+These values are starting points only. Pixel comparison to the reference decides final values.
+
+TYPOGRAPHY LOCK
+---------------
+Use one premium neutral grotesk family as close to the reference as the project legally allows.
+Do not substitute a visibly different desktop/novelty font.
+Use exact measured hierarchy per screen.
+Calibrate:
+- family;
+- size;
+- weight;
+- line-height;
+- tracking;
+- baseline;
+- wrapping;
+- max width;
+- tabular numerals for timer/metrics where required.
+
+Do not change Russian copy merely to make wrapping easier.
+
+GEOMETRY LOCK
+-------------
+For every screen measure and record:
+- viewport;
+- safe insets;
+- left/right content inset;
+- header bounds;
+- title bounding box;
+- body bounding box;
+- artwork bounds;
+- card/surface bounds;
+- row heights;
+- divider positions;
+- icon centers;
+- CTA bounds/radius;
+- bottom-nav bounds;
+- text baselines.
+
+Implement from measurements, not intuition.
+
+ICON LOCK
+---------
+Use a coherent fine line icon family.
+Match visual size, stroke, line caps, optical center and tint.
+Never use text glyphs or emoji in place of proper product icons.
+Do not mix unrelated icon families.
+
+CTA LOCK
+--------
+Orange primary CTA only where the approved reference shows it.
+Match exact width, height, radius, label position and trailing icon.
+Do not add shadows/gradients/glow unless literally visible in the exact reference.
+Secondary actions remain secondary.
+
+SURFACE LOCK
+------------
+Do not wrap everything in cards.
+Reproduce only the surfaces/cards/rows visible in the exact reference.
+Match border alpha, radius, padding and divider positions.
+Never substitute a default Material card/dialog merely because it is convenient.
+
+NEGATIVE PROMPT — ABSOLUTE
+--------------------------
+Never invent:
+- generic Material 3 redesign;
+- default Material blue/purple;
+- glassmorphism;
+- neumorphism;
+- neon;
+- cyberpunk;
+- gaming style;
+- giant glowing VPN power circle;
+- arbitrary cards;
+- random gradients;
+- random shadows;
+- fake graphs;
+- fake world maps;
+- fake speed/load/threat meters;
+- random badges;
+- mixed icon families;
+- emoji icons;
+- cold pure-white typography;
+- technical jargon in normal UI;
+- new marketing copy;
+- new navigation structure;
+- fake product state.
+
+PLANET / CELESTIAL NEGATIVE RULE
+--------------------------------
+Never invent or propagate a new planet, globe, planetary arc, planetary horizon, eclipse, celestial sphere or space-horizon motif.
+If a motif is literally visible in the exact locked reference for one screen, reproduce only what is already there for that screen. Never copy it to another screen.
+
+FOX RULE
+--------
+The approved fox is not a generic mascot.
+Do not add it where the exact reference does not show it.
+Do not remove it where the exact reference does show it.
+Do not transform it into a cartoon/cute/different fox.
+
+REFERENCE-ONLY MOTIF RULE
+-------------------------
+Any decorative motif is owned by the specific reference where it appears. Motif propagation across screens is forbidden.
+
+FUNCTIONAL RECONSTRUCTION RULE
+------------------------------
+Do not cheat by shipping a full-screen screenshot as the Android UI.
+Text remains real Android text.
+Buttons remain controls.
+Rows remain accessible controls.
+Dynamic data remains bound to real state.
+Decorative artwork can be a dedicated asset where needed.
+
+SCREEN 01 — SPLASH
+------------------
+Recreate exact inner-phone splash composition, approved fox/artwork, HotFox branding, tagline/loading treatment and dark atmosphere. Do not add interactive UI. Do not impose a fake fixed loading delay.
+
+SCREEN 02 — CONNECT HOTFOX
+--------------------------
+Recreate exact onboarding hierarchy: HotFox label, large title, explanatory body, approved artwork, orange existing-access CTA, secondary purchase action. No commercial implementation jargon.
+
+SCREEN 03 — AUTO
+----------------
+Recreate title/body/AUTO visual/primary CTA/manual secondary action exactly. Do not move its visual motif onto other screens. Production AUTO state remains real and persisted.
+
+SCREEN 04 — READY
+-----------------
+Recreate title/body/readiness illustration/Android permission note/Continue CTA exactly. Never expose TUN/HEV/SOCKS/Xray to normal users. Android permission remains the actual system flow.
+
+SCREEN 05 — MAIN NOT PROTECTED
+------------------------------
+Primary functional anchor. Recreate exact status hierarchy, artwork, CTA, quick rows, hint/info surface and bottom navigation shown in the locked reference. Bind rows to real server/subscription/Shadow/routing state.
+
+SCREEN 06 — CONNECTING
+----------------------
+Recreate exact title/subtitle/progress motif/server/routing/Shadow/subscription/Stop/navigation composition. No fake percent or premature green success.
+
+SCREEN 07 — PROTECTED
+---------------------
+Recreate exact green success treatment, timer, traffic, server information, routing/Shadow/subscription, route visual, Disconnect and navigation. Green appears only for actual verified state in production.
+
+SCREEN 08 — ADD CONNECTION
+--------------------------
+Recreate exact locked add-connection surface/sheet, options, icons, row spacing, dividers, dim behavior and system-protection entry. Never fall back to default blue/purple Material dialog.
+
+SCREEN 09 — HTTPS SUBSCRIPTION
+------------------------------
+Recreate exact title/body/input/paste/privacy/CTA arrangement and background treatment. Production secrets must not be logged or permanently displayed in full after storage.
+
+SCREEN 10 — SERVERS
+-------------------
+Recreate exact filters/AUTO/server rows/latency/selection/maintenance/navigation. Values are real in production; no fake pings or health.
+
+SCREEN 11 — SERVER DETAILS
+--------------------------
+Recreate exact server detail hierarchy, metrics that are genuinely supported, status/capabilities and selection action. Do not fabricate throughput or load.
+
+SCREEN 12 — SUBSCRIPTION
+------------------------
+Recreate exact subscription visual hierarchy, status, expiry/device/actions/navigation. Dynamic entitlement data must be authoritative, not hardcoded.
+
+SCREEN 13 — SETTINGS
+--------------------
+Recreate exact grouping, density, rows, values, toggles and secondary navigation. No generic Android Settings restyle.
+
+SCREEN 14 — SMART ROUTING
+-------------------------
+Recreate exact routing hierarchy, mode/apps/rules/DNS/IPv6/LAN controls, information/action regions. Bind existing routing logic; do not invent another model.
+
+SCREEN 15 — APPS & RULES
+------------------------
+Recreate exact search/mode/app rows/check states/rules/action structure. Production list is real installed apps, not placeholders.
+
+SCREEN 16 — AUTOPILOT
+---------------------
+Recreate exact master state, network policies, trusted networks, pause/captive portal presentation and actions. Bind existing Autopilot state machine.
+
+SCREEN 17 — SHADOW
+------------------
+Recreate exact title/body/status/mode/approved motif/information/action hierarchy. No protocol jargon or security weakening.
+
+SCREEN 18 — ALWAYS-ON / KILL SWITCH
+-----------------------------------
+Recreate exact system-protection explanation, state rows, approved shield/artwork, help/info and Android-settings CTA. Do not fake control over Android-owned system settings.
+
+PIXEL-DIFF LOOP
+---------------
+For every screen:
+1. preserve immutable reference;
+2. extract/normalize inner-phone golden crop;
+3. render implementation at canonical test viewport;
+4. capture actual screenshot;
+5. align/normalize;
+6. create overlay/diff/heatmap;
+7. calculate changed pixel count/percent, mean delta, max delta;
+8. inspect bounding clusters;
+9. fix;
+10. repeat.
+
+Do not mask visual errors.
+Only dynamic VALUE regions may be stabilized/masked; their geometry and typography still must match.
+
+REJECT A SCREEN IF
+------------------
+- element missing;
+- extra element;
+- wrong copy;
+- wrong title/line break causing meaningful composition drift;
+- wrong color;
+- wrong typography;
+- wrong geometry;
+- wrong artwork/crop;
+- wrong CTA;
+- wrong navigation;
+- wrong icon family;
+- wrong row order/height;
+- wrong radius/border;
+- default Material replacement;
+- decorative motif copied from another screen;
+- fake product state introduced.
+
+PRODUCT TRUTH
+-------------
+References lock visual examples. Production values must come from real state.
+No hardcoded production ping/traffic/server/expiry/device/payment/protection values.
+Test-only screenshot fixtures are allowed only in test code for deterministic golden comparison.
+
+FINAL RULE
+----------
+If you changed something because you thought it looked better, revert it.
+If you cannot cite reference evidence for a visual deviation, remove the deviation.
+If technical truth and screenshot example differ, preserve technical truth while keeping the locked geometry/style and show a truthful dynamic value/state.
+
+REFERENCE FIDELITY OVER CREATIVITY. ZERO INTENTIONAL DRIFT.

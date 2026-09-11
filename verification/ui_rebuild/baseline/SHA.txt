@@ -1,0 +1,6 @@
+baseline_recorded_at=2026-09-11T10:34:00Z
+base_sha=46d0cb9c2713033997b56e747b93613d353de587
+branch=cursor/hotfox-ui-pixel-lock-execution
+head_at_report_prep=498e84859977fbdeaad955de1cb1b45059a014ca
+locked_originals=ORIGINALS_PRESENT
+pixel_diff=NOT_EXECUTED

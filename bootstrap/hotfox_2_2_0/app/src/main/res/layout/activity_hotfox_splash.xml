@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hotfox_bg_deep"
+    android:fitsSystemWindows="true">
+
+    <ImageView
+        android:id="@+id/iv_splash_fox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name"
+        android:scaleType="centerCrop"
+        android:src="@drawable/hotfox_art_fox_planet_splash" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:paddingBottom="72dp">
+
+        <TextView
+            android:id="@+id/tv_splash_brand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false"
+            android:text="HotFox"
+            android:textColor="@color/hotfox_orange"
+            android:textSize="36sp" />
+
+        <TextView
+            android:id="@+id/tv_splash_tagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.18"
+            android:text="@string/hotfox_splash_tagline"
+            android:textAllCaps="true"
+            android:textColor="@color/hotfox_cream_muted"
+            android:textSize="11sp" />
+
+        <ProgressBar
+            android:id="@+id/splash_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="96dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="28dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/hotfox_orange"
+            android:progressDrawable="@drawable/hotfox_progress_line" />
+    </LinearLayout>
+</FrameLayout>

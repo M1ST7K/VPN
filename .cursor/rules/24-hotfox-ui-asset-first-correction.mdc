@@ -1,0 +1,198 @@
+---
+description: HotFox UI correction — owner assets first, zero motif drift, 18/18 screenshot evidence required
+alwaysApply: true
+---
+
+# HotFox UI asset-first correction rule
+
+The current HotFox UI reconstruction is under corrective review.
+
+Read first:
+
+- `verification/ui_rebuild/HOTFOX_UI_CORRECTIVE_REVIEW_FAIL.md`
+- `design/HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt`
+- approved 18-screen reference package / MANIFEST
+
+## Current gate
+
+The current UI branch is NOT pixel-lock complete.
+
+Current accepted visual score: **0/18** until actual app screenshots are captured and compared.
+
+Never describe the UI as complete, final, pixel-perfect, visually passed, 1:1, or merge-ready while the evidence files show `NOT_CAPTURED` / `NOT_EXECUTED`.
+
+## Owner asset package
+
+The owner is preparing a ZIP of individually cut PNG elements from the approved UI.
+
+When that package becomes available, it is the preferred production artwork source.
+
+Mandatory intake:
+
+1. extract to a dedicated asset workspace;
+2. calculate SHA-256 for every PNG;
+3. record width/height/color mode/alpha bounds;
+4. create an asset-to-screen manifest;
+5. classify every asset as `decorative`, `icon`, `background`, or `native-ui-reference-only`;
+6. reject duplicated/ambiguous assets for manual review;
+7. map assets only to screens where the approved reference proves they belong.
+
+Do not silently modify the owner asset.
+
+## Production raster prohibition
+
+Do NOT create new production artwork by cropping a large rectangle from an approved full-screen screenshot.
+
+Do NOT use a phone screenshot as the screen implementation.
+
+Do NOT bake interactive UI into a bitmap.
+
+Do NOT bake text, CTA, rows, tabs, switches, state labels, server values, subscription values, timers, ping, traffic, or system state into PNGs.
+
+Allowed production PNGs:
+
+- owner-supplied isolated PNG elements;
+- truly isolated decorative artwork when independently exported and free of neighboring UI contamination.
+
+## Planet / globe / orbit prohibition
+
+ABSOLUTE NEGATIVE RULE:
+
+**Never invent a planet. Never invent a globe. Never invent an orbit. Never generalize a space motif.**
+
+A planet/globe/orbit/celestial horizon may exist only on an exact screen where the locked approved reference literally contains that exact element.
+
+Never propagate it to another screen.
+
+Resource naming such as `*_planet_generic`, `*_fox_planet_home`, or other generalized motif assets is a warning sign and must not be used as proof that the motif belongs globally.
+
+## Fox prohibition
+
+The fox is screen-owned artwork, not a globally insertable mascot.
+
+- Do not add a fox where the exact reference does not show one.
+- Do not remove one where the exact reference shows one.
+- Do not redraw it into a different style.
+- Do not use a generic fox asset across screens unless the exact same asset is demonstrably reused by the approved references.
+
+## Reference hierarchy
+
+For exact visual decisions:
+
+1. exact approved screen reference;
+2. owner-supplied isolated PNG for that screen;
+3. measured design tokens extracted from the reference;
+4. prose spec;
+5. existing implementation.
+
+A current XML/layout/resource is never allowed to overrule the exact approved reference merely because it is already implemented.
+
+## Native UI remains native
+
+The following must remain real Android UI/state:
+
+- text;
+- buttons;
+- rows;
+- navigation;
+- switches;
+- forms;
+- installed-app list;
+- server list;
+- subscription state;
+- timers;
+- connection state;
+- traffic values;
+- latency;
+- permission flow;
+- Android-owned Always-on / Kill Switch state.
+
+Decorative PNG assets may sit behind/around native UI but must not replace it.
+
+## No global normalization against reference
+
+Do not change one screen because another screen appears more consistent.
+
+Do not normalize:
+
+- tab labels;
+- row presence;
+- icon placement;
+- CTA wording;
+- spacing;
+- decorative motifs;
+- title composition;
+
+unless the exact screen reference proves the normalized result.
+
+Per-screen reference truth wins over aesthetic consistency assumptions.
+
+## Exact correction loop
+
+For EACH of 18 screens:
+
+1. create deterministic state fixture in test/debug-only code if necessary;
+2. build actual Android app;
+3. launch on canonical emulator/device viewport;
+4. navigate to exact state;
+5. capture screenshot;
+6. normalize only permitted system/dynamic regions;
+7. compare against exact approved reference;
+8. generate overlay + diff/heatmap;
+9. record changed pixels, changed %, mean delta, max delta;
+10. identify largest mismatch clusters;
+11. fix geometry/type/color/artwork;
+12. repeat until accepted;
+13. only then mark screen PASS.
+
+No estimated PASS.
+No visual inspection-only PASS.
+No golden-crop-only PASS.
+
+## Dynamic values
+
+Production values must remain truthful.
+
+For visual regression only, deterministic test fixtures may provide stable values matching the reference.
+
+Test fixture state MUST NOT leak into release behavior.
+
+## Technical non-regression
+
+Do not change the canonical VPN path for visual work:
+
+`VpnService/TUN -> HEV/tun2socks -> local Xray SOCKS -> Xray outbound -> server -> Internet`
+
+Do not weaken or bypass:
+
+- connection truth;
+- DNS protection;
+- IPv6 handling;
+- session epoch/race protection;
+- AUTO/manual semantics;
+- routing;
+- Shadow;
+- Autopilot;
+- entitlement;
+- device registry;
+- notification/QS truth.
+
+Do not build parallel fake state machines for screenshots.
+
+## Merge gate
+
+Visual merge gate is closed until:
+
+- approved owner assets are integrated;
+- unauthorized screenshot-derived composite crops are gone;
+- no invented motif remains;
+- no unapproved visual additions remain;
+- 18 implementation screenshots exist;
+- 18 reference comparisons exist;
+- 18 diff results are executed;
+- 18 screens are accepted;
+- core regression checks pass.
+
+Until then report exactly:
+
+`HOTFOX UI PIXEL-LOCK: FAIL / INCOMPLETE`

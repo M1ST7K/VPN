@@ -1,0 +1,57 @@
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+**/local.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Signing / private material
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+signing.properties
+*signing_key*
+*signing-key*
+*keystore*
+
+# Secrets
+.env
+.env.*
+secrets.properties
+credentials.properties
+
+# Generated / release artifacts
+*.apk
+*.aab
+*.aar
+*.log
+captures/
+V2rayNG/app/release/output.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Bootstrap reconstructed sources are generated from the versioned payload
+# and are intentionally not committed in this setup branch.
+V2rayNG/
+docs/CURSOR_PRO_ULTRA_MASTER_PROMPT_HOTFOX_PROXY_2.2.0.txt
+docs/HOTFOX_UI_REFERENCE.jpeg
+docs/BOOTSTRAP_PAYLOAD_MANIFEST.txt
+docs/DEPENDENCY_VERIFICATION.md
+docs/README_HOTFOX.md
+docs/SECURITY_HOTFOX.md
+docs/THIRD_PARTY_NOTICES.md
+# Extracted full-resolution presentation boards (the zip + MANIFEST are the source of truth)
+design/hotfox_18_final_style_reference/*.jpeg
+design/hotfox_18_final_style_reference/*.png

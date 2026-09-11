@@ -1,0 +1,298 @@
+name: HotFox bootstrap and Android CI
+
+on:
+  push:
+    branches: [main, "cursor/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: hotfox-ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Same-repo PRs from main/cursor/** already have a push job. Keep fork PRs,
+# non-cursor same-repo PRs, main/cursor pushes, and manual dispatch.
+jobs:
+  payload-integrity:
+    name: Payload integrity
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+        (github.event.pull_request.head.repo.full_name != github.repository ||
+         (github.event.pull_request.head.ref != 'main' &&
+          !startsWith(github.event.pull_request.head.ref, 'cursor/'))))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact bootstrap payload
+        run: bash bootstrap/verify_payload.sh
+      - name: Review-cap unit tests
+        run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
+
+  reconstruct-and-build:
+    name: Reconstruct and build Android app
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+        (github.event.pull_request.head.repo.full_name != github.repository ||
+         (github.event.pull_request.head.ref != 'main' &&
+          !startsWith(github.event.pull_request.head.ref, 'cursor/'))))
+    needs: payload-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      NDK_VERSION: 29.0.14206865
+      HOTFOX_GIT_SHA: ${{ github.sha }}
+      HOTFOX_CHANNEL: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # Default packages include `tools`, which pulls Android Emulator.
+          # A corrupt emulator zip has failed the compile job. This job never
+          # launches an emulator.
+          packages: platform-tools
+
+      - name: Install native build prerequisites and Android 17 SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          # GitHub-hosted runners ship Google Chrome's apt source. A Hash Sum
+          # mismatch on that unrelated repo fails `apt-get update` and aborts
+          # the Android reconstruct job. Chrome is not a build dependency.
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list \
+                     /etc/apt/sources.list.d/google-chrome.list.save \
+                     /etc/apt/sources.list.d/google-chrome.sources
+          if [ -f /etc/apt/sources.list ]; then
+            sudo sed -i '/dl\.google\.com\/linux\/chrome/d' /etc/apt/sources.list
+          fi
+          apt_ok=0
+          for attempt in 1 2 3; do
+            if sudo apt-get update && sudo apt-get install -y --no-install-recommends xz-utils rsync binutils; then
+              apt_ok=1
+              break
+            fi
+            echo "apt-get attempt ${attempt} failed; retrying..." >&2
+            sleep $((attempt * 4))
+          done
+          if [ "${apt_ok}" -ne 1 ]; then
+            echo "apt-get failed after 3 attempts" >&2
+            exit 1
+          fi
+          # compileSdk=37: platforms;android-37 → platforms/android-37
+          # Keep build-tools;37.0.0 separate from the platform package.
+          # SDK packages are installed with sdkmanager --channel=3.
+          bash .github/scripts/install_hotfox_android_sdk.sh
+          test -d "${ANDROID_SDK_ROOT}/platforms/android-37"
+          test -x "${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}/ndk-build"
+
+      - name: Reconstruct HotFox 2.1.0 baseline and apply 2.2.0 overlay
+        run: bash bootstrap/bootstrap_source.sh
+
+      - name: Verify HotFox 2.2.0 source overlay
+        run: bash bootstrap/verify_hotfox_2_2_0.sh
+
+      - name: Static check 2.2.0
+        run: python3 verification/static_check_2_2_0.py
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK
+        working-directory: V2rayNG
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon --stacktrace :app:assemblePlaystoreDebug
+
+      - name: Unit tests
+        working-directory: V2rayNG
+        run: ./gradlew --no-daemon --stacktrace :app:testPlaystoreDebugUnitTest
+
+      - name: Android lint
+        working-directory: V2rayNG
+        run: ./gradlew --no-daemon --stacktrace :app:lintPlaystoreDebug
+
+      - name: Verify unsigned release compilation
+        working-directory: V2rayNG
+        run: ./gradlew --no-daemon --stacktrace :app:assemblePlaystoreRelease
+
+      - name: Sandbox commerce debug BuildConfig succeeds
+        working-directory: V2rayNG
+        run: bash ../verification/sandbox_gradle_flag_check.sh "$PWD"
+
+      - name: Upload debug APKs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-playstore-debug-apks
+          path: V2rayNG/app/build/outputs/apk/playstore/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Record APK SHA-256
+        if: success()
+        run: |
+          set -euo pipefail
+          sha256sum V2rayNG/app/build/outputs/apk/playstore/debug/*.apk | tee apk-sha256.txt
+          test -s apk-sha256.txt
+          {
+            echo "candidate_sha=${GITHUB_SHA}"
+            echo "ref=${GITHUB_REF_NAME}"
+            echo "apk_sha256:"
+            cat apk-sha256.txt
+          } | tee candidate-evidence.txt
+
+      - name: Upload APK SHA-256
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-playstore-debug-apk-sha256
+          path: |
+            apk-sha256.txt
+            candidate-evidence.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-lint-reports-${{ github.run_id }}
+          path: |
+            V2rayNG/app/build/reports/lint-results-*.html
+            V2rayNG/app/build/reports/lint-results-*.xml
+          if-no-files-found: ignore
+          retention-days: 14
+
+  publish-dev-latest:
+    name: Publish HotFox Dev Latest
+    needs: reconstruct-and-build
+    if: success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/cursor/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: hotfox-dev-latest
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: hotfox-playstore-debug-apks
+          path: dist
+      - name: Recreate HotFox Dev Latest prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git fetch origin "${GITHUB_REF_NAME}" --depth 1
+          head="$(git rev-parse "origin/${GITHUB_REF_NAME}")"
+          if [[ "$head" != "$GITHUB_SHA" ]]; then
+            echo "Skip stale publisher: $GITHUB_SHA is not origin/${GITHUB_REF_NAME} ($head)"
+            exit 0
+          fi
+          mine_ts="$(git show -s --format=%ct "$GITHUB_SHA")"
+          if gh release view hotfox-dev-latest --json targetCommitish >/dev/null 2>&1; then
+            existing_sha="$(gh release view hotfox-dev-latest --json targetCommitish --jq .targetCommitish)"
+            existing_iso="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${existing_sha}" --jq .commit.committer.date 2>/dev/null || true)"
+            if [[ -n "$existing_iso" ]]; then
+              existing_ts="$(date -u -d "$existing_iso" +%s 2>/dev/null || echo 0)"
+              if [[ "$mine_ts" -lt "$existing_ts" ]]; then
+                echo "Skip older commit $GITHUB_SHA ($mine_ts) overwriting $existing_sha ($existing_ts)"
+                exit 0
+              fi
+              if [[ "$mine_ts" -eq "$existing_ts" && "$GITHUB_SHA" != "$existing_sha" ]]; then
+                echo "Skip equal-timestamp overwrite of $existing_sha by $GITHUB_SHA"
+                exit 0
+              fi
+            fi
+          fi
+          shopt -s nullglob
+          apks=(dist/*.apk)
+          [[ ${#apks[@]} -gt 0 ]] || { echo "no APKs to publish"; exit 1; }
+          notes="$(printf 'Debug APK from %s (%s).\nUI/install artifact only. Not physical-device VPN E2E.\nSHA-256:\n%s\n' \
+            "${GITHUB_SHA}" "${GITHUB_REF_NAME}" "$(sha256sum "${apks[@]}" | awk '{print $1, $2}')")"
+          gh release view hotfox-dev-latest >/dev/null 2>&1 && \
+            gh release delete hotfox-dev-latest --cleanup-tag --yes
+          gh release create hotfox-dev-latest \
+            --target "${GITHUB_SHA}" \
+            --title "HotFox Dev Latest" \
+            --notes "$notes" \
+            --prerelease \
+            "${apks[@]}"
+
+  # Emulator smoke is deliberately manual-only. It is useful for occasional UI/install
+  # checks but must not add up to 40 minutes to every Cursor push or checkpoint cycle.
+  emulator-ui-smoke:
+    name: Emulator UI smoke (manual, not VPN E2E)
+    needs: reconstruct-and-build
+    if: success() && github.event_name == 'workflow_dispatch'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      API_LEVEL: 34
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: hotfox-playstore-debug-apks
+          path: dist
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools emulator
+      - name: Skip when KVM is unavailable
+        id: kvm
+        run: |
+          if [[ -e /dev/kvm ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "Emulator UI smoke NOT EXECUTED: /dev/kvm missing"
+          fi
+      - name: Boot emulator and run UI smoke
+        if: steps.kvm.outputs.available == 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # android-emulator-runner runs `script` line-by-line via /usr/bin/sh (dash).
+          # Keep this a single bash command: dash rejects `set -o pipefail` and
+          # multiline scriptlets do not share state across lines.
+          script: bash verification/ci_run_emulator_ui_smoke.sh
+      - name: Upload smoke diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-emulator-smoke-diagnostics-${{ github.run_id }}
+          path: |
+            /tmp/hotfox-smoke-logcat.txt
+            /tmp/hotfox-smoke.png
+            /tmp/hotfox-ui-dump.xml
+          if-no-files-found: ignore
+          retention-days: 7
