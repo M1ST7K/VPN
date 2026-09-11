@@ -235,11 +235,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         refreshSmartRouting()
         runEntranceAnimations()
         refreshCommercialState()
-        when (intent?.getStringExtra(EXTRA_OPEN_SECTION)) {
-            SECTION_SERVERS -> showSection(UiSection.SERVERS)
-            SECTION_SUBSCRIPTION -> showSection(UiSection.SUBSCRIPTION)
-            SECTION_SETTINGS -> startActivity(Intent(this, HotfoxSettingsActivity::class.java))
-        }
+        applyOpenSection(intent)
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }
@@ -528,7 +524,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        applyOpenSection(intent)
         handlePossibleCheckoutReturn()
+    }
+
+    private fun applyOpenSection(intent: Intent?) {
+        when (intent?.getStringExtra(EXTRA_OPEN_SECTION)) {
+            SECTION_SERVERS -> showSection(UiSection.SERVERS)
+            SECTION_SUBSCRIPTION -> showSection(UiSection.SUBSCRIPTION)
+            SECTION_SETTINGS -> startActivity(Intent(this, HotfoxSettingsActivity::class.java))
+        }
     }
 
     private fun handlePossibleCheckoutReturn() {

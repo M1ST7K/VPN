@@ -59,7 +59,7 @@ is `design/hotfox_18_final_style_reference/`, with the production task in
 `design/HOTFOX_CURSOR_FULL_UI_REBUILD_PIXEL_LOCK_PROMPT.txt`.
 
 The new references supersede the historical three-destination layout. Most primary
-screens show `Главная / Серверы / Подписка / Настройки`; preserve the exact per-screen
+screens show `Главная / Серверы / Подписка / Настройки` in the phone bottom navigation; preserve the exact per-screen
 appearance/absence of navigation. Screen 07 has a documented inconsistent label and
 active state; consult `design/HOTFOX_REFERENCE_CONFLICTS.md`, do not silently claim
 an altered screenshot matches. Do not restore the side rail/drawer.

@@ -36,7 +36,6 @@ class HotfoxSettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
         binding.rowSettingsDiagnostics.setOnClickListener {
-            (this as? MainActivity)
             startActivity(Intent(this, LogcatActivity::class.java))
         }
         binding.rowSettingsLan.setOnClickListener {

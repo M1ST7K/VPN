@@ -1,0 +1,19 @@
+screen_id,reference,actual,capture_status,geometry_status,typography_status,color_status,asset_status,functional_status,accessibility_status,visual_status,notes
+01,01_splash_brand_entry.jpeg,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,Splash continues immediately; no stable splash frame captured.
+02,02_onboarding_connect_hotfox.jpeg,verification/ui_rebuild/actual/02.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Real emulator API 34 screenshot. Pixel compare vs phone-board reference NOT executed as PASS.
+03,03_onboarding_auto.jpeg,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,Requires stepping HotfoxOnboardingFlow; not captured this run.
+04,04_onboarding_ready.jpeg,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,Requires VPN permission step; not captured.
+05,05_main_not_protected.jpeg,verification/ui_rebuild/actual/05.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Disconnected connection screen on emulator. No fake CONNECTED.
+06,06_connecting.png,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,Connecting state not forced; would require real connect attempt.
+07,07_protected.png,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,Protected state not shown; path verification not executed.
+08,08_add_connection.png,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,Sheet not opened in this capture pass.
+09,09_https_subscription.png,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,Activity is exported=false; adb start denied. Not opened via UI this pass.
+10,10_servers.png,verification/ui_rebuild/actual/10.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,AUTO first row visible. Empty server list is truthful.
+11,11_server_details.png,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,No imported server guid to open details.
+12,12_subscription.png,verification/ui_rebuild/actual/12.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Backend-unavailable commercial presentation is real runtime state.
+13,13_settings.png,verification/ui_rebuild/actual/13.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Settings rows + 4-tab nav.
+14,14_smart_routing.png,verification/ui_rebuild/actual/14.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Routing store labels; LAN native switch.
+15,15_apps_and_rules.png,,NOT_CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,FAIL / NOT EXECUTED,PerAppProxyActivity exported=false; capture via row tap did not yield a screenshot this pass.
+16,16_autopilot.png,verification/ui_rebuild/actual/16.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Native Autopilot switch bound to store.
+17,17_shadow.png,verification/ui_rebuild/actual/17.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Kit shield/orbits; Keep AUTO CTA.
+18,18_always_on_kill_switch.png,verification/ui_rebuild/actual/18.png,CAPTURED,NOT_EXECUTED,NOT_EXECUTED,NOT_EXECUTED,IMPLEMENTED,IMPLEMENTED,SOURCE_ONLY,CAPTURED_NOT_PIXEL_PASS,Status unknown; opens Android VPN settings; not simulated.

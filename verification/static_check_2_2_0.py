@@ -208,6 +208,11 @@ def main() -> int:
     )
     must_contain(
         "app/src/main/res/layout/activity_main.xml",
+        "include_hf_bottom_nav",
+        "mobile-first connection nav include",
+    )
+    must_contain(
+        "app/src/main/res/layout/include_hf_bottom_nav.xml",
         "nav_connection",
         "mobile-first connection nav",
     )
