@@ -1,0 +1,19 @@
+screen_id,reference,actual,changed_pixels,changed_percent,mean_delta,max_delta,status,notes
+01_splash_brand_entry,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout; SHA-256 in MANIFEST.txt
+02_onboarding_connect_hotfox,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+03_onboarding_auto,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+04_onboarding_ready,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+05_main_not_protected,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+06_connecting,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+07_protected,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+08_add_connection,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+09_https_subscription,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+10_servers,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+11_server_details,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+12_subscription,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+13_settings,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+14_smart_routing,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+15_apps_and_rules,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+16_autopilot,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+17_shadow,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout
+18_always_on_kill_switch,MISSING_ORIGINAL,NOT_CAPTURED,,, , ,BLOCKED,full-resolution original not in checkout

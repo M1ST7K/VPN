@@ -1,0 +1,15 @@
+NONE as VPN/session/Xray/HEV/payment/control-plane architecture.
+
+UI-adjacent store adapters only:
+
+- bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingStore.kt
+  - why: locked Smart Routing screen must bind the already stored `PREF_DNS_VPN` flag
+  - before: DNS-through-VPN was readable (`dnsThroughVpn`) but had no dedicated saver
+  - after: `saveDns(Boolean)` writes the same pref and bumps `HotfoxRoutingApply`
+  - tests: existing `HotfoxRoutingTest` DNS policy cases remain the source of truth; saver does not change decide()
+
+- bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxRoutingPrivacyActivity.kt
+  - why: locked routing rows toggle existing `AppConfig.PREF_IPV6_ENABLED`
+  - before: IPv6 was changed from SettingsActivity / CoreVpnService readers
+  - after: the same boolean is flipped from the Smart Routing row and `restartForRouting` is used if a session is running
+  - tests: existing CoreVpnService IPv6 fail-closed tests remain the source of truth

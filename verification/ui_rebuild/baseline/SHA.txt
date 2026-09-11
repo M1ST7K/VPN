@@ -1,0 +1,88 @@
+baseline_recorded_at=2026-09-11T09:00:08Z
+base_sha=46d0cb9c2713033997b56e747b93613d353de587
+branch=cursor/hotfox-ui-pixel-lock-execution
+## cursor/hotfox-ui-pixel-lock-execution
+ M bootstrap/apply_hotfox_android_manifest.py
+ M bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/GroupServerFragment.kt
+ M bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxOnboardingActivity.kt
+ M bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxRoutingPrivacyActivity.kt
+ M bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt
+ M bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt
+ M bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxRoutingStore.kt
+ M bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_autopilot.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_onboarding.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_routing.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_main.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/layout/item_recycler_main.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/values-ru/strings.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/values/colors.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/values/strings.xml
+ M bootstrap/hotfox_2_2_0/app/src/main/res/values/themes.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxAddConnectionSheet.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxAlwaysOnActivity.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxAppsRulesActivity.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxHttpsSubscriptionActivity.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxSettingsActivity.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxShadowActivity.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxSplashActivity.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxHttpsImportPolicy.kt
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_connect_action_bg.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_cta_primary_bg.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_cta_secondary_bg.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_divider.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_info_surface.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_input_bg.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_progress_track.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_row_ripple.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_sheet_bg.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_sheet_dim.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/hotfox_surface_card.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_fox_mark.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_arrow.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_check.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_chevron.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_clipboard.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_close.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_file.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_info.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_link.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_paste.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_pause.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_plus.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_qr.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_route.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_search.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_server.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_settings.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_shadow.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_shield.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_star.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/drawable/ic_hotfox_line_wifi.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_base.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_bypass_list.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_always_on.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_apps_rules.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_https_subscription.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_server_details.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_settings.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_shadow.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_splash.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/dialog_hotfox_add_connection.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/layout/item_hotfox_settings_row.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/values/attrs.xml
+?? bootstrap/hotfox_2_2_0/app/src/main/res/values/hotfox_pixel_lock_dimens.xml
+?? bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/ui/
+?? bootstrap/hotfox_2_2_0/app/src/test/java/com/v2ray/ang/vpn/HotfoxHttpsImportPolicyTest.kt
+?? verification/ui_rebuild/
+---
+46d0cb9 (HEAD -> cursor/hotfox-ui-pixel-lock-execution, origin/cursor/hotfox-ui-pixel-lock-execution) design(ui): add approved HotFox reference manifest
+e01a86d design(ui): add immutable 18-screen recreation lock
+1794896 design(ui): add full Cursor pixel-lock rebuild task
+736c72d design(ui): lock HotFox UI rebuild to approved references
+a729b1c fix(vpn): claim teardown inside admission commit lock [hotfox-phase-exit]
+775ff6c fix(vpn): serialize admission commit with teardown [hotfox-phase-exit]
+2999248 fix(vpn): resolve admission isActive via coroutineContext [hotfox-phase-exit]
+a41a890 docs: request phase-exit after round-30 P1 fixes [hotfox-phase-exit]
+5fc9375 fix(vpn): own admission job and invalidate epoch only after claim
+141daea docs: request phase-exit after round-29 P1 fixes [hotfox-phase-exit]
