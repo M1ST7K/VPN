@@ -2,7 +2,7 @@
 
 ## Originals
 
-Full-resolution locked files from `design/hotfox_18_final_style_reference/MANIFEST.txt` are **PRESENT** (zip + extracted copies). `verification/ui_rebuild/check_locked_originals.py` reports `PIXEL_DIFF_STATUS=ORIGINALS_PRESENT` (missing=0, mismatch=0).
+Full-resolution locked files from `design/hotfox_18_final_style_reference/MANIFEST.txt` are **PRESENT** (zip + extracted copies). `verification/ui_rebuild/check_locked_originals.py` reports `PIXEL_DIFF_STATUS=ORIGINALS_PRESENT` (missing=0, mismatch=0). Git blob SHA of `HOTFOX_18_FINAL_STYLE_REFERENCE.zip`: `300c4226ef432ebba8b067ddbbcacde6bc1b707b` (24142063 bytes).
 
 Extracted `*.jpeg`/`*.png` boards are gitignored; the zip + MANIFEST remain the committed source of truth. Inner-phone goldens live in `verification/ui_rebuild/reference_analysis/*_golden_ui.png`.
 
@@ -24,8 +24,7 @@ Do **not** treat inner-phone goldens or preview-like crops as an exact-pixel PAS
 - Runtime VPN E2E / physical device: **NOT EXECUTED / deferred**. UI work must not claim `RELEASE READY`.
 - Screen 01 splash is not held with a fake delay; the user may barely see it.
 - Screens 10/11 have no committed country-flag bitmaps; emoji flags are not invented.
-- Screen 12 commercial layout remains the existing entitlement-bound subscription surface, not a pixel clone of the presentation-board marketing expiry example. Dynamic values stay backend/store-derived (no hardcoded `12 марта 2026`).
+- Screen 12 dynamic values stay backend/store/device-registry derived (no hardcoded `12 марта 2026` / `2 из 5`).
 - Screen 13 keeps extra Прочее rows for Updates and ads so those real destinations stay reachable.
-- Screen 15 chrome opens real `PerAppProxyActivity` instead of inlining the app recycler.
 - Screen 07 bottom-nav label in the board says «Соединение»; chrome follows screen 05 («Главная»).
 - Presentation-board callout lines may remain on goldens; they are not product UI.

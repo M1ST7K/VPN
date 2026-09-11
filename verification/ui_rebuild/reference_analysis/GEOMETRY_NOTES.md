@@ -30,3 +30,13 @@ Canonical tokens measured from screen 05 (style anchor) plus per-screen notes:
 - 16 16_autopilot.png board=(1448, 1086) inner_box=(544, 127, 904, 965) golden=(360, 838)
 - 17 17_shadow.png board=(1448, 1086) inner_box=(544, 126, 903, 936) golden=(359, 810)
 - 18 18_always_on_kill_switch.png board=(1448, 1086) inner_box=(544, 130, 902, 968) golden=(358, 838)
+
+## Calibration pass after originals landed
+
+- 10 AUTO row: title AUTO (not `hotfox_auto_server`), subtitle «Лучший сервер автоматически», globe 28dp, selected orange stroke 1.5dp / radius 20dp; no star; no invented flags.
+- 11 title 32sp «Детали сервера»; CTA «Выбрать сервер»; load always «Нет данных».
+- 12 dedicated Premium card + 56dp rows; expiry/devices/payment from live stores.
+- 15 chips 40dp radius 18; search 44dp; installed-app rows 64dp; real packages only.
+- 16 Autopilot SwitchCompat orange thumb/track; notifications from NotificationManagerCompat.
+- 14 reconnect row bound to Autopilot `reconnectOnRestore`.
+- 17/18 extra rows use static product copy or «Не настроено», never fake «Готов»/system toggles.

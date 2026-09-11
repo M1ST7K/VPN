@@ -18,7 +18,7 @@
 | Buy/renew/manage | premium actions | checkout coordinator | subscription actions + onboarding secondary buy (`CommerceCoordinator.startCheckout`) | backend-authoritative; browser return not proof | existing commerce tests |
 | Settings | Material item list from toolbar | launches settings/apps/routing/ads/… | `HotfoxSettingsActivity` (13), 4-tab Настройки; ads/updates remain in Прочее | same destinations including ads toggle | activity rows |
 | Routing | Material mode dialog / routing activity | `HotfoxRoutingStore` | экраны 14 + mode rows | existing routing snapshot | `HotfoxRoutingTest` |
-| Per-app rules | `PerAppProxyActivity` | include/exclude | экран 15 chrome → real installed-app activity | `PREF_PER_APP_PROXY_SET` | existing routing tests |
+| Per-app rules | `PerAppProxyActivity` | include/exclude | экран 15 `HotfoxAppsRulesActivity` inlines real `AppManagerUtil` / `PerAppProxyViewModel` | `PREF_PER_APP_PROXY_SET` | existing routing tests |
 | DNS | routing store pref | `PREF_DNS_VPN` | row DNS on 14 | `HotfoxRoutingStore.saveDns` | existing `dnsThroughVpn` policy tests |
 | IPv6 | settings pref | `PREF_IPV6_ENABLED` | row IPv6 on 14 | existing fail-closed path | CoreVpnService tests |
 | LAN | routing LAN toggle | `saveLan` | row LAN on 14 | existing | routing tests |
