@@ -670,8 +670,6 @@
     <string name="hotfox_restore_failed">Не удалось восстановить доступ</string>
     <string name="hotfox_promo_invalid">Промокод не принят</string>
     <string name="hotfox_promo_applied">Цена после промокода: %1$s</string>
-    <string name="hotfox_nav_home">Главная</string>
-    <string name="hotfox_nav_settings">Настройки</string>
     <string name="hotfox_tagline_more_than_vpn">БОЛЬШЕ, ЧЕМ VPN</string>
     <string name="hotfox_onboarding_connect_title_ui">Подключите\nHotFox</string>
     <string name="hotfox_onboarding_connect_body_ui">Добавьте свою подписку или продолжите с уже существующим доступом.</string>
@@ -707,9 +705,7 @@
     <string name="hotfox_routing_apps_rules">Приложения и правила</string>
     <string name="hotfox_downloaded">Загружено</string>
     <string name="hotfox_uploaded">Отправлено</string>
-    <string name="hotfox_route_you">Вы</string>
     <string name="hotfox_route_hotfox">HotFox</string>
-    <string name="hotfox_route_internet">Интернет</string>
     <string name="hotfox_add_connection">Добавить подключение</string>
     <string name="hotfox_add_https">HTTPS-подписка</string>
     <string name="hotfox_add_clipboard">Из буфера обмена</string>
