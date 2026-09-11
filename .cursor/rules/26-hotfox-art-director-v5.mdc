@@ -1,0 +1,26 @@
+---
+description: HotFox V5 art-director refinement and visual QA rules
+alwaysApply: true
+---
+
+# HotFox V5 visual law
+
+- UI is NOT visually accepted at V4: 18/18 captures exist but 0/18 pass.
+- Read `verification/ui_rebuild/HOTFOX_ART_DIRECTOR_REVIEW_FAIL_V5.md` and `design/HOTFOX_CURSOR_ART_DIRECTOR_REFINEMENT_V5.txt`.
+- Asset kit is a parts bin, not automatic visual truth.
+- Never use decorative planet, planetary arc, eclipse, celestial horizon, closed orbit rings, solar-system composition, or radar-like concentric orbital systems.
+- V5 extends this prohibition to current AUTO/Ready illustrations if they visually read as orbital systems.
+- Fox artwork must not show an opaque rectangular matte. Use a clean transparent fox asset; fox interior must remain opaque, feather only outer silhouette.
+- Do not repeat the broken semi-transparent dark-fur alpha extraction.
+- Production truth and debug visual reference state are separate. Debug fixtures under src/debug are allowed and encouraged for visual QA of reference-populated states.
+- Never leak fixture servers, subscription, apps, traffic, latency, entitlement or CONNECTED state into release.
+- Production CONNECTED/Защищено remains gated by real readiness.
+- Use reference-state fixtures for 10/11/12/15 when approved board needs populated data.
+- Do not use one full-width orange pill CTA mechanically on every screen.
+- Content-over-containers remains required, but raw unstructured lists are also not acceptable; use subtle editorial grouping.
+- Typography, spacing and headers must be measured per screen.
+- No dead/unfinished lower-half layout unless reference intentionally uses that negative space.
+- All 18 V5 screenshots and comparisons are mandatory.
+- V4 evidence must be preserved; write V5 evidence to new directories/files.
+- Do not merge.
+- RELEASE READY is a separate runtime gate.
