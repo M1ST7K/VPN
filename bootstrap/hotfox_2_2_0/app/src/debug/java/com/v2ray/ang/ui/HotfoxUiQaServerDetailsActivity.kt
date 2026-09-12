@@ -38,7 +38,7 @@ class HotfoxUiQaServerDetailsActivity : AppCompatActivity() {
         binding.rowServerShadow.setOnClickListener {
             startActivity(Intent(this, HotfoxShadowActivity::class.java))
         }
-        binding.tvServerName.text = "Amsterdam"
+        binding.tvServerName.text = "Амстердам"
         binding.tvServerCountry.text = "Нидерланды"
         binding.imgServerFlag.visibility = View.VISIBLE
         binding.imgServerFlag.setImageResource(R.drawable.hf_flag_nl)

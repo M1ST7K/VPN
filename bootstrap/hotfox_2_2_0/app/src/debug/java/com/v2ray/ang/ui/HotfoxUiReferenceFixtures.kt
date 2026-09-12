@@ -22,7 +22,5 @@ object HotfoxUiReferenceFixtures {
         HotfoxUiVisualOverride.ReferenceAppRow("YouTube", "com.google.android.youtube\nВидео", true),
         HotfoxUiVisualOverride.ReferenceAppRow("Maps", "com.google.android.apps.maps\nКарты и навигация", false),
         HotfoxUiVisualOverride.ReferenceAppRow("WhatsApp", "com.whatsapp\nМессенджер", true),
-        HotfoxUiVisualOverride.ReferenceAppRow("Gmail", "com.google.android.gm\nПочта", false),
-        HotfoxUiVisualOverride.ReferenceAppRow("Spotify", "com.spotify.music\nМузыка", true),
     )
 }
