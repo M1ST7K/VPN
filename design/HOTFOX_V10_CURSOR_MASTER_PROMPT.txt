@@ -1,0 +1,404 @@
+HOTFOX V10 — MASTER CURSOR PROMPT
+
+You are not doing a light cleanup. You are executing a disciplined V10 premium polish pass across the full HotFox Android UI so the result becomes visually cohesive, premium, shippable and pixel-precise.
+
+READ THIS ENTIRE PROMPT CAREFULLY BEFORE CHANGING ANYTHING.
+
+====================================
+0. PRIMARY GOAL
+====================================
+Refine the existing HotFox UI without changing the core concept.
+Do NOT redesign from scratch.
+Do NOT invent a new style.
+Do NOT remove the fox identity.
+Do NOT remove the planet idea.
+Do NOT change the technical architecture.
+
+You must preserve the current aesthetic direction:
+- dark premium interface
+- almost black background with subtle warm violet undertone
+- cream / off-white text
+- restrained orange accent
+- soft green only for active protected state
+- strong negative space
+- minimal chrome
+- content over containers
+- editorial feeling
+- clean, calm, futuristic premium utility product
+
+The problem is not the direction. The problem is that the direction is not fully resolved.
+Your job is to make it fully resolved.
+
+====================================
+1. ABSOLUTE DO-NOT-BREAK RULES
+====================================
+1. Do not break working flows.
+2. Do not damage navigation.
+3. Do not damage routing logic, VPN logic, Xray / HEV / DNS / IPv6 / subscription logic.
+4. Do not destroy existing screen structure unless this prompt explicitly asks for visual restructuring.
+5. Do not add neon, glassmorphism, gamer effects, cyberpunk clutter or oversized glowing effects.
+6. Do not replace the brand fox with a new illustration.
+7. Do not remove the planet from the hero screens.
+8. Do not use inconsistent English/Russian labels. Keep the UI primarily ru-RU, except branded product/feature names that are intentionally English.
+9. Do not let visual polish create layout shifts, clipping, overlap or inaccessible tap targets.
+10. Do not produce “pretty screenshot only” code. It must remain a real, structured, maintainable UI implementation.
+
+====================================
+2. MAIN ART-DIRECTION PROBLEM TO SOLVE
+====================================
+The current build is good but still feels like “beautiful near-final work” rather than a final premium product.
+You must solve three big issues:
+
+A. HERO COMPOSITION INCONSISTENCY
+The fox + planet composition is close but not fully resolved.
+The planet currently reads too much like a soft glowing arc/dome. It must become a real compositional object.
+
+B. COMPONENT / SPACING SYSTEM INCONSISTENCY
+Buttons, cards, list rows, toggles, segmented controls, headers and sheets are close but not fully systematized.
+
+C. FUNCTIONAL SCREENS FEEL SLIGHTLY LESS PREMIUM THAN HERO SCREENS
+The technically dense screens still need a more elegant hierarchy and calmer information design.
+
+====================================
+3. PLANET REBUILD — MANDATORY
+====================================
+This is mandatory across screens where the planet is present.
+
+Target screens: 01, 02, 05, 07, 08 and 09.
+Potentially also any other screen where the hero composition benefits from a subtle planet anchor.
+
+The planet must follow these rules:
+1. It must read as a large, dark, atmospheric planetary mass — not a decorative orange arc.
+2. The fill should be extremely dark, close to the background, but still distinguishable through soft volume.
+3. Use a soft copper/orange rim light only where it makes physical/compositional sense.
+4. Rim light must not be uniform all the way around. It should feel cinematic and directional.
+5. The planet should not visually fight with the fox. The fox remains the hero.
+6. The planet must create depth and framing, not visual noise.
+7. Crop and scale must be consistent screen-to-screen so the brand system feels intentional.
+8. Avoid harsh outline feel. Avoid “half-circle sticker” look. Avoid obvious generic gradient sphere.
+9. The fox should feel embedded into a premium space composition, not pasted over a circle.
+10. Planet treatment must be subtle enough that UI remains primary.
+
+Planet visual guidance:
+- dark sphere body
+- low-contrast inner volume
+- elegant atmospheric edge
+- slightly different crop per screen allowed, but one system
+- believable soft fade into background
+
+If needed, create a reusable hero background component with screen-specific parameters.
+
+====================================
+4. GLOBAL SYSTEM REFINEMENT
+====================================
+You must audit and standardize all of the following:
+
+4.1 Spacing system
+- Standardize top safe area spacing.
+- Standardize logo/header spacing.
+- Standardize title-to-description spacing.
+- Standardize hero-to-action spacing.
+- Standardize card inner padding.
+- Standardize list row heights.
+- Standardize section gap rhythm.
+- Standardize bottom CTA placement and bottom safe area spacing.
+
+4.2 Typography system
+- Keep the current font family unless there is a clearly better project-approved option already available.
+- Make H1/H2/body/supporting/label scales consistent.
+- Improve line-height on multi-line descriptions.
+- Improve contrast between primary and secondary text.
+- Maintain ru-RU consistency.
+- English branded terms allowed only where intentional: HotFox, Shadow, Always-on VPN if product naming demands it.
+
+4.3 Buttons
+- Primary orange button must feel premium, not bulky.
+- Ensure button height, corner radius, horizontal padding and arrow placement are systematized.
+- Filled buttons should remain vivid but not scream.
+- Secondary / disabled / sheet-context buttons must feel related.
+
+4.4 Cards
+- Standardize corner radius.
+- Standardize border / divider subtlety.
+- Standardize internal layout and icon alignment.
+- Cards must feel thin, calm and premium — no chunky outdated dashboard look.
+
+4.5 Lists and settings rows
+- Align icons, titles, subtitles, values and chevrons precisely.
+- Reduce visual wobble.
+- Preserve readability.
+- Make row groups feel consistent across Settings / Shadow / Smart Routing / Server Details.
+
+4.6 Bottom navigation
+- Confirm icon optical alignment.
+- Confirm label spacing and active state consistency.
+- Do not let bottom nav feel too heavy.
+
+4.7 Bottom sheet
+- Improve handle spacing.
+- Improve title and close button balance.
+- Improve row padding and row rhythm.
+- Make mixed-dimmed background + sheet relationship more elegant.
+
+====================================
+5. SCREEN-BY-SCREEN TASK LIST
+====================================
+You must handle every page individually. Do not skip pages just because they already look decent.
+
+------------------------------------
+SCREEN 01 — Splash
+------------------------------------
+Goals:
+- Preserve the strong brand feeling.
+- Rebuild the hero composition so fox + planet + logo block feel like one authored scene.
+- The planet must be more believable and less like a generic arc.
+- Reduce the feeling of random empty space.
+- Improve relationship between fox composition and HotFox wordmark.
+- Refine loading bar so it feels slightly more branded and intentional.
+
+Must check:
+- optical centering
+- hero scale
+- wordmark vertical placement
+- subtitle contrast
+- loader thickness and margins
+
+------------------------------------
+SCREEN 02 — Onboarding: Connect / subscription intro
+------------------------------------
+Goals:
+- Improve the relation between header, title, body text, hero art and CTA.
+- Make the hero a little more integrated, not floating.
+- Ensure the secondary purchase action is visible enough but still secondary.
+- Keep composition calm and premium.
+
+------------------------------------
+SCREEN 03 — Best server automatically
+------------------------------------
+Goals:
+- Preserve concept.
+- Do not redesign.
+- Tighten title breaks, illustration placement and CTA spacing.
+- Make the illustration feel more purposefully composed.
+
+------------------------------------
+SCREEN 04 — All set
+------------------------------------
+Goals:
+- Preserve concept.
+- Do not redesign.
+- Only micro-polish spacing, alignment, device/check illustration, and permission note.
+- This screen is already close.
+
+------------------------------------
+SCREEN 05 — Home disconnected
+------------------------------------
+Goals:
+- Rebuild hero area with improved planet treatment.
+- Tighten relationship between state heading, subtitle, permission warning and CTA.
+- Make “Нет разрешения VPN” feel intentionally placed.
+- Ensure the card stack feels like part of the same composition, not a separate module added below.
+- Improve the bottom helper note typography.
+
+Watch out for:
+- hero too detached
+- permission line too weak
+- card paddings
+- CTA dominance vs surrounding content
+
+------------------------------------
+SCREEN 06 — Connecting state
+------------------------------------
+Goals:
+- Keep the staged connection logic.
+- Improve progress line styling and node balance.
+- Tighten typography and spacing of all connection steps.
+- Improve overlay treatment of disabled underlying content.
+- Make this state feel designed, not simply dimmed.
+
+------------------------------------
+SCREEN 07 — Home connected
+------------------------------------
+Goals:
+- Same improvements as screen 05, but for connected state.
+- Preserve green state heading.
+- Better integrate hero, planet, stats and flow diagram.
+- Make “Вы -> HotFox -> Интернет” feel cleaner and more premium.
+- Improve clarity of metrics while preserving restraint.
+
+------------------------------------
+SCREEN 08 — Disconnected + add connection sheet
+------------------------------------
+Goals:
+- Improve dimmed background/foreground relationship.
+- The orange CTA under dim must remain clean and premium.
+- The bottom sheet must have better spacing, hierarchy and refinement.
+- Handle English/Russian mixed naming intentionally. If “Always-on VPN / Kill Switch” remains, make sure it is consistent with product naming strategy.
+
+Must improve:
+- sheet handle
+- header/close balance
+- row spacing
+- sheet corner feel
+- background blur/dim relationship
+
+------------------------------------
+SCREEN 09 — HTTPS subscription
+------------------------------------
+Goals:
+- Reduce emptiness.
+- Make form hierarchy stronger.
+- Improve input field, insert action, CTA and supporting explanatory note.
+- Re-evaluate the fox/planet accent at the bottom: keep only if it strengthens composition. If kept, it must feel deliberate.
+
+------------------------------------
+SCREEN 10 — Servers
+------------------------------------
+Goals:
+- Refine top tabs and status alignment.
+- Improve the hierarchy of “Мои серверы”.
+- Make “Лучший сервер автоматически” visually special but not loud.
+- Tighten row rhythm, flag/icon alignment, latency placement and chevrons.
+- Ensure the page feels premium list design, not default settings list.
+
+------------------------------------
+SCREEN 11 — Server details
+------------------------------------
+Goals:
+- Improve hierarchy between labels and values.
+- Improve row consistency.
+- Make the explanatory note more legible.
+- Improve the disabled bottom button block so it does not look muddy.
+
+------------------------------------
+SCREEN 12 — Subscription
+------------------------------------
+Goals:
+- Make the screen feel more premium and valuable.
+- Keep the structure, but refine density and spacing.
+- The main card should feel more luxurious, less sparse.
+- The lower note/legal/payment clarification must be more legible.
+- Improve the relationship between “Управлять подпиской” and “Продлить доступ”.
+
+------------------------------------
+SCREEN 13 — Settings
+------------------------------------
+Goals:
+- Improve section grouping.
+- Tighten list spacing and hierarchy.
+- Make the page feel more polished and less plain while preserving minimalism.
+- Ensure the settings screen belongs to the same premium system as the hero screens.
+
+------------------------------------
+SCREEN 14 — Умная маршрутизация
+------------------------------------
+Goals:
+- Preserve the fully Russian version.
+- Keep “Умная маршрутизация” as the title.
+- Reduce perceived density.
+- Improve section header spacing.
+- Improve the switch row elegance.
+- Improve CTA integration at the bottom.
+- Make this technical screen calmer and more premium.
+
+Important:
+- No English “Smart Routing” title.
+- No “Custom rules” label in English if the rest is Russian. Use a Russian equivalent if product spec allows.
+- Keep technical clarity.
+
+------------------------------------
+SCREEN 15 — Приложения и правила
+------------------------------------
+Goals:
+- Tighten overall composition.
+- Improve segmented control, search field, list spacing and app rows.
+- Make app selectors / toggles / checkboxes more refined.
+- Reduce the awkward feeling of the large empty gap before the lower meta rows.
+- Better integrate “Пользовательские правила” and “Выбрано” into the whole page rhythm.
+- Keep CTA strong but not heavy.
+
+------------------------------------
+SCREEN 16 — Автопилот
+------------------------------------
+Goals:
+- Improve row refinement and state clarity.
+- Ensure the switch styling feels consistent with the rest of the design system.
+- Make the bottom explanation more legible.
+- Improve CTA anchoring.
+- Preserve simplicity but make it feel more deliberate and premium.
+
+------------------------------------
+SCREEN 17 — Shadow
+------------------------------------
+Goals:
+- This screen must become a flagship feature page.
+- Preserve the shield-centered concept.
+- Improve the line composition around the shield so it feels elegant, signature and intelligently designed.
+- Avoid random decorative lines.
+- Strengthen feature explanation via hierarchy.
+- Ensure the data rows underneath feel like part of the same system.
+- Keep “Shadow” as product/feature name, but make surrounding Russian copy elegant and precise.
+
+------------------------------------
+SCREEN 18 — Always-on VPN
+------------------------------------
+Goals:
+- Make this screen more resolved and less underdesigned.
+- Improve the shield illustration quality and composition.
+- Better balance whitespace.
+- Strengthen explanatory copy readability.
+- Improve CTA anchoring.
+- The page must feel like an important system feature, not a weak leftover screen.
+
+====================================
+6. LOCALIZATION / TERMINOLOGY RULES
+====================================
+Use ru-RU consistently across the UI.
+Allowed English product/feature naming only where intentional:
+- HotFox
+- Shadow
+- Always-on VPN (only if required by product naming)
+
+Preferred Russian for general UI labels and descriptions.
+No random mixed-language leftovers.
+No placeholder English.
+No awkward half-translated technical strings.
+
+====================================
+7. IMPLEMENTATION EXPECTATIONS
+====================================
+1. Use reusable tokens and component abstractions where appropriate.
+2. Do not create visual one-offs unless necessary.
+3. If you adjust paddings, radii, font sizes, row heights or spacings, propagate them systematically.
+4. Preserve accessibility and tap comfort.
+5. Keep emulator/demo data coherent.
+6. Keep debug/demo screenshots reproducible.
+
+====================================
+8. OUTPUT DELIVERABLES — REQUIRED
+====================================
+When finished, provide:
+1. Updated UI implementation.
+2. Fresh screenshots for all screens 01–18.
+3. A concise changelog by screen.
+4. A short “design QA self-check” confirming:
+   - planet fixed
+   - hero screens unified
+   - Russian localization consistent
+   - component system standardized
+   - Shadow improved
+   - Always-on improved
+   - Smart Routing / Applications & Rules polished
+
+====================================
+9. FINAL QUALITY BAR
+====================================
+Before stopping, ask yourself:
+- Does the planet look like a real compositional object now?
+- Do all fox/planet screens feel like one family?
+- Do technical screens now feel as premium as brand screens?
+- Does every page look intentionally authored?
+- Did I preserve the concept instead of changing it?
+- Is this now strong enough to present as final premium UI?
+
+If the honest answer is not yes, keep refining.
