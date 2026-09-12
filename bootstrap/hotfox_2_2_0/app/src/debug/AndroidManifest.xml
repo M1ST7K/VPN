@@ -1,6 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
+        <provider
+            android:name="com.v2ray.ang.ui.HotfoxUiQaInstaller"
+            android:authorities="${applicationId}.hotfox.ui.qa"
+            android:exported="false"
+            android:initOrder="100" />
+        <activity
+            android:name="com.v2ray.ang.ui.HotfoxUiQaServerDetailsActivity"
+            android:exported="false"
+            android:theme="@style/HotFoxEditorialTheme" />
+        <activity
+            android:name="com.v2ray.ang.ui.HotfoxUiScreenshotHarnessActivity"
+            android:exported="true"
+            android:theme="@style/HotFoxEditorialTheme"
+            tools:ignore="ExportedActivity">
+            <intent-filter>
+                <action android:name="com.hotfox.vpn.action.UI_SCREENSHOT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.v2ray.ang.vpn.HotfoxEngineeringE2eActivity"
             android:exported="true"

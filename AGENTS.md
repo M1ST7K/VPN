@@ -10,7 +10,7 @@ Before editing production code:
 
 1. Read this file completely.
 2. Read `docs/CURRENT_PHASE.md` completely.
-3. Read the phase document linked from `docs/CURRENT_PHASE.md`.
+3. Read the phase document linked from `docs/CURRENT_PHASE.md`. For the owner-requested 18-screen UI task, also read `design/HOTFOX_CURSOR_FULL_UI_REBUILD_PIXEL_LOCK_PROMPT.txt`, `.cursor/rules/23-hotfox-ui-pixel-lock.mdc`, and view all 18 original images before presentation changes.
 4. Inspect only the relevant implementation/tests/reports for the task.
 5. Read `docs/HOTFOX_MASTER_ROADMAP.md` only when you need cross-phase/product context.
 6. Read the older full Ultra Master Prompt only when `CURRENT_PHASE.md` or a concrete task explicitly requires a historical requirement from it.
@@ -54,15 +54,21 @@ plus real browser/app traffic and acceptable DNS/IPv6 behavior.
 
 ## Phone UI contract
 
-Primary phone navigation is exactly the three editorial bottom destinations (bottom bar):
+For the owner-requested 18-screen reconstruction, the current visual source of truth
+is `design/hotfox_18_final_style_reference/`, with the production task in
+`design/HOTFOX_CURSOR_FULL_UI_REBUILD_PIXEL_LOCK_PROMPT.txt`.
 
-`Соединение / Серверы / Подписка`
+The new references supersede the historical three-destination layout. Most primary
+screens show `Главная / Серверы / Подписка / Настройки` in the phone bottom navigation; preserve the exact per-screen
+appearance/absence of navigation. Screen 07 has a documented inconsistent label and
+active state; consult `design/HOTFOX_REFERENCE_CONFLICTS.md`, do not silently claim
+an altered screenshot matches. Do not restore the side rail/drawer.
 
-Do not restore the old side rail/drawer or a competing second primary navigation system.
-
-Preserve the HotFox direction: charcoal/purple-black canvas, warm cream typography, restrained orange accent, green only for real success, thin separators, clean contemporary server rows, visible state-aware route bars, no black-on-black icons and no square/missing-glyph placeholders.
-
-Do not trade VPN correctness for visual polish.
+Match each source image, including its typography, rows, artwork, colors and CTA
+placement. Preserve real state, accessible controls and all existing actions.
+No visual instruction permits fake protection, invented data or a weakened VPN.
+The explicit UI assignment may proceed while runtime/device release gates remain
+truthfully open; it does not start unrelated roadmap phases or declare release ready.
 
 ## Subscription and future commerce
 

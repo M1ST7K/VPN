@@ -3,8 +3,8 @@
     <color name="hotfox_navy">#1C1731</color>
     <color name="hotfox_deep_blue">#111A3D</color>
     <color name="hotfox_purple">#6F4ACB</color>
-    <color name="hotfox_orange">#F47B35</color>
-    <color name="hotfox_cream">#FFF3DB</color>
+    <color name="hotfox_orange">#FF803E</color>
+    <color name="hotfox_cream">#F3EDE9</color>
     <color name="hotfox_card">#FFFFFF</color>
     <color name="hotfox_card_soft">#F1EBF8</color>
     <color name="hotfox_success">#25775D</color>
@@ -63,11 +63,12 @@
     <color name="md_theme_surfaceTint">#000000</color>
     <color name="md_theme_scrim">#000000</color>
 
-    <color name="hotfox_editorial_bg">#0C0B10</color>
-    <color name="hotfox_editorial_surface">#121017</color>
-    <color name="hotfox_editorial_text">#F1E9E2</color>
-    <color name="hotfox_editorial_text_secondary">#B9B0B2</color>
-    <color name="hotfox_editorial_text_dim">#847D82</color>
-    <color name="hotfox_editorial_line">#302A31</color>
-    <color name="hotfox_success_bright">#9BE66F</color>
+    <color name="hotfox_editorial_bg">#0D0C12</color>
+    <color name="hotfox_editorial_surface">#15141B</color>
+    <color name="hotfox_editorial_text">#F3EDE9</color>
+    <color name="hotfox_editorial_text_secondary">#A5A1B2</color>
+    <color name="hotfox_editorial_text_dim">#A5A1B2</color>
+    <color name="hotfox_editorial_line">#2B2833</color>
+    <color name="hotfox_success_bright">#60D990</color>
+    <color name="hotfox_scrim">#99000000</color>
 </resources>

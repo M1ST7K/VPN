@@ -1,0 +1,19 @@
+screen_id,capture_status,composition,hierarchy,typography,spacing,asset_integration,controls,chrome,polish,average,pass,notes
+01,NOT_CAPTURED,,,,,,,,,-,NO,emulator hung after bluetooth packet streamer; no actual_v5/01.png
+02,NOT_CAPTURED,,,,,,,,,-,NO,same blocker
+03,NOT_CAPTURED,,,,,,,,,-,NO,code has routing topology; no capture to score
+04,NOT_CAPTURED,,,,,,,,,-,NO,code has ready-complete mark; no capture to score
+05,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot
+06,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot
+07,NOT_CAPTURED,,,,,,,,,-,NO,debug fixture only; no capture
+08,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot
+09,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot
+10,NOT_CAPTURED,,,,,,,,,-,NO,serversFixture implemented; no capture
+11,NOT_CAPTURED,,,,,,,,,-,NO,serverDetailsFixture implemented; no capture
+12,NOT_CAPTURED,,,,,,,,,-,NO,subscriptionFixture implemented; no capture
+13,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot
+14,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot
+15,NOT_CAPTURED,,,,,,,,,-,NO,appsFixture implemented; no capture
+16,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot
+17,NOT_CAPTURED,,,,,,,,,-,NO,topology redrawn in XML; no capture
+18,NOT_CAPTURED,,,,,,,,,-,NO,do not self-award without screenshot

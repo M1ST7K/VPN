@@ -1,0 +1,81 @@
+---
+description: Owner-requested 18-screen HotFox reconstruction; original pixels, truthful controls, unchanged VPN semantics, zero-tolerance evidence.
+alwaysApply: true
+---
+
+# HotFox: current owner UI reconstruction task
+
+The owner explicitly requested rebuilding the existing Android app UI from the
+18 attached references, committing them, and starting Cursor implementation.
+This authorizes UI implementation now; historical roadmap holds do not cancel it.
+It does not authorize weakening access controls, reviewer gates, runtime truth,
+security, signing, payment verification, or final release acceptance.
+
+Read `AGENTS.md`, `docs/CURRENT_PHASE.md`, then:
+- `design/HOTFOX_CURSOR_FULL_UI_REBUILD_PIXEL_LOCK_PROMPT.txt`;
+- `design/HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt`;
+- `design/HOTFOX_REFERENCE_CONFLICTS.md`;
+- `design/HOTFOX_REFERENCE_LOCK.json`;
+- view all 18 files in `design/hotfox_18_final_style_reference/`.
+
+Work on `cursor/hotfox-ui-pixel-lock-rebuild`, based on runtime repair
+`a729b1cbce719278840caf9ab09a5350e6d554e4`. Preserve later legitimate fixes.
+The full production prompt is the task entrypoint, not a request to draft a plan.
+
+## Visual contract
+
+Each corresponding image is the visual source of truth, subject to newer explicit owner overrides. No creative redesign,
+modernization, simplification, alternate layout, approximate result labeled exact,
+or Material default substituted for a visually different control.
+
+Implement the app-controlled display content, not external board annotations,
+phone chassis, camera, or fake SystemUI. Text/controls remain functional Android UI.
+No fullscreen screenshot UI, no reference-as-actual evidence.
+
+The new images supersede the historical three-tab UI. Preserve each image's
+four-tab or absent-tab composition; the screen 07 discrepancy is documented in
+`HOTFOX_REFERENCE_CONFLICTS.md`. Do not silently normalize it and claim 1:1.
+
+V7 owner override supersedes the older blanket no-planet clause: a restrained separate planet backdrop is required behind the transparent fox on screens 01/02/05/06/07/09, and may appear indirectly behind screen 08 sheet. Do not restore legacy screenshot-derived fox+planet composites. Planet remains forbidden elsewhere; orbit/radar/solar-system motifs remain forbidden everywhere. Screens 03/04 are owner-approved directionally and must not be conceptually redesigned.
+No neon/gamer/cyberpunk/glassmorphism/neumorphism or invented heavy cards/gradients/icons.
+Preserve precise copy, order, geometry, typography, color, artwork and CTA placement except where a newer owner override explicitly changes the art direction.
+
+## Runtime contract
+
+Keep VpnService/TUN → HEV/tun2socks → SOCKS → Xray → server datapath intact.
+`Защищено` is only canonical verified session state; the UI reads existing
+`HotfoxEngineFacade` and dispatches existing commands. No second UI state authority.
+Preserve a729b1c admission-lock teardown/native-socket protection repairs.
+Preserve DNS/IPv6 fail-closed, AUTO/manual intent, routing snapshots/tags,
+subscriptions/entitlement, Shadow, Autopilot, secure storage, notification and QS.
+Never simulate Android always-on/lockdown, payment, ping, traffic or server health in production.
+No secrets in repository/screenshots/logs. No TLS/REALITY/readiness bypass.
+
+Prefer presentation/resources changes. MainActivity contains command logic:
+being in `ui/` does not make a code block safe to rewrite.
+Use versioned bootstrap overlay; edits only in ignored V2rayNG/ are not deliverable.
+No framework/core/library upgrades merely for aesthetics.
+
+## Evidence contract
+
+Run `python3 verification/ui_rebuild/verify_reference_lock.py integrity` and `core`.
+Hashes prove source integrity/snapshot only, not runtime correctness.
+
+Declare source-bound viewport, device/density/API/fonts/insets and deterministic
+test-only state before visual implementation. Actual images must come from this
+candidate's real UI renderer/APK. No production fixture data.
+
+Pixel exact = 0 changed pixels AND 0 maximum channel delta in the declared region where the reference remains authoritative. Newer owner-overridden artwork regions must be documented rather than falsely scored exact.
+No tolerance, hidden masks, golden regeneration or fake reference substitution.
+
+Missing assets/captures → BLOCKED/NOT_EXECUTED, never PASS. Continue independent
+work. Record flattened-asset/font/navigation conflicts honestly; do not invent
+missing sources or pretend a prompt mathematically guarantees identical output.
+
+Produce 18 actual/reference/diff/overlay sets, metrics/provenance, old→new action
+map, UI/core diff report, regression/build evidence and commit-bound APK.
+Retain real runtime/device E2E statuses. UI work does not imply RELEASE READY.
+
+Implement continuously through 01–18; no approval pauses between screen groups.
+Do not stop at a plan or compilation. Reuse meaningful current gates, fix actual
+failures, and keep reviewing policy intact. No auto-merge or production release.

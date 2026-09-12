@@ -1,7 +1,9 @@
 package com.v2ray.ang.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
@@ -26,12 +28,44 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
         binding = ActivityHotfoxAutopilotBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.btnAutopilotToggle.setOnClickListener { togglePolicy() }
-        binding.btnAutopilotPause.setOnClickListener { showPause() }
-        binding.btnAutopilotProtection.setOnClickListener { showProtection() }
+        HotfoxSystemUi.constrainReadingWidth(binding.root)
+        binding.root.findViewById<android.view.View>(R.id.btn_header_back)?.apply {
+            visibility = android.view.View.VISIBLE
+            setOnClickListener { finish() }
+        }
+        binding.btnAutopilotToggle.setOnCheckedChangeListener { _, isChecked ->
+            val policy = HotfoxAutopilotStore.policy()
+            if (policy.enabled != isChecked) {
+                HotfoxAutopilotStore.setPolicy(policy.copy(enabled = isChecked))
+                HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
+                render()
+            }
+        }
+        binding.btnAutopilotWifi.setOnClickListener {
+            val policy = HotfoxAutopilotStore.policy()
+            HotfoxAutopilotStore.setPolicy(policy.copy(connectUnknownWifi = !policy.connectUnknownWifi))
+            HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
+            render()
+        }
+        binding.btnAutopilotCellular.setOnClickListener {
+            val policy = HotfoxAutopilotStore.policy()
+            HotfoxAutopilotStore.setPolicy(policy.copy(connectCellular = !policy.connectCellular))
+            HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
+            render()
+        }
         binding.btnAutopilotTrusted.setOnClickListener { showTrusted() }
+        binding.btnAutopilotPause.setOnClickListener { showPause() }
+        binding.btnAutopilotCaptive.setOnClickListener {
+            toast(R.string.hotfox_autopilot_captive_idle)
+        }
+        binding.btnAutopilotProtection.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.tvAutopilotDecision.setOnClickListener { showProtection() }
+        binding.btnAutopilotDone.setOnClickListener { finish() }
         render()
     }
 
@@ -42,9 +76,24 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
 
     private fun render() {
         val policy = HotfoxAutopilotStore.policy()
-        binding.btnAutopilotToggle.setText(
-            if (policy.enabled) R.string.hotfox_autopilot_enabled else R.string.hotfox_autopilot_disabled,
+        binding.btnAutopilotToggle.isChecked = policy.enabled
+        binding.tvAutopilotToggleCaption.setText(
+            if (policy.enabled) R.string.hotfox_autopilot_enabled_short else R.string.hotfox_autopilot_disabled_short,
         )
+        binding.tvAutopilotWifiValue.setText(
+            if (policy.connectUnknownWifi) R.string.hotfox_policy_connect else R.string.hotfox_policy_skip,
+        )
+        binding.tvAutopilotCellularValue.setText(
+            if (policy.connectCellular) R.string.hotfox_policy_connect else R.string.hotfox_policy_skip,
+        )
+        binding.tvAutopilotTrustedValue.text =
+            getString(R.string.hotfox_networks_count, HotfoxAutopilotStore.trusted().size)
+        val pause = HotfoxAutopilotStore.currentPause(System.currentTimeMillis())
+        binding.tvAutopilotPauseValue.text = if (pause == null) {
+            getString(R.string.hotfox_pause_inactive)
+        } else {
+            HotfoxAutopilotLabels.pauseLabel(pause.kind)
+        }
         val decision = HotfoxAutopilotStore.lastDecision()
         binding.tvAutopilotDecision.text = decision?.uiLabel()
             ?: HotfoxAutopilotLabels.protectionLabel(HotfoxAutopilotStore.protectionLevel())
@@ -52,13 +101,13 @@ class HotfoxAutopilotActivity : AppCompatActivity() {
         binding.tvAutopilotCaptive.setText(
             if (captive) R.string.hotfox_error_captive_title else R.string.hotfox_autopilot_captive_idle,
         )
-    }
-
-    private fun togglePolicy() {
-        val policy = HotfoxAutopilotStore.policy()
-        HotfoxAutopilotStore.setPolicy(policy.copy(enabled = !policy.enabled))
-        HotfoxAutopilotRuntime.apply(this, HotfoxAutopilotSource.NETWORK)
-        render()
+        binding.tvAutopilotNotificationsValue.setText(
+            if (NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+                R.string.hotfox_value_on
+            } else {
+                R.string.hotfox_value_off
+            },
+        )
     }
 
     private fun showPause() {

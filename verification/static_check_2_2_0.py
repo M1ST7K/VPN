@@ -208,6 +208,11 @@ def main() -> int:
     )
     must_contain(
         "app/src/main/res/layout/activity_main.xml",
+        "include_hf_bottom_nav",
+        "mobile-first connection nav include",
+    )
+    must_contain(
+        "app/src/main/res/layout/include_hf_bottom_nav.xml",
         "nav_connection",
         "mobile-first connection nav",
     )
@@ -883,6 +888,29 @@ def main() -> int:
         "HotfoxEngineFacade.currentState",
         "notification observes facade, not a second session owner",
     )
+
+    skip_dirs = {"build", "test", "androidTest", "debug"}
+    celestial_needles = ("hf_fox_planet", "hf_shadow_orbits", "hf_auto_orbits", "hf_ready_orbits")
+    for path in (PROJECT / "app" / "src" / "main").rglob("*"):
+        if not path.is_file():
+            continue
+        if path.suffix.lower() not in {".kt", ".java", ".xml"}:
+            continue
+        if path.name.startswith("hf_fox_planet") or "hf_shadow_orbits" in path.name:
+            continue
+        if "hf_auto_orbits" in path.name or "hf_ready_orbits" in path.name:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for needle in celestial_needles:
+            if needle in text:
+                fail(f"forbidden celestial production ref {needle} in {path.relative_to(PROJECT)}")
+        if re.search(r"@drawable/hf_fox_bust\"|R\.drawable\.hf_fox_bust(?!_transparent)", text):
+            fail(f"opaque fox bust still referenced in {path.relative_to(PROJECT)}")
+        if "HotfoxUiScreenshotHarness" in text or "HotfoxUiScreenshotScenario" in text:
+            fail(f"screenshot harness leaked into main source: {path.relative_to(PROJECT)}")
 
     secret_re = re.compile(
         r"https://nox\.hotto-fox\.st/|vless://[^\s\"]{20,}|"

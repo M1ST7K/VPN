@@ -1,0 +1,293 @@
+#!/usr/bin/env python3
+"""Capture HotFox presentation states via the debug screenshot harness (V13, ru-RU)."""
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+import numpy as np
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parents[2]
+PKG = "com.hotfox.vpn"
+HARNESS = f"{PKG}/com.v2ray.ang.ui.HotfoxUiScreenshotHarnessActivity"
+EXPECTED = {
+    "01": "HotfoxSplashActivity",
+    "02": "HotfoxOnboardingActivity",
+    "03": "HotfoxOnboardingActivity",
+    "04": "HotfoxOnboardingActivity",
+    "05": "MainActivity",
+    "06": "MainActivity",
+    "07": "MainActivity",
+    "08": "MainActivity",
+    "09": "HotfoxHttpsImportActivity",
+    "10": "MainActivity",
+    "11": "HotfoxUiQaServerDetailsActivity",
+    "12": "MainActivity",
+    "13": "HotfoxSettingsActivity",
+    "14": "HotfoxRoutingPrivacyActivity",
+    "15": "PerAppProxyActivity",
+    "16": "HotfoxAutopilotActivity",
+    "17": "HotfoxShadowActivity",
+    "18": "HotfoxAlwaysOnActivity",
+}
+SCENARIOS = [
+    "01_SPLASH",
+    "02_ONBOARD_CONNECT",
+    "03_ONBOARD_AUTO",
+    "04_ONBOARD_READY",
+    "05_DISCONNECTED",
+    "06_CONNECTING_VISUAL",
+    "07_PROTECTED_VISUAL",
+    "08_ADD_CONNECTION_SHEET",
+    "09_HTTPS_SUBSCRIPTION",
+    "10_SERVERS",
+    "11_SERVER_DETAILS",
+    "12_SUBSCRIPTION",
+    "13_SETTINGS",
+    "14_SMART_ROUTING",
+    "15_APPS_RULES",
+    "16_AUTOPILOT",
+    "17_SHADOW",
+    "18_ALWAYS_ON",
+]
+SMOKE_IDS = ("01", "02", "03", "04", "05", "06", "07", "09", "10", "13", "15", "17")
+LOCALE_PROOF = ROOT / "verification" / "ui_rebuild" / "V13_LOCALE_PROOF.txt"
+
+PROFILES = {
+    "phone": {"size": "1080x2400", "density": "420", "default_out": "actual_v13"},
+    "phone393": {"size": "1032x2292", "density": "420", "default_out": "actual_v13_393"},
+    "phone412": {"size": "1080x2400", "density": "420", "default_out": "actual_v13_412"},
+    "compact": {"size": "720x1600", "density": "320", "default_out": "actual_v13_compact"},
+}
+
+
+def adb(*args: str, check: bool = True, timeout: int | None = 180) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["adb", "-s", "emulator-5554", *args],
+        check=check,
+        text=True,
+        capture_output=True,
+        timeout=timeout,
+    )
+
+
+def anr_window_count() -> int:
+    try:
+        out = adb("shell", "dumpsys", "window", check=False, timeout=45).stdout
+    except subprocess.TimeoutExpired:
+        return 0
+    return out.count("Application Not Responding:")
+
+
+def wait_for_device() -> None:
+    adb("wait-for-device")
+    for _ in range(90):
+        boot = adb("shell", "getprop", "sys.boot_completed", check=False).stdout.strip()
+        if boot == "1":
+            return
+        time.sleep(2)
+    raise SystemExit("emulator did not boot")
+
+
+def lock_ru_locale() -> None:
+    adb("shell", "cmd", "locale", "set-app-locales", PKG, "--locales", "ru-RU", check=False)
+    adb("shell", "am", "force-stop", PKG, check=False)
+    time.sleep(0.6)
+    app_locales = adb("shell", "cmd", "locale", "get-app-locales", PKG, check=False).stdout
+    persist = adb("shell", "getprop", "persist.sys.locale", check=False).stdout
+    LOCALE_PROOF.write_text(
+        "cmd locale get-app-locales:\n"
+        f"{app_locales.strip()}\n\n"
+        "persist.sys.locale:\n"
+        f"{persist.strip()}\n",
+        encoding="utf-8",
+    )
+    print(f"locale lock written to {LOCALE_PROOF}", flush=True)
+    print(app_locales.strip() or "(empty get-app-locales)", flush=True)
+
+
+def resumed_activity() -> str:
+    try:
+        out = adb("shell", "dumpsys", "activity", "activities", check=False, timeout=90).stdout
+    except subprocess.TimeoutExpired:
+        return ""
+    for line in out.splitlines():
+        if "topResumedActivity=" in line:
+            return line.strip()
+    return out[-400:]
+
+
+def dismiss_system_anr(max_tries: int = 10) -> None:
+    for _ in range(max_tries):
+        if anr_window_count() == 0:
+            return
+        adb("shell", "input", "tap", "300", "1320", check=False)
+        time.sleep(1.5)
+    adb("shell", "input", "tap", "300", "1320", check=False)
+    time.sleep(2.0)
+
+
+def wait_resumed(needle: str, timeout: float = 120.0) -> str:
+    deadline = time.time() + timeout
+    last = ""
+    while time.time() < deadline:
+        try:
+            last = resumed_activity()
+        except subprocess.TimeoutExpired:
+            last = ""
+        if needle in last:
+            time.sleep(0.6)
+            return last
+        time.sleep(1.2)
+    print(f"warn: timeout waiting for {needle}, continuing ({last[-120:]})", flush=True)
+    time.sleep(8.0)
+    return last
+
+
+def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
+    adb("shell", "am", "force-stop", PKG, check=False)
+    time.sleep(0.8)
+    started = adb(
+        "shell",
+        "am",
+        "start",
+        "-n",
+        HARNESS,
+        "--es",
+        "scenario",
+        scenario,
+        check=False,
+    )
+    if started.returncode != 0:
+        raise RuntimeError(started.stderr or started.stdout)
+    wait_resumed(EXPECTED[screen_id])
+    extra = 12.0 if screen_id in {"05", "06", "07", "08", "10", "11", "12", "15"} else 4.5
+    if screen_id == "08":
+            extra = 18.0
+            if screen_id == "09":
+                extra = 8.0
+    time.sleep(extra)
+    dest = out_dir / f"{screen_id}.png"
+    last_err = None
+    for _ in range(10):
+        try:
+            shot = subprocess.run(
+                ["adb", "-s", "emulator-5554", "exec-out", "screencap", "-p"],
+                check=False,
+                capture_output=True,
+                timeout=180,
+            )
+        except subprocess.TimeoutExpired as exc:
+            last_err = str(exc)
+            time.sleep(2.0)
+            continue
+        if shot.returncode != 0 or len(shot.stdout) < 10_000:
+            last_err = shot.stderr.decode("utf-8", "ignore") if shot.stderr else "screencap too small"
+            time.sleep(2.0)
+            continue
+        dest.write_bytes(shot.stdout)
+        if dest.is_file() and dest.stat().st_size >= 10_000:
+            image = Image.open(dest).convert("RGB")
+            pixels = np.asarray(image)
+            mean = float(pixels.mean())
+            std = float(pixels.std())
+            r, g, b = pixels[:, :, 0], pixels[:, :, 1], pixels[:, :, 2]
+            orange = ((r > 180) & (g > 70) & (g < 190) & (b < 130)).mean()
+            cream = ((r > 180) & (g > 170) & (b > 150)).mean()
+            top_mean = float(pixels[:240].mean())
+            brandish = orange >= 0.0003 or (screen_id == "08" and cream >= 0.008 and mean >= 18)
+            if mean < 12 or std < 8 or (not brandish) or top_mean > 70:
+                last_err = (
+                    f"android splash or blank frame mean={mean:.1f} std={std:.1f} "
+                    f"orange={orange:.5f} cream={cream:.5f} top_mean={top_mean:.1f}"
+                )
+                time.sleep(3.0)
+                continue
+            return dest
+        last_err = "too small"
+        time.sleep(1.5)
+    raise RuntimeError(f"screencap failed: {last_err}")
+
+
+def apply_profile(name: str) -> None:
+    spec = PROFILES[name]
+    adb("shell", "wm", "size", spec["size"], check=False)
+    adb("shell", "wm", "density", spec["density"], check=False)
+    time.sleep(1.2)
+    print(f"profile {name} wm size={spec['size']} density={spec['density']}", flush=True)
+
+
+def reset_profile() -> None:
+    adb("shell", "wm", "size", "reset", check=False)
+    adb("shell", "wm", "density", "reset", check=False)
+
+
+def parse_wanted(mode: str, screens: str) -> tuple[str, ...]:
+    if screens.strip():
+        return tuple(s.strip().zfill(2) for s in screens.split(",") if s.strip())
+    if mode == "smoke":
+        return SMOKE_IDS
+    return tuple(f"{i:02d}" for i in range(1, 19))
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=("smoke", "full"), default="full")
+    parser.add_argument("--screens", default="", help="comma-separated ids, e.g. 01,02,03,04")
+    parser.add_argument(
+        "--profile",
+        choices=tuple(PROFILES),
+        default="phone",
+        help="viewport profile: phone, compact, tablet, large-tablet",
+    )
+    parser.add_argument(
+        "--out",
+        default="",
+        help="output directory name under verification/ui_rebuild",
+    )
+    parser.add_argument("--keep-profile", action="store_true", help="do not reset wm size/density")
+    args = parser.parse_args()
+    spec = PROFILES[args.profile]
+    out_name = args.out or (
+        "actual_v13_smoke" if args.mode == "smoke" and not args.screens else spec["default_out"]
+    )
+    out_dir = ROOT / "verification" / "ui_rebuild" / out_name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    wait_for_device()
+    apply_profile(args.profile)
+    adb("shell", "settings", "put", "global", "animator_duration_scale", "0", check=False)
+    adb("shell", "settings", "put", "global", "transition_animation_scale", "0", check=False)
+    adb("shell", "settings", "put", "global", "window_animation_scale", "0", check=False)
+    adb("shell", "settings", "put", "secure", "ui_night_mode", "2", check=False)
+    adb("shell", "cmd", "uimode", "night", "yes", check=False)
+    adb("shell", "pm", "grant", PKG, "android.permission.POST_NOTIFICATIONS", check=False)
+    lock_ru_locale()
+    wanted = parse_wanted(args.mode, args.screens)
+    missing: list[str] = []
+    try:
+        for idx, scenario in enumerate(SCENARIOS, start=1):
+            sid = f"{idx:02d}"
+            if sid not in wanted:
+                continue
+            try:
+                path = capture(out_dir, sid, scenario)
+                print(f"CAPTURED {sid} {scenario} {path.stat().st_size}", flush=True)
+            except Exception as exc:  # noqa: BLE001
+                missing.append(f"{sid}:{scenario}:{exc}")
+                print(f"FAIL {sid} {scenario} {exc}", file=sys.stderr, flush=True)
+    finally:
+        if not args.keep_profile:
+            reset_profile()
+    if missing:
+        print("MISSING", *missing, sep="\n")
+        return 1
+    print(f"{len(wanted)}/{len(wanted)} captured into {out_dir}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,62 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/hotfox_editorial_bg"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    android:paddingStart="24dp"
-    android:paddingTop="32dp"
-    android:paddingEnd="24dp"
-    android:paddingBottom="24dp">
+    android:background="@color/hf_asset_background"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <TextView
-        android:id="@+id/tv_onboarding_kicker"
+    <com.v2ray.ang.ui.HotFoxHeroArtwork
+        android:id="@+id/onboarding_hero"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="HotFox"
-        android:textColor="@color/hotfox_editorial_text_dim"
-        android:textSize="13sp" />
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false"
+        android:importantForAccessibility="no"
+        app:hfHeroAnimate="true"
+        app:hfHeroClip="false"
+        app:hfHeroShowFox="true"
+        app:hfHeroShowPlanet="true"
+        app:hfHeroVariant="subscription" />
 
-    <TextView
-        android:id="@+id/tv_onboarding_title"
+    <LinearLayout
+        android:id="@+id/onboarding_foreground"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:textColor="@color/hotfox_editorial_text"
-        android:textSize="28sp"
-        android:text="@string/hotfox_onboarding_welcome_title" />
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/hf_page_gutter"
+        android:paddingEnd="@dimen/hf_page_gutter"
+        android:paddingBottom="24dp">
 
-    <TextView
-        android:id="@+id/tv_onboarding_body"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_weight="1"
-        android:lineSpacingExtra="4dp"
-        android:textColor="@color/hotfox_editorial_text_secondary"
-        android:textSize="16sp"
-        android:text="@string/hotfox_onboarding_welcome_body" />
+        <include layout="@layout/include_hf_header" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_onboarding_secondary"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:minHeight="48dp"
-        android:textColor="@color/hotfox_editorial_text_dim"
-        android:visibility="gone"
-        app:rippleColor="@color/hotfox_orange" />
+        <TextView
+            android:id="@+id/tv_onboarding_title"
+            style="@style/HotFox.ScreenTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/hotfox_onboarding_connect_title_ui" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_onboarding_primary"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="8dp"
-        android:minHeight="48dp"
-        android:text="@string/hotfox_onboarding_continue"
-        android:textColor="@color/hotfox_editorial_bg"
-        app:backgroundTint="@color/hotfox_orange"
-        app:cornerRadius="16dp" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/tv_onboarding_body"
+            style="@style/HotFox.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/hotfox_onboarding_connect_body_ui" />
+
+        <FrameLayout
+            android:id="@+id/onboarding_hero_host"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <ImageView
+                android:id="@+id/img_onboarding_art"
+                android:layout_width="@dimen/hf_onboarding_fox_size"
+                android:layout_height="@dimen/hf_onboarding_fox_size"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/img_onboarding_overlay"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/img_onboarding_overlay2"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="36dp"
+                android:layout_marginTop="28dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_onboarding_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/hf_info_muted" />
+
+            <TextView
+                android:id="@+id/tv_onboarding_note"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/hotfox_onboarding_vpn_note"
+                android:textColor="@color/hf_asset_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_onboarding_kicker"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_onboarding_primary"
+            style="@style/HotFox.PrimaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/hf_cta_height"
+            android:layout_gravity="center_horizontal"
+            android:drawableEnd="@drawable/hf_arrow_right_ink"
+            android:maxWidth="@dimen/hf_cta_max_width"
+            android:text="@string/hotfox_already_have_subscription" />
+
+        <Button
+            android:id="@+id/btn_onboarding_secondary"
+            style="@style/HotFox.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/hotfox_onboarding_buy_access"
+            android:visibility="gone" />
+    </LinearLayout>
+</FrameLayout>

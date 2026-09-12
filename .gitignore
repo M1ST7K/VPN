@@ -42,6 +42,9 @@ V2rayNG/app/release/output.json
 .DS_Store
 Thumbs.db
 
+# Regenerable from design/HOTFOX_ASSETS_PART_*.zip via UNPACK_HOTFOX_ASSET_PARTS.py
+design/HOTFOX_APP_ASSET_KIT_EXTRACTED/
+
 # Bootstrap reconstructed sources are generated from the versioned payload
 # and are intentionally not committed in this setup branch.
 V2rayNG/

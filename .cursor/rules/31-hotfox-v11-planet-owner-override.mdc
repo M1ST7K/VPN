@@ -1,0 +1,20 @@
+---
+description: HotFox V11 latest owner visual law; approved planet reference fidelity and phone/tablet responsive hero composition
+alwaysApply: true
+---
+
+# HotFox V11 — latest owner override
+
+This rule supersedes older HotFox UI rules wherever they conflict with V11.
+
+- Read `design/HOTFOX_V11_ART_DIRECTION_REVIEW.txt`, `design/HOTFOX_V11_PLANET_IMPLEMENTATION_SPEC.txt`, `design/HOTFOX_V11_CURSOR_EXECUTION_PROMPT.txt`, and `verification/ui_rebuild/HOTFOX_V11_ACCEPTANCE_CHECKLIST.md` before UI edits.
+- The latest owner direction explicitly REQUIRES the approved V11 planet treatment behind the fox on 01, 02, 05, 06, 07, and on 09 if the fox hero remains. Screen 08 inherits live 05 behind the sheet.
+- Any older absolute prohibition on planet/globe/celestial imagery is superseded only for these explicit hero screens. It remains prohibited on 03, 04 and 10–18 unless an exact approved reference says otherwise.
+- Use `design/assets/v11/planet/hotfox_planet_reference_a.webp` and `hotfox_planet_reference_b.webp` as planet appearance source of truth together with the exact full approved screen boards in `design/hotfox_18_final_style_reference/`.
+- Do not simplify the planet into a vector arc, wire bowl, flat gradient circle, neon rim, double line or generic celestial decoration.
+- Use the clean transparent production fox as foreground. Planet is a separate background layer. No alpha leakage or matte rectangles.
+- 03 AUTO and 04 Ready are owner-approved directionally. Micro-polish only.
+- Implement breakpoint-aware responsive composition for compact phone, regular phone, small tablet portrait and large tablet portrait. Do not stretch a phone canvas.
+- Preserve all VPN/runtime/security/subscription truth and debug-fixture containment.
+- Final evidence requires 18 separate phone screenshots, a contact sheet, and tablet captures for required hero screens.
+- Do not merge. Do not claim RELEASE READY from this UI pass.

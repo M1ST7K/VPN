@@ -1,0 +1,22 @@
+HOTFOX V4 — CELESTIAL ASSET USAGE AFTER CORRECTIVE PASS
+
+Date: 2026-09-11
+Scan root: bootstrap/hotfox_2_2_0/app/src/main (production)
+
+Forbidden production string refs:
+- hf_fox_planet: 0
+- hf_shadow_orbits: 0
+
+img_art_planet:
+- remains as a gone 0dp stub in activity_main.xml
+- no android:src
+- applyConnectionChrome always keeps it gone and shows hf_fox_bust
+
+Allowed (not forbidden by OWNER_OVERRIDE_CELESTIAL_REMOVAL):
+- hf_fox_bust on splash / onboarding CONNECT / HTTPS / main connection chrome
+- hf_auto_orbits + globe on onboarding AUTO (product AUTO illustration, not a planet)
+- hf_native_network_topology + hf_shadow_shield on screen 17 (asymmetric nodes/paths, no ellipse/orbit)
+
+PNG files named hf_fox_planet / hf_shadow_orbits may still exist in the asset kit.
+They MUST NOT be referenced from production layouts or Kotlin.
+static_check_2_2_0.py fails if those needles appear under app/src/main.

@@ -87,6 +87,11 @@ import kotlinx.coroutines.withContext
 class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelectedListener {
     companion object {
         const val EXTRA_SKIP_ONBOARDING = "hotfox_skip_onboarding"
+        const val EXTRA_OPEN_SECTION = "hotfox_open_section"
+        const val SECTION_CONNECTION = "connection"
+        const val SECTION_SERVERS = "servers"
+        const val SECTION_SUBSCRIPTION = "subscription"
+        const val SECTION_SETTINGS = "settings"
     }
 
     private val binding by lazy {
@@ -113,9 +118,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         CONNECTION,
         SERVERS,
         SUBSCRIPTION,
+        SETTINGS,
     }
 
-    private enum class ConnectionVisualState {
+    internal enum class ConnectionVisualState {
         DISCONNECTED,
         CONNECTING,
         CONNECTED,
@@ -140,6 +146,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        HotfoxSystemUi.applyDarkEditorialBars(this)
         val skipOnboarding = intent?.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false) == true
         if (savedInstanceState == null && !skipOnboarding && HotfoxOnboardingStore.shouldPrompt()) {
             startActivity(Intent(this, HotfoxOnboardingActivity::class.java))
@@ -147,6 +154,27 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             return
         }
         setContentView(binding.root)
+        HotfoxSystemUi.hideScrollbars(binding.root)
+        binding.root.findViewById<android.view.View>(R.id.connection_column)?.let { column ->
+            val readingIds = intArrayOf(
+                R.id.connect_action_host,
+                R.id.layout_connection_rows,
+                R.id.layout_connection_note,
+                R.id.layout_protected_metrics,
+                R.id.layout_connecting_stages,
+            )
+            readingIds.forEach { id ->
+                column.findViewById<android.view.View>(id)?.let { HotfoxSystemUi.constrainReadingWidth(it) }
+            }
+        }
+        binding.root.findViewById<android.view.View>(R.id.screen_servers)?.let {
+            HotfoxSystemUi.constrainReadingWidth(it)
+        }
+        binding.root.findViewById<android.view.View>(R.id.screen_subscription)?.let { scroll ->
+            if (scroll is android.view.ViewGroup && scroll.childCount > 0) {
+                HotfoxSystemUi.constrainReadingWidth(scroll.getChildAt(0))
+            }
+        }
         setupToolbar(binding.toolbar, false, "")
 
         // setup viewpager and tablayout
@@ -195,6 +223,19 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 }.show()
         }
         setupEditorialNavigation()
+        binding.root.findViewById<android.view.View>(R.id.btn_header_settings)?.apply {
+            visibility = android.view.View.VISIBLE
+            setOnClickListener { startActivity(Intent(this@MainActivity, HotfoxSettingsActivity::class.java)) }
+        }
+        binding.root.findViewById<android.view.View>(R.id.row_subscription)?.setOnClickListener {
+            showSection(UiSection.SUBSCRIPTION)
+        }
+        binding.root.findViewById<android.view.View>(R.id.row_shadow)?.setOnClickListener {
+            startActivity(Intent(this, HotfoxShadowActivity::class.java))
+        }
+        binding.root.findViewById<android.view.View>(R.id.layout_connection_note)?.setOnClickListener {
+            HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
+        }
 
         binding.fab.setOnClickListener { handleFabAction() }
         binding.connectAction.setOnClickListener { handleFabAction() }
@@ -203,8 +244,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             showSection(UiSection.SERVERS)
             binding.viewPager.postDelayed({ locateSelectedServer() }, 180L)
         }
-        binding.smartRoutingCard.setOnClickListener { showSmartRoutingDialog() }
         binding.supportButton.setOnClickListener { showAddDialog() }
+        binding.smartRoutingCard.setOnClickListener {
+            startActivity(Intent(this, HotfoxRoutingPrivacyActivity::class.java))
+        }
 
         setupGroupTab()
         setupViewModel()
@@ -214,6 +257,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         refreshSmartRouting()
         runEntranceAnimations()
         refreshCommercialState()
+        applyOpenSection(intent)
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }
@@ -230,9 +274,14 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun setupEditorialNavigation() {
-        binding.navConnection.setOnClickListener { showSection(UiSection.CONNECTION) }
-        binding.navServers.setOnClickListener { showSection(UiSection.SERVERS) }
-        binding.navSubscription.setOnClickListener { showSection(UiSection.SUBSCRIPTION) }
+        HotfoxNavBinder.bind(
+            binding.root,
+            HotfoxNavBinder.Destination.HOME,
+            onHome = { showSection(UiSection.CONNECTION) },
+            onServers = { showSection(UiSection.SERVERS) },
+            onSubscription = { showSection(UiSection.SUBSCRIPTION) },
+            onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
+        )
 
         binding.filterAll.setOnClickListener {
             mainViewModel.setFavoriteOnly(false)
@@ -269,16 +318,31 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenConnection.isVisible = section == UiSection.CONNECTION
         binding.screenServers.isVisible = section == UiSection.SERVERS
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
-        val active = ContextCompat.getColor(this, R.color.hotfox_editorial_text)
-        val muted = ContextCompat.getColor(this, R.color.hotfox_editorial_text_dim)
-        binding.navConnection.setTextColor(if (section == UiSection.CONNECTION) active else muted)
-        binding.navServers.setTextColor(if (section == UiSection.SERVERS) active else muted)
-        binding.navSubscription.setTextColor(if (section == UiSection.SUBSCRIPTION) active else muted)
+        binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)?.isVisible =
+            section == UiSection.CONNECTION
         binding.tvHeaderMicrocopy.text = when (section) {
             UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
             UiSection.SERVERS -> getString(R.string.hotfox_header_microcopy_servers)
             UiSection.SUBSCRIPTION -> getString(R.string.hotfox_header_microcopy_subscription)
+            UiSection.SETTINGS -> getString(R.string.hotfox_nav_settings)
         }
+        val dest = when (section) {
+            UiSection.CONNECTION -> HotfoxNavBinder.Destination.HOME
+            UiSection.SERVERS -> HotfoxNavBinder.Destination.SERVERS
+            UiSection.SUBSCRIPTION -> HotfoxNavBinder.Destination.SUBSCRIPTION
+            UiSection.SETTINGS -> HotfoxNavBinder.Destination.SETTINGS
+        }
+        val protectedLook = lastVisualState == ConnectionVisualState.CONNECTED && section == UiSection.CONNECTION
+        HotfoxNavBinder.bind(
+            binding.root,
+            dest,
+            onHome = { showSection(UiSection.CONNECTION) },
+            onServers = { showSection(UiSection.SERVERS) },
+            onSubscription = { showSection(UiSection.SUBSCRIPTION) },
+            onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
+            connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
+            connectionActive = section == UiSection.CONNECTION,
+        )
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
         if (section == UiSection.SUBSCRIPTION) {
             refreshCommercialCatalog()
@@ -341,7 +405,13 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.actionPremiumBuy.isEnabled = visiblePlans.isNotEmpty() &&
             !checkoutInFlight &&
             state != CommercialPresentationState.BACKEND_UNAVAILABLE
-        binding.actionPremiumBuy.alpha = if (binding.actionPremiumBuy.isEnabled) 1f else 0.45f
+        if (binding.actionPremiumBuy.isEnabled) {
+            binding.actionPremiumBuy.alpha = 1f
+            binding.actionPremiumBuy.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
+        } else {
+            binding.actionPremiumBuy.alpha = 1f
+            binding.actionPremiumBuy.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_disabled_text))
+        }
         renderPlanCatalog(visiblePlans)
     }
 
@@ -484,7 +554,16 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        applyOpenSection(intent)
         handlePossibleCheckoutReturn()
+    }
+
+    private fun applyOpenSection(intent: Intent?) {
+        when (intent?.getStringExtra(EXTRA_OPEN_SECTION)) {
+            SECTION_SERVERS -> showSection(UiSection.SERVERS)
+            SECTION_SUBSCRIPTION -> showSection(UiSection.SUBSCRIPTION)
+            SECTION_SETTINGS -> startActivity(Intent(this, HotfoxSettingsActivity::class.java))
+        }
     }
 
     private fun handlePossibleCheckoutReturn() {
@@ -751,32 +830,12 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun showAddDialog() {
-        MaterialAlertDialogBuilder(this).setTitle("Добавить подключение")
-            .setItems(arrayOf("HTTPS-подписка", "Из буфера обмена", "QR-код", "Из файла", "Always-on / Kill Switch")) { _, i ->
-                when (i) {
-                    0 -> {
-                        val field = android.widget.EditText(this).apply {
-                            hint = "https://…"; setSingleLine(true)
-                            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI
-                            setPadding(36, 24, 36, 24)
-                        }
-                        MaterialAlertDialogBuilder(this).setTitle("Ссылка подписки").setView(field)
-                            .setPositiveButton("Добавить") { _, _ ->
-                                val value = field.text.toString().trim()
-                                if (value.startsWith("https://", true)) importBatchConfig(value)
-                                else toast("Нужна HTTPS-ссылка")
-                            }.setNegativeButton(android.R.string.cancel, null).show()
-                    }
-                    1 -> importClipboard()
-                    2 -> importQRcode()
-                    3 -> importConfigLocal()
-                    4 -> MaterialAlertDialogBuilder(this).setTitle("Защита при обрыве")
-                        .setMessage("В настройках Android откройте HotFox Proxy и включите «Постоянная VPN» и «Блокировать соединения без VPN». Блокировку обеспечивает Android. Прямые маршруты и исключённые приложения могут стать недоступны.")
-                        .setPositiveButton("Настройки Android") { _, _ -> startActivity(Intent(android.provider.Settings.ACTION_VPN_SETTINGS)) }
-                        .setNegativeButton(android.R.string.cancel, null).show()
-                }
-            }.show()
+        HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
     }
+
+    fun importClipboardFromUi() = importClipboard()
+    fun importQrFromUi() = importQRcode()
+    fun importFileFromUi() = importConfigLocal()
 
     private fun setupBottomNavigation() {
         // Primary navigation is the 3-item editorial bar (Соединение / Серверы / Подписка).
@@ -1016,7 +1075,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             ConnectionUiMapper.Headline.DISCONNECTED -> getString(R.string.hotfox_connect)
         }
         binding.fab.contentDescription = binding.connectAction.text
-        updateStatusText(headlineRes, R.color.hotfox_editorial_text)
+        updateStatusText(
+            headlineRes,
+            if (visual == ConnectionVisualState.CONNECTED) R.color.hf_asset_green else R.color.hf_asset_cream,
+        )
+        applyConnectionChrome(visual, headline)
         if (ConnectionUiMapper.timerShouldRun(session) && headline == ConnectionUiMapper.Headline.CONNECTED) {
             startConnectionClock()
             setTestState(getString(R.string.connection_connected))
@@ -1097,7 +1160,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    private fun updateStatusText(textRes: Int, colorRes: Int) {
+    internal fun updateStatusText(textRes: Int, colorRes: Int) {
         binding.tvConnectLabel.animate().cancel()
         binding.tvConnectLabel.setText(textRes)
         binding.tvConnectLabel.setTextColor(ContextCompat.getColor(this, colorRes))
@@ -1137,7 +1200,93 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         connectionClockJob?.cancel()
         connectionClockJob = null
         if (reset) {
-            binding.tvVpnStatus.text = "00:00:00"
+            binding.tvVpnStatus.setText(R.string.hotfox_disconnected_body)
+        }
+    }
+
+    internal fun applyConnectionChrome(
+        visual: ConnectionVisualState,
+        headline: ConnectionUiMapper.Headline,
+    ) {
+        val hero = binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)
+        val planet = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_planet)
+        val bust = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_bust)
+        val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
+        val rail = binding.root.findViewById<android.widget.ImageView>(R.id.img_connecting_rail)
+        val stages = binding.root.findViewById<android.view.View>(R.id.layout_connecting_stages)
+        val metrics = binding.root.findViewById<android.view.View>(R.id.layout_protected_metrics)
+        val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
+        val rows = binding.root.findViewById<android.view.View>(R.id.layout_connection_rows)
+        ring?.isVisible = false
+        hero?.isVisible = currentSection == UiSection.CONNECTION
+        hero?.setHeroLayers(showPlanet = true, showFox = true)
+        hero?.setMode(HotFoxHeroMode.HOME_DISCONNECTED)
+        planet?.isVisible = true
+        bust?.isVisible = true
+        when (visual) {
+            ConnectionVisualState.CONNECTING -> {
+                rail?.isVisible = true
+                stages?.isVisible = true
+                metrics?.isVisible = false
+                note?.isVisible = false
+                rows?.alpha = 1f
+                binding.connectAction.setBackgroundResource(R.drawable.hf_native_progress)
+                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_orange))
+                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.hf_stop_cream, 0, 0, 0)
+                binding.tvVpnStatus.setText(R.string.hotfox_connecting_body)
+            }
+            ConnectionVisualState.CONNECTED -> {
+                rail?.isVisible = false
+                stages?.isVisible = false
+                metrics?.isVisible = true
+                note?.isVisible = false
+                rows?.alpha = 1f
+                binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
+                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))
+                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+            }
+            else -> {
+                rail?.isVisible = false
+                stages?.isVisible = false
+                metrics?.isVisible = false
+                note?.isVisible = true
+                rows?.alpha = 1f
+                binding.connectAction.setBackgroundResource(R.drawable.hf_native_primary)
+                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
+                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)
+                if (visual == ConnectionVisualState.DISCONNECTED) {
+                    binding.tvVpnStatus.setText(R.string.hotfox_disconnected_body)
+                }
+            }
+        }
+        val protectedLook = visual == ConnectionVisualState.CONNECTED && currentSection == UiSection.CONNECTION
+        HotfoxNavBinder.bind(
+            binding.root,
+            when (currentSection) {
+                UiSection.CONNECTION -> HotfoxNavBinder.Destination.HOME
+                UiSection.SERVERS -> HotfoxNavBinder.Destination.SERVERS
+                UiSection.SUBSCRIPTION -> HotfoxNavBinder.Destination.SUBSCRIPTION
+                UiSection.SETTINGS -> HotfoxNavBinder.Destination.SETTINGS
+            },
+            onHome = { showSection(UiSection.CONNECTION) },
+            onServers = { showSection(UiSection.SERVERS) },
+            onSubscription = { showSection(UiSection.SUBSCRIPTION) },
+            onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
+            connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
+            connectionActive = currentSection == UiSection.CONNECTION,
+        )
+        headline.let { }
+    }
+
+    /** Generic presentation seam: hide the runtime stage/warning line without touching VPN state. */
+    internal fun hideConnectionStageLine() {
+        binding.tvConnectionStage.visibility = android.view.View.GONE
+        binding.tvConnectionStage.text = ""
+    }
+
+    internal fun presentAddConnectionSheet() {
+        if (supportFragmentManager.findFragmentByTag("add") == null) {
+            HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
         }
     }
 
@@ -1336,9 +1485,14 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val health = selectedGuid?.let { HotfoxServerSelection.health.snapshot(it) }
         val delayLabel = HotfoxLatencyDisplay.format(health = health, delayMs = delayMs)
         val countryOrHint = presentation.country
-            ?: selected?.description?.takeIf { it.isNotBlank() }
-        binding.tvSelectedServerHint.text = listOfNotNull(countryOrHint, delayLabel).joinToString(" · ")
-            .ifBlank { getString(R.string.hotfox_choose_location) }
+            ?.takeIf { it.isNotBlank() && it != "—" && it != "_" }
+            ?: selected?.description?.takeIf { it.isNotBlank() && it != "—" && it != "_" }
+        val hint = listOfNotNull(
+            countryOrHint,
+            delayLabel?.takeIf { it.isNotBlank() && it != "—" && it != "_" },
+        ).joinToString(" · ")
+        binding.tvSelectedServerHint.isVisible = hint.isNotBlank()
+        binding.tvSelectedServerHint.text = hint
         if (lastServerLabel != null && lastServerLabel != selectedLabel) {
             binding.selectedServerCard.alpha = 0.55f
             binding.selectedServerCard.animate().alpha(1f).setDuration(280L).start()

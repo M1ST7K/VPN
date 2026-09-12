@@ -1,0 +1,530 @@
+HOTFOX V7 — FINAL VISUAL REFINEMENT PASS
+OWNER OVERRIDE / FOX+PLANET COMPOSITION / 03+04 ANCHOR LOCK
+
+READ THIS ENTIRE TASK BEFORE EDITING.
+
+======================================================================
+0. CURRENT STATE
+======================================================================
+
+Repository: M1ST7K/VPN
+Required branch: cursor/hotfox-ui-pixel-lock-rebuild
+Starting V6 head: 1686630d68c1c95e7e377414544bc81927aefd04
+
+V6 evidence is honest and must be preserved:
+- 18/18 ru-RU emulator captures;
+- 18/18 comparisons;
+- visual/pixel PASS = 0/18;
+- art-director PASS = 0/18;
+- build/test/static checks pass;
+- RELEASE READY = NO;
+- physical/runtime VPN E2E not executed.
+
+Read first:
+- verification/ui_rebuild/HOTFOX_V7_ART_DIRECTOR_REVIEW.md
+- verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V6.md
+- .cursor/rules/29-hotfox-v7-owner-visual-override.mdc
+- current actual_v6 and compare_v6 evidence.
+
+Do not merge.
+Do not claim RELEASE READY.
+Do not change VPN/security/runtime semantics.
+
+======================================================================
+1. LATEST OWNER OVERRIDE — PLANET IS NOW REQUIRED ON FOX HERO SCREENS
+======================================================================
+
+This is the newest owner instruction and supersedes older blanket rules saying “never use a planet anywhere”.
+
+NEW RULE:
+On screens where the fox hero is present, add a subtle planet behind the fox to make the composition feel complete.
+
+Required fox+planet screens:
+01 Splash
+02 Onboarding Connect
+05 Disconnected
+06 Connecting
+07 Protected
+09 HTTPS subscription (if fox remains in approved composition)
+
+Screen 08 inherits screen 05 behind the sheet; if fox is visible, its planet-backed composition must also remain correct.
+
+DO NOT add the planet to:
+03 AUTO
+04 Ready
+10 Servers
+11 Server details
+12 Subscription
+13 Settings
+14 Smart Routing
+15 Apps & Rules
+16 Autopilot
+17 Shadow
+18 Always-on
+
+CRITICAL:
+Do not resurrect the old legacy screenshot-derived `hf_fox_planet`/`hotfox_art_fox_planet_*` composite.
+Use separate clean layers:
+- transparent fox foreground;
+- separate planet/background drawable or vector/raster layer.
+
+The planet is a composition support device, not a new global theme.
+
+Planet visual rules:
+- dark body close to HotFox background;
+- partial sphere / cropped horizon allowed;
+- subtle orange/copper rim light allowed;
+- very restrained local glow allowed only to separate edge from background;
+- planet stays behind fox;
+- planet never overpowers typography or CTA;
+- no stars;
+- no nebulae;
+- no satellite dots;
+- no orbit rings;
+- no solar-system diagram;
+- no radar circles;
+- no space-poster aesthetic;
+- no cyberpunk/gamer look.
+
+For 06, the planet is static background art only. It must NOT become progress geometry.
+For 17, planet remains forbidden; keep routing topology around shield.
+
+======================================================================
+2. OWNER APPROVES SCREENS 03 AND 04 DIRECTIONALLY
+======================================================================
+
+Screens 03 and 04 are now visual anchors.
+
+SCREEN 03 AUTO:
+- do not conceptually redesign;
+- do not add planet;
+- preserve current intelligent-routing topology concept;
+- only micro-polish line weights, node optical alignment, copy spacing, typography and CTA geometry.
+
+SCREEN 04 Ready:
+- do not conceptually redesign;
+- do not add planet;
+- preserve current server/check completion concept;
+- only micro-polish spacing, balance and optical alignment.
+
+Any V7 result that makes 03 or 04 worse than V6 is a regression and FAIL.
+
+======================================================================
+3. DESIGN TARGET
+======================================================================
+
+HotFox must read as one authored premium 2026 product:
+- warm near-black violet background;
+- warm cream typography;
+- restrained orange/copper brand accent;
+- green only for success state;
+- premium editorial hierarchy;
+- controlled negative space;
+- content over containers;
+- thin separators;
+- coherent rounded-outline icon family;
+- calm, precise, cinematic restraint.
+
+Never drift into:
+- stock Material settings;
+- generic free VPN dashboard;
+- giant-card zoo;
+- cyberpunk;
+- neon;
+- gamer UI;
+- glassmorphism;
+- decorative sci-fi poster.
+
+======================================================================
+4. PRODUCTION TRUTH MUST REMAIN INTACT
+======================================================================
+
+Do not modify canonical datapath or readiness semantics:
+Android apps -> VpnService/TUN -> HEV/tun2socks -> local Xray SOCKS -> Xray outbound -> VPN server -> Internet.
+
+Preserve:
+- production CONNECTED only after real readiness;
+- DNS no-bypass;
+- IPv6 route/fail-closed;
+- loop prevention;
+- clean disconnect/reconnect;
+- stale async protection;
+- real subscription truth;
+- real server truth;
+- real traffic/latency;
+- entitlement/payment truth;
+- secure storage;
+- Shadow/Autopilot behavior.
+
+Debug visual fixture data must remain under src/debug.
+`check_no_fixture_leak_v51.py` must remain PASS.
+
+======================================================================
+5. CAPTURE ENVIRONMENT
+======================================================================
+
+All approval evidence:
+- Android API 34 profile used successfully in V6 or equivalent clean renderer;
+- locale ru-RU;
+- font scale 1.0;
+- stable density/insets;
+- dark theme;
+- no accidental English in Russian reference evidence;
+- no launcher/splash frame substituted for actual target screen.
+
+Preserve V6 evidence.
+Create V7 paths:
+verification/ui_rebuild/actual_v7/
+verification/ui_rebuild/compare_v7/side_by_side/
+verification/ui_rebuild/compare_v7/overlay/
+verification/ui_rebuild/compare_v7/diff/
+verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V7.csv
+verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V7.csv
+
+======================================================================
+6. SHARED FOX+PLANET COMPONENT
+======================================================================
+
+Create a reusable composition primitive or repeatable layout contract, not a baked whole-screen image.
+
+Recommended structure:
+FrameLayout / equivalent hero container
+  planet background ImageView/View
+  fox transparent ImageView
+  optional status/progress overlay only where required
+
+Planet and fox must scale independently.
+
+Create one planet art family with controlled variants if necessary:
+- planet_hero_large
+- planet_hero_medium
+- planet_hero_compact
+
+Do not create six unrelated planets.
+Do not bake text/buttons into artwork.
+Do not bake fox+planet+progress into one bitmap.
+
+Planet alpha/contrast:
+- body should be subtle enough to disappear into background at first glance;
+- rim should establish silhouette and composition;
+- check on actual device screenshot, not only asset preview.
+
+Fox:
+- preserve current transparent fox identity;
+- no matte rectangle;
+- no broken ear/neck silhouette;
+- no unintended translucency through dark fur.
+
+======================================================================
+7. TYPOGRAPHY PASS
+======================================================================
+
+Build/update a V7 typography matrix from actual V6 and approved references.
+
+For each screen measure:
+- brand size;
+- screen title size/weight;
+- line height;
+- title width and intended line breaks;
+- body size/line height;
+- section eyebrow;
+- row title/caption;
+- runtime value;
+- nav label.
+
+Rules:
+- no one universal title size;
+- warm cream, not harsh pure white;
+- muted text remains readable;
+- no accidental ellipsis on primary information;
+- no tiny filters simply to fit one line;
+- align optically, not merely mathematically.
+
+Screens 03/04 establish restraint benchmark.
+
+======================================================================
+8. SPACING / GEOMETRY PASS
+======================================================================
+
+For 01–18 measure:
+- content insets;
+- header top/baselines;
+- title/body gaps;
+- hero bounds;
+- CTA bounds;
+- row/card bounds;
+- nav bounds;
+- bottom safe space.
+
+Negative space must look intentional.
+If a screen has a large blank lower half, either the approved composition supports it or rebalance the screen.
+
+No content clipping.
+No accidental vertical scrollbars in accepted evidence.
+No bottom-nav overlap.
+
+======================================================================
+9. CTA HIERARCHY
+======================================================================
+
+Keep contextual CTA system from V6 and refine it.
+
+At least:
+- PrimaryFull for onboarding/home when truly primary;
+- PrimaryCompact for subpages;
+- SecondaryQuiet;
+- DisabledPrimary;
+- Progress/Stop state.
+
+Rules:
+- not every screen gets the same giant orange pill;
+- visible icon/arrow optically centered;
+- 48dp minimum touch target;
+- disabled remains readable;
+- Stop on 06 is neutral and controlled, not destructive red/error.
+
+======================================================================
+10. SCREEN EXECUTION
+======================================================================
+
+SCREEN 01 — SPLASH
+- Add subtle planet behind transparent fox.
+- Planet partly cropped, dark, restrained, warm rim.
+- Rebalance fox, HotFox wordmark, tagline/progress as one scene.
+- Do not enlarge planet into a space poster.
+
+SCREEN 02 — ONBOARD CONNECT
+- Add planet behind fox.
+- Maintain current strong hero identity.
+- Refine title/body/hero/CTA vertical rhythm.
+- Secondary action quieter and intentional.
+
+SCREEN 03 — AUTO
+- OWNER APPROVED DIRECTIONALLY.
+- NO PLANET.
+- NO CONCEPT REDESIGN.
+- Micro-polish only.
+
+SCREEN 04 — READY
+- OWNER APPROVED DIRECTIONALLY.
+- NO PLANET.
+- NO CONCEPT REDESIGN.
+- Micro-polish only.
+
+SCREEN 05 — DISCONNECTED
+- Add planet behind fox.
+- Planet supports hero but does not become progress or decoration elsewhere.
+- Integrate headline/body/hero/connect CTA/options/notice.
+- Lighten option group and helper notice.
+- Preserve truthful disconnected state.
+
+SCREEN 06 — CONNECTING
+- Add static planet behind fox.
+- KEEP V6 removal of the orbit ring.
+- Never wrap fox with a circular progress ring.
+- Refine route rail/stages.
+- Stage active/pending hierarchy calm and clear.
+- Stop action neutral.
+- Lower config rows de-emphasized during connection.
+
+SCREEN 07 — PROTECTED
+- Add planet behind fox.
+- Keep green limited to success semantics.
+- Hero + timer + traffic + route should form one calm protected composition.
+- Preserve V6 debug fix: do not show protected together with missing-permission warning.
+- Production CONNECTED gate unchanged.
+
+SCREEN 08 — ADD CONNECTION SHEET
+- Native sheet remains.
+- Background screen 05 must show its planet-backed hero correctly under scrim.
+- Tighten title/rows/icons/close/handle/scrim.
+- Avoid stock Material proportions.
+
+SCREEN 09 — HTTPS SUBSCRIPTION
+- Add planet behind fox if fox remains.
+- Form remains primary task.
+- Planet+fox are supporting composition.
+- Avoid giant empty field between form and art.
+- Keep real editable input/paste/validation.
+
+SCREEN 10 — SERVERS
+- Fix debug QA fixture binding so reference-state server list reliably renders in screenshot harness.
+- Keep production server catalog truthful.
+- Refine filter/tab hierarchy, automatic row, flag/ping/value alignment.
+- Do not automatically color every ping green.
+
+SCREEN 11 — SERVER DETAILS
+- Debug-safe deterministic reference values only under src/debug.
+- Improve value-column alignment, row rhythm and hierarchy.
+- No secrets.
+
+SCREEN 12 — SUBSCRIPTION
+- Use debug reference state for approved visual QA only.
+- Production entitlement remains real.
+- Improve premium hierarchy of plan/status/expiry/devices/CTA/recovery actions.
+
+SCREEN 13 — SETTINGS
+- Keep content-over-containers.
+- Reduce stock Android feel with precise section rhythm, hairlines, icon optics and row density.
+- Do not return to giant rounded cards.
+
+SCREEN 14 — SMART ROUTING
+- Reduce dry sparse layout.
+- Clarify mode -> apps/rules -> LAN -> apply relationship.
+- Refine switch and contextual CTA.
+- Preserve routing semantics.
+
+SCREEN 15 — APPS & RULES
+- Preserve V6 no-scrollbar and debug icon improvements.
+- Refine segmented control, search, summary group, app row density, checkbox optics.
+- Production installed apps remain real.
+
+SCREEN 16 — AUTOPILOT
+- Rebalance sparse lower half.
+- Refine switch optics and rows.
+- Bring CTA into decision flow.
+- Preserve persisted behavior.
+
+SCREEN 17 — SHADOW
+- NO FOX.
+- NO PLANET.
+- Refine branching topology and shield.
+- Lines should frame/support shield, not randomly radiate.
+- No orbit bands.
+- Compact contextual CTA.
+
+SCREEN 18 — ALWAYS-ON
+- NO FOX.
+- NO PLANET.
+- Rebalance shield, truthful Android status rows and CTA.
+- Exact reference decides bottom-nav presence.
+
+======================================================================
+11. ACTIVE RULE CONFLICT RESOLUTION
+======================================================================
+
+Older Cursor rules may contain absolute “no planet anywhere” clauses from V4/V5/V6.
+V7 is the latest owner instruction.
+
+Interpretation:
+- old legacy composite `hf_fox_planet` remains forbidden;
+- old screenshot-derived `hotfox_art_fox_planet_*` remains forbidden;
+- NEW separate restrained planet background IS REQUIRED on V7 fox hero screens 01/02/05/06/07/09;
+- planet remains forbidden elsewhere;
+- orbital/radar/solar-system motifs remain forbidden everywhere.
+
+Do not use an old rule as an excuse to omit the V7 planet layer.
+
+======================================================================
+12. IMPLEMENTATION CYCLES
+======================================================================
+
+Cycle A — component + anchors
+- add separate planet art component;
+- prove fox+planet on 01/02;
+- capture 01/02;
+- micro-polish/freeze 03/04;
+- capture 03/04.
+
+Cycle B — connection states
+- 05/06/07 planet integration;
+- capture and compare 05/06/07.
+
+Cycle C — import/sheet
+- 08/09;
+- capture and compare.
+
+Cycle D — servers/subscription
+- fix screen 10 debug fixture binding;
+- refine 10/11/12;
+- capture and compare.
+
+Cycle E — settings/routing/apps
+- 13/14/15;
+- capture and compare.
+
+Cycle F — autopilot/shadow/always-on
+- 16/17/18;
+- capture and compare.
+
+Then full 18-screen V7 pass.
+
+DO NOT modify all 18 layouts blindly before looking at screenshots.
+
+======================================================================
+13. ART-DIRECTOR SCORE
+======================================================================
+
+Use scale 0–5 ONLY.
+For each screen score:
+- composition;
+- hierarchy;
+- typography;
+- spacing;
+- asset integration;
+- controls;
+- chrome;
+- polish.
+
+PASS requires:
+- every category >=4.0;
+- average >=4.3;
+- actual screenshot exists;
+- comparison exists;
+- zero P0 contradiction/fixture/security defect.
+
+Do not self-award a PASS to 03/04 without evidence; owner approval is directional, not automatic pixel pass.
+
+======================================================================
+14. REQUIRED TESTS / GATES
+======================================================================
+
+Must pass:
+- :app:assemblePlaystoreDebug
+- :app:testPlaystoreDebugUnitTest
+- static_check_2_2_0.py
+- check_no_fixture_leak_v51.py
+- reference integrity/core gates where applicable.
+
+No production fixture leaks.
+No secret URLs.
+No change to VPN core.
+
+======================================================================
+15. FINAL REPORT
+======================================================================
+
+Create:
+verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V7.md
+
+Report:
+- branch/head;
+- build/test/static status;
+- 18/18 capture status;
+- 18/18 comparison status;
+- planet implementation screens;
+- confirmation that planet is a separate layer, not legacy composite;
+- 03/04 regression status;
+- screen 10 fixture-binding result;
+- per-screen art-director score;
+- unresolved gaps;
+- production truth unchanged;
+- RELEASE READY = NO unless separate owner runtime gate genuinely executed;
+- physical/runtime VPN E2E status.
+
+Generate V7 contact sheet.
+
+======================================================================
+16. EXIT CRITERIA
+======================================================================
+
+Success for this task means visual V7 refinement evidence, NOT product release.
+
+Do not stop at planning.
+Do not stop after asset creation.
+Do not stop after compile.
+Do not return without screenshots unless a real narrow blocker is documented with exact error/log/command.
+
+Do not merge.
+Do not declare pixel-perfect without evidence.
+Do not declare RELEASE READY.

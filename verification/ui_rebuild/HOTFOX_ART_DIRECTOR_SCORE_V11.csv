@@ -1,0 +1,19 @@
+screen_id,capture_status,composition,hierarchy,typography,spacing,asset_integration,controls,chrome,polish,average,pass,notes
+01,CAPTURED,4.3,3.8,3.6,3.6,4.4,3.6,3.6,3.8,3.84,NO,ru-RU; reconstructed filled planet + one copper rim; fox occludes; not pixel-locked.
+02,CAPTURED,4.2,3.8,3.6,3.6,4.4,3.7,3.5,3.7,3.81,NO,ru-RU; same planet family; fox centered on mass; CTA hierarchy kept.
+03,CAPTURED,3.6,3.6,3.5,3.2,3.7,3.6,3.4,3.4,3.50,NO,Owner directional anchor. Concept frozen; no planet.
+04,CAPTURED,3.6,3.5,3.4,3.2,3.7,3.5,3.4,3.4,3.46,NO,Owner directional anchor. Concept frozen; no planet.
+05,CAPTURED,4.2,3.8,3.6,3.6,4.4,3.6,3.5,3.6,3.79,NO,ru-RU Не защищено; full-bleed horizontal planet band; VPN-permission line truthful.
+06,CAPTURED,4.2,3.8,3.6,3.6,4.3,3.7,3.5,3.6,3.79,NO,Static planet; connecting rail separate; no orbit.
+07,CAPTURED,4.2,3.8,3.6,3.6,4.4,3.7,3.5,3.6,3.80,NO,DEBUG Защищено without Нет разрешения VPN; not production CONNECTED.
+08,CAPTURED,4.0,3.8,3.6,3.5,4.3,3.7,3.6,3.6,3.76,NO,Native sheet over live 05; Always-on VPN without Kill Switch.
+09,CAPTURED,4.0,3.7,3.6,3.5,4.3,3.6,3.5,3.6,3.73,NO,ru-RU HTTPS; quieter support planet; form primary.
+10,CAPTURED,3.8,3.7,3.6,3.5,3.6,3.6,3.5,3.5,3.60,NO,Debug overlay; AUTO first; no planet.
+11,CAPTURED,3.6,3.5,3.6,3.4,3.4,3.6,3.4,3.4,3.49,NO,ru-RU Амстердам; still lighter than board.
+12,CAPTURED,3.6,3.5,3.5,3.3,3.4,3.6,3.4,3.3,3.45,NO,ru-RU debug subscription; not board-locked.
+13,CAPTURED,3.6,3.5,3.5,3.4,3.3,3.5,3.5,3.4,3.46,NO,No planet; settings list vs board gap remains.
+14,CAPTURED,3.8,3.7,3.7,3.6,3.4,3.7,3.5,3.6,3.63,NO,Умная маршрутизация; tablet reading width applied.
+15,CAPTURED,3.8,3.7,3.5,3.5,3.8,3.6,3.5,3.6,3.63,NO,6 debug apps; no planet; tablet sample captured.
+16,CAPTURED,3.7,3.6,3.6,3.5,3.4,3.6,3.4,3.5,3.54,NO,No planet; Autopilot store lines truthful.
+17,CAPTURED,3.9,3.7,3.6,3.5,4.0,3.6,3.5,3.6,3.68,NO,No planet; shield + topology.
+18,CAPTURED,3.7,3.6,3.5,3.4,3.8,3.6,3.4,3.5,3.56,NO,No planet; branded shield; tablet/large-tablet captured.

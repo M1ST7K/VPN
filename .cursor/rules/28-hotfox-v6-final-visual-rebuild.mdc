@@ -1,0 +1,32 @@
+---
+description: HotFox V6 historical visual law, superseded where noted by V7 latest owner override
+alwaysApply: true
+---
+
+# HotFox V6 visual law — V7 reconciliation
+
+- V6 is NOT visually accepted: 18/18 ru-RU captures exist, visual/pixel PASS = 0/18, art-director PASS = 0/18.
+- Read the newest V7 review/prompt before further UI edits.
+- Approved per-screen reference wins over current implementation, except newer owner overrides.
+- Visual QA for the approved Russian reference set MUST capture in `ru-RU`. Mixed RU/EN evidence is FAIL. Do not hardcode Russian into production merely for screenshots.
+- Preserve V5.1 fixture containment: fixture-specific data/render helpers remain under `src/debug`; no fake server/app/subscription/traffic/latency/entitlement state in `src/main`.
+- Debug QA may inject state/data but must not become an alternate production renderer.
+- V7 supersedes the V6 blanket planet ban: a restrained separate planet backdrop is REQUIRED behind fox on 01/02/05/06/07/09 and may show through the 08 live background. Planet remains forbidden on 03/04 and 10–18.
+- Orbit rings, radar circles, solar-system compositions and curves that visually orbit fox/shield remain forbidden everywhere.
+- Screen 06 may use the planet only as static background art; no circular/orbital progress path with satellite dots.
+- Screen 17 may not use curved bands that visually orbit the shield. Use asymmetric routing/network topology instead.
+- Screens 03/04 are V7 owner-approved directionally; no conceptual redesign.
+- Screen 07 debug protected presentation must not simultaneously show `Защищено` and `Нет разрешения VPN`.
+- Screen 15 must not show placeholder blank app icons or an unintended scrollbar in accepted visual evidence.
+- Stop using one giant full-width orange pill as the universal CTA. Use contextual action hierarchy.
+- Content-over-containers remains required. Avoid both heavy Material card stacks and raw unstructured stock settings lists.
+- Orange is a restrained accent. Green is restricted to exact success/health semantics from the reference; do not automatically make all ping values green.
+- Typography, geometry, line breaks, artwork bounds, nav, icon optical size and CTA dimensions must be measured per screen.
+- Keep transparent fox; no matte rectangles, holes or broken silhouette.
+- Preserve V5.1 and V6 evidence. Write V7 screenshots/comparisons to new V7 paths.
+- V7 art-director score uses ONLY 0–5. Pass requires every category >=4.0 and average >=4.3, with real screenshot evidence.
+- All 18 V7 actual screenshots + side-by-side + overlay + diff are mandatory before claiming visual completion.
+- Keep `check_no_fixture_leak_v51.py` and production security/static gates passing.
+- Do not modify VPN datapath, security, DNS/IPv6 fail-closed, routing semantics, payment truth, entitlement truth, or production CONNECTED readiness gate.
+- Do not merge automatically.
+- RELEASE READY remains a separate runtime/device gate.

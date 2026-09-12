@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "runtime_base_sha": "a729b1cbce719278840caf9ab09a5350e6d554e4",
+  "archive_uploaded_name": "HOTFOX_18_FINAL_STYLE_REFERENCE(1).zip",
+  "immutable_files": [
+    {
+      "path": "design/HOTFOX_18_FINAL_STYLE_REFERENCE.zip",
+      "sha256": "c68411cb40f0e80a3c7f0951ea7cb56b7d6896ffb2ac95315ce77d5ef809ee0f",
+      "bytes": 24142063
+    },
+    {
+      "path": "design/HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt",
+      "sha256": "e530c2bd9184e91f1cb691cee6a145cfd1ef3d104f64a2daffffc9a905f64d11",
+      "bytes": 45597
+    },
+    {
+      "path": "design/hotfox_18_final_style_reference/MANIFEST.txt",
+      "sha256": "760b4009d75356099b6a1fb1f60cfc2119ae5b8e96b538a8a6c7e0e44691b807",
+      "bytes": 3620
+    }
+  ],
+  "screens": [
+    {
+      "id": "01",
+      "path": "design/hotfox_18_final_style_reference/01_splash_brand_entry.jpeg",
+      "sha256": "8b07bd2fdaba1618ce1ab9ccff07dda678e14df336db401328accb9a22bd200a",
+      "bytes": 386357,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "02",
+      "path": "design/hotfox_18_final_style_reference/02_onboarding_connect_hotfox.jpeg",
+      "sha256": "1bc006c1b48996e79d706118ab4e9aa35ca35a7999ccdd4cf157fcd4ca6145b4",
+      "bytes": 425990,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "03",
+      "path": "design/hotfox_18_final_style_reference/03_onboarding_auto.jpeg",
+      "sha256": "466ba7c4ddcded73bf1c9d55e14604f40825e1103bef3fa54f7394ac664fcd82",
+      "bytes": 419228,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "04",
+      "path": "design/hotfox_18_final_style_reference/04_onboarding_ready.jpeg",
+      "sha256": "2af79525cf77459cbcef71db80b22f59a02fd86e8ece9d433d760f6f1ee923fb",
+      "bytes": 406087,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "05",
+      "path": "design/hotfox_18_final_style_reference/05_main_not_protected.jpeg",
+      "sha256": "0ab581bb6d810a48b912eac3134f8df0438ee16995db6f1bb7620c8fa2ba0998",
+      "bytes": 403584,
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "id": "06",
+      "path": "design/hotfox_18_final_style_reference/06_connecting.png",
+      "sha256": "d8e25ac3bec19d24d1d25e2e93912bc592807530db48c72a2913b73ab4ff4997",
+      "bytes": 1698280,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "07",
+      "path": "design/hotfox_18_final_style_reference/07_protected.png",
+      "sha256": "b685d00b6311d51e2b8ec9402058a9128450f8a4ce8ad68a62e3c3be77f8eb1e",
+      "bytes": 1705647,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "08",
+      "path": "design/hotfox_18_final_style_reference/08_add_connection.png",
+      "sha256": "9e48bcb4dbb9001e91efdd0c425b8620e010406f2b6d75e65eac38f596cdcbab",
+      "bytes": 1693312,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "09",
+      "path": "design/hotfox_18_final_style_reference/09_https_subscription.png",
+      "sha256": "41655c64d1a43ae6114ed416d60728058bbd6d40dcd8db33acde35af6baecedb",
+      "bytes": 1725425,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "10",
+      "path": "design/hotfox_18_final_style_reference/10_servers.png",
+      "sha256": "6c2eb01c8a0644e8f44fb08b29c2e8631f40ea4a65ab8d39e0f29c2db0cd62ff",
+      "bytes": 1668231,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "11",
+      "path": "design/hotfox_18_final_style_reference/11_server_details.png",
+      "sha256": "9e248acb335e9ec5b2682563f4b4566d137c3e5c3f2c1766cec5a8a21d0170e8",
+      "bytes": 1695079,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "12",
+      "path": "design/hotfox_18_final_style_reference/12_subscription.png",
+      "sha256": "4e33f704fbe3a02d4cc3115c2aaca561a9981d76a68a8c03a6d64f9b6bb3b509",
+      "bytes": 1707004,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "13",
+      "path": "design/hotfox_18_final_style_reference/13_settings.png",
+      "sha256": "7a25e843463f90aa16a9a51b070e877fb0ea1e153e8a1af8d96354f86282f6cf",
+      "bytes": 1728998,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "14",
+      "path": "design/hotfox_18_final_style_reference/14_smart_routing.png",
+      "sha256": "180eb867456219206f492dbb7592d27411ff4b828cd5491ef6bc1a6b760e4b52",
+      "bytes": 1735831,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "15",
+      "path": "design/hotfox_18_final_style_reference/15_apps_and_rules.png",
+      "sha256": "e1d195efdfab00161e10d832685ae088062f5be5fbe1ee2d31523c584a553e7f",
+      "bytes": 1736134,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "16",
+      "path": "design/hotfox_18_final_style_reference/16_autopilot.png",
+      "sha256": "3c50bf3d57d2fff638c388ea4cad28f6f10b0b4be63011b21f03c3d77a83567c",
+      "bytes": 1698704,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "17",
+      "path": "design/hotfox_18_final_style_reference/17_shadow.png",
+      "sha256": "cce2c1b6f70daf8fbe0f1ab742e0db4fb736b920afaae866e51ccd914acd94f0",
+      "bytes": 1718668,
+      "width": 1448,
+      "height": 1086
+    },
+    {
+      "id": "18",
+      "path": "design/hotfox_18_final_style_reference/18_always_on_kill_switch.png",
+      "sha256": "799b3acec810f39c747a62fa31deb339068945a380b0a918b78a3dc96904feb8",
+      "bytes": 1765928,
+      "width": 1448,
+      "height": 1086
+    }
+  ],
+  "pixel_acceptance": {
+    "channel_tolerance": 0,
+    "max_changed_pixels": 0,
+    "automatic_masks_allowed": false,
+    "automatic_resize_allowed": false,
+    "automatic_alignment_allowed": false,
+    "missing_capture_status": "NOT_EXECUTED",
+    "scope": "Declared app-controlled viewport at a frozen capture profile; external board and Android-owned chrome reported separately."
+  }
+}
