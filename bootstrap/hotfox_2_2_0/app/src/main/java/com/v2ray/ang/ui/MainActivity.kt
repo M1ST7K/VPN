@@ -156,11 +156,15 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         setContentView(binding.root)
         HotfoxSystemUi.hideScrollbars(binding.root)
         binding.root.findViewById<android.view.View>(R.id.connection_column)?.let { column ->
-            val hero = binding.root.findViewById<android.view.View>(R.id.artwork_host)
-            if (hero != null) {
-                HotfoxSystemUi.constrainReadingWidth(column, hero)
-            } else {
-                HotfoxSystemUi.constrainReadingWidth(column)
+            val readingIds = intArrayOf(
+                R.id.connect_action_host,
+                R.id.layout_connection_rows,
+                R.id.layout_connection_note,
+                R.id.layout_protected_metrics,
+                R.id.layout_connecting_stages,
+            )
+            readingIds.forEach { id ->
+                column.findViewById<android.view.View>(id)?.let { HotfoxSystemUi.constrainReadingWidth(it) }
             }
         }
         binding.root.findViewById<android.view.View>(R.id.screen_servers)?.let {

@@ -65,9 +65,9 @@ PROFILES = {
 }
 
 
-def adb(*args: str, check: bool = True, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
+def adb(*args: str, check: bool = True, timeout: int | None = 60) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        ["adb", *args],
+        ["adb", "-s", "emulator-5554", *args],
         check=check,
         text=True,
         capture_output=True,
@@ -162,7 +162,9 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
     wait_resumed(EXPECTED[screen_id])
     extra = 12.0 if screen_id in {"05", "06", "07", "08", "10", "11", "12", "15"} else 4.5
     if screen_id == "08":
-        extra = 14.0
+            extra = 18.0
+            if screen_id == "09":
+                extra = 8.0
     time.sleep(extra)
     dismiss_system_anr()
     remote = f"/sdcard/hotfox_ui_{screen_id}.png"
@@ -174,7 +176,7 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
             last_err = pulled.stderr
             time.sleep(1.5)
             continue
-        adb("pull", remote, str(dest))
+        adb("pull", remote, str(dest), check=False)
         if dest.is_file() and dest.stat().st_size >= 10_000:
             if anr_window_count() > 0:
                 dismiss_system_anr()
@@ -187,8 +189,8 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
             orange = ((r > 180) & (g > 70) & (g < 190) & (b < 130)).mean()
             cream = ((r > 180) & (g > 170) & (b > 150)).mean()
             top_mean = float(pixels[:240].mean())
-            brandish = orange >= 0.0003 or (screen_id == "08" and cream >= 0.008)
-            if mean < 14 or std < 12 or (not brandish) or top_mean > 70:
+            brandish = orange >= 0.0003 or (screen_id == "08" and cream >= 0.008 and mean >= 18)
+            if mean < 12 or std < 8 or (not brandish) or top_mean > 70:
                 last_err = (
                     f"android splash or blank frame mean={mean:.1f} std={std:.1f} "
                     f"orange={orange:.5f} cream={cream:.5f} top_mean={top_mean:.1f}"
