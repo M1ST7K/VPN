@@ -22,7 +22,8 @@ V7 evidence is unchanged under `actual_v7/` and `compare_v7/`.
 
 - Branch: `cursor/hotfox-ui-pixel-lock-rebuild`
 - Starting head: `e56d0331bcf525ea3356ae26bdac494b1ffb0266`
-- Implementation commits: `ffdd58e` (filled planet PNG), `ffa60b9` (home/import/apps polish), plus the V8 utility-page fill commit on this evidence head
+- Implementation commits: `ffdd58e` (filled planet PNG), `ffa60b9` (home/import/apps polish), `a7437c4` (routing/autopilot/shadow/apps fill)
+- Evidence pack: `b3ac7d6623e720b2f066dfa8f827d4363bcee9cf`
 - AVD: `HotFox_V51_API34_Clean`, API 34, 1080×2400, `-accel off`, GPU `swiftshader_indirect`
 - Locale: `cmd locale set-app-locales com.hotfox.vpn --locales ru-RU`
 - Viewport: 1080×2400 emulator screenshots (not phone mockups)
