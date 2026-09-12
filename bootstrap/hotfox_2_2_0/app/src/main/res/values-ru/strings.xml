@@ -599,7 +599,7 @@
     <string name="hotfox_error_dns_title">DNS bootstrap не удался</string>
     <string name="hotfox_error_dns_detail">DNS через VPN-путь не установлен. Защита не объявлена.</string>
     <string name="hotfox_error_captive_title">Сеть требует авторизации</string>
-    <string name="hotfox_error_captive_detail">Завершите вход в captive portal — затем HotFox сможет защитить сессию.</string>
+    <string name="hotfox_error_captive_detail">Завершите вход в сеть (авторизация портала) — затем HotFox сможет защитить сессию.</string>
     <string name="hotfox_error_shadow_title">Защищённый маршрут восстанавливается</string>
     <string name="hotfox_error_shadow_detail">Shadow переключает путь. Это не состояние успешной защиты.</string>
     <string name="hotfox_error_update_title">Требуется обновление</string>
@@ -624,7 +624,7 @@
     <string name="hotfox_autopilot_screen_summary">Автозащита, доверенные сети, пауза и профиль. Старт/стоп по-прежнему идут через каноническую VPN-сессию.</string>
     <string name="hotfox_autopilot_enabled">Автозащита включена</string>
     <string name="hotfox_autopilot_disabled">Автозащита выключена</string>
-    <string name="hotfox_autopilot_captive_idle">Ожидания captive portal нет</string>
+    <string name="hotfox_autopilot_captive_idle">Ожидания авторизации сети нет</string>
     <string name="hotfox_routing_screen_title">Маршрутизация и приватность</string>
     <string name="hotfox_routing_screen_summary">Сначала режим верхнего уровня. Правила приложений и доменов — на шаг глубже.</string>
     <string name="hotfox_routing_advanced">Расширенные правила</string>
