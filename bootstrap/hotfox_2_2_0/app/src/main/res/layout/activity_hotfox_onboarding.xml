@@ -31,22 +31,24 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="4dp">
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="2dp">
 
         <ImageView
             android:id="@+id/img_onboarding_planet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="bottom|center_horizontal"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@drawable/hf_native_planet_backdrop" />
 
         <ImageView
             android:id="@+id/img_onboarding_art"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
