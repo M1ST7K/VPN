@@ -81,9 +81,10 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_connect_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_connect_body_ui)
-                binding.imgOnboardingPlanet.isVisible = true
-                stageOnboardingHero(sizeDp = 248, gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, bottomDp = 28)
-                binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_bust_transparent)
+                binding.onboardingHero.visibility = View.VISIBLE
+                binding.onboardingHero.setVariant(HotfoxHeroComposition.Variant.PAGE)
+                binding.onboardingHero.setHeroLayers(showPlanet = true, showFox = true)
+                binding.imgOnboardingArt.isVisible = false
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = false
@@ -96,9 +97,10 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             HotfoxOnboardingFlow.Step.AUTO -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_auto_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_auto_body_ui)
-                binding.imgOnboardingPlanet.isVisible = false
+                binding.onboardingHero.setHeroLayers(showPlanet = false, showFox = false)
                 stageOnboardingHero(sizeDp = 280, gravity = Gravity.CENTER, bottomDp = 0)
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_auto_routing)
+                binding.imgOnboardingArt.isVisible = true
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = false
@@ -112,9 +114,10 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_ready_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_ready_body_ui)
-                binding.imgOnboardingPlanet.isVisible = false
+                binding.onboardingHero.setHeroLayers(showPlanet = false, showFox = false)
                 stageOnboardingHero(sizeDp = 236, gravity = Gravity.CENTER, bottomDp = 0)
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_ready_complete)
+                binding.imgOnboardingArt.isVisible = true
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = true

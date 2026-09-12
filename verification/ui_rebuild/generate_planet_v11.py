@@ -186,6 +186,7 @@ def main() -> None:
     onboard.save(OUT_DIR / "hf_native_planet_onboarding.png", optimize=True)
     support.save(OUT_DIR / "hf_native_planet_support.png", optimize=True)
     home.save(OUT_DIR / "hf_native_planet_home.png", optimize=True)
+    sphere.save(OUT_DIR / "hf_native_planet_sphere.png", optimize=True)
     print("wrote production planet PNGs")
 
 

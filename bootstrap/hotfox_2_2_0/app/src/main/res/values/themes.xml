@@ -131,13 +131,13 @@
         <item name="android:textColor">@color/hf_asset_ink</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:minHeight">48dp</item>
+        <item name="android:minHeight">@dimen/hf_cta_height</item>
         <item name="android:minWidth">48dp</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:elevation">0dp</item>
         <item name="android:gravity">center</item>
-        <item name="android:paddingStart">20dp</item>
-        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingStart">@dimen/hf_cta_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/hf_cta_padding_horizontal</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
@@ -178,16 +178,16 @@
     </style>
 
     <style name="HotFox.PrimaryCompact" parent="HotFox.PrimaryButton">
-        <item name="android:background">@drawable/hf_native_primary_compact</item>
-        <item name="android:minHeight">44dp</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:paddingStart">18dp</item>
-        <item name="android:paddingEnd">18dp</item>
+        <item name="android:background">@drawable/hf_native_primary</item>
+        <item name="android:minHeight">@dimen/hf_cta_height</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingStart">@dimen/hf_cta_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/hf_cta_padding_horizontal</item>
     </style>
 
-    <style name="HotFox.SubpagePrimary" parent="HotFox.PrimaryCompact">
-        <item name="android:minHeight">44dp</item>
-        <item name="android:textSize">14sp</item>
+    <style name="HotFox.SubpagePrimary" parent="HotFox.PrimaryButton">
+        <item name="android:minHeight">@dimen/hf_cta_height</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="HotFox.ProgressPrimary" parent="HotFox.PrimaryButton">

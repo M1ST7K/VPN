@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/hf_asset_background"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:fitsSystemWindows="true"
     android:gravity="center_horizontal"
     android:orientation="vertical">
@@ -10,28 +13,18 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-        <ImageView
-            android:id="@+id/img_planet_backdrop"
+        <com.v2ray.ang.ui.HotfoxHeroView
+            android:id="@+id/splash_hero"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="bottom|center_horizontal"
-            android:contentDescription="@null"
-            android:importantForAccessibility="no"
-            android:scaleType="centerCrop"
-            android:src="@drawable/hf_native_planet_backdrop" />
-
-        <ImageView
-            android:id="@+id/img_splash_fox"
-            android:layout_width="@dimen/hf_splash_fox_size"
-            android:layout_height="@dimen/hf_splash_fox_size"
-            android:layout_gravity="center"
-            android:layout_marginBottom="@dimen/hf_splash_fox_margin_bottom"
-            android:contentDescription="@null"
-            android:importantForAccessibility="no"
-            android:scaleType="fitCenter"
-            android:src="@drawable/hf_fox_bust_transparent" />
+            app:hfHeroAnimate="true"
+            app:hfHeroShowFox="true"
+            app:hfHeroShowPlanet="true"
+            app:hfHeroVariant="splash" />
 
         <LinearLayout
             android:layout_width="match_parent"

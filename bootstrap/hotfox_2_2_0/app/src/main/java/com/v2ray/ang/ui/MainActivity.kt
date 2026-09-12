@@ -1206,6 +1206,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         visual: ConnectionVisualState,
         headline: ConnectionUiMapper.Headline,
     ) {
+        val hero = binding.root.findViewById<HotfoxHeroView>(R.id.home_hero)
         val planet = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_planet)
         val bust = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_bust)
         val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
@@ -1215,7 +1216,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
         val rows = binding.root.findViewById<android.view.View>(R.id.layout_connection_rows)
         ring?.isVisible = false
-        planet?.setImageResource(R.drawable.hf_native_planet_home)
+        hero?.setHeroLayers(showPlanet = true, showFox = true)
+        hero?.setVariant(HotfoxHeroComposition.Variant.PAGE)
         planet?.isVisible = true
         bust?.isVisible = true
         when (visual) {

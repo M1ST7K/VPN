@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="HotfoxHeroView">
+        <attr name="hfHeroVariant" format="enum">
+            <enum name="splash" value="0" />
+            <enum name="page" value="1" />
+            <enum name="support" value="2" />
+        </attr>
+        <attr name="hfHeroShowFox" format="boolean" />
+        <attr name="hfHeroShowPlanet" format="boolean" />
+        <attr name="hfHeroAnimate" format="boolean" />
+    </declare-styleable>
+</resources>

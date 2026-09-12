@@ -6,6 +6,11 @@
     <dimen name="hf_content_max_width">560dp</dimen>
     <dimen name="hf_cta_max_width">420dp</dimen>
     <dimen name="hf_cta_height">56dp</dimen>
+    <dimen name="hf_cta_padding_horizontal">24dp</dimen>
+    <dimen name="hf_hero_margin_top">16dp</dimen>
+    <dimen name="hf_hero_below_gap">20dp</dimen>
+    <dimen name="hf_bottom_nav_height">68dp</dimen>
+    <dimen name="hf_bottom_nav_icon">24dp</dimen>
 
     <dimen name="hf_splash_fox_size">400dp</dimen>
     <dimen name="hf_splash_fox_margin_bottom">56dp</dimen>
@@ -14,7 +19,7 @@
     <dimen name="hf_onboarding_fox_size">320dp</dimen>
     <dimen name="hf_onboarding_fox_margin_bottom">36dp</dimen>
 
-    <dimen name="hf_home_artwork_height">340dp</dimen>
+    <dimen name="hf_home_artwork_height">440dp</dimen>
     <dimen name="hf_home_fox_width">300dp</dimen>
     <dimen name="hf_home_fox_height">256dp</dimen>
 

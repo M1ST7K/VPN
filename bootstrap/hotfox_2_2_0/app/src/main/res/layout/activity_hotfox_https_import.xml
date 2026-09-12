@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/hf_asset_background"
@@ -99,12 +100,11 @@
 
     <Button
         android:id="@+id/btn_https_add"
-        style="@style/HotFox.SubpagePrimary"
-        android:layout_width="wrap_content"
+        style="@style/HotFox.PrimaryButton"
+        android:layout_width="match_parent"
         android:layout_gravity="center_horizontal"
-        android:layout_height="44dp"
+        android:layout_height="@dimen/hf_cta_height"
         android:layout_marginTop="16dp"
-        android:minWidth="200dp"
         android:maxWidth="@dimen/hf_cta_max_width"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_https_add" />
@@ -115,28 +115,18 @@
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/hf_hero_bleed"
         android:layout_marginEnd="@dimen/hf_hero_bleed"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1">
+        android:layout_marginTop="@dimen/hf_hero_margin_top"
+        android:layout_weight="1"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-        <ImageView
-            android:id="@+id/img_https_planet"
+        <com.v2ray.ang.ui.HotfoxHeroView
+            android:id="@+id/https_hero"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="bottom|center_horizontal"
-            android:alpha="0.72"
-            android:contentDescription="@null"
-            android:importantForAccessibility="no"
-            android:scaleType="centerCrop"
-            android:src="@drawable/hf_native_planet_support" />
-
-        <ImageView
-            android:id="@+id/img_https_fox"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/hf_https_fox_height"
-            android:layout_gravity="center"
-            android:contentDescription="@null"
-            android:importantForAccessibility="no"
-            android:scaleType="fitCenter"
-            android:src="@drawable/hf_fox_bust_transparent" />
+            app:hfHeroAnimate="false"
+            app:hfHeroShowFox="true"
+            app:hfHeroShowPlanet="true"
+            app:hfHeroVariant="support" />
     </FrameLayout>
 </LinearLayout>
