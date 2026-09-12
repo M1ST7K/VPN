@@ -124,14 +124,18 @@
                     <FrameLayout
                         android:id="@+id/artwork_host"
                         android:layout_width="match_parent"
-                        android:layout_height="176dp"
+                        android:layout_height="196dp"
                         android:layout_marginTop="4dp">
 
                         <ImageView
                             android:id="@+id/img_art_planet"
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:visibility="gone" />
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/hf_native_planet_backdrop" />
 
                         <ImageView
                             android:id="@+id/img_art_bust"
@@ -838,11 +842,27 @@
                     app:tabSelectedTextColor="@color/hf_asset_cream"
                     app:tabTextColor="@color/hf_asset_muted" />
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/view_pager"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1">
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/view_pager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/content_list_overlay"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:overScrollMode="never"
+                        android:paddingBottom="8dp"
+                        android:scrollbars="none"
+                        android:visibility="gone"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                </FrameLayout>
             </LinearLayout>
 
             <ScrollView

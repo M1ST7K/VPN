@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="360dp"
+    android:height="240dp"
+    android:viewportWidth="360"
+    android:viewportHeight="240">
+    <!-- Restrained cropped planet mass. Dark body, warm rim. No stars, dots, orbits. -->
+    <path android:pathData="M5,255 a175,175 0 1,1 350,0 a175,175 0 1,1 -350,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="168"
+                android:centerY="248"
+                android:gradientRadius="178"
+                android:type="radial">
+                <item
+                    android:color="#221C26"
+                    android:offset="0" />
+                <item
+                    android:color="#16131A"
+                    android:offset="0.42" />
+                <item
+                    android:color="#110F16"
+                    android:offset="0.78" />
+                <item
+                    android:color="#0D0C12"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M48,236 a128,128 0 0,1 118,-118 a118,118 0 0,0 -86,132 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="96"
+                android:centerY="150"
+                android:gradientRadius="132"
+                android:type="radial">
+                <item
+                    android:color="#33C46A3A"
+                    android:offset="0" />
+                <item
+                    android:color="#14A85A32"
+                    android:offset="0.45" />
+                <item
+                    android:color="#000D0C12"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M38,248 A148,148 0 0,1 322,248"
+        android:strokeWidth="2.2"
+        android:strokeAlpha="0.38"
+        android:strokeColor="#C46A3A"
+        android:strokeLineCap="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M58,236 A128,128 0 0,1 302,236"
+        android:strokeWidth="6"
+        android:strokeAlpha="0.10"
+        android:strokeColor="#FF9255"
+        android:strokeLineCap="round" />
+</vector>

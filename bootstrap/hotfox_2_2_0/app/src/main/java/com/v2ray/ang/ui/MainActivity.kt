@@ -1194,7 +1194,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val metrics = binding.root.findViewById<android.view.View>(R.id.layout_protected_metrics)
         val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
         ring?.isVisible = false
-        planet?.isVisible = false
+        planet?.setImageResource(R.drawable.hf_native_planet_backdrop)
+        planet?.isVisible = true
         bust?.isVisible = true
         when (visual) {
             ConnectionVisualState.CONNECTING -> {

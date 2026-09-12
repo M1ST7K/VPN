@@ -5,16 +5,33 @@
     android:background="@color/hf_asset_background"
     android:fitsSystemWindows="true">
 
-    <ImageView
-        android:id="@+id/img_splash_fox"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="340dp"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="72dp"
-        android:contentDescription="@null"
-        android:importantForAccessibility="no"
-        android:scaleType="fitCenter"
-        android:src="@drawable/hf_fox_bust_transparent" />
+        android:layout_marginTop="36dp">
+
+        <ImageView
+            android:id="@+id/img_planet_backdrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom|center_horizontal"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/hf_native_planet_backdrop" />
+
+        <ImageView
+            android:id="@+id/img_splash_fox"
+            android:layout_width="match_parent"
+            android:layout_height="248dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/hf_fox_bust_transparent" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +39,7 @@
         android:layout_gravity="bottom"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingBottom="64dp">
+        android:paddingBottom="52dp">
 
         <ImageView
             android:layout_width="160dp"
@@ -34,7 +51,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:letterSpacing="0.12"
             android:text="@string/hotfox_tagline_more_than_vpn"
             android:textColor="@color/hf_asset_muted"
@@ -43,7 +60,7 @@
         <FrameLayout
             android:layout_width="220dp"
             android:layout_height="4dp"
-            android:layout_marginTop="28dp">
+            android:layout_marginTop="22dp">
 
             <ImageView
                 android:layout_width="match_parent"

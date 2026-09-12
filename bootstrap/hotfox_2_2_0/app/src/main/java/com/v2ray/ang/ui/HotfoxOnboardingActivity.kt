@@ -78,6 +78,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_connect_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_connect_body_ui)
+                binding.imgOnboardingPlanet.isVisible = true
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_bust_transparent)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
@@ -90,6 +91,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             HotfoxOnboardingFlow.Step.AUTO -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_auto_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_auto_body_ui)
+                binding.imgOnboardingPlanet.isVisible = false
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_auto_routing)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
@@ -103,6 +105,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             -> {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_ready_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_ready_body_ui)
+                binding.imgOnboardingPlanet.isVisible = false
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_ready_complete)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false

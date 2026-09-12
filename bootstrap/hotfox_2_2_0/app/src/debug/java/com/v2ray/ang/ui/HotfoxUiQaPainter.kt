@@ -9,6 +9,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.v2ray.ang.R
 import com.v2ray.ang.dto.AppInfo
@@ -136,24 +137,26 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
             activity.findViewById<TextView>(R.id.tv_subscription_url)?.text = "https://sub.example/***"
         }
         if (HotfoxUiVisualOverride.serversFixture) {
-            val recycler = findVisibleRecycler(activity) ?: return
-            recycler.adapter = HotfoxUiQaServerAdapter(HotfoxUiVisualOverride.referenceServers)
+            bindServerCatalogOverlay(activity)
         }
     }
 
-    private fun findVisibleRecycler(activity: Activity): RecyclerView? {
-        val root = activity.findViewById<View>(android.R.id.content) ?: activity.window?.decorView ?: return null
-        return findVisibleRecycler(root)
-    }
-
-    private fun findVisibleRecycler(view: View): RecyclerView? {
-        if (view is RecyclerView && view.isShown) return view
-        if (view is android.view.ViewGroup) {
-            for (i in 0 until view.childCount) {
-                findVisibleRecycler(view.getChildAt(i))?.let { return it }
-            }
+    private fun bindServerCatalogOverlay(activity: MainActivity) {
+        val overlay = activity.findViewById<RecyclerView>(R.id.content_list_overlay) ?: return
+        val pager = activity.findViewById<View>(R.id.view_pager)
+        pager?.isVisible = false
+        overlay.isVisible = true
+        overlay.overScrollMode = View.OVER_SCROLL_NEVER
+        overlay.isVerticalScrollBarEnabled = false
+        if (overlay.layoutManager == null) {
+            overlay.layoutManager = LinearLayoutManager(activity)
         }
-        return null
+        val rows = HotfoxUiVisualOverride.referenceServers
+        val current = overlay.adapter as? HotfoxUiQaServerAdapter
+        if (current == null || overlay.tag != rows.size) {
+            overlay.adapter = HotfoxUiQaServerAdapter(rows)
+            overlay.tag = rows.size
+        }
     }
 
     private fun paintApps(activity: PerAppProxyActivity) {
