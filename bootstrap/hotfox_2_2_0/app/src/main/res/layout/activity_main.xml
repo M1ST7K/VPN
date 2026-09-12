@@ -124,23 +124,23 @@
                     <FrameLayout
                         android:id="@+id/artwork_host"
                         android:layout_width="match_parent"
-                        android:layout_height="196dp"
-                        android:layout_marginTop="4dp">
+                        android:layout_height="212dp"
+                        android:layout_marginTop="2dp">
 
                         <ImageView
                             android:id="@+id/img_art_planet"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_gravity="center"
+                            android:layout_gravity="bottom|center_horizontal"
                             android:contentDescription="@null"
                             android:importantForAccessibility="no"
-                            android:scaleType="fitCenter"
+                            android:scaleType="centerCrop"
                             android:src="@drawable/hf_native_planet_backdrop" />
 
                         <ImageView
                             android:id="@+id/img_art_bust"
-                            android:layout_width="220dp"
-                            android:layout_height="176dp"
+                            android:layout_width="200dp"
+                            android:layout_height="168dp"
                             android:layout_gravity="center"
                             android:contentDescription="@null"
                             android:importantForAccessibility="no"
@@ -225,9 +225,10 @@
                         android:id="@+id/tv_connection_stage"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="2dp"
+                        android:alpha="0.72"
                         android:textColor="@color/hf_asset_muted"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:visibility="gone" />
 
                     <LinearLayout

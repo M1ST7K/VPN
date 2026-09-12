@@ -117,14 +117,14 @@
             android:layout_gravity="center"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@drawable/hf_native_planet_backdrop" />
 
         <ImageView
             android:id="@+id/img_https_fox"
             android:layout_width="match_parent"
-            android:layout_height="188dp"
-            android:layout_gravity="center"
+            android:layout_height="200dp"
+            android:layout_gravity="bottom|center_horizontal"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"

@@ -1193,6 +1193,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val stages = binding.root.findViewById<android.view.View>(R.id.layout_connecting_stages)
         val metrics = binding.root.findViewById<android.view.View>(R.id.layout_protected_metrics)
         val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
+        val rows = binding.root.findViewById<android.view.View>(R.id.layout_connection_rows)
         ring?.isVisible = false
         planet?.setImageResource(R.drawable.hf_native_planet_backdrop)
         planet?.isVisible = true
@@ -1203,6 +1204,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = true
                 metrics?.isVisible = false
                 note?.isVisible = false
+                rows?.alpha = 0.42f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_progress)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_orange))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.hf_stop_cream, 0, 0, 0)
@@ -1213,6 +1215,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = false
                 metrics?.isVisible = true
                 note?.isVisible = false
+                rows?.alpha = 0.82f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
@@ -1222,6 +1225,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = false
                 metrics?.isVisible = false
                 note?.isVisible = true
+                rows?.alpha = 1f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_primary)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)

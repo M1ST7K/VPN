@@ -21,5 +21,7 @@ object HotfoxUiReferenceFixtures {
         HotfoxUiVisualOverride.ReferenceAppRow("Банк", "Финансы", false),
         HotfoxUiVisualOverride.ReferenceAppRow("YouTube", "Видео", true),
         HotfoxUiVisualOverride.ReferenceAppRow("Maps", "Карты и навигация", false),
+        HotfoxUiVisualOverride.ReferenceAppRow("Photos", "Галерея", false),
+        HotfoxUiVisualOverride.ReferenceAppRow("Mail", "Почта", true),
     )
 }

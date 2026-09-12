@@ -763,6 +763,7 @@
     <string name="hotfox_reconnect">Reconnect</string>
     <string name="hotfox_apply">Apply</string>
     <string name="hotfox_apps_title">Apps\nand rules</string>
+    <string name="hotfox_apps_body">Choose apps whose traffic should go through HotFox.</string>
     <string name="hotfox_apps_include">Selected only</string>
     <string name="hotfox_apps_exclude">All except selected</string>
     <string name="hotfox_apps_search">Search apps...</string>

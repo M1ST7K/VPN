@@ -753,6 +753,7 @@
     <string name="hotfox_reconnect">Переподключение</string>
     <string name="hotfox_apply">Применить</string>
     <string name="hotfox_apps_title">Приложения\nи правила</string>
+    <string name="hotfox_apps_body">Выберите приложения, трафик которых будет проходить через HotFox.</string>
     <string name="hotfox_apps_include">Только выбранные</string>
     <string name="hotfox_apps_exclude">Все кроме выбранных</string>
     <string name="hotfox_apps_search">Поиск приложений...</string>

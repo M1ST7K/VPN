@@ -30,11 +30,18 @@
                 android:layout_height="wrap_content"
                 android:text="@string/hotfox_always_on_title_ui" />
 
+            <TextView
+                style="@style/HotFox.BodySecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/hotfox_always_on_message" />
+
             <ImageView
-                android:layout_width="144dp"
-                android:layout_height="136dp"
+                android:layout_width="120dp"
+                android:layout_height="112dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:importantForAccessibility="no"
                 android:scaleType="fitCenter"
                 android:src="@drawable/hf_always_on_shield" />

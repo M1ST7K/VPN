@@ -111,6 +111,11 @@
         </LinearLayout>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
     <Button
         android:id="@+id/btn_shadow_keep_auto"
         style="@style/HotFox.SubpagePrimary"

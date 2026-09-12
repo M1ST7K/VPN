@@ -19,6 +19,15 @@
         android:paddingEnd="20dp"
         android:text="@string/hotfox_apps_title" />
 
+    <TextView
+        style="@style/HotFox.BodySecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:text="@string/hotfox_apps_body" />
+
     <!-- Upstream IDs kept for PerAppProxyActivity binding; visual chrome replaces them. -->
     <LinearLayout
         android:id="@+id/header_view"
@@ -65,10 +74,10 @@
     <LinearLayout
         android:id="@+id/layout_apps_segments"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="36dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/hf_surface_segment_track"
         android:gravity="center"
         android:orientation="horizontal"
@@ -137,29 +146,42 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/hf_native_group"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/transparent"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/row_custom_rules"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="52dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="12dp">
+            android:paddingStart="8dp"
+            android:paddingEnd="4dp">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/hf_settings_cream" />
 
@@ -188,14 +210,14 @@
         <LinearLayout
             android:id="@+id/row_selected_count"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="52dp"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="12dp">
+            android:paddingStart="8dp"
+            android:paddingEnd="4dp">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/hf_list_cream" />
 
@@ -221,19 +243,6 @@
                 android:src="@drawable/hf_chevron_muted" />
         </LinearLayout>
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:overScrollMode="never"
-        android:scrollbars="none"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <Button
         android:id="@+id/btn_save_bypass"
