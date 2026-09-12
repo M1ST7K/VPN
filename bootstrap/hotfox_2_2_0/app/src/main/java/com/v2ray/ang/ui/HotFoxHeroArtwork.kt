@@ -41,6 +41,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
     private val planet: ImageView
     private val fox: ImageView
     private val blendBottom: View
+    private val navScrim: View
     private var mode = HotFoxHeroMode.HOME_DISCONNECTED
     private var animationMode = AnimationMode.NONE
     private var breath: AnimatorSet? = null
@@ -64,6 +65,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         planet = findViewById(R.id.img_art_planet)
         fox = findViewById(R.id.img_art_bust)
         blendBottom = findViewById(R.id.hero_blend_bottom)
+        navScrim = findViewById(R.id.hero_nav_scrim)
         planet.scaleType = ImageView.ScaleType.FIT_CENTER
         fox.scaleType = ImageView.ScaleType.FIT_CENTER
         fox.adjustViewBounds = false
@@ -83,7 +85,8 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
                 GONE
             }
             glow.visibility = planet.visibility
-            blendBottom.visibility = planet.visibility
+            blendBottom.visibility = VISIBLE
+            navScrim.visibility = VISIBLE
             if (ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroAnimate, false)) {
                 animationMode = AnimationMode.BREATHING
             }
@@ -124,7 +127,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         val vis = if (show) VISIBLE else GONE
         planet.visibility = vis
         glow.visibility = vis
-        blendBottom.visibility = vis
+        // Fade/nav scrims stay up so controls and navigation never sit on raw artwork.
     }
 
     fun setHeroLayers(showPlanet: Boolean, showFox: Boolean) {
@@ -208,16 +211,22 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         fox.scaleType = ImageView.ScaleType.FIT_CENTER
         fox.adjustViewBounds = false
         layoutLayer(fox, foxLayout.widthPx, foxLayout.heightPx, foxLayout.left, foxLayout.top)
-        fox.bringToFront()
 
-        val blendH = (h * 0.38f).toInt().coerceAtLeast(1)
+        val blendH = (h * 0.42f).toInt().coerceAtLeast(1)
         val blendLp = blendBottom.layoutParams as LayoutParams
-        if (blendLp.height != blendH || blendLp.gravity != Gravity.BOTTOM) {
-            blendLp.width = LayoutParams.MATCH_PARENT
-            blendLp.height = blendH
-            blendLp.gravity = Gravity.BOTTOM
-            blendBottom.layoutParams = blendLp
-        }
+        blendLp.width = LayoutParams.MATCH_PARENT
+        blendLp.height = blendH
+        blendLp.gravity = Gravity.BOTTOM
+        blendBottom.layoutParams = blendLp
+        blendBottom.bringToFront()
+
+        val navH = (h * 0.12f).toInt().coerceAtLeast(1)
+        val navLp = navScrim.layoutParams as LayoutParams
+        navLp.width = LayoutParams.MATCH_PARENT
+        navLp.height = navH
+        navLp.gravity = Gravity.BOTTOM
+        navScrim.layoutParams = navLp
+        navScrim.bringToFront()
 
         lastW = w
         lastH = h
@@ -247,6 +256,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         fox.scaleX = 1f
         fox.scaleY = 1f
         if (animationMode != AnimationMode.BREATHING) return
+        if (HotfoxHeroComposition.isHome(mode)) return
         if (isInEditMode) return
         if (HotfoxMotion.reducedMotion(context)) return
         val drift = resources.displayMetrics.density * 8f

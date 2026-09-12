@@ -1,24 +1,31 @@
 package com.v2ray.ang.ui
 
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.abs
 
 /**
  * Full-viewport fox + planet composition.
  *
- * The hero is an independent visual layer, not a measured Column row.
- * Planet may overflow the viewport. Fox uses FIT (never cropped).
- *
- * Host units are pixels of the full-screen hero view.
+ * HOME states share one locked geometry. Splash / subscription keep their own.
+ * Fox uses FIT and is never cropped. Planet may overflow the viewport.
  */
+data class HomeHeroGeometry(
+    val foxWidthFraction: Float = 0.62f,
+    val foxCenterXFraction: Float = 0.54f,
+    val foxCenterYFraction: Float = 0.49f,
+    val planetWidthFraction: Float = 1.18f,
+    val planetCenterXFraction: Float = 0.43f,
+    val planetCenterYFraction: Float = 0.43f,
+    val planetAlpha: Float = 1f,
+    val glowAlpha: Float = 0.28f,
+)
+
 object HotfoxHeroComposition {
     /** Owner-imported master fox after white-key, unresized: 1063 x 1186. */
     const val FOX_INTRINSIC_WIDTH = 1063f
     const val FOX_INTRINSIC_HEIGHT = 1186f
     const val FOX_ASPECT = FOX_INTRINSIC_WIDTH / FOX_INTRINSIC_HEIGHT
 
-    const val MIN_FOX_WIDTH_FRAC = 0.62f
-    const val START_FOX_WIDTH_FRAC = 0.74f
+    val HOME = HomeHeroGeometry()
 
     enum class Variant {
         SPLASH,
@@ -55,8 +62,7 @@ object HotfoxHeroComposition {
         val widthFrac: Float,
     ) {
         val sizePx: Int get() = widthPx
-        val bottomMarginPx: Int get() = 0
-        val centerVertically: Boolean get() = false
+        val bottom: Int get() = top + heightPx
     }
 
     data class GlowLayout(
@@ -65,69 +71,6 @@ object HotfoxHeroComposition {
         val top: Int,
         val alpha: Float,
     )
-
-    fun spec(mode: HotFoxHeroMode): ModeSpec = when (mode) {
-        HotFoxHeroMode.SPLASH -> ModeSpec(
-            foxWidthFrac = 0.76f,
-            foxCenterXFrac = 0.535f,
-            foxCenterYFrac = 0.52f,
-            planetOverflow = 1.50f,
-            planetCenterXFrac = 0.50f,
-            planetCenterYFrac = 0.42f,
-            planetAlpha = 1f,
-            glowAlpha = 0.42f,
-        )
-        HotFoxHeroMode.HOME_DISCONNECTED -> ModeSpec(
-            foxWidthFrac = 0.78f,
-            foxCenterXFrac = 0.52f,
-            foxCenterYFrac = 0.38f,
-            planetOverflow = 1.46f,
-            planetCenterXFrac = 0.46f,
-            planetCenterYFrac = 0.38f,
-            planetAlpha = 1f,
-            glowAlpha = 0.36f,
-        )
-        HotFoxHeroMode.HOME_CONNECTING -> ModeSpec(
-            foxWidthFrac = 0.78f,
-            foxCenterXFrac = 0.56f,
-            foxCenterYFrac = 0.41f,
-            planetOverflow = 1.44f,
-            planetCenterXFrac = 0.46f,
-            planetCenterYFrac = 0.36f,
-            planetAlpha = 1f,
-            glowAlpha = 0.40f,
-        )
-        HotFoxHeroMode.HOME_CONNECTED -> ModeSpec(
-            foxWidthFrac = 0.78f,
-            foxCenterXFrac = 0.56f,
-            foxCenterYFrac = 0.40f,
-            planetOverflow = 1.42f,
-            planetCenterXFrac = 0.46f,
-            planetCenterYFrac = 0.36f,
-            planetAlpha = 1f,
-            glowAlpha = 0.32f,
-        )
-        HotFoxHeroMode.SUBSCRIPTION -> ModeSpec(
-            foxWidthFrac = 0.80f,
-            foxCenterXFrac = 0.55f,
-            foxCenterYFrac = 0.56f,
-            planetOverflow = 1.50f,
-            planetCenterXFrac = 0.50f,
-            planetCenterYFrac = 0.44f,
-            planetAlpha = 1f,
-            glowAlpha = 0.38f,
-        )
-        HotFoxHeroMode.SUBSCRIPTION_INPUT -> ModeSpec(
-            foxWidthFrac = 0.78f,
-            foxCenterXFrac = 0.56f,
-            foxCenterYFrac = 0.58f,
-            planetOverflow = 1.52f,
-            planetCenterXFrac = 0.46f,
-            planetCenterYFrac = 0.58f,
-            planetAlpha = 0.94f,
-            glowAlpha = 0.30f,
-        )
-    }
 
     data class ModeSpec(
         val foxWidthFrac: Float,
@@ -138,31 +81,61 @@ object HotfoxHeroComposition {
         val planetCenterYFrac: Float,
         val planetAlpha: Float,
         val glowAlpha: Float,
+        val useLockedHome: Boolean = false,
     )
 
-    fun contentBox(
-        hostW: Float,
-        hostH: Float,
-        insetTop: Float,
-        insetBottom: Float,
-    ): Pair<Float, Float> {
-        val top = insetTop.coerceAtLeast(0f)
-        val bottom = (hostH - insetBottom).coerceAtLeast(top + 1f)
-        return top to bottom
+    fun isHome(mode: HotFoxHeroMode): Boolean = when (mode) {
+        HotFoxHeroMode.HOME_DISCONNECTED,
+        HotFoxHeroMode.HOME_CONNECTING,
+        HotFoxHeroMode.HOME_CONNECTED,
+        -> true
+        else -> false
     }
 
-    fun foxWidthFrac(hostW: Float, hostH: Float, mode: HotFoxHeroMode): Float {
-        val spec = spec(mode)
-        if (hostW <= 0f || hostH <= 0f) return spec.foxWidthFrac
-        val aspect = hostH / hostW
-        var frac = spec.foxWidthFrac
-        if (aspect < 1.85f) {
-            frac *= 0.94f
-        }
-        if (aspect < 1.70f) {
-            frac *= 0.94f
-        }
-        return max(MIN_FOX_WIDTH_FRAC, min(0.82f, frac))
+    fun spec(mode: HotFoxHeroMode): ModeSpec = if (isHome(mode)) {
+        ModeSpec(
+            foxWidthFrac = HOME.foxWidthFraction,
+            foxCenterXFrac = HOME.foxCenterXFraction,
+            foxCenterYFrac = HOME.foxCenterYFraction,
+            planetOverflow = HOME.planetWidthFraction,
+            planetCenterXFrac = HOME.planetCenterXFraction,
+            planetCenterYFrac = HOME.planetCenterYFraction,
+            planetAlpha = HOME.planetAlpha,
+            glowAlpha = HOME.glowAlpha,
+            useLockedHome = true,
+        )
+    } else when (mode) {
+        HotFoxHeroMode.SPLASH -> ModeSpec(
+            foxWidthFrac = 0.72f,
+            foxCenterXFrac = 0.54f,
+            foxCenterYFrac = 0.56f,
+            planetOverflow = 1.22f,
+            planetCenterXFrac = 0.45f,
+            planetCenterYFrac = 0.46f,
+            planetAlpha = 1f,
+            glowAlpha = 0.36f,
+        )
+        HotFoxHeroMode.SUBSCRIPTION -> ModeSpec(
+            foxWidthFrac = 0.64f,
+            foxCenterXFrac = 0.54f,
+            foxCenterYFrac = 0.54f,
+            planetOverflow = 1.20f,
+            planetCenterXFrac = 0.44f,
+            planetCenterYFrac = 0.46f,
+            planetAlpha = 1f,
+            glowAlpha = 0.30f,
+        )
+        HotFoxHeroMode.SUBSCRIPTION_INPUT -> ModeSpec(
+            foxWidthFrac = 0.62f,
+            foxCenterXFrac = 0.54f,
+            foxCenterYFrac = 0.62f,
+            planetOverflow = 1.18f,
+            planetCenterXFrac = 0.43f,
+            planetCenterYFrac = 0.58f,
+            planetAlpha = 0.94f,
+            glowAlpha = 0.24f,
+        )
+        else -> spec(HotFoxHeroMode.HOME_DISCONNECTED)
     }
 
     fun planet(
@@ -178,15 +151,13 @@ object HotfoxHeroComposition {
             return PlanetTransform(1f, 0f, 0f, 1f, 0f, 0f, 0f, 0, 0)
         }
         val spec = spec(mode)
-        val (contentTop, contentBottom) = contentBox(hostW, hostH, insetTop, insetBottom)
-        val contentH = (contentBottom - contentTop).coerceAtLeast(1f)
-        val overflow = spec.planetOverflow.coerceIn(1.25f, 1.60f)
+        val overflow = spec.planetOverflow
         val diameter = hostW * overflow
         val scale = diameter / drawableW
         val cx = hostW * spec.planetCenterXFrac
-        val cy = contentTop + contentH * spec.planetCenterYFrac
-        val left = (cx - diameter / 2f)
-        val top = (cy - drawableH * scale / 2f)
+        val cy = hostH * spec.planetCenterYFrac
+        val left = cx - diameter / 2f
+        val top = cy - drawableH * scale / 2f
         return PlanetTransform(
             scale = scale,
             translateX = left,
@@ -218,41 +189,15 @@ object HotfoxHeroComposition {
         drawableH: Float = FOX_INTRINSIC_HEIGHT,
     ): FoxLayout {
         if (hostW <= 0f || hostH <= 0f) {
-            return FoxLayout(1, 1, 0, 0, 0f, 0f, MIN_FOX_WIDTH_FRAC)
+            return FoxLayout(1, 1, 0, 0, 0f, 0f, HOME.foxWidthFraction)
         }
         val spec = spec(mode)
-        val (contentTop, contentBottom) = contentBox(hostW, hostH, insetTop, insetBottom)
-        val contentH = (contentBottom - contentTop).coerceAtLeast(1f)
         val aspect = if (drawableH > 0f) drawableW / drawableH else FOX_ASPECT
-        var widthFrac = foxWidthFrac(hostW, hostH, mode)
-        var width = hostW * widthFrac
-        var height = width / aspect
-        var cx = hostW * spec.foxCenterXFrac
-        // foxCenterYFrac is the optical HEAD center, not the bitmap midpoint.
-        val opticalHeadFrac = 0.36f
-        val headY = contentTop + contentH * spec.foxCenterYFrac
-        var cy = headY + (0.50f - opticalHeadFrac) * height
-
-        // Keep ears/muzzle on-screen. Shrink only after position can't save it.
-        val minTop = contentTop + contentH * 0.04f
-        if (cy - height / 2f < minTop) {
-            cy = minTop + height / 2f
-        }
-        if (cy - height / 2f < 0f) {
-            val maxH = (cy * 2f - 4f).coerceAtLeast(hostW * MIN_FOX_WIDTH_FRAC / aspect)
-            if (height > maxH) {
-                height = maxH
-                width = height * aspect
-                widthFrac = width / hostW
-            }
-        }
-        val edge = hostW * 0.03f
-        if (cx - width / 2f < edge) {
-            cx = edge + width / 2f
-        }
-        if (cx + width / 2f > hostW - edge) {
-            cx = hostW - edge - width / 2f
-        }
+        val widthFrac = spec.foxWidthFrac
+        val width = hostW * widthFrac
+        val height = width / aspect
+        val cx = hostW * spec.foxCenterXFrac
+        val cy = hostH * spec.foxCenterYFrac
         val left = (cx - width / 2f).toInt()
         val top = (cy - height / 2f).toInt()
         return FoxLayout(
@@ -278,7 +223,7 @@ object HotfoxHeroComposition {
     ): GlowLayout {
         val planet = planet(hostW, hostH, 1024f, 1024f, mode, insetTop, insetBottom)
         val spec = spec(mode)
-        val diameter = (planet.diameter * 1.08f).toInt().coerceAtLeast(1)
+        val diameter = (planet.diameter * 1.04f).toInt().coerceAtLeast(1)
         return GlowLayout(
             diameter = diameter,
             left = (planet.centerX - diameter / 2f).toInt(),
@@ -295,11 +240,11 @@ object HotfoxHeroComposition {
         insetBottom: Float = 0f,
     ): Boolean {
         val layout = fox(hostW, hostH, mode, insetTop, insetBottom)
-        // Ears and muzzle must stay inside the viewport. Neck may overflow the bottom.
+        val bottomLimit = if (isHome(mode)) hostH * 0.70f else hostH + 1f
         return layout.left >= -1 &&
             layout.left + layout.widthPx <= hostW + 1f &&
             layout.top >= -1 &&
-            layout.widthPx >= hostW * MIN_FOX_WIDTH_FRAC - 1f
+            layout.bottom <= bottomLimit + 1f
     }
 
     fun foxFitsInHost(hostW: Float, hostH: Float, variant: Variant): Boolean =
@@ -326,9 +271,19 @@ object HotfoxHeroComposition {
         variant: Variant,
     ): Boolean = planetOverflowsHost(hostW, hostH, drawableW, drawableH, variant.toMode())
 
-    fun homeStateDeltaPx(hostH: Float, insetTop: Float = 0f, insetBottom: Float = 0f): Float {
-        val a = fox(400f, hostH, HotFoxHeroMode.HOME_DISCONNECTED, insetTop, insetBottom).centerY
-        val b = fox(400f, hostH, HotFoxHeroMode.HOME_CONNECTED, insetTop, insetBottom).centerY
-        return kotlin.math.abs(a - b)
+    fun homeStatesShareGeometry(hostW: Float, hostH: Float): Boolean {
+        val a = fox(hostW, hostH, HotFoxHeroMode.HOME_DISCONNECTED)
+        val b = fox(hostW, hostH, HotFoxHeroMode.HOME_CONNECTING)
+        val c = fox(hostW, hostH, HotFoxHeroMode.HOME_CONNECTED)
+        val pa = planet(hostW, hostH, 1024f, 1024f, HotFoxHeroMode.HOME_DISCONNECTED)
+        val pb = planet(hostW, hostH, 1024f, 1024f, HotFoxHeroMode.HOME_CONNECTING)
+        val pc = planet(hostW, hostH, 1024f, 1024f, HotFoxHeroMode.HOME_CONNECTED)
+        return a.left == b.left && a.left == c.left &&
+            a.top == b.top && a.top == c.top &&
+            a.widthPx == b.widthPx && a.widthPx == c.widthPx &&
+            a.heightPx == b.heightPx && a.heightPx == c.heightPx &&
+            abs(pa.centerX - pb.centerX) < 0.01f && abs(pa.centerX - pc.centerX) < 0.01f &&
+            abs(pa.centerY - pb.centerY) < 0.01f && abs(pa.centerY - pc.centerY) < 0.01f &&
+            abs(pa.diameter - pb.diameter) < 0.01f && abs(pa.diameter - pc.diameter) < 0.01f
     }
 }

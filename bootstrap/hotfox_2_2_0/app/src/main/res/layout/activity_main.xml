@@ -22,7 +22,7 @@
             android:focusable="false"
             android:importantForAccessibility="no"
             android:paddingBottom="@dimen/hf_bottom_nav_height"
-            app:hfHeroAnimate="true"
+            app:hfHeroAnimate="false"
             app:hfHeroClip="false"
             app:hfHeroShowFox="true"
             app:hfHeroShowPlanet="true"
@@ -185,7 +185,10 @@
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
                         android:layout_marginTop="8dp"
+                        android:background="@drawable/hf_hero_progress_veil"
                         android:orientation="vertical"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:visibility="gone">
 
                         <TextView
@@ -253,7 +256,9 @@
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
                         android:layout_marginTop="8dp"
+                        android:background="@drawable/hf_hero_progress_veil"
                         android:orientation="vertical"
+                        android:paddingTop="8dp"
                         android:visibility="gone">
 
                         <LinearLayout

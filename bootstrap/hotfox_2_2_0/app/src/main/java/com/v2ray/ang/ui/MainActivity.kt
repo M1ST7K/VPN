@@ -1220,13 +1220,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         ring?.isVisible = false
         hero?.isVisible = currentSection == UiSection.CONNECTION
         hero?.setHeroLayers(showPlanet = true, showFox = true)
-        hero?.setMode(
-            when (visual) {
-                ConnectionVisualState.CONNECTING -> HotFoxHeroMode.HOME_CONNECTING
-                ConnectionVisualState.CONNECTED -> HotFoxHeroMode.HOME_CONNECTED
-                else -> HotFoxHeroMode.HOME_DISCONNECTED
-            },
-        )
+        hero?.setMode(HotFoxHeroMode.HOME_DISCONNECTED)
         planet?.isVisible = true
         bust?.isVisible = true
         when (visual) {
@@ -1235,7 +1229,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = true
                 metrics?.isVisible = false
                 note?.isVisible = false
-                rows?.alpha = 0.42f
+                rows?.alpha = 1f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_progress)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_orange))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.hf_stop_cream, 0, 0, 0)
@@ -1246,7 +1240,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = false
                 metrics?.isVisible = true
                 note?.isVisible = false
-                rows?.alpha = 0.82f
+                rows?.alpha = 1f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
@@ -1256,7 +1250,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = false
                 metrics?.isVisible = false
                 note?.isVisible = true
-                rows?.alpha = 0.86f
+                rows?.alpha = 1f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_primary)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)
