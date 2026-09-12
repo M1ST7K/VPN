@@ -24,6 +24,7 @@ V9 evidence is unchanged under `actual_v9/` and `compare_v9/`.
 - Starting head: `4b7c1665e5bf4d10acefa4b192a1812e22e18a64`
 - Implementation: `24798dc` (planet/hierarchy/utility polish)
 - Debug fixture follow-up: `224183b` (Амстердам; six unclipped apps)
+- Evidence pack: `80ba4fb`
 - AVD: `HotFox_V51_API34_Clean`, API 34, 1080×2400
 - Locale: `cmd locale set-app-locales com.hotfox.vpn --locales ru-RU`
 - Viewport: 1080×2400 emulator screenshots (not phone mockups)
