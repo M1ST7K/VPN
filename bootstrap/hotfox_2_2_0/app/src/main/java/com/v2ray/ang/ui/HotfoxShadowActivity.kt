@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.v2ray.ang.R
 import com.v2ray.ang.databinding.ActivityHotfoxShadowBinding
+import com.v2ray.ang.extension.toast
 import com.v2ray.ang.vpn.HotfoxShadowStore
 
 class HotfoxShadowActivity : AppCompatActivity() {
@@ -23,6 +24,9 @@ class HotfoxShadowActivity : AppCompatActivity() {
             HotfoxShadowStore.setShadowAuto(true)
             render()
             finish()
+        }
+        binding.btnShadowMore.setOnClickListener {
+            toast(R.string.hotfox_shadow_body)
         }
     }
 

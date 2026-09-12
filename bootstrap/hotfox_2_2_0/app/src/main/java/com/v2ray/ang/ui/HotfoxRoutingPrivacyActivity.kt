@@ -3,11 +3,15 @@ package com.v2ray.ang.ui
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.databinding.ActivityHotfoxRoutingBinding
 import com.v2ray.ang.extension.toast
+import com.v2ray.ang.handler.MmkvManager
+import com.v2ray.ang.vpn.HotfoxAutopilotStore
 import com.v2ray.ang.vpn.HotfoxRoutingMode
 import com.v2ray.ang.vpn.HotfoxRoutingStore
 
@@ -26,6 +30,18 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
         binding.btnRoutingMode.setOnClickListener { showModePicker() }
         binding.btnRoutingAdvanced.setOnClickListener {
             startActivity(Intent(this, PerAppProxyActivity::class.java))
+        }
+        binding.btnRoutingDns.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.btnRoutingIpv6.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.btnRoutingCustom.setOnClickListener {
+            startActivity(Intent(this, RoutingSettingActivity::class.java))
+        }
+        binding.btnRoutingReconnect.setOnClickListener {
+            startActivity(Intent(this, HotfoxAutopilotActivity::class.java))
         }
         binding.switchRoutingLan.setOnCheckedChangeListener { _, isChecked ->
             val snapshot = HotfoxRoutingStore.load()
@@ -65,6 +81,23 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
             },
         )
         binding.switchRoutingLan.isChecked = snapshot.lanAccess
+        binding.tvRoutingLanValue.setText(
+            if (snapshot.lanAccess) R.string.hotfox_lan_allowed else R.string.hotfox_lan_blocked,
+        )
+        binding.tvRoutingLanValue.setTextColor(
+            ContextCompat.getColor(
+                this,
+                if (snapshot.lanAccess) R.color.hf_asset_green else R.color.hf_asset_muted,
+            ),
+        )
+        val ipv6 = MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED)
+        binding.tvRoutingIpv6Value.setText(
+            if (ipv6) R.string.hotfox_ipv6_via_vpn else R.string.hotfox_ipv6_protect,
+        )
+        val reconnect = HotfoxAutopilotStore.policy().reconnectOnRestore
+        binding.tvRoutingReconnectValue.setText(
+            if (reconnect) R.string.hotfox_reconnect_on_change else R.string.hotfox_value_off,
+        )
     }
 
     private fun showModePicker() {
