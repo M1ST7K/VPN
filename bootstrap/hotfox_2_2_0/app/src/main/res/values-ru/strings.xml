@@ -711,7 +711,7 @@
     <string name="hotfox_add_clipboard">Из буфера обмена</string>
     <string name="hotfox_add_qr">QR-код</string>
     <string name="hotfox_add_file">Из файла</string>
-    <string name="hotfox_add_always_on">Always-on VPN / Kill Switch</string>
+    <string name="hotfox_add_always_on">Always-on VPN</string>
     <string name="hotfox_https_title">HTTPS-подписка</string>
     <string name="hotfox_https_body">Вставьте ссылку подписки. Полный URL не сохраняется в скриншотах и логах.</string>
     <string name="hotfox_https_paste">Вставить</string>

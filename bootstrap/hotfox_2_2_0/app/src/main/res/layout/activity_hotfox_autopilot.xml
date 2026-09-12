@@ -433,9 +433,8 @@
                 android:id="@+id/tv_autopilot_decision"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:textColor="@color/hf_asset_muted"
-                android:textSize="13sp" />
+                android:layout_marginTop="16dp"
+                style="@style/HotFox.LegalCaption" />
         </LinearLayout>
     </ScrollView>
 
@@ -471,6 +470,6 @@
             android:layout_weight="1"
             android:text="@string/hotfox_autopilot_footer"
             android:textColor="@color/hf_asset_muted"
-            android:textSize="12sp" />
+            android:textSize="13sp" />
     </LinearLayout>
 </LinearLayout>

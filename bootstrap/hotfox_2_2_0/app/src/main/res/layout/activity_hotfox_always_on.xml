@@ -31,25 +31,25 @@
                 android:text="@string/hotfox_always_on_title_ui" />
 
             <TextView
-                style="@style/HotFox.BodySecondary"
+                style="@style/HotFox.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/hotfox_always_on_message" />
 
             <ImageView
-                android:layout_width="120dp"
-                android:layout_height="112dp"
+                android:layout_width="152dp"
+                android:layout_height="160dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:importantForAccessibility="no"
                 android:scaleType="fitCenter"
-                android:src="@drawable/hf_always_on_shield" />
+                android:src="@drawable/hf_native_always_on_hero" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:background="@android:color/transparent"
                 android:orientation="vertical">
 
@@ -157,7 +157,7 @@
                     android:layout_weight="1"
                     android:text="@string/hotfox_always_on_note"
                     android:textColor="@color/hf_asset_muted"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

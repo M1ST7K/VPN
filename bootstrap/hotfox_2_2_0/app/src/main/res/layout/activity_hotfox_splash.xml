@@ -25,9 +25,9 @@
         <ImageView
             android:id="@+id/img_splash_fox"
             android:layout_width="match_parent"
-            android:layout_height="280dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="72dp"
+            android:layout_height="320dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="48dp"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
@@ -39,11 +39,11 @@
             android:layout_gravity="bottom|center_horizontal"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingBottom="88dp">
+            android:paddingBottom="52dp">
 
             <ImageView
-                android:layout_width="132dp"
-                android:layout_height="36dp"
+                android:layout_width="124dp"
+                android:layout_height="34dp"
                 android:contentDescription="@string/hotfox_wordmark_cd"
                 android:scaleType="fitCenter"
                 android:src="@drawable/hf_brand_wordmark" />
@@ -52,15 +52,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:letterSpacing="0.18"
+                android:letterSpacing="0.22"
                 android:text="@string/hotfox_tagline_more_than_vpn"
                 android:textColor="@color/hf_asset_muted"
                 android:textSize="10sp" />
 
             <FrameLayout
-                android:layout_width="148dp"
-                android:layout_height="2dp"
-                android:layout_marginTop="14dp">
+                android:layout_width="124dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="16dp">
 
                 <ImageView
                     android:layout_width="match_parent"
@@ -71,7 +71,7 @@
 
                 <ImageView
                     android:id="@+id/img_splash_fill"
-                    android:layout_width="56dp"
+                    android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:importantForAccessibility="no"
                     android:scaleType="fitXY"

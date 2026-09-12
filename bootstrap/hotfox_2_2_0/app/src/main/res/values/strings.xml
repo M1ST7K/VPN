@@ -721,7 +721,7 @@
     <string name="hotfox_add_clipboard">From clipboard</string>
     <string name="hotfox_add_qr">QR code</string>
     <string name="hotfox_add_file">From file</string>
-    <string name="hotfox_add_always_on">Always-on VPN / Kill Switch</string>
+    <string name="hotfox_add_always_on">Always-on VPN</string>
     <string name="hotfox_https_title">HTTPS subscription</string>
     <string name="hotfox_https_body">Paste a subscription link. The full URL is not stored in screenshots or logs.</string>
     <string name="hotfox_https_paste">Paste</string>

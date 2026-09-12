@@ -59,7 +59,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_autopilot"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -93,7 +93,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_always_on"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -127,7 +127,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_notifications"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -174,7 +174,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_diagnostics"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -206,7 +206,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_lan"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -238,7 +238,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_dns"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -270,7 +270,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_ipv6"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -317,7 +317,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_about"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -349,7 +349,7 @@
                 <LinearLayout
                     android:id="@+id/row_settings_privacy"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="52dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"

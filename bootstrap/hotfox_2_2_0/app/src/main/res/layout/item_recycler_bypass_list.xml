@@ -7,11 +7,11 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     android:gravity="center_vertical"
-        android:minHeight="48dp"
+        android:minHeight="52dp"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp">
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"

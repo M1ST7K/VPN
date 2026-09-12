@@ -216,9 +216,9 @@
 
     <style name="HotFox.SectionEyebrow">
         <item name="android:textColor">@color/hf_asset_muted</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:letterSpacing">0.12</item>
+        <item name="android:letterSpacing">0.14</item>
         <item name="android:textAllCaps">true</item>
     </style>
 
@@ -233,8 +233,8 @@
 
     <style name="HotFox.BodySecondary">
         <item name="android:textColor">@color/hf_asset_muted</item>
-        <item name="android:textSize">13sp</item>
-        <item name="android:lineSpacingExtra">3dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
     </style>
 
     <style name="HotFox.RowTitle">
@@ -266,7 +266,7 @@
 
     <style name="HotFox.LegalCaption">
         <item name="android:textColor">@color/hf_asset_muted</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:lineSpacingExtra">2dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingExtra">3dp</item>
     </style>
 </resources>

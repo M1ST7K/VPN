@@ -16,7 +16,7 @@
         style="@style/HotFox.ScreenTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:text="@string/hotfox_onboarding_connect_title_ui" />
 
     <TextView
@@ -24,7 +24,7 @@
         style="@style/HotFox.Body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:text="@string/hotfox_onboarding_connect_body_ui" />
 
     <FrameLayout
@@ -46,9 +46,10 @@
 
         <ImageView
             android:id="@+id/img_onboarding_art"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
-            android:layout_gravity="center"
+            android:layout_width="248dp"
+            android:layout_height="248dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="28dp"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"

@@ -3,7 +3,9 @@ package com.v2ray.ang.ui
 import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -79,12 +81,14 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_connect_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_connect_body_ui)
                 binding.imgOnboardingPlanet.isVisible = true
+                stageOnboardingHero(sizeDp = 248, gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, bottomDp = 28)
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_fox_bust_transparent)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = false
                 binding.btnOnboardingPrimary.setText(R.string.hotfox_already_have_subscription)
                 binding.btnOnboardingPrimary.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)
+                binding.btnOnboardingSecondary.setTextColor(getColor(R.color.hf_asset_muted))
                 binding.btnOnboardingSecondary.isVisible = true
                 binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_buy_access)
             }
@@ -92,11 +96,13 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_auto_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_auto_body_ui)
                 binding.imgOnboardingPlanet.isVisible = false
+                stageOnboardingHero(sizeDp = 280, gravity = Gravity.CENTER, bottomDp = 0)
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_auto_routing)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
                 binding.layoutOnboardingNote.isVisible = false
                 binding.btnOnboardingPrimary.setText(R.string.hotfox_onboarding_use_auto)
+                binding.btnOnboardingSecondary.setTextColor(getColor(R.color.hf_asset_cream))
                 binding.btnOnboardingSecondary.isVisible = true
                 binding.btnOnboardingSecondary.setText(R.string.hotfox_onboarding_choose_manual)
             }
@@ -106,6 +112,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_ready_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_ready_body_ui)
                 binding.imgOnboardingPlanet.isVisible = false
+                stageOnboardingHero(sizeDp = 236, gravity = Gravity.CENTER, bottomDp = 0)
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_ready_complete)
                 binding.imgOnboardingOverlay.isVisible = false
                 binding.imgOnboardingOverlay2.isVisible = false
@@ -115,6 +122,17 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
             }
         }
         binding.btnOnboardingPrimary.contentDescription = binding.btnOnboardingPrimary.text
+    }
+
+    private fun stageOnboardingHero(sizeDp: Int, gravity: Int, bottomDp: Int) {
+        val density = resources.displayMetrics.density
+        val lp = binding.imgOnboardingArt.layoutParams as FrameLayout.LayoutParams
+        val px = (sizeDp * density).toInt()
+        lp.width = px
+        lp.height = px
+        lp.gravity = gravity
+        lp.bottomMargin = (bottomDp * density).toInt()
+        binding.imgOnboardingArt.layoutParams = lp
     }
 
     private fun onPrimary() {

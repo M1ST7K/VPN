@@ -90,7 +90,7 @@
                 <LinearLayout
                     android:id="@+id/row_server_status"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="56dp"
                     android:gravity="center_vertical"
                     android:paddingStart="16dp"
                     android:paddingEnd="12dp">
@@ -128,7 +128,7 @@
                 <LinearLayout
                     android:id="@+id/row_server_load"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="56dp"
                     android:gravity="center_vertical"
                     android:paddingStart="16dp"
                     android:paddingEnd="12dp">
@@ -166,7 +166,7 @@
                 <LinearLayout
                     android:id="@+id/row_server_routing"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="56dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -207,7 +207,7 @@
                 <LinearLayout
                     android:id="@+id/row_server_shadow"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="56dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
@@ -248,7 +248,7 @@
                 <LinearLayout
                     android:id="@+id/row_server_auto"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="56dp"
                     android:gravity="center_vertical"
                     android:paddingStart="16dp"
                     android:paddingEnd="12dp">
@@ -296,7 +296,7 @@
                     android:src="@drawable/hf_info_muted" />
 
                 <TextView
-                    style="@style/HotFox.RowCaption"
+                    style="@style/HotFox.LegalCaption"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -310,7 +310,7 @@
                 android:layout_width="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_height="44dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:minWidth="220dp"
                 android:contentDescription="@string/hotfox_select_server"
