@@ -24,7 +24,7 @@ The full production prompt is the task entrypoint, not a request to draft a plan
 
 ## Visual contract
 
-Each corresponding image is the visual source of truth. No creative redesign,
+Each corresponding image is the visual source of truth, subject to newer explicit owner overrides. No creative redesign,
 modernization, simplification, alternate layout, approximate result labeled exact,
 or Material default substituted for a visually different control.
 
@@ -36,12 +36,9 @@ The new images supersede the historical three-tab UI. Preserve each image's
 four-tab or absent-tab composition; the screen 07 discrepancy is documented in
 `HOTFOX_REFERENCE_CONFLICTS.md`. Do not silently normalize it and claim 1:1.
 
-No new planet/globe/orbit/horizon/fox/glow. Preserve motifs already visible ONLY
-in their own exact reference. Do not propagate them to other screens.
-No neon/gamer/cyberpunk/glassmorphism/neumorphism or invented cards/gradients/icons.
-Preserve precise copy, order, geometry, typography, color, artwork and CTA placement.
-The images win over incomplete prose: screen 06 has a fox, screen 09 has a fox
-and its Add CTA is above the artwork.
+V7 owner override supersedes the older blanket no-planet clause: a restrained separate planet backdrop is required behind the transparent fox on screens 01/02/05/06/07/09, and may appear indirectly behind screen 08 sheet. Do not restore legacy screenshot-derived fox+planet composites. Planet remains forbidden elsewhere; orbit/radar/solar-system motifs remain forbidden everywhere. Screens 03/04 are owner-approved directionally and must not be conceptually redesigned.
+No neon/gamer/cyberpunk/glassmorphism/neumorphism or invented heavy cards/gradients/icons.
+Preserve precise copy, order, geometry, typography, color, artwork and CTA placement except where a newer owner override explicitly changes the art direction.
 
 ## Runtime contract
 
@@ -51,7 +48,7 @@ Keep VpnService/TUN → HEV/tun2socks → SOCKS → Xray → server datapath int
 Preserve a729b1c admission-lock teardown/native-socket protection repairs.
 Preserve DNS/IPv6 fail-closed, AUTO/manual intent, routing snapshots/tags,
 subscriptions/entitlement, Shadow, Autopilot, secure storage, notification and QS.
-Never simulate Android always-on/lockdown, payment, ping, traffic or server health.
+Never simulate Android always-on/lockdown, payment, ping, traffic or server health in production.
 No secrets in repository/screenshots/logs. No TLS/REALITY/readiness bypass.
 
 Prefer presentation/resources changes. MainActivity contains command logic:
@@ -68,10 +65,8 @@ Declare source-bound viewport, device/density/API/fonts/insets and deterministic
 test-only state before visual implementation. Actual images must come from this
 candidate's real UI renderer/APK. No production fixture data.
 
-Pixel exact = 0 changed pixels AND 0 maximum channel delta in the declared region.
-No tolerance, automatic masks/alignment/resizing, golden regeneration, filters or
-cropping app mismatches. An excluded external/SystemUI area must be declared;
-app viewport equality is not full board equality.
+Pixel exact = 0 changed pixels AND 0 maximum channel delta in the declared region where the reference remains authoritative. Newer owner-overridden artwork regions must be documented rather than falsely scored exact.
+No tolerance, hidden masks, golden regeneration or fake reference substitution.
 
 Missing assets/captures → BLOCKED/NOT_EXECUTED, never PASS. Continue independent
 work. Record flattened-asset/font/navigation conflicts honestly; do not invent

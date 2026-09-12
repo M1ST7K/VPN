@@ -1,15 +1,17 @@
 ---
-description: HotFox visual refinement V4 owner override
+description: HotFox visual refinement V4 historical rules, updated for V7 owner override
 alwaysApply: true
 ---
 
-# HotFox Visual Refinement V4
+# HotFox Visual Refinement V4 — compatibility note
 
 - Current UI is not visually accepted until 18/18 screenshot evidence and comparison exist.
-- Owner override: never use decorative planets, planetary arcs, planetary horizons, eclipses, celestial bodies, or orbital motifs.
-- `hf_fox_planet` must have zero production references.
-- `hf_shadow_orbits` in its current orbital/celestial form must have zero production references.
-- Exact per-screen reference wins over generic tokens, except the newer owner celestial-removal override.
+- V7 supersedes the old blanket celestial-removal instruction. A NEW restrained separate planet backdrop is allowed/required only behind fox hero screens 01/02/05/06/07/09 (and indirectly under 08 sheet background). Planet remains forbidden elsewhere.
+- Legacy `hf_fox_planet` and screenshot-derived fox+planet composite assets remain forbidden; use separate planet and transparent fox layers.
+- `hf_shadow_orbits` in its old orbital/celestial form remains forbidden.
+- No orbit rings, radar circles, solar-system diagrams, stars or sci-fi poster treatment.
+- Screens 03/04 are V7 owner-approved directionally and should only receive micro-polish.
+- Exact per-screen reference wins over generic tokens except newer explicit owner overrides.
 - Asset kit is a parts bin, not automatic visual truth.
 - Do not use universal Material defaults as final design.
 - Content-over-containers: avoid unnecessary large rounded cards.

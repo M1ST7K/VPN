@@ -1,15 +1,17 @@
 ---
-description: HotFox V5 art-director refinement and visual QA rules
+description: HotFox V5 historical art-director rules, reconciled with V7 latest owner override
 alwaysApply: true
 ---
 
-# HotFox V5 visual law
+# HotFox V5 visual law — V7 compatibility
 
-- UI is NOT visually accepted at V4: 18/18 captures exist but 0/18 pass.
-- Read `verification/ui_rebuild/HOTFOX_ART_DIRECTOR_REVIEW_FAIL_V5.md` and `design/HOTFOX_CURSOR_ART_DIRECTOR_REFINEMENT_V5.txt`.
+- Historical V4/V5 builds were not visually accepted; keep their QA lessons.
+- Read the newest V7 review/prompt for current visual direction.
 - Asset kit is a parts bin, not automatic visual truth.
-- Never use decorative planet, planetary arc, eclipse, celestial horizon, closed orbit rings, solar-system composition, or radar-like concentric orbital systems.
-- V5 extends this prohibition to current AUTO/Ready illustrations if they visually read as orbital systems.
+- V7 supersedes the old blanket “never use a planet” rule: a restrained separate planet backdrop is REQUIRED only behind fox on 01/02/05/06/07/09; it may appear indirectly behind screen 08 sheet.
+- Do not use the planet on 03/04 or 10–18. Do not use any orbit/radar/solar-system composition anywhere.
+- Legacy composite fox+planet assets remain forbidden; transparent fox and planet must be separate layers.
+- Screens 03/04 are owner-approved directionally: micro-polish only.
 - Fox artwork must not show an opaque rectangular matte. Use a clean transparent fox asset; fox interior must remain opaque, feather only outer silhouette.
 - Do not repeat the broken semi-transparent dark-fur alpha extraction.
 - Production truth and debug visual reference state are separate. Debug fixtures under src/debug are allowed and encouraged for visual QA of reference-populated states.
@@ -20,7 +22,6 @@ alwaysApply: true
 - Content-over-containers remains required, but raw unstructured lists are also not acceptable; use subtle editorial grouping.
 - Typography, spacing and headers must be measured per screen.
 - No dead/unfinished lower-half layout unless reference intentionally uses that negative space.
-- All 18 V5 screenshots and comparisons are mandatory.
-- V4 evidence must be preserved; write V5 evidence to new directories/files.
+- All V7 screenshots and comparisons are mandatory before visual completion.
 - Do not merge.
 - RELEASE READY is a separate runtime gate.
