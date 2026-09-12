@@ -1,0 +1,76 @@
+HOTFOX V11 — ART DIRECTION REVIEW
+
+STATUS
+V10 is improved but is not visually accepted as final. The owner-approved direction is explicit: on fox-led hero screens, use the approved V11 planet references as the source of truth. The planet is part of the composition, not an optional decoration.
+
+NON-NEGOTIABLE VISUAL DIRECTION
+- Keep the current premium dark HotFox identity.
+- Use the existing clean transparent fox foreground from production resources.
+- Use the committed V11 planet references as source of truth for planet character, rim light, texture, density, crop and atmospheric depth.
+- Do not redraw the planet as a simple arc, wire semicircle, flat gradient circle, generic vector dome, neon ring or double-line horizon.
+- The same approved planet object must be recognizable across screens; only scale/crop/offset may vary by screen and breakpoint.
+- Fox remains foreground and must cleanly occlude the planet. No bright planet fragments may poke through fur/neck/head/ear edges.
+- 03 AUTO and 04 Ready are owner-approved directionally: micro-polish only, no forced planet.
+- Utility screens remain utility screens. Do not inject planet imagery into 10–18 unless the exact approved reference requires it.
+
+PLANET REFERENCE FIDELITY
+Use these committed V11 isolated planet reference cues together with the full approved screen boards already in `design/hotfox_18_final_style_reference/`:
+- design/assets/v11/planet/hotfox_planet_reference_a.webp
+- design/assets/v11/planet/hotfox_planet_reference_b.webp
+- bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_planet.png (existing historical combined reference; do not restore as production composite)
+- bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_bust_transparent.png (existing clean production fox foreground)
+
+The planet must preserve:
+- dark near-black spherical body;
+- restrained visible surface texture;
+- warm copper/orange directional rim;
+- strongest light on upper/right side;
+- left/lower side falling into near-black;
+- soft atmospheric transition, not a hard vector outline.
+
+Do not add stars, orbit dots, radar rings, nebulae, satellites, gamer glow or cyberpunk effects.
+
+RESPONSIVE REQUIREMENT — PHONE AND TABLET
+The same design must look intentionally composed on:
+- compact phones;
+- regular phones;
+- small tablets in portrait;
+- large tablets in portrait.
+
+Do not simply scale one phone canvas. Build adaptive hero composition with breakpoint-aware fox scale, planet scale, offsets, max width and spacing. Fox remains emotionally dominant, planet remains supporting mass, text/CTA preserve their relationship to the hero, and tablet layouts must not look like stretched phones.
+
+SCREENS REQUIRING PLANET-BACKED FOX COMPOSITION
+Mandatory planet treatment:
+- 01 Splash
+- 02 Onboarding / Connect HotFox
+- 05 Main / Not protected
+- 06 Connecting
+- 07 Protected
+- 09 HTTPS subscription if the fox hero remains present
+- 08 inherits the live 05 background behind the bottom sheet
+
+Do not add a planet by default to 03, 04 or 10–18.
+
+SCREEN-SPECIFIC NOTES
+01 Splash: preserve fox identity; planet creates depth behind fox; tighten fox/planet/wordmark/tagline/loader into one vertical brand scene.
+02 Connect HotFox: same planet family, screen-specific crop only; keep editorial hierarchy and CTA relationship.
+03 AUTO: owner likes it; no redesign; micro-polish optical center, line weight, node spacing and CTA rhythm only.
+04 Ready: owner likes it; no redesign; micro-polish only.
+05 Disconnected: planet must match approved V11 references in character; integrate title, subtitle, hero, permission note, CTA and settings rhythm.
+06 Connecting: planet is static background only; progress rail/stages are separate and must not become a planet rim.
+07 Protected: same planet family; calmer hierarchy; green only genuine success/protected semantics.
+08 Add connection: show real screen 05 composition behind the sheet; scrim must not turn orange muddy brown.
+09 HTTPS subscription: form remains primary; if fox+planet remains, lower hero contrast so art supports trust/privacy rather than distracting.
+10–18: no forced planet; continue premium utility polish, localization consistency and spacing discipline.
+
+FINAL EVIDENCE REQUIRED
+- 18 separate phone screenshots, one per screen.
+- One complete contact sheet.
+- Tablet portrait captures for 01,02,05,06,07,08,09 and representative utility screens.
+- Real app/emulator screenshots, no mock phone frames.
+- Short screen-by-screen changelog.
+- Planet fidelity notes.
+- Responsive phone/tablet notes.
+- Build/test/static/fixture-leak results.
+
+No merge. No RELEASE READY claim from this UI task.
