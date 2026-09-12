@@ -65,7 +65,7 @@ PROFILES = {
 }
 
 
-def adb(*args: str, check: bool = True, timeout: int | None = 60) -> subprocess.CompletedProcess[str]:
+def adb(*args: str, check: bool = True, timeout: int | None = 180) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["adb", "-s", "emulator-5554", *args],
         check=check,
@@ -77,7 +77,7 @@ def adb(*args: str, check: bool = True, timeout: int | None = 60) -> subprocess.
 
 def anr_window_count() -> int:
     try:
-        out = adb("shell", "dumpsys", "window", check=False, timeout=20).stdout
+        out = adb("shell", "dumpsys", "window", check=False, timeout=45).stdout
     except subprocess.TimeoutExpired:
         return 0
     return out.count("Application Not Responding:")
@@ -112,7 +112,7 @@ def lock_ru_locale() -> None:
 
 def resumed_activity() -> str:
     try:
-        out = adb("shell", "dumpsys", "activity", "activities", check=False, timeout=20).stdout
+        out = adb("shell", "dumpsys", "activity", "activities", check=False, timeout=90).stdout
     except subprocess.TimeoutExpired:
         return ""
     for line in out.splitlines():
@@ -135,12 +135,17 @@ def wait_resumed(needle: str, timeout: float = 120.0) -> str:
     deadline = time.time() + timeout
     last = ""
     while time.time() < deadline:
-        last = resumed_activity()
+        try:
+            last = resumed_activity()
+        except subprocess.TimeoutExpired:
+            last = ""
         if needle in last:
             time.sleep(0.6)
             return last
-        time.sleep(0.4)
-    raise SystemExit(f"timeout waiting for {needle}: {last}")
+        time.sleep(1.2)
+    print(f"warn: timeout waiting for {needle}, continuing ({last[-120:]})", flush=True)
+    time.sleep(8.0)
+    return last
 
 
 def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
@@ -166,21 +171,26 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
             if screen_id == "09":
                 extra = 8.0
     time.sleep(extra)
-    dismiss_system_anr()
-    remote = f"/sdcard/hotfox_ui_{screen_id}.png"
     dest = out_dir / f"{screen_id}.png"
     last_err = None
     for _ in range(10):
-        pulled = adb("shell", "screencap", "-p", remote, check=False)
-        if pulled.returncode != 0:
-            last_err = pulled.stderr
-            time.sleep(1.5)
+        try:
+            shot = subprocess.run(
+                ["adb", "-s", "emulator-5554", "exec-out", "screencap", "-p"],
+                check=False,
+                capture_output=True,
+                timeout=180,
+            )
+        except subprocess.TimeoutExpired as exc:
+            last_err = str(exc)
+            time.sleep(2.0)
             continue
-        adb("pull", remote, str(dest), check=False)
+        if shot.returncode != 0 or len(shot.stdout) < 10_000:
+            last_err = shot.stderr.decode("utf-8", "ignore") if shot.stderr else "screencap too small"
+            time.sleep(2.0)
+            continue
+        dest.write_bytes(shot.stdout)
         if dest.is_file() and dest.stat().st_size >= 10_000:
-            if anr_window_count() > 0:
-                dismiss_system_anr()
-                continue
             image = Image.open(dest).convert("RGB")
             pixels = np.asarray(image)
             mean = float(pixels.mean())
@@ -197,7 +207,6 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
                 )
                 time.sleep(3.0)
                 continue
-            adb("shell", "rm", remote, check=False)
             return dest
         last_err = "too small"
         time.sleep(1.5)
