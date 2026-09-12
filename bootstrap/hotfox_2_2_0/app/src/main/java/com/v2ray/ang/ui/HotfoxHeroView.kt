@@ -5,7 +5,6 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Matrix
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -30,11 +29,12 @@ class HotfoxHeroView @JvmOverloads constructor(
     private var variant = HotfoxHeroComposition.Variant.PAGE
     private var animationMode = AnimationMode.NONE
     private var breath: ObjectAnimator? = null
-    private var applying = false
+    private var lastW = 0
+    private var lastH = 0
 
     init {
-        clipChildren = false
-        clipToPadding = false
+        clipChildren = true
+        clipToPadding = true
         clipToOutline = false
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         inflate(context, R.layout.view_hotfox_hero, this)
@@ -43,6 +43,11 @@ class HotfoxHeroView @JvmOverloads constructor(
         planet.scaleType = ImageView.ScaleType.MATRIX
         fox.scaleType = ImageView.ScaleType.FIT_CENTER
         fox.adjustViewBounds = true
+        val foxLp = fox.layoutParams as LayoutParams
+        foxLp.width = LayoutParams.MATCH_PARENT
+        foxLp.height = LayoutParams.MATCH_PARENT
+        foxLp.gravity = android.view.Gravity.CENTER
+        fox.layoutParams = foxLp
         if (attrs != null) {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.HotfoxHeroView, defStyleAttr, 0)
             variant = when (ta.getInt(R.styleable.HotfoxHeroView_hfHeroVariant, 1)) {
@@ -60,9 +65,12 @@ class HotfoxHeroView @JvmOverloads constructor(
             } else {
                 GONE
             }
-            if (ta.getBoolean(R.styleable.HotfoxHeroView_hfHeroAnimate, variant != HotfoxHeroComposition.Variant.SUPPORT)) {
+            if (ta.getBoolean(R.styleable.HotfoxHeroView_hfHeroAnimate, false)) {
                 animationMode = AnimationMode.BREATHING
             }
+            val clip = ta.getBoolean(R.styleable.HotfoxHeroView_hfHeroClip, true)
+            clipChildren = clip
+            clipToPadding = clip
             ta.recycle()
         }
         planet.setImageResource(R.drawable.hf_native_planet_sphere)
@@ -72,6 +80,7 @@ class HotfoxHeroView @JvmOverloads constructor(
     fun setVariant(next: HotfoxHeroComposition.Variant) {
         if (variant == next) return
         variant = next
+        lastW = 0
         applyComposition()
     }
 
@@ -112,15 +121,16 @@ class HotfoxHeroView @JvmOverloads constructor(
     }
 
     private fun applyComposition() {
-        val w = width.toFloat()
-        val h = height.toFloat()
-        if (w < 2f || h < 2f || applying) return
+        val w = width
+        val h = height
+        if (w < 2 || h < 2) return
         val drawable = planet.drawable ?: return
         val dw = drawable.intrinsicWidth.toFloat()
         val dh = drawable.intrinsicHeight.toFloat()
         if (dw <= 0f || dh <= 0f) return
-        applying = true
-        val transform = HotfoxHeroComposition.planet(w, h, dw, dh, variant)
+        val wf = w.toFloat()
+        val hf = h.toFloat()
+        val transform = HotfoxHeroComposition.planet(wf, hf, dw, dh, variant)
         planetMatrix.reset()
         planetMatrix.setScale(transform.scale, transform.scale)
         planetMatrix.postTranslate(transform.translateX, transform.translateY)
@@ -128,26 +138,16 @@ class HotfoxHeroView @JvmOverloads constructor(
         planet.imageMatrix = planetMatrix
         planet.alpha = transform.alpha
 
-        val foxLayout = HotfoxHeroComposition.fox(w, h, variant)
-        val lp = fox.layoutParams as LayoutParams
-        val gravity = if (foxLayout.centerVertically) {
-            Gravity.CENTER
-        } else {
-            Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
-        }
-        if (lp.width != foxLayout.sizePx ||
-            lp.height != foxLayout.sizePx ||
-            lp.bottomMargin != foxLayout.bottomMarginPx ||
-            lp.gravity != gravity
-        ) {
-            lp.width = foxLayout.sizePx
-            lp.height = foxLayout.sizePx
-            lp.bottomMargin = foxLayout.bottomMarginPx
-            lp.gravity = gravity
-            fox.layoutParams = lp
+        val foxLayout = HotfoxHeroComposition.fox(wf, hf, variant)
+        val padH = ((w - foxLayout.sizePx) / 2).coerceAtLeast(0)
+        val padBottom = foxLayout.bottomMarginPx.coerceAtLeast(0)
+        val padTop = (h - foxLayout.sizePx - padBottom).coerceAtLeast(0)
+        if (fox.paddingStart != padH || fox.paddingTop != padTop || fox.paddingBottom != padBottom) {
+            fox.setPaddingRelative(padH, padTop, padH, padBottom)
         }
         fox.scaleType = ImageView.ScaleType.FIT_CENTER
-        applying = false
+        lastW = w
+        lastH = h
     }
 
     private fun restartBreath() {

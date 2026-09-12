@@ -133,14 +133,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/hf_home_artwork_height"
                         android:layout_marginTop="@dimen/hf_hero_margin_top"
-                        android:clipChildren="false"
-                        android:clipToPadding="false">
+                        android:clipChildren="true"
+                        android:clipToPadding="true">
 
                         <com.v2ray.ang.ui.HotfoxHeroView
                             android:id="@+id/home_hero"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            app:hfHeroAnimate="true"
+                            app:hfHeroAnimate="false"
+                            app:hfHeroClip="true"
                             app:hfHeroShowFox="true"
                             app:hfHeroShowPlanet="true"
                             app:hfHeroVariant="page" />

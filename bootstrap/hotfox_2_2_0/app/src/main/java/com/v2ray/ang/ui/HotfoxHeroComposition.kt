@@ -1,6 +1,5 @@
 package com.v2ray.ang.ui
 
-import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -46,17 +45,17 @@ object HotfoxHeroComposition {
             return PlanetTransform(1f, 0f, 0f, 1f, 0f, 0f, 0f)
         }
         val overflow = when (variant) {
-            Variant.SPLASH -> 1.56f
-            Variant.PAGE -> 1.88f
-            Variant.SUPPORT -> 1.72f
+            Variant.SPLASH -> 1.55f
+            Variant.PAGE -> 1.48f
+            Variant.SUPPORT -> 1.42f
         }
-        val diameter = max(hostW, hostH) * overflow
+        val diameter = hostW * overflow
         val scale = diameter / drawableW
         val cx = hostW * 0.50f
         val cy = hostH * when (variant) {
-            Variant.SPLASH -> 0.41f
-            Variant.PAGE -> 0.70f
-            Variant.SUPPORT -> 0.66f
+            Variant.SPLASH -> 0.50f
+            Variant.PAGE -> 0.82f
+            Variant.SUPPORT -> 0.78f
         }
         val tx = cx - drawableW * scale / 2f
         val ty = cy - drawableH * scale / 2f
@@ -106,6 +105,6 @@ object HotfoxHeroComposition {
         variant: Variant,
     ): Boolean {
         val planet = planet(hostW, hostH, drawableW, drawableH, variant)
-        return planet.diameter > hostW && planet.diameter > hostH
+        return planet.diameter > hostW
     }
 }

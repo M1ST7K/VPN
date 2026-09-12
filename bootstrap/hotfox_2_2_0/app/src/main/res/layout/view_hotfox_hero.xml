@@ -17,8 +17,8 @@
 
     <ImageView
         android:id="@+id/img_art_bust"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:contentDescription="@null"

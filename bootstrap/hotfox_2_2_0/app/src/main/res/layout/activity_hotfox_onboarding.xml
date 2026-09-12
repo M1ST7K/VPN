@@ -47,6 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:hfHeroAnimate="true"
+            app:hfHeroClip="false"
             app:hfHeroShowFox="true"
             app:hfHeroShowPlanet="true"
             app:hfHeroVariant="page" />

@@ -9,5 +9,6 @@
         <attr name="hfHeroShowFox" format="boolean" />
         <attr name="hfHeroShowPlanet" format="boolean" />
         <attr name="hfHeroAnimate" format="boolean" />
+        <attr name="hfHeroClip" format="boolean" />
     </declare-styleable>
 </resources>
