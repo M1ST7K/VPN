@@ -67,7 +67,8 @@
                 android:layout_height="48dp"
                 android:clickable="true"
                 android:contentDescription="@string/switch_bypass_apps_mode"
-                android:focusable="true" />
+                android:focusable="true"
+                android:orientation="horizontal" />
         </LinearLayout>
     </LinearLayout>
 
