@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Regular phone (1080x2400 @ ~420dpi and similar). -->
+    <dimen name="hf_page_gutter">20dp</dimen>
+    <dimen name="hf_content_max_width">10000dp</dimen>
+    <dimen name="hf_cta_max_width">10000dp</dimen>
+    <dimen name="hf_cta_height">52dp</dimen>
+
+    <dimen name="hf_splash_fox_size">320dp</dimen>
+    <dimen name="hf_splash_fox_margin_bottom">48dp</dimen>
+    <dimen name="hf_splash_wordmark_width">124dp</dimen>
+
+    <dimen name="hf_onboarding_fox_size">248dp</dimen>
+    <dimen name="hf_onboarding_fox_margin_bottom">28dp</dimen>
+
+    <dimen name="hf_home_artwork_height">236dp</dimen>
+    <dimen name="hf_home_fox_width">220dp</dimen>
+    <dimen name="hf_home_fox_height">188dp</dimen>
+
+    <dimen name="hf_https_fox_height">208dp</dimen>
+    <dimen name="hf_always_on_hero_width">152dp</dimen>
+    <dimen name="hf_always_on_hero_height">160dp</dimen>
+</resources>

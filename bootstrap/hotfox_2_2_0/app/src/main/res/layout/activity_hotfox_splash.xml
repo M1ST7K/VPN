@@ -24,10 +24,10 @@
 
         <ImageView
             android:id="@+id/img_splash_fox"
-            android:layout_width="match_parent"
-            android:layout_height="320dp"
+            android:layout_width="@dimen/hf_splash_fox_size"
+            android:layout_height="@dimen/hf_splash_fox_size"
             android:layout_gravity="center"
-            android:layout_marginBottom="48dp"
+            android:layout_marginBottom="@dimen/hf_splash_fox_margin_bottom"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
@@ -42,7 +42,7 @@
             android:paddingBottom="52dp">
 
             <ImageView
-                android:layout_width="124dp"
+                android:layout_width="@dimen/hf_splash_wordmark_width"
                 android:layout_height="34dp"
                 android:contentDescription="@string/hotfox_wordmark_cd"
                 android:scaleType="fitCenter"

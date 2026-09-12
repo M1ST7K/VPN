@@ -34,6 +34,7 @@ class HotfoxServerDetailsActivity : AppCompatActivity() {
         binding = ActivityHotfoxServerDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         HotfoxSystemUi.hideScrollbars(binding.root)
+        HotfoxSystemUi.constrainReadingWidth(binding.root)
         binding.root.findViewById<View>(R.id.btn_header_back)?.apply {
             visibility = View.VISIBLE
             setOnClickListener { finish() }

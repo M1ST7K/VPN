@@ -23,6 +23,7 @@ class HotfoxRoutingPrivacyActivity : AppCompatActivity() {
         HotfoxSystemUi.applyDarkEditorialBars(this)
         binding = ActivityHotfoxRoutingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        HotfoxSystemUi.constrainReadingWidth(binding.root)
         binding.root.findViewById<android.view.View>(R.id.btn_header_back)?.apply {
             visibility = android.view.View.VISIBLE
             setOnClickListener { finish() }

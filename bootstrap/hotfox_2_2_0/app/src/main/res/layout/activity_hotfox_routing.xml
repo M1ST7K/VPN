@@ -5,8 +5,8 @@
     android:background="@color/hf_asset_background"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp">
+    android:paddingStart="@dimen/hf_page_gutter"
+    android:paddingEnd="@dimen/hf_page_gutter">
 
     <include layout="@layout/include_hf_header" />
 

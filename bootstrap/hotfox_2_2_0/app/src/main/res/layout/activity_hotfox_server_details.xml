@@ -13,16 +13,16 @@
         style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="@dimen/hf_page_gutter"
+        android:paddingEnd="@dimen/hf_page_gutter"
         android:text="@string/hotfox_server_details" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="@dimen/hf_page_gutter"
+        android:paddingEnd="@dimen/hf_page_gutter"
         android:paddingTop="12dp">
 
         <ImageView
@@ -72,8 +72,8 @@
         android:fillViewport="true"
         android:overScrollMode="never"
         android:scrollbars="none"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="@dimen/hf_page_gutter"
+        android:paddingEnd="@dimen/hf_page_gutter"
         android:paddingTop="16dp">
 
         <LinearLayout

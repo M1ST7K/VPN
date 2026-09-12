@@ -43,6 +43,41 @@ object HotfoxSystemUi {
         }
     }
 
+    /**
+     * Caps reading width on large screens without stretching a phone canvas.
+     * Optional [fullBleed] children are pulled edge-to-edge (planet/fox hero).
+     */
+    fun constrainReadingWidth(content: View, vararg fullBleed: View) {
+        val maxPx = content.resources.getDimensionPixelSize(R.dimen.hf_content_max_width)
+        if (maxPx <= 0) return
+        val minStart = content.paddingStart
+        val minEnd = content.paddingEnd
+        val minTop = content.paddingTop
+        val minBottom = content.paddingBottom
+        val apply: (View) -> Unit = apply@{ v ->
+            val width = v.width
+            if (width <= 0) return@apply
+            val extra = ((width - maxPx) / 2).coerceAtLeast(0)
+            val start = minStart + extra
+            val end = minEnd + extra
+            if (v.paddingStart != start || v.paddingEnd != end) {
+                v.setPaddingRelative(start, minTop, end, minBottom)
+            }
+            fullBleed.forEach { bleed ->
+                val lp = bleed.layoutParams
+                if (lp is ViewGroup.MarginLayoutParams) {
+                    if (lp.marginStart != -start || lp.marginEnd != -end) {
+                        lp.marginStart = -start
+                        lp.marginEnd = -end
+                        bleed.layoutParams = lp
+                    }
+                }
+            }
+        }
+        content.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ -> apply(v) }
+        content.post { apply(content) }
+    }
+
     fun padScrollAboveBottomNav(scroll: View, nav: View?) {
         if (nav == null) return
         nav.post {

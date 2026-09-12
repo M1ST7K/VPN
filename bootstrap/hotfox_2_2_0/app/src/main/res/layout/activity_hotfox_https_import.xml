@@ -5,8 +5,8 @@
     android:background="@color/hf_asset_background"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp">
+    android:paddingStart="@dimen/hf_page_gutter"
+    android:paddingEnd="@dimen/hf_page_gutter">
 
     <include layout="@layout/include_hf_header" />
 
@@ -103,10 +103,12 @@
         android:layout_height="44dp"
         android:layout_marginTop="16dp"
         android:minWidth="200dp"
+        android:maxWidth="@dimen/hf_cta_max_width"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_https_add" />
 
     <FrameLayout
+        android:id="@+id/https_hero_host"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
@@ -126,7 +128,7 @@
         <ImageView
             android:id="@+id/img_https_fox"
             android:layout_width="match_parent"
-            android:layout_height="208dp"
+            android:layout_height="@dimen/hf_https_fox_height"
             android:layout_gravity="bottom|center_horizontal"
             android:contentDescription="@null"
             android:importantForAccessibility="no"

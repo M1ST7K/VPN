@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Large tablet portrait. -->
+    <dimen name="hf_page_gutter">28dp</dimen>
+    <dimen name="hf_content_max_width">640dp</dimen>
+    <dimen name="hf_cta_max_width">440dp</dimen>
+    <dimen name="hf_cta_height">56dp</dimen>
+
+    <dimen name="hf_splash_fox_size">460dp</dimen>
+    <dimen name="hf_splash_fox_margin_bottom">64dp</dimen>
+    <dimen name="hf_splash_wordmark_width">164dp</dimen>
+
+    <dimen name="hf_onboarding_fox_size">380dp</dimen>
+    <dimen name="hf_onboarding_fox_margin_bottom">44dp</dimen>
+
+    <dimen name="hf_home_artwork_height">420dp</dimen>
+    <dimen name="hf_home_fox_width">360dp</dimen>
+    <dimen name="hf_home_fox_height">308dp</dimen>
+
+    <dimen name="hf_https_fox_height">320dp</dimen>
+    <dimen name="hf_always_on_hero_width">240dp</dimen>
+    <dimen name="hf_always_on_hero_height">252dp</dimen>
+</resources>

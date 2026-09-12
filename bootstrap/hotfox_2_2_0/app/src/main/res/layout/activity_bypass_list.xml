@@ -15,8 +15,8 @@
         style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="@dimen/hf_page_gutter"
+        android:paddingEnd="@dimen/hf_page_gutter"
         android:text="@string/hotfox_apps_title" />
 
     <TextView
@@ -24,8 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="@dimen/hf_page_gutter"
+        android:paddingEnd="@dimen/hf_page_gutter"
         android:text="@string/hotfox_apps_body" />
 
     <!-- Upstream IDs kept for PerAppProxyActivity binding; visual chrome replaces them. -->

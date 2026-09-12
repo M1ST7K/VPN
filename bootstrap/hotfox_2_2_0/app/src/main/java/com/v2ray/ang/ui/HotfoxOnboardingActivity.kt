@@ -54,6 +54,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
         binding = ActivityHotfoxOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         HotfoxSystemUi.hideScrollbars(binding.root)
+        HotfoxSystemUi.constrainReadingWidth(binding.root, binding.onboardingHeroHost)
         binding.btnOnboardingPrimary.setOnClickListener { onPrimary() }
         binding.btnOnboardingSecondary.setOnClickListener { onSecondary() }
         if (!startStep.isNullOrBlank()) {

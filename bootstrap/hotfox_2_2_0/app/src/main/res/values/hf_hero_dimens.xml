@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compact phone baseline. Regular phones override in values-sw360dp. -->
+    <dimen name="hf_page_gutter">16dp</dimen>
+    <dimen name="hf_content_max_width">10000dp</dimen>
+    <dimen name="hf_cta_max_width">10000dp</dimen>
+    <dimen name="hf_cta_height">52dp</dimen>
+
+    <dimen name="hf_splash_fox_size">280dp</dimen>
+    <dimen name="hf_splash_fox_margin_bottom">36dp</dimen>
+    <dimen name="hf_splash_wordmark_width">116dp</dimen>
+
+    <dimen name="hf_onboarding_fox_size">220dp</dimen>
+    <dimen name="hf_onboarding_fox_margin_bottom">20dp</dimen>
+
+    <dimen name="hf_home_artwork_height">208dp</dimen>
+    <dimen name="hf_home_fox_width">196dp</dimen>
+    <dimen name="hf_home_fox_height">168dp</dimen>
+
+    <dimen name="hf_https_fox_height">184dp</dimen>
+    <dimen name="hf_always_on_hero_width">140dp</dimen>
+    <dimen name="hf_always_on_hero_height">148dp</dimen>
+</resources>

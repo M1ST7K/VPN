@@ -51,6 +51,7 @@ class PerAppProxyActivity : BaseActivity() {
         setContentView(binding.root)
         HotfoxSystemUi.applyDarkEditorialBars(this)
         HotfoxSystemUi.hideScrollbars(binding.root)
+        HotfoxSystemUi.constrainReadingWidth(binding.root)
         bindHotfoxChrome()
 
         initList()

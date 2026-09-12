@@ -5,8 +5,8 @@
     android:background="@color/hf_asset_background"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp"
+    android:paddingStart="@dimen/hf_page_gutter"
+    android:paddingEnd="@dimen/hf_page_gutter"
     android:paddingBottom="24dp">
 
     <include layout="@layout/include_hf_header" />
@@ -28,6 +28,7 @@
         android:text="@string/hotfox_onboarding_connect_body_ui" />
 
     <FrameLayout
+        android:id="@+id/onboarding_hero_host"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -42,14 +43,14 @@
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="centerCrop"
-            android:src="@drawable/hf_native_planet_backdrop" />
+            android:src="@drawable/hf_native_planet_onboarding" />
 
         <ImageView
             android:id="@+id/img_onboarding_art"
-            android:layout_width="248dp"
-            android:layout_height="248dp"
+            android:layout_width="@dimen/hf_onboarding_fox_size"
+            android:layout_height="@dimen/hf_onboarding_fox_size"
             android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="28dp"
+            android:layout_marginBottom="@dimen/hf_onboarding_fox_margin_bottom"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
@@ -114,7 +115,9 @@
         android:id="@+id/btn_onboarding_primary"
         style="@style/HotFox.PrimaryButton"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="@dimen/hf_cta_height"
+        android:maxWidth="@dimen/hf_cta_max_width"
+        android:layout_gravity="center_horizontal"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_already_have_subscription" />
 

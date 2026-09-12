@@ -155,6 +155,22 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
         setContentView(binding.root)
         HotfoxSystemUi.hideScrollbars(binding.root)
+        binding.root.findViewById<android.view.View>(R.id.connection_column)?.let { column ->
+            val hero = binding.root.findViewById<android.view.View>(R.id.artwork_host)
+            if (hero != null) {
+                HotfoxSystemUi.constrainReadingWidth(column, hero)
+            } else {
+                HotfoxSystemUi.constrainReadingWidth(column)
+            }
+        }
+        binding.root.findViewById<android.view.View>(R.id.screen_servers)?.let {
+            HotfoxSystemUi.constrainReadingWidth(it)
+        }
+        binding.root.findViewById<android.view.View>(R.id.screen_subscription)?.let { scroll ->
+            if (scroll is android.view.ViewGroup && scroll.childCount > 0) {
+                HotfoxSystemUi.constrainReadingWidth(scroll.getChildAt(0))
+            }
+        }
         setupToolbar(binding.toolbar, false, "")
 
         // setup viewpager and tablayout
@@ -1195,7 +1211,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
         val rows = binding.root.findViewById<android.view.View>(R.id.layout_connection_rows)
         ring?.isVisible = false
-        planet?.setImageResource(R.drawable.hf_native_planet_backdrop)
+        planet?.setImageResource(R.drawable.hf_native_planet_home)
         planet?.isVisible = true
         bust?.isVisible = true
         when (visual) {
