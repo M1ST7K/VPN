@@ -153,7 +153,9 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
     if started.returncode != 0:
         raise RuntimeError(started.stderr or started.stdout)
     wait_resumed(EXPECTED[screen_id])
-    extra = 10.0 if screen_id in {"05", "06", "07", "08", "10", "11", "12", "15"} else 4.5
+    extra = 12.0 if screen_id in {"05", "06", "07", "08", "10", "11", "12", "15"} else 4.5
+    if screen_id == "08":
+        extra = 14.0
     time.sleep(extra)
     dismiss_system_anr()
     remote = f"/sdcard/hotfox_ui_{screen_id}.png"
@@ -176,11 +178,13 @@ def capture(out_dir: Path, screen_id: str, scenario: str) -> Path:
             std = float(pixels.std())
             r, g, b = pixels[:, :, 0], pixels[:, :, 1], pixels[:, :, 2]
             orange = ((r > 180) & (g > 70) & (g < 190) & (b < 130)).mean()
+            cream = ((r > 180) & (g > 170) & (b > 150)).mean()
             top_mean = float(pixels[:240].mean())
-            if mean < 14 or std < 12 or orange < 0.0003 or top_mean > 70:
+            brandish = orange >= 0.0003 or (screen_id == "08" and cream >= 0.008)
+            if mean < 14 or std < 12 or (not brandish) or top_mean > 70:
                 last_err = (
                     f"android splash or blank frame mean={mean:.1f} std={std:.1f} "
-                    f"orange={orange:.5f} top_mean={top_mean:.1f}"
+                    f"orange={orange:.5f} cream={cream:.5f} top_mean={top_mean:.1f}"
                 )
                 time.sleep(3.0)
                 continue

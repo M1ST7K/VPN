@@ -1,0 +1,5 @@
+cmd locale get-app-locales:
+Locales for com.hotfox.vpn for user 0 are [ru-RU]
+
+persist.sys.locale:
+
