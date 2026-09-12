@@ -20,7 +20,7 @@ class HotfoxHttpsImportActivity : AppCompatActivity() {
         HotfoxSystemUi.applyDarkEditorialBars(this)
         binding = ActivityHotfoxHttpsImportBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        HotfoxSystemUi.constrainReadingWidth(binding.root, binding.httpsHeroHost)
+        HotfoxSystemUi.constrainReadingWidth(binding.httpsForeground)
         binding.root.findViewById<android.view.View>(R.id.btn_header_back)?.apply {
             visibility = android.view.View.VISIBLE
             setOnClickListener { finish() }

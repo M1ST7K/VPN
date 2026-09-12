@@ -318,6 +318,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenConnection.isVisible = section == UiSection.CONNECTION
         binding.screenServers.isVisible = section == UiSection.SERVERS
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
+        binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)?.isVisible =
+            section == UiSection.CONNECTION
         binding.tvHeaderMicrocopy.text = when (section) {
             UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
             UiSection.SERVERS -> getString(R.string.hotfox_header_microcopy_servers)
@@ -1206,7 +1208,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         visual: ConnectionVisualState,
         headline: ConnectionUiMapper.Headline,
     ) {
-        val hero = binding.root.findViewById<HotfoxHeroView>(R.id.home_hero)
+        val hero = binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)
         val planet = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_planet)
         val bust = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_bust)
         val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
@@ -1216,8 +1218,15 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
         val rows = binding.root.findViewById<android.view.View>(R.id.layout_connection_rows)
         ring?.isVisible = false
+        hero?.isVisible = currentSection == UiSection.CONNECTION
         hero?.setHeroLayers(showPlanet = true, showFox = true)
-        hero?.setVariant(HotfoxHeroComposition.Variant.PAGE)
+        hero?.setMode(
+            when (visual) {
+                ConnectionVisualState.CONNECTING -> HotFoxHeroMode.HOME_CONNECTING
+                ConnectionVisualState.CONNECTED -> HotFoxHeroMode.HOME_CONNECTED
+                else -> HotFoxHeroMode.HOME_DISCONNECTED
+            },
+        )
         planet?.isVisible = true
         bust?.isVisible = true
         when (visual) {
@@ -1247,7 +1256,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 stages?.isVisible = false
                 metrics?.isVisible = false
                 note?.isVisible = true
-                rows?.alpha = 1f
+                rows?.alpha = 0.86f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_primary)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
                 binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)
