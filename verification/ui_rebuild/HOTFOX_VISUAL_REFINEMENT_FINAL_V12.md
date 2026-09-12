@@ -2,7 +2,7 @@
 
 Date: 2026-09-12  
 Branch: `cursor/hotfox-ui-pixel-lock-rebuild`  
-HEAD at evidence: recorded after commit  
+HEAD at evidence: `52abd4402609d6ea422ecb71e9b36e56c8cc6d33`  
 
 ## Goal
 
