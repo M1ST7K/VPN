@@ -2,6 +2,7 @@
 <resources>
     <!-- Compact phone baseline. Regular phones override in values-sw360dp. -->
     <dimen name="hf_page_gutter">16dp</dimen>
+    <dimen name="hf_hero_bleed">-16dp</dimen>
     <dimen name="hf_content_max_width">10000dp</dimen>
     <dimen name="hf_cta_max_width">10000dp</dimen>
     <dimen name="hf_cta_height">52dp</dimen>

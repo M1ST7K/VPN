@@ -2,6 +2,7 @@
 <resources>
     <!-- Regular phone (1080x2400 @ ~420dpi and similar). -->
     <dimen name="hf_page_gutter">20dp</dimen>
+    <dimen name="hf_hero_bleed">-20dp</dimen>
     <dimen name="hf_content_max_width">10000dp</dimen>
     <dimen name="hf_cta_max_width">10000dp</dimen>
     <dimen name="hf_cta_height">52dp</dimen>

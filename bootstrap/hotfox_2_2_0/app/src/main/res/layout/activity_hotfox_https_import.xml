@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/hf_asset_background"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:paddingStart="@dimen/hf_page_gutter"
@@ -111,6 +113,8 @@
         android:id="@+id/https_hero_host"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginStart="@dimen/hf_hero_bleed"
+        android:layout_marginEnd="@dimen/hf_hero_bleed"
         android:layout_marginTop="8dp"
         android:layout_weight="1">
 
@@ -129,7 +133,7 @@
             android:id="@+id/img_https_fox"
             android:layout_width="match_parent"
             android:layout_height="@dimen/hf_https_fox_height"
-            android:layout_gravity="bottom|center_horizontal"
+            android:layout_gravity="center"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"

@@ -2,6 +2,7 @@
 <resources>
     <!-- Large tablet portrait. -->
     <dimen name="hf_page_gutter">28dp</dimen>
+    <dimen name="hf_hero_bleed">-28dp</dimen>
     <dimen name="hf_content_max_width">640dp</dimen>
     <dimen name="hf_cta_max_width">440dp</dimen>
     <dimen name="hf_cta_height">56dp</dimen>

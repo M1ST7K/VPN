@@ -2,6 +2,7 @@
 <resources>
     <!-- Small tablet portrait. Hero grows; reading width is capped in code. -->
     <dimen name="hf_page_gutter">24dp</dimen>
+    <dimen name="hf_hero_bleed">-24dp</dimen>
     <dimen name="hf_content_max_width">560dp</dimen>
     <dimen name="hf_cta_max_width">420dp</dimen>
     <dimen name="hf_cta_height">56dp</dimen>
