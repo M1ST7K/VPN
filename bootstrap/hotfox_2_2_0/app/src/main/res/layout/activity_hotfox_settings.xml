@@ -9,7 +9,7 @@
     <include layout="@layout/include_hf_header" />
 
     <TextView
-        style="@style/HotFox.ScreenTitle"
+        style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="20dp"
@@ -88,6 +88,8 @@
                         android:src="@drawable/hf_chevron_muted" />
                 </LinearLayout>
 
+                <include layout="@layout/include_hf_row_hairline" />
+
                 <LinearLayout
                     android:id="@+id/row_settings_always_on"
                     android:layout_width="match_parent"
@@ -119,6 +121,8 @@
                         android:importantForAccessibility="no"
                         android:src="@drawable/hf_chevron_muted" />
                 </LinearLayout>
+
+                <include layout="@layout/include_hf_row_hairline" />
 
                 <LinearLayout
                     android:id="@+id/row_settings_notifications"

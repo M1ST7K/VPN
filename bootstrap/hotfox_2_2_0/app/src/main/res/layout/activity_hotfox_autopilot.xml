@@ -12,7 +12,7 @@
 
     <TextView
         android:id="@+id/tv_autopilot_title"
-        style="@style/HotFox.ScreenTitle"
+        style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/hotfox_autopilot_screen_title" />
@@ -441,10 +441,12 @@
 
     <Button
         android:id="@+id/btn_autopilot_done"
-        style="@style/HotFox.PrimaryCompact"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
+        style="@style/HotFox.SubpagePrimary"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="44dp"
         android:layout_marginTop="8dp"
+        android:minWidth="200dp"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_done" />
 

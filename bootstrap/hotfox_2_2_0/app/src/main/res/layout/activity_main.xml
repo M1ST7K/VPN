@@ -141,7 +141,8 @@
                             android:id="@+id/img_art_bust"
                             android:layout_width="200dp"
                             android:layout_height="168dp"
-                            android:layout_gravity="center"
+                            android:layout_gravity="bottom|center_horizontal"
+                            android:layout_marginBottom="8dp"
                             android:contentDescription="@null"
                             android:importantForAccessibility="no"
                             android:scaleType="fitCenter"
@@ -750,7 +751,7 @@
                 android:visibility="gone">
 
                 <TextView
-                    style="@style/HotFox.ScreenTitle"
+                    style="@style/HotFox.ScreenTitleSecondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/hotfox_nav_servers" />
@@ -772,7 +773,7 @@
                         android:minWidth="48dp"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:text="Все"
+                        android:text="@string/hotfox_filter_all"
                         android:textColor="@color/hf_asset_cream"
                         android:textSize="14sp" />
 
@@ -786,7 +787,7 @@
                         android:minWidth="48dp"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:text="Избранные"
+                        android:text="@string/hotfox_filter_favorites"
                         android:textColor="@color/hf_asset_muted"
                         android:textSize="14sp" />
 
@@ -800,7 +801,7 @@
                         android:minWidth="48dp"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:text="Страны"
+                        android:text="@string/hotfox_filter_countries"
                         android:textColor="@color/hf_asset_muted"
                         android:textSize="14sp" />
 
@@ -824,7 +825,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:maxLines="1"
-                            android:text="Пинг"
+                            android:text="@string/hotfox_ping_action"
                             android:textColor="@color/hf_asset_orange"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -992,7 +993,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            style="@style/HotFox.ScreenTitle"
+                            style="@style/HotFox.ScreenTitleSecondary"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/hotfox_row_subscription" />
@@ -1003,13 +1004,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="○ Статус неизвестен" />
+                            android:text="@string/hotfox_status_unknown" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="20dp"
-                            android:background="@drawable/hf_native_group"
+                            android:background="@android:color/transparent"
                             android:orientation="vertical">
 
                             <LinearLayout
@@ -1052,6 +1053,8 @@
                                 android:text="@string/hotfox_expiry_unknown"
                                 android:textColor="@color/hf_asset_muted"
                                 android:textSize="12sp" />
+
+                            <include layout="@layout/include_hf_row_hairline" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -1117,17 +1120,21 @@
 
                         <TextView
                             android:id="@+id/action_subscription_update"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:layout_marginTop="24dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="20dp"
                             android:background="@drawable/hf_native_primary_compact"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
-                            android:minHeight="48dp"
+                            android:minHeight="44dp"
+                            android:minWidth="220dp"
+                            android:paddingStart="22dp"
+                            android:paddingEnd="22dp"
                             android:text="@string/hotfox_manage_subscription"
                             android:textColor="@color/hf_asset_ink"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/action_subscription_import"
@@ -1154,6 +1161,14 @@
                             android:text="@string/hotfox_add_https"
                             android:textColor="@color/hf_asset_muted"
                             android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="@string/hotfox_checkout_external_note"
+                            android:textColor="@color/hf_asset_muted"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>

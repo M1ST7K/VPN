@@ -47,7 +47,7 @@ class HotfoxAddConnectionSheet : BottomSheetDialogFragment() {
         dialog.setOnShowListener {
             dialog.window?.apply {
                 setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
-                setDimAmount(0.28f)
+                setDimAmount(0.22f)
             }
             dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 ?.setBackgroundColor(Color.TRANSPARENT)

@@ -823,10 +823,19 @@
     <string name="hotfox_open_android_settings">Open Android settings</string>
     <string name="hotfox_always_on_note">Status comes from Android settings and is not simulated by the app.</string>
     <string name="hotfox_close">Close</string>
+    <string name="hotfox_status_unknown">Status unknown</string>
     <string name="hotfox_back">Back</string>
     <string name="hotfox_search">Search</string>
     <string name="hotfox_wordmark_cd">HotFox</string>
     <string name="hotfox_https_need_link">An HTTPS link is required</string>
     <string name="hotfox_backend_verified">Verified by backend</string>
     <string name="hotfox_external_subscription">External subscription</string>
+    <string name="hotfox_filter_all">All</string>
+    <string name="hotfox_filter_favorites">Favorites</string>
+    <string name="hotfox_filter_countries">Countries</string>
+    <string name="hotfox_ping_action">Ping</string>
+    <string name="hotfox_routing_group_mode">Mode</string>
+    <string name="hotfox_routing_group_apps">Apps and rules</string>
+    <string name="hotfox_routing_group_network">Network</string>
+    <string name="hotfox_routing_group_policy">Rules</string>
 </resources>

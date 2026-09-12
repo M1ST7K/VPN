@@ -10,7 +10,7 @@
 
     <TextView
         android:id="@+id/tv_server_details_title"
-        style="@style/HotFox.ScreenTitle"
+        style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="20dp"
@@ -123,6 +123,8 @@
                         android:src="@drawable/hf_chevron_muted" />
                 </LinearLayout>
 
+                <include layout="@layout/include_hf_row_hairline" />
+
                 <LinearLayout
                     android:id="@+id/row_server_load"
                     android:layout_width="match_parent"
@@ -158,6 +160,8 @@
                         android:importantForAccessibility="no"
                         android:src="@drawable/hf_chevron_muted" />
                 </LinearLayout>
+
+                <include layout="@layout/include_hf_row_hairline" />
 
                 <LinearLayout
                     android:id="@+id/row_server_routing"
@@ -198,6 +202,8 @@
                         android:src="@drawable/hf_chevron_muted" />
                 </LinearLayout>
 
+                <include layout="@layout/include_hf_row_hairline" />
+
                 <LinearLayout
                     android:id="@+id/row_server_shadow"
                     android:layout_width="match_parent"
@@ -236,6 +242,8 @@
                         android:importantForAccessibility="no"
                         android:src="@drawable/hf_chevron_muted" />
                 </LinearLayout>
+
+                <include layout="@layout/include_hf_row_hairline" />
 
                 <LinearLayout
                     android:id="@+id/row_server_auto"
@@ -299,10 +307,12 @@
             <Button
                 android:id="@+id/btn_select_server"
                 style="@style/HotFox.SubpagePrimary"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="44dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="16dp"
+                android:minWidth="220dp"
                 android:contentDescription="@string/hotfox_select_server"
                 android:drawableEnd="@drawable/hf_arrow_right_ink"
                 android:text="@string/hotfox_select_server" />

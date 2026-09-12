@@ -12,7 +12,7 @@
 
     <TextView
         android:id="@+id/tv_https_title"
-        style="@style/HotFox.ScreenTitle"
+        style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/hotfox_https_title" />
@@ -98,9 +98,11 @@
     <Button
         android:id="@+id/btn_https_add"
         style="@style/HotFox.SubpagePrimary"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="44dp"
         android:layout_marginTop="16dp"
+        android:minWidth="200dp"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_https_add" />
 
@@ -114,16 +116,17 @@
             android:id="@+id/img_https_planet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
+            android:layout_gravity="bottom|center_horizontal"
+            android:alpha="0.55"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="centerCrop"
-            android:src="@drawable/hf_native_planet_backdrop" />
+            android:src="@drawable/hf_native_planet_support" />
 
         <ImageView
             android:id="@+id/img_https_fox"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="168dp"
             android:layout_gravity="bottom|center_horizontal"
             android:contentDescription="@null"
             android:importantForAccessibility="no"

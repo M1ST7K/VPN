@@ -12,7 +12,7 @@
 
     <TextView
         android:id="@+id/tv_routing_title"
-        style="@style/HotFox.ScreenTitle"
+        style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/hotfox_smart_routing_screen" />
@@ -38,6 +38,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <TextView
+                style="@style/HotFox.SectionEyebrow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingBottom="4dp"
+                android:text="@string/hotfox_routing_group_mode" />
 
             <LinearLayout
                 android:id="@+id/btn_routing_mode"
@@ -106,6 +114,15 @@
 
             <include layout="@layout/include_hf_row_hairline" />
 
+            <TextView
+                style="@style/HotFox.SectionEyebrow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="4dp"
+                android:text="@string/hotfox_routing_group_apps" />
+
             <LinearLayout
                 android:id="@+id/btn_routing_advanced"
                 android:layout_width="match_parent"
@@ -154,6 +171,15 @@
             </LinearLayout>
 
             <include layout="@layout/include_hf_row_hairline" />
+
+            <TextView
+                style="@style/HotFox.SectionEyebrow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="4dp"
+                android:text="@string/hotfox_routing_group_network" />
 
             <LinearLayout
                 android:id="@+id/btn_routing_dns"
@@ -335,6 +361,15 @@
 
             <include layout="@layout/include_hf_row_hairline" />
 
+            <TextView
+                style="@style/HotFox.SectionEyebrow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="4dp"
+                android:text="@string/hotfox_routing_group_policy" />
+
             <LinearLayout
                 android:id="@+id/btn_routing_custom"
                 android:layout_width="match_parent"
@@ -443,10 +478,12 @@
 
     <Button
         android:id="@+id/btn_routing_apply"
-        style="@style/HotFox.PrimaryCompact"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
+        style="@style/HotFox.SubpagePrimary"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="44dp"
         android:layout_marginTop="8dp"
+        android:minWidth="200dp"
         android:drawableEnd="@drawable/hf_arrow_right_ink"
         android:text="@string/hotfox_apply" />
 

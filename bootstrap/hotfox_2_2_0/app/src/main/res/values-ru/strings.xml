@@ -746,10 +746,10 @@
     <string name="hotfox_about">О приложении</string>
     <string name="hotfox_privacy_policy">Политика конфиденциальности</string>
     <string name="hotfox_diagnostics">Диагностика</string>
-    <string name="hotfox_smart_routing_screen">Smart Routing</string>
+    <string name="hotfox_smart_routing_screen">Умная маршрутизация</string>
     <string name="hotfox_mode">Режим</string>
     <string name="hotfox_apps_and_rules">Приложения и правила</string>
-    <string name="hotfox_custom_rules">Custom rules</string>
+    <string name="hotfox_custom_rules">Пользовательские правила</string>
     <string name="hotfox_reconnect">Переподключение</string>
     <string name="hotfox_apply">Применить</string>
     <string name="hotfox_mode_caption">Как обрабатывать трафик</string>
@@ -799,7 +799,7 @@
     <string name="hotfox_cellular">Мобильная сеть</string>
     <string name="hotfox_trusted_networks">Доверенные сети</string>
     <string name="hotfox_pause">Пауза</string>
-    <string name="hotfox_captive_portal">Captive portal</string>
+    <string name="hotfox_captive_portal">Авторизация сети</string>
     <string name="hotfox_done">Готово</string>
     <string name="hotfox_shadow_title">Shadow</string>
     <string name="hotfox_shadow_body">Дополнительная защита в сложных сетях. Работает автоматически, когда это нужно.</string>
@@ -813,10 +813,19 @@
     <string name="hotfox_open_android_settings">Открыть настройки Android</string>
     <string name="hotfox_always_on_note">Статус берётся из настроек Android и не имитируется приложением.</string>
     <string name="hotfox_close">Закрыть</string>
+    <string name="hotfox_status_unknown">Статус неизвестен</string>
     <string name="hotfox_back">Назад</string>
     <string name="hotfox_search">Поиск</string>
     <string name="hotfox_wordmark_cd">HotFox</string>
     <string name="hotfox_https_need_link">Нужна HTTPS-ссылка</string>
     <string name="hotfox_backend_verified">Проверено backend</string>
     <string name="hotfox_external_subscription">Внешняя подписка</string>
+    <string name="hotfox_filter_all">Все</string>
+    <string name="hotfox_filter_favorites">Избранные</string>
+    <string name="hotfox_filter_countries">Страны</string>
+    <string name="hotfox_ping_action">Пинг</string>
+    <string name="hotfox_routing_group_mode">Режим</string>
+    <string name="hotfox_routing_group_apps">Приложения и правила</string>
+    <string name="hotfox_routing_group_network">Сеть</string>
+    <string name="hotfox_routing_group_policy">Правила</string>
 </resources>

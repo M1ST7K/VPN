@@ -7,15 +7,10 @@
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.08" />
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.52">
+        android:layout_weight="1">
 
         <ImageView
             android:id="@+id/img_planet_backdrop"
@@ -30,55 +25,58 @@
         <ImageView
             android:id="@+id/img_splash_fox"
             android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:layout_gravity="center_horizontal|top"
-            android:layout_marginTop="24dp"
+            android:layout_height="280dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="72dp"
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
             android:src="@drawable/hf_fox_bust_transparent" />
-    </FrameLayout>
 
-    <ImageView
-        android:layout_width="148dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="@string/hotfox_wordmark_cd"
-        android:scaleType="fitCenter"
-        android:src="@drawable/hf_brand_wordmark" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:letterSpacing="0.16"
-        android:text="@string/hotfox_tagline_more_than_vpn"
-        android:textColor="@color/hf_asset_muted"
-        android:textSize="10sp" />
-
-    <FrameLayout
-        android:layout_width="168dp"
-        android:layout_height="3dp"
-        android:layout_marginTop="16dp">
-
-        <ImageView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:importantForAccessibility="no"
-            android:scaleType="fitXY"
-            android:src="@drawable/hf_loading_track" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingBottom="88dp">
 
-        <ImageView
-            android:id="@+id/img_splash_fill"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:importantForAccessibility="no"
-            android:scaleType="fitXY"
-            android:src="@drawable/hf_loading_fill" />
+            <ImageView
+                android:layout_width="132dp"
+                android:layout_height="36dp"
+                android:contentDescription="@string/hotfox_wordmark_cd"
+                android:scaleType="fitCenter"
+                android:src="@drawable/hf_brand_wordmark" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:letterSpacing="0.18"
+                android:text="@string/hotfox_tagline_more_than_vpn"
+                android:textColor="@color/hf_asset_muted"
+                android:textSize="10sp" />
+
+            <FrameLayout
+                android:layout_width="148dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="14dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/hf_loading_track" />
+
+                <ImageView
+                    android:id="@+id/img_splash_fill"
+                    android:layout_width="56dp"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/hf_loading_fill" />
+            </FrameLayout>
+        </LinearLayout>
     </FrameLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.22" />
 </LinearLayout>

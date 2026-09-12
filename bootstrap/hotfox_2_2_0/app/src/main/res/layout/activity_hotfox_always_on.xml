@@ -25,7 +25,7 @@
             android:paddingBottom="20dp">
 
             <TextView
-                style="@style/HotFox.ScreenTitle"
+                style="@style/HotFox.ScreenTitleSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/hotfox_always_on_title_ui" />
@@ -86,6 +86,8 @@
                         android:textColor="@color/hf_asset_muted"
                         android:textSize="12sp" />
                 </LinearLayout>
+
+                <include layout="@layout/include_hf_row_hairline" />
 
                 <LinearLayout
                     android:id="@+id/row_lockdown"
