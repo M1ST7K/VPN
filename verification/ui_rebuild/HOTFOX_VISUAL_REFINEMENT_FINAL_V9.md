@@ -23,6 +23,7 @@ V8 evidence is unchanged under `actual_v8/` and `compare_v8/`.
 - Branch: `cursor/hotfox-ui-pixel-lock-rebuild`
 - Starting head: `d7b81a3a8c37c21ed5d02e7eccb1f3be7cf7ebc6`
 - Implementation: `3ea2c40` (planet/copy/hierarchy), `770b03a` (Autopilot captive locale)
+- Evidence pack: `6b3d1b66ec198ba028b783cd771c4d99fd75a9f1`
 - AVD: `HotFox_V51_API34_Clean`, API 34, 1080×2400, `-accel off`, GPU `swiftshader_indirect`
 - Locale: `cmd locale set-app-locales com.hotfox.vpn --locales ru-RU`
 - Viewport: 1080×2400 emulator screenshots (not phone mockups)
