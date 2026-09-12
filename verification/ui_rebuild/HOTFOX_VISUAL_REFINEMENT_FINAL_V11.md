@@ -27,6 +27,7 @@ V10 evidence is unchanged under `actual_v10/` and `compare_v10/`.
 - Spec pack HEAD: `6b434fa`
 - Planet reconstruct + breakpoints: `b18951b`
 - Bleed/clip follow-up: `444854f`
+- Evidence pack: `fcd9eb1`
 - AVD: `HotFox_V51_API34_Clean`, API 34
 - Regular phone viewport: 1080×2400 @420dpi
 - Locale: `cmd locale set-app-locales com.hotfox.vpn --locales ru-RU`
