@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
+import java.lang.ref.WeakReference
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +23,23 @@ import com.v2ray.ang.vpn.ConnectionUiMapper
 object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
     private val main = Handler(Looper.getMainLooper())
     private var paintGeneration = 0
+    private var lastMain = WeakReference<MainActivity>(null)
+
+    fun applyConnectionChromeNow(chrome: String) {
+        val scenarioId = when (chrome) {
+            HotfoxUiVisualOverride.CHROME_CONNECTING -> HotfoxUiScreenshotScenario.CONNECTING.id
+            HotfoxUiVisualOverride.CHROME_CONNECTED -> HotfoxUiScreenshotScenario.PROTECTED.id
+            else -> HotfoxUiScreenshotScenario.DISCONNECTED.id
+        }
+        HotfoxUiVisualOverride.installDebugPresentation(
+            scenarioId = scenarioId,
+            connectionChrome = chrome,
+        )
+        val activity = lastMain.get()
+        if (activity != null) {
+            paintMain(activity)
+        }
+    }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (HotfoxUiVisualOverride.holdSplash && activity is HotfoxSplashActivity) {
@@ -35,6 +53,9 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
     override fun onActivityStarted(activity: Activity) = Unit
 
     override fun onActivityResumed(activity: Activity) {
+        if (activity is MainActivity) {
+            lastMain = WeakReference(activity)
+        }
         paint(activity)
         main.post { paint(activity) }
         main.postDelayed({ paint(activity) }, 450L)

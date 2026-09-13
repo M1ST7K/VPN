@@ -20,6 +20,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <receiver
+            android:name="com.v2ray.ang.ui.HotfoxUiScreenshotChromeReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.hotfox.vpn.action.UI_SCREENSHOT_CHROME" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name="com.v2ray.ang.vpn.HotfoxEngineeringE2eActivity"
             android:exported="true"

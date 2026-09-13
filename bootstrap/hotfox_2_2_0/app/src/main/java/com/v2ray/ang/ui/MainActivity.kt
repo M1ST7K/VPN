@@ -1228,7 +1228,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 rail?.isVisible = true
                 stages?.isVisible = true
                 metrics?.isVisible = false
-                note?.isVisible = false
+                note?.visibility = android.view.View.INVISIBLE
                 rows?.alpha = 1f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_progress)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_orange))
@@ -1239,7 +1239,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 rail?.isVisible = false
                 stages?.isVisible = false
                 metrics?.isVisible = true
-                note?.isVisible = false
+                note?.visibility = android.view.View.INVISIBLE
                 rows?.alpha = 1f
                 binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
                 binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))

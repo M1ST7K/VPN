@@ -21,6 +21,7 @@ class HotfoxUiScreenshotFixtureLeakTest {
         "debug-ui-fixture-server",
         "HotfoxUiScreenshotHarness",
         "HotfoxUiScreenshotScenario",
+        "HotfoxUiScreenshotChromeReceiver",
         "HotfoxUiQaPainter",
         "HotfoxUiQaInstaller",
         "HotfoxUiQaServerDetails",

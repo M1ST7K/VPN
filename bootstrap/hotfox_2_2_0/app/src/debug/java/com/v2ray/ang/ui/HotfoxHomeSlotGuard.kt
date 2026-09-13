@@ -16,7 +16,8 @@ object HotfoxHomeSlotGuard {
         val hero = activity.findViewById<View>(R.id.hero_slot) ?: return
         val state = activity.findViewById<View>(R.id.state_panel_slot) ?: return
         val settings = activity.findViewById<View>(R.id.layout_connection_rows) ?: return
-        val footer = activity.findViewById<View>(R.id.layout_connection_note)
+        val footer = activity.findViewById<View>(R.id.footer_info_slot)
+            ?: activity.findViewById<View>(R.id.layout_connection_note)
         val nav = activity.findViewById<View>(R.id.hotfox_bottom_nav) ?: return
         if (hero.visibility != View.VISIBLE) return
         val headerR = rect(header)
@@ -27,7 +28,7 @@ object HotfoxHomeSlotGuard {
         require(headerR.bottom <= heroR.top + EPS) { "Header overlaps HeroSlot $headerR $heroR" }
         require(heroR.bottom <= stateR.top + EPS) { "HeroSlot overlaps StatePanel $heroR $stateR" }
         require(stateR.bottom <= settingsR.top + EPS) { "StatePanel overlaps QuickSettings $stateR $settingsR" }
-        if (footer != null && footer.visibility == View.VISIBLE && footer.height > 0) {
+        if (footer != null && footer.height > 0) {
             val footerR = rect(footer)
             require(settingsR.bottom <= footerR.top + EPS) { "QuickSettings overlaps footer $settingsR $footerR" }
             require(footerR.bottom <= navR.top + EPS) { "Footer overlaps BottomNav $footerR $navR" }
