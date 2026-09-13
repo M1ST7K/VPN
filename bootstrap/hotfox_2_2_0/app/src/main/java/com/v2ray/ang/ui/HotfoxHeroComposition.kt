@@ -3,29 +3,27 @@ package com.v2ray.ang.ui
 import kotlin.math.abs
 
 /**
- * Full-viewport fox + planet composition.
+ * Locked HOME fox + planet geometry.
  *
- * HOME states share one locked geometry. Splash / subscription keep their own.
- * Fox uses FIT and is never cropped. Planet may overflow the viewport.
+ * Disconnected / Connecting / Connected must use these exact values.
+ * Splash and subscription keep their own specs.
  */
-data class HomeHeroGeometry(
-    val foxWidthFraction: Float = 0.62f,
-    val foxCenterXFraction: Float = 0.54f,
-    val foxCenterYFraction: Float = 0.49f,
-    val planetWidthFraction: Float = 1.18f,
-    val planetCenterXFraction: Float = 0.43f,
-    val planetCenterYFraction: Float = 0.43f,
-    val planetAlpha: Float = 1f,
-    val glowAlpha: Float = 0.28f,
-)
+object HomeHeroGeometry {
+    const val FOX_WIDTH = 0.62f
+    const val FOX_CENTER_X = 0.54f
+    const val FOX_CENTER_Y = 0.42f
+    const val PLANET_WIDTH = 1.15f
+    const val PLANET_CENTER_X = 0.44f
+    const val PLANET_CENTER_Y = 0.40f
+    const val PLANET_ALPHA = 1f
+    const val GLOW_ALPHA = 0.28f
+}
 
 object HotfoxHeroComposition {
     /** Owner-imported master fox after white-key, unresized: 1063 x 1186. */
     const val FOX_INTRINSIC_WIDTH = 1063f
     const val FOX_INTRINSIC_HEIGHT = 1186f
     const val FOX_ASPECT = FOX_INTRINSIC_WIDTH / FOX_INTRINSIC_HEIGHT
-
-    val HOME = HomeHeroGeometry()
 
     enum class Variant {
         SPLASH,
@@ -94,14 +92,14 @@ object HotfoxHeroComposition {
 
     fun spec(mode: HotFoxHeroMode): ModeSpec = if (isHome(mode)) {
         ModeSpec(
-            foxWidthFrac = HOME.foxWidthFraction,
-            foxCenterXFrac = HOME.foxCenterXFraction,
-            foxCenterYFrac = HOME.foxCenterYFraction,
-            planetOverflow = HOME.planetWidthFraction,
-            planetCenterXFrac = HOME.planetCenterXFraction,
-            planetCenterYFrac = HOME.planetCenterYFraction,
-            planetAlpha = HOME.planetAlpha,
-            glowAlpha = HOME.glowAlpha,
+            foxWidthFrac = HomeHeroGeometry.FOX_WIDTH,
+            foxCenterXFrac = HomeHeroGeometry.FOX_CENTER_X,
+            foxCenterYFrac = HomeHeroGeometry.FOX_CENTER_Y,
+            planetOverflow = HomeHeroGeometry.PLANET_WIDTH,
+            planetCenterXFrac = HomeHeroGeometry.PLANET_CENTER_X,
+            planetCenterYFrac = HomeHeroGeometry.PLANET_CENTER_Y,
+            planetAlpha = HomeHeroGeometry.PLANET_ALPHA,
+            glowAlpha = HomeHeroGeometry.GLOW_ALPHA,
             useLockedHome = true,
         )
     } else when (mode) {
@@ -189,7 +187,7 @@ object HotfoxHeroComposition {
         drawableH: Float = FOX_INTRINSIC_HEIGHT,
     ): FoxLayout {
         if (hostW <= 0f || hostH <= 0f) {
-            return FoxLayout(1, 1, 0, 0, 0f, 0f, HOME.foxWidthFraction)
+            return FoxLayout(1, 1, 0, 0, 0f, 0f, HomeHeroGeometry.FOX_WIDTH)
         }
         val spec = spec(mode)
         val aspect = if (drawableH > 0f) drawableW / drawableH else FOX_ASPECT
@@ -240,7 +238,7 @@ object HotfoxHeroComposition {
         insetBottom: Float = 0f,
     ): Boolean {
         val layout = fox(hostW, hostH, mode, insetTop, insetBottom)
-        val bottomLimit = if (isHome(mode)) hostH * 0.70f else hostH + 1f
+        val bottomLimit = if (isHome(mode)) hostH * 0.62f else hostH + 1f
         return layout.left >= -1 &&
             layout.left + layout.widthPx <= hostW + 1f &&
             layout.top >= -1 &&

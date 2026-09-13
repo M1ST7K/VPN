@@ -91,7 +91,7 @@
                     android:orientation="vertical"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
-                    android:paddingBottom="24dp">
+                    android:paddingBottom="8dp">
 
                     <FrameLayout
                         android:id="@+id/hero_surface"
@@ -171,7 +171,7 @@
                         android:layout_height="32dp"
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="@dimen/hf_hero_below_gap"
+                        android:layout_marginTop="4dp"
                         android:contentDescription="@null"
                         android:importantForAccessibility="no"
                         android:scaleType="fitCenter"
@@ -184,11 +184,11 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         android:background="@drawable/hf_hero_progress_veil"
                         android:orientation="vertical"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
                         android:visibility="gone">
 
                         <TextView
@@ -206,7 +206,7 @@
                             android:id="@+id/tv_stage_establish"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="3dp"
                             android:drawablePadding="8dp"
                             android:gravity="center_vertical"
                             android:text="@string/hotfox_stage_establish"
@@ -218,7 +218,7 @@
                             android:id="@+id/tv_stage_verify"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="3dp"
                             android:drawablePadding="8dp"
                             android:gravity="center_vertical"
                             android:text="@string/hotfox_stage_verify"
@@ -230,7 +230,7 @@
                             android:id="@+id/tv_stage_rules"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="3dp"
                             android:drawablePadding="8dp"
                             android:gravity="center_vertical"
                             android:text="@string/hotfox_stage_rules"
@@ -255,10 +255,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         android:background="@drawable/hf_hero_progress_veil"
                         android:orientation="vertical"
-                        android:paddingTop="8dp"
+                        android:paddingTop="4dp"
                         android:visibility="gone">
 
                         <LinearLayout
@@ -435,7 +435,7 @@
                         android:layout_height="@dimen/hf_cta_height"
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="12dp">
+                        android:layout_marginTop="8dp">
 
                         <TextView
                             android:id="@+id/connect_action"
@@ -462,7 +462,7 @@
                         android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/hf_page_gutter"
                             android:layout_marginEnd="@dimen/hf_page_gutter"
-                            android:layout_marginTop="12dp"
+                            android:layout_marginTop="8dp"
                             android:background="@drawable/hf_native_group"
                             android:orientation="vertical"
                             android:paddingTop="0dp"
@@ -476,7 +476,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="56dp"
+                            android:minHeight="48dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -542,7 +542,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="56dp"
+                            android:minHeight="48dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -607,7 +607,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="56dp"
+                            android:minHeight="48dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -672,7 +672,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="56dp"
+                            android:minHeight="48dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -723,12 +723,15 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="@dimen/hf_hero_below_gap"
+                        android:layout_marginTop="8dp"
                         android:background="@android:color/transparent"
                         android:gravity="center_vertical"
-                        android:minHeight="48dp"
+                        android:minHeight="40dp"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:paddingStart="8dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="6dp">
 
                         <ImageView
                             android:layout_width="20dp"

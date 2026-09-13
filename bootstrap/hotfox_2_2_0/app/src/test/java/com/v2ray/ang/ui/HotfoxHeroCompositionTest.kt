@@ -26,16 +26,16 @@ class HotfoxHeroCompositionTest {
         phones.forEach { (w, h) ->
             assertTrue("home geometry drifted on $w x $h", HotfoxHeroComposition.homeStatesShareGeometry(w, h))
             val fox = HotfoxHeroComposition.fox(w, h, HotFoxHeroMode.HOME_DISCONNECTED)
-            assertEquals(0.62f, fox.widthFrac, 0.001f)
-            assertEquals(w * 0.54f, fox.centerX, 0.5f)
-            assertEquals(h * 0.49f, fox.centerY, 0.5f)
+            assertEquals(HomeHeroGeometry.FOX_WIDTH, fox.widthFrac, 0.001f)
+            assertEquals(w * HomeHeroGeometry.FOX_CENTER_X, fox.centerX, 0.5f)
+            assertEquals(h * HomeHeroGeometry.FOX_CENTER_Y, fox.centerY, 0.5f)
             val bottomFrac = fox.bottom / h
-            assertTrue("fox too low on $w x $h: $bottomFrac", bottomFrac <= 0.68f)
-            assertTrue("fox too high on $w x $h: $bottomFrac", bottomFrac >= 0.60f)
+            assertTrue("fox too low on $w x $h: $bottomFrac", bottomFrac <= 0.62f)
+            assertTrue("fox too high on $w x $h: $bottomFrac", bottomFrac >= 0.54f)
             val planet = HotfoxHeroComposition.planet(w, h, sphere, sphere, HotFoxHeroMode.HOME_DISCONNECTED)
-            assertEquals(w * 1.18f, planet.diameter, 0.5f)
-            assertEquals(w * 0.43f, planet.centerX, 0.5f)
-            assertEquals(h * 0.43f, planet.centerY, 0.5f)
+            assertEquals(w * HomeHeroGeometry.PLANET_WIDTH, planet.diameter, 0.5f)
+            assertEquals(w * HomeHeroGeometry.PLANET_CENTER_X, planet.centerX, 0.5f)
+            assertEquals(h * HomeHeroGeometry.PLANET_CENTER_Y, planet.centerY, 0.5f)
         }
     }
 
@@ -43,7 +43,9 @@ class HotfoxHeroCompositionTest {
     fun homeFoxStaysInArtworkSafeZone() {
         val fox = HotfoxHeroComposition.fox(393f, 873f, HotFoxHeroMode.HOME_DISCONNECTED)
         assertTrue("fox top entered header ${fox.top / 873f}", fox.top / 873f >= 0.22f)
-        assertTrue("fox bottom entered nav ${fox.bottom / 873f}", fox.bottom / 873f <= 0.70f)
+        assertTrue("fox top too low ${fox.top / 873f}", fox.top / 873f <= 0.32f)
+        assertTrue("fox bottom entered cards ${fox.bottom / 873f}", fox.bottom / 873f <= 0.62f)
+        assertEquals(873f * 0.42f, fox.centerY, 0.5f)
         homeModes.forEach { mode ->
             val other = HotfoxHeroComposition.fox(393f, 873f, mode)
             assertEquals(fox.left, other.left)
@@ -59,7 +61,7 @@ class HotfoxHeroCompositionTest {
             homeModes.forEach { mode ->
                 val planet = HotfoxHeroComposition.planet(w, h, sphere, sphere, mode)
                 assertTrue(planet.diameter >= w * 1.10f)
-                assertTrue(planet.diameter <= w * 1.25f + 0.5f)
+                assertTrue(planet.diameter <= w * 1.18f + 0.5f)
             }
             val splash = HotfoxHeroComposition.planet(w, h, sphere, sphere, HotFoxHeroMode.SPLASH)
             assertTrue(splash.diameter > w)
@@ -100,7 +102,7 @@ class HotfoxHeroCompositionTest {
         val page = HotfoxHeroComposition.planet(
             393f, 873f, sphere, sphere, HotfoxHeroComposition.Variant.PAGE,
         )
-        assertEquals(393f * 0.43f, page.centerX, 0.1f)
+        assertEquals(393f * HomeHeroGeometry.PLANET_CENTER_X, page.centerX, 0.1f)
         val disconnected = HotfoxHeroComposition.fox(393f, 873f, HotFoxHeroMode.HOME_DISCONNECTED)
         val connected = HotfoxHeroComposition.fox(393f, 873f, HotFoxHeroMode.HOME_CONNECTED)
         assertEquals(0f, abs(disconnected.centerY - connected.centerY), 0.01f)

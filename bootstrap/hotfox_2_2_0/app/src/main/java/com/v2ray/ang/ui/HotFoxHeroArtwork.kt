@@ -212,7 +212,11 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         fox.adjustViewBounds = false
         layoutLayer(fox, foxLayout.widthPx, foxLayout.heightPx, foxLayout.left, foxLayout.top)
 
-        val blendH = (h * 0.42f).toInt().coerceAtLeast(1)
+        val blendH = if (HotfoxHeroComposition.isHome(mode)) {
+            (h * 0.48f).toInt().coerceAtLeast(1)
+        } else {
+            (h * 0.42f).toInt().coerceAtLeast(1)
+        }
         val blendLp = blendBottom.layoutParams as LayoutParams
         blendLp.width = LayoutParams.MATCH_PARENT
         blendLp.height = blendH
