@@ -1,6 +1,7 @@
 package com.v2ray.ang.ui
 
 import kotlin.math.abs
+import kotlin.math.max
 
 /**
  * Locked HOME fox + planet geometry.
@@ -18,6 +19,20 @@ object HomeHeroGeometry {
     const val PLANET_ALPHA = 1f
     const val GLOW_ALPHA = 0.28f
     const val FOX_MAX_HEIGHT = 0.96f
+}
+
+/**
+ * Full-screen Home planet. Lives behind every Home region; fox stays in HeroSlot.
+ * Diameter covers the longer viewport side so the mass fills the phone, not a slot crop.
+ */
+object HomePlanetBackdropGeometry {
+    const val COVER = 1.22f
+    const val CENTER_X = 0.56f
+    const val CENTER_Y = 0.40f
+    const val ALPHA = 1f
+    const val GLOW_ALPHA = 0.22f
+
+    fun diameter(hostW: Float, hostH: Float): Float = max(hostW, hostH) * COVER
 }
 
 object HotfoxHeroComposition {
@@ -177,6 +192,45 @@ object HotfoxHeroComposition {
         drawableH: Float,
         variant: Variant,
     ): PlanetTransform = planet(hostW, hostH, drawableW, drawableH, variant.toMode())
+
+    fun fullscreenPlanet(
+        hostW: Float,
+        hostH: Float,
+        drawableW: Float,
+        drawableH: Float,
+    ): PlanetTransform {
+        if (hostW <= 0f || hostH <= 0f || drawableW <= 0f || drawableH <= 0f) {
+            return PlanetTransform(1f, 0f, 0f, 1f, 0f, 0f, 0f, 0, 0)
+        }
+        val diameter = HomePlanetBackdropGeometry.diameter(hostW, hostH)
+        val scale = diameter / drawableW
+        val cx = hostW * HomePlanetBackdropGeometry.CENTER_X
+        val cy = hostH * HomePlanetBackdropGeometry.CENTER_Y
+        val left = cx - diameter / 2f
+        val top = cy - drawableH * scale / 2f
+        return PlanetTransform(
+            scale = scale,
+            translateX = left,
+            translateY = top,
+            alpha = HomePlanetBackdropGeometry.ALPHA,
+            diameter = diameter,
+            centerX = cx,
+            centerY = cy,
+            left = left.toInt(),
+            top = top.toInt(),
+        )
+    }
+
+    fun fullscreenGlow(hostW: Float, hostH: Float): GlowLayout {
+        val planet = fullscreenPlanet(hostW, hostH, 1024f, 1024f)
+        val diameter = (planet.diameter * 1.04f).toInt().coerceAtLeast(1)
+        return GlowLayout(
+            diameter = diameter,
+            left = (planet.centerX - diameter / 2f).toInt(),
+            top = (planet.centerY - diameter / 2f).toInt(),
+            alpha = HomePlanetBackdropGeometry.GLOW_ALPHA,
+        )
+    }
 
     fun fox(
         hostW: Float,

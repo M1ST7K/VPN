@@ -43,6 +43,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
     private val navScrim: View
     private var mode = HotFoxHeroMode.HOME_DISCONNECTED
     private var animationMode = AnimationMode.NONE
+    private var backdrop = false
     private var breath: AnimatorSet? = null
     private var insetTopPx = 0
     private var insetBottomPx = 0
@@ -84,9 +85,20 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             if (ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroAnimate, false)) {
                 animationMode = AnimationMode.BREATHING
             }
-            clipChildren = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false) ||
-                HotfoxHeroComposition.isHome(mode)
-            clipToPadding = clipChildren
+            backdrop = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroBackdrop, false)
+            if (backdrop) {
+                fox.visibility = GONE
+                planet.visibility = VISIBLE
+                glow.visibility = VISIBLE
+                blendBottom.visibility = GONE
+                navScrim.visibility = GONE
+                clipChildren = false
+                clipToPadding = false
+            } else {
+                clipChildren = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false) ||
+                    HotfoxHeroComposition.isHome(mode)
+                clipToPadding = clipChildren
+            }
             ta.recycle()
         }
         planet.setImageResource(R.drawable.hf_native_planet_sphere)
@@ -113,6 +125,10 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
     }
 
     fun setShowFox(show: Boolean) {
+        if (backdrop) {
+            fox.visibility = GONE
+            return
+        }
         fox.visibility = if (show) VISIBLE else GONE
     }
 
@@ -160,6 +176,10 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
 
     private fun layoutHero(w: Int, h: Int) {
         if (w < 2 || h < 2) return
+        if (backdrop) {
+            layoutBackdrop(w, h)
+            return
+        }
         val home = HotfoxHeroComposition.isHome(mode)
         clipChildren = home
         clipToPadding = home
@@ -221,17 +241,46 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         )
 
         val blendH = if (home) {
-            (h * 0.22f).toInt().coerceAtLeast(1)
+            1
         } else {
             (h * 0.42f).toInt().coerceAtLeast(1)
         }
-        place(blendBottom, 0, h - blendH, w, blendH)
+        if (home) {
+            blendBottom.visibility = GONE
+            place(blendBottom, 0, h, w, 1)
+        } else {
+            blendBottom.visibility = VISIBLE
+            place(blendBottom, 0, h - blendH, w, blendH)
+        }
         if (!home) {
             val navH = (h * 0.12f).toInt().coerceAtLeast(1)
             place(navScrim, 0, h - navH, w, navH)
         } else {
             place(navScrim, 0, h, w, 1)
         }
+    }
+
+    private fun layoutBackdrop(w: Int, h: Int) {
+        clipChildren = false
+        clipToPadding = false
+        fox.visibility = GONE
+        planet.visibility = VISIBLE
+        glow.visibility = VISIBLE
+        blendBottom.visibility = GONE
+        navScrim.visibility = GONE
+        val planetDrawable = planet.drawable
+        val dw = planetDrawable?.intrinsicWidth?.toFloat()?.takeIf { it > 0f } ?: 1024f
+        val dh = planetDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f } ?: 1024f
+        val planetLayout = HotfoxHeroComposition.fullscreenPlanet(w.toFloat(), h.toFloat(), dw, dh)
+        planet.alpha = planetLayout.alpha
+        planet.scaleType = ImageView.ScaleType.FIT_CENTER
+        val pd = planetLayout.diameter.toInt().coerceAtLeast(1)
+        place(planet, planetLayout.left, planetLayout.top, pd, pd)
+        val glowLayout = HotfoxHeroComposition.fullscreenGlow(w.toFloat(), h.toFloat())
+        glow.alpha = glowLayout.alpha
+        place(glow, glowLayout.left, glowLayout.top, glowLayout.diameter, glowLayout.diameter)
+        place(blendBottom, 0, h, w, 1)
+        place(navScrim, 0, h, w, 1)
     }
 
     private fun place(view: View, x: Int, y: Int, widthPx: Int, heightPx: Int) {

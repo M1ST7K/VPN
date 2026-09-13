@@ -320,6 +320,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
         binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)?.isVisible =
             section == UiSection.CONNECTION
+        binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_planet_backdrop)?.isVisible =
+            section == UiSection.CONNECTION
         binding.tvHeaderMicrocopy.text = when (section) {
             UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
             UiSection.SERVERS -> getString(R.string.hotfox_header_microcopy_servers)
@@ -1209,8 +1211,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         headline: ConnectionUiMapper.Headline,
     ) {
         val hero = binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)
-        val planet = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_planet)
-        val bust = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_bust)
+        val backdrop = binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_planet_backdrop)
         val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
         val rail = binding.root.findViewById<android.widget.ImageView>(R.id.img_connecting_rail)
         val stages = binding.root.findViewById<android.view.View>(R.id.layout_connecting_stages)
@@ -1218,11 +1219,13 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
         val rows = binding.root.findViewById<android.view.View>(R.id.layout_connection_rows)
         ring?.isVisible = false
-        hero?.isVisible = currentSection == UiSection.CONNECTION
-        hero?.setHeroLayers(showPlanet = true, showFox = true)
+        val onHome = currentSection == UiSection.CONNECTION
+        hero?.isVisible = onHome
+        backdrop?.isVisible = onHome
+        hero?.setHeroLayers(showPlanet = false, showFox = true)
         hero?.setMode(HotFoxHeroMode.HOME_DISCONNECTED)
-        planet?.isVisible = true
-        bust?.isVisible = true
+        backdrop?.setHeroLayers(showPlanet = true, showFox = false)
+        backdrop?.setMode(HotFoxHeroMode.HOME_DISCONNECTED)
         when (visual) {
             ConnectionVisualState.CONNECTING -> {
                 rail?.isVisible = true

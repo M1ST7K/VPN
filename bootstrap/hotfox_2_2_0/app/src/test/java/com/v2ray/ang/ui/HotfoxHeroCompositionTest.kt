@@ -83,6 +83,22 @@ class HotfoxHeroCompositionTest {
     }
 
     @Test
+    fun homeBackdropPlanetFillsTheScreen() {
+        val w = 393f
+        val h = 873f
+        val planet = HotfoxHeroComposition.fullscreenPlanet(w, h, sphere, sphere)
+        assertTrue("planet shorter than viewport ${planet.diameter}", planet.diameter >= h)
+        assertTrue("planet does not cover width", planet.left <= 0 && planet.left + planet.diameter >= w)
+        assertTrue("planet does not cover height", planet.top + planet.diameter >= h * 0.9f)
+        assertEquals(w * HomePlanetBackdropGeometry.CENTER_X, planet.centerX, 0.5f)
+        assertEquals(h * HomePlanetBackdropGeometry.CENTER_Y, planet.centerY, 0.5f)
+        val other = HotfoxHeroComposition.fullscreenPlanet(w, h, sphere, sphere)
+        assertEquals(planet.diameter, other.diameter, 0f)
+        assertEquals(planet.left, other.left)
+        assertEquals(planet.top, other.top)
+    }
+
+    @Test
     fun homeFoxWidthIsStableAcrossStates() {
         val fox = HotfoxHeroComposition.fox(412f, 252f, HotFoxHeroMode.HOME_CONNECTING)
         assertTrue(fox.widthFrac >= 0.50f)
