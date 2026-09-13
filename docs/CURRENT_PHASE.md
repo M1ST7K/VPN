@@ -1,14 +1,56 @@
-# CURRENT OWNER TASK — 18-SCREEN UI RECONSTRUCTION
+# CURRENT OWNER TASK — HOTFOX V12 NO-OVERLAP HOME REBUILD
 
-Status: **ASSIGNED — reference package committed; UI implementation and visual acceptance not yet executed by this handoff**.
+Status: **ACTIVE — owner rejected the latest Home composition because functional layers still overlap. Rebuild the Home layout architecture now.**
+
+Active execution prompt:
+
+`design/HOTFOX_CURSOR_V12_NO_OVERLAP_LAYOUT_REBUILD.md`
+
+Active mandatory rule:
+
+`.cursor/rules/32-hotfox-v12-no-overlap-home.mdc`
+
+## Priority / conflict rule
+
+For Home-screen UI architecture, positioning, hero geometry, state-panel layout, quick-settings placement, footer placement, and bottom-navigation placement:
+
+**V12 > every older HotFox Home/hero/layout prompt or Cursor rule wherever they conflict.**
+
+Older V8/V9/V10/V11 screenshot-specific geometry and per-state offset experiments are historical only. Do not reapply them.
+
+## Owner requirement
+
+The defect is architectural: Disconnected / Connecting / Connected currently use independent visual layers that repeatedly collide. Do not patch another `offset`. Build one shared measured scaffold with non-overlapping regions. Only fox/planet artwork may layer, and only inside a bounded HeroSlot. State content belongs to a stable StatePanelSlot. Quick settings and bottom nav must remain in normal layout flow and at stable positions across all three states.
+
+## Completion proof required
+
+Do not report completion on compile alone. Before stopping:
+
+1. build the app;
+2. run the available emulator if infrastructure exists;
+3. capture fresh Disconnected / Connecting / Connected screenshots at the same resolution;
+4. compare them side-by-side;
+5. continue fixing if any functional regions overlap, hero art bleeds into controls/nav, row text collides, or major slot positions jump between states;
+6. report changed files, build result, screenshot paths, and invariant verification.
+
+## Technical boundary
+
+This V12 assignment is UI-only. Preserve the runtime-repair baseline and all VPN/network/security/business guarantees. Do not rewrite transport, routing, DNS, entitlement, subscription, server-selection, or connection-truth logic to satisfy screenshots. Do not claim RELEASE READY from UI evidence.
+
+---
+
+# PRIOR OWNER TASK — 18-SCREEN UI RECONSTRUCTION
+
+Status: **SUPERSEDED FOR HOME LAYOUT GEOMETRY BY V12; retained as broader visual/reference context.**
 
 The owner explicitly requested rebuilding the Android UX/UI from the 18 supplied
 images while preserving every technical guarantee. This UI assignment may start now
 on `cursor/hotfox-ui-pixel-lock-rebuild`; it is not a new roadmap product phase.
 
-Read `design/HOTFOX_CURSOR_FULL_UI_REBUILD_PIXEL_LOCK_PROMPT.txt`,
-`.cursor/rules/23-hotfox-ui-pixel-lock.mdc` and all original images under
-`design/hotfox_18_final_style_reference/`. Start implementation in this run.
+The older broad prompt `design/HOTFOX_CURSOR_FULL_UI_REBUILD_PIXEL_LOCK_PROMPT.txt`,
+`.cursor/rules/23-hotfox-ui-pixel-lock.mdc` and original images under
+`design/hotfox_18_final_style_reference/` remain reference material, but they MUST NOT
+override V12 Home architecture or reintroduce overlapping/offset-based Home geometry.
 Preserve runtime repair baseline `a729b1cbce719278840caf9ab09a5350e6d554e4`.
 Do not rewrite core/transport/state/security behavior for visual matching.
 
