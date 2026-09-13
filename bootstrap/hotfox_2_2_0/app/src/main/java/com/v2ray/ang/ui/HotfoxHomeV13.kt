@@ -5,8 +5,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.v2ray.ang.R
 import com.v2ray.ang.commerce.CommercialPresentationState
+import com.v2ray.ang.vpn.HotfoxMotion
 import com.v2ray.ang.vpn.HotfoxShadowStore
 
 /**
@@ -90,7 +92,15 @@ object HotfoxHomeV13 {
                 cta?.setBackgroundResource(R.drawable.hf_v13_cancel)
                 cta?.setTextColor(orange)
                 cta?.setText(R.string.hotfox_home_cancel)
-                cta?.startIcon(R.drawable.ic_hotfox_stop, orange, 20)
+                cta?.startIcon(R.drawable.ic_hotfox_stop, orange, 18)
+                host.findViewById<LinearProgressIndicator>(R.id.home_connecting_progress)?.let { bar ->
+                    if (HotfoxMotion.reducedMotion(activity)) {
+                        bar.isIndeterminate = false
+                        bar.setProgressCompat(42, false)
+                    } else {
+                        bar.isIndeterminate = true
+                    }
+                }
             }
             MainActivity.ConnectionVisualState.CONNECTED -> {
                 hint?.isVisible = false

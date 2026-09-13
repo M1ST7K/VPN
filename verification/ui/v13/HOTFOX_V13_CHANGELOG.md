@@ -34,4 +34,5 @@
 
 - Debug painter (`src/debug`) красит те же production-view для скриншотов. Это не VPN E2E.
 - Сравнение: `verification/ui/v13/` (actual / sbs / diff / overlay / REPORT.json).
-- Pixel-perfect 1:1 не утверждается до свежих emulator-кадров и разбора diff.
+- Pixel-perfect 1:1 не утверждается: Android system bars, PRO только при реальном entitlement, трафик/таймер не подменяются демо-цифрами с макета.
+

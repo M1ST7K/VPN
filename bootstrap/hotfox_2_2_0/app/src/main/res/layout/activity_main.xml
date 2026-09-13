@@ -243,8 +243,9 @@
 
         <TextView
             android:id="@+id/tv_vpn_status"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:gravity="center"
@@ -382,12 +383,15 @@
 
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/home_connecting_progress"
-                    android:layout_width="160dp"
+                    android:layout_width="168dp"
                     android:layout_height="wrap_content"
                     android:indeterminate="true"
+                    android:max="100"
+                    android:progress="42"
                     app:indicatorColor="@color/hf_v13_orange"
-                    app:trackColor="@color/hf_v13_hairline"
-                    app:trackThickness="4dp" />
+                    app:trackColor="#33343C"
+                    app:trackCornerRadius="3dp"
+                    app:trackThickness="6dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -677,7 +681,9 @@
                     android:layout_height="wrap_content"
                     android:checked="false"
                     android:minWidth="48dp"
-                    android:minHeight="48dp" />
+                    android:minHeight="48dp"
+                    app:thumbTint="@color/hf_v13_switch_thumb"
+                    app:trackTint="@color/hf_v13_switch_track" />
             </LinearLayout>
 
             <LinearLayout

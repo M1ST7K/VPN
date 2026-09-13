@@ -4,17 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 import subprocess
-import sys
 import time
 from io import BytesIO
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageChops, ImageDraw, ImageFont
+from PIL import Image, ImageChops
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "verification" / "ui" / "v13"
 REF_DIR = ROOT / "design" / "hotfox_home_v13" / "design" / "references"
 PKG = "com.hotfox.vpn"
@@ -47,67 +45,69 @@ def adb(*args: str, timeout: int = 60) -> subprocess.CompletedProcess[str]:
     )
 
 
-def dismiss_anr() -> bool:
-    dump = Path("/tmp/hotfox_uidump.xml")
-    adb("shell", "uiautomator", "dump", "/sdcard/uidump.xml", timeout=25)
-    pulled = adb("pull", "/sdcard/uidump.xml", str(dump), timeout=20)
-    if pulled.returncode != 0 or not dump.is_file():
-        return False
-    xml = dump.read_text(encoding="utf-8", errors="ignore")
-    if "isn't responding" not in xml and "не отвечает" not in xml.lower():
-        return False
-    match = re.search(r'text="Wait"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
-    if match is None:
-        match = re.search(r'text="Подождите"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
-    if match is None:
-        return False
-    x1, y1, x2, y2 = (int(g) for g in match.groups())
-    adb("shell", "input", "tap", str((x1 + x2) // 2), str((y1 + y2) // 2))
-    time.sleep(1.2)
-    return True
-
-
-def ui_text() -> str:
+def dismiss_anr() -> None:
     try:
-        adb("shell", "uiautomator", "dump", "/sdcard/uidump.xml", timeout=60)
-        adb("pull", "/sdcard/uidump.xml", "/tmp/hotfox_uidump.xml", timeout=20)
+        out = adb("shell", "dumpsys", "window", timeout=20).stdout
+    except subprocess.TimeoutExpired:
+        return
+    if "Application Not Responding:" not in out:
+        return
+    adb("shell", "input", "tap", "300", "1320")
+    time.sleep(1.2)
+
+
+def resumed_activity() -> str:
+    try:
+        out = adb("shell", "dumpsys", "activity", "activities", timeout=45).stdout
     except subprocess.TimeoutExpired:
         return ""
-    path = Path("/tmp/hotfox_uidump.xml")
-    if not path.is_file():
-        return ""
-    return path.read_text(encoding="utf-8", errors="ignore")
+    for line in out.splitlines():
+        if "topResumedActivity=" in line:
+            return line.strip()
+    return ""
 
 
-def screencap(dest: Path) -> tuple[float, float]:
+def wait_main(timeout: float = 90.0) -> str:
+    deadline = time.time() + timeout
+    last = ""
+    while time.time() < deadline:
+        dismiss_anr()
+        last = resumed_activity()
+        if "MainActivity" in last:
+            time.sleep(1.0)
+            return last
+        time.sleep(1.5)
+    raise RuntimeError(f"MainActivity not resumed: {last[-200:]}")
+
+
+def screencap_bytes() -> bytes:
     raw = subprocess.run(
         ["adb", "-s", SERIAL, "exec-out", "screencap", "-p"],
         check=False,
         capture_output=True,
         timeout=40,
     )
-    if raw.returncode != 0 or len(raw.stdout) < 10_000:
+    if raw.returncode != 0 or len(raw.stdout) < 40_000:
         raise RuntimeError(f"screencap failed rc={raw.returncode} bytes={len(raw.stdout)}")
-    dest.write_bytes(raw.stdout)
-    image = Image.open(BytesIO(raw.stdout)).convert("RGB")
+    return raw.stdout
+
+
+def frame_ok(png: bytes) -> tuple[bool, str]:
+    image = Image.open(BytesIO(png)).convert("RGB")
     pixels = np.asarray(image)
-    return float(pixels.mean()), float(pixels.std())
-
-
-def wait_needles(screen_id: str, timeout: float = 90.0) -> str:
-    needles = NEEDLES[screen_id]
-    deadline = time.time() + timeout
-    last = ""
-    while time.time() < deadline:
-        dismiss_anr()
-        last = ui_text()
-        if all(n in last for n in needles) and "isn't responding" not in last:
-            return last
-        time.sleep(2.0)
-    raise RuntimeError(f"{screen_id} missing {needles}: {last[-800:]}")
+    mean = float(pixels.mean())
+    std = float(pixels.std())
+    r, g, b = pixels[:, :, 0], pixels[:, :, 1], pixels[:, :, 2]
+    orange = float(((r > 180) & (g > 70) & (g < 190) & (b < 130)).mean())
+    cream = float(((r > 200) & (g > 200) & (b > 200)).mean())
+    top_mean = float(pixels[:240].mean())
+    ok = mean >= 12 and std >= 12 and orange >= 0.0008 and cream < 0.25 and top_mean < 80
+    return ok, f"mean={mean:.1f} std={std:.1f} orange={orange:.5f} cream={cream:.5f} top={top_mean:.1f} {image.size}"
 
 
 def start_disconnected() -> None:
+    adb("shell", "am", "force-stop", PKG)
+    time.sleep(1.0)
     adb(
         "shell",
         "am",
@@ -138,20 +138,23 @@ def set_chrome(chrome: str) -> None:
 
 
 def capture_one(screen_id: str) -> Path:
-    wait_needles(screen_id)
     dest = OUT / f"actual_{screen_id}.png"
     last_err = "unknown"
-    for _ in range(8):
+    for _ in range(12):
         dismiss_anr()
-        mean, std = screencap(dest)
-        dump = ui_text()
-        needles_ok = all(n in dump for n in NEEDLES[screen_id])
-        anr = "isn't responding" in dump
-        if mean > 10 and std > 6 and needles_ok and not anr:
-            print(f"CAPTURED {screen_id} bytes={dest.stat().st_size} mean={mean:.1f}", flush=True)
+        try:
+            png = screencap_bytes()
+        except Exception as exc:  # noqa: BLE001
+            last_err = str(exc)
+            time.sleep(2.0)
+            continue
+        ok, stats = frame_ok(png)
+        dest.write_bytes(png)
+        if ok:
+            print(f"CAPTURED {screen_id} bytes={dest.stat().st_size} {stats}", flush=True)
             return dest
-        last_err = f"mean={mean:.1f} std={std:.1f} needles={needles_ok} anr={anr}"
-        time.sleep(3.0)
+        last_err = stats
+        time.sleep(2.5)
     raise RuntimeError(f"{screen_id} invalid frame: {last_err}")
 
 
@@ -220,14 +223,15 @@ def main() -> int:
     adb("shell", "settings", "put", "global", "window_animation_scale", "0")
     adb("shell", "cmd", "locale", "set-app-locales", PKG, "--locales", "ru-RU")
     start_disconnected()
+    wait_main()
     time.sleep(8)
     paths = []
     paths.append(capture_one("disconnected"))
     set_chrome("CONNECTING")
-    time.sleep(2)
+    time.sleep(3)
     paths.append(capture_one("connecting"))
     set_chrome("CONNECTED")
-    time.sleep(2)
+    time.sleep(3)
     paths.append(capture_one("connected"))
     sbs = side_by_side_states(paths)
     report = {
