@@ -22,8 +22,8 @@
     <dimen name="hf_home_artwork_height">300dp</dimen>
     <dimen name="hf_home_fox_width">196dp</dimen>
     <dimen name="hf_home_fox_height">168dp</dimen>
-    <dimen name="hf_home_hero_min_height">168dp</dimen>
-    <dimen name="hf_home_state_panel_height">168dp</dimen>
+    <dimen name="hf_home_hero_min_height">220dp</dimen>
+    <dimen name="hf_home_state_panel_height">140dp</dimen>
     <dimen name="hf_home_cta_height">56dp</dimen>
 
     <dimen name="hf_https_fox_height">184dp</dimen>
