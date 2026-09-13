@@ -4,25 +4,31 @@ import kotlin.math.abs
 import kotlin.math.max
 
 /**
- * Locked HOME fox + planet geometry.
+ * Locked HOME fox geometry.
  *
+ * Fractions are of the phone screen, not the leftover HeroSlot. The planet
+ * backdrop is a separate full-screen layer and is not positioned here.
  * Disconnected / Connecting / Connected must use these exact values.
- * Splash and subscription keep their own specs.
  */
 object HomeHeroGeometry {
-    const val FOX_WIDTH = 0.86f
-    const val FOX_CENTER_X = 0.54f
-    const val FOX_CENTER_Y = 0.48f
+    const val FOX_WIDTH = 0.72f
+    const val FOX_CENTER_X = 0.52f
+    const val FOX_CENTER_Y = 0.36f
+    const val FOX_MAX_HEIGHT = 0.38f
+    /** Keep ears below the brand row. */
+    const val FOX_MIN_TOP_FRAC = 0.14f
+    /** Keep the muzzle above the Home CTA band (~y=0.519 on 1032×2292). */
+    const val FOX_SAFE_BOTTOM_FRAC = 0.495f
     const val PLANET_WIDTH = 1.28f
     const val PLANET_CENTER_X = 0.44f
     const val PLANET_CENTER_Y = 0.52f
     const val PLANET_ALPHA = 1f
     const val GLOW_ALPHA = 0.28f
-    const val FOX_MAX_HEIGHT = 0.96f
 }
 
 /**
- * Full-screen Home planet. Lives behind every Home region; fox stays in HeroSlot.
+ * Full-screen Home planet. Lives behind every Home region; fox is composed
+ * against the same phone canvas and may overflow the short HeroSlot.
  * Diameter covers the longer viewport side so the mass fills the phone, not a slot crop.
  */
 object HomePlanetBackdropGeometry {
@@ -249,6 +255,8 @@ object HotfoxHeroComposition {
         var widthFrac = spec.foxWidthFrac
         var width = hostW * widthFrac
         var height = width / aspect
+        var cx = hostW * spec.foxCenterXFrac
+        var cy = hostH * spec.foxCenterYFrac
         if (isHome(mode)) {
             val maxH = hostH * HomeHeroGeometry.FOX_MAX_HEIGHT
             if (height > maxH && maxH > 1f) {
@@ -256,9 +264,47 @@ object HotfoxHeroComposition {
                 width = height * aspect
                 widthFrac = width / hostW
             }
+            val minTop = hostH * HomeHeroGeometry.FOX_MIN_TOP_FRAC
+            val maxBottom = hostH * HomeHeroGeometry.FOX_SAFE_BOTTOM_FRAC
+            val avail = maxBottom - minTop
+            if (avail > 1f && height > avail) {
+                height = avail
+                width = height * aspect
+                widthFrac = width / hostW
+            }
+            var top = cy - height / 2f
+            var bottom = cy + height / 2f
+            if (bottom > maxBottom) {
+                val shift = bottom - maxBottom
+                top -= shift
+                bottom -= shift
+                cy -= shift
+            }
+            if (top < minTop) {
+                val shift = minTop - top
+                top += shift
+                bottom += shift
+                cy += shift
+                if (bottom > maxBottom) {
+                    bottom = maxBottom
+                    top = (bottom - height).coerceAtLeast(minTop)
+                    height = bottom - top
+                    width = height * aspect
+                    widthFrac = width / hostW
+                    cy = (top + bottom) / 2f
+                }
+            }
+            val left = (cx - width / 2f).toInt()
+            return FoxLayout(
+                widthPx = width.toInt().coerceAtLeast(1),
+                heightPx = height.toInt().coerceAtLeast(1),
+                left = left,
+                top = top.toInt(),
+                centerX = cx,
+                centerY = cy,
+                widthFrac = widthFrac,
+            )
         }
-        val cx = hostW * spec.foxCenterXFrac
-        val cy = hostH * spec.foxCenterYFrac
         val left = (cx - width / 2f).toInt()
         val top = (cy - height / 2f).toInt()
         return FoxLayout(
@@ -301,10 +347,15 @@ object HotfoxHeroComposition {
         insetBottom: Float = 0f,
     ): Boolean {
         val layout = fox(hostW, hostH, mode, insetTop, insetBottom)
-        val bottomLimit = if (isHome(mode)) hostH + 1f else hostH + 1f
+        val bottomLimit = if (isHome(mode)) {
+            hostH * HomeHeroGeometry.FOX_SAFE_BOTTOM_FRAC + 1f
+        } else {
+            hostH + 1f
+        }
+        val topLimit = if (isHome(mode)) hostH * HomeHeroGeometry.FOX_MIN_TOP_FRAC - 1f else -1f
         return layout.left >= -1 &&
             layout.left + layout.widthPx <= hostW + 1f &&
-            layout.top >= -1 &&
+            layout.top.toFloat() >= topLimit &&
             layout.bottom <= bottomLimit + 1f
     }
 

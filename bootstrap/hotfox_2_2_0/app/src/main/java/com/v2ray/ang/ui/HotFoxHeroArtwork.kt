@@ -95,8 +95,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
                 clipChildren = false
                 clipToPadding = false
             } else {
-                clipChildren = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false) ||
-                    HotfoxHeroComposition.isHome(mode)
+                clipChildren = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false)
                 clipToPadding = clipChildren
             }
             ta.recycle()
@@ -181,47 +180,55 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             return
         }
         val home = HotfoxHeroComposition.isHome(mode)
-        clipChildren = home
-        clipToPadding = home
+        clipChildren = false
+        clipToPadding = false
+        clipToOutline = false
         val wf = w.toFloat()
         val hf = h.toFloat()
+        val loc = IntArray(2)
+        getLocationOnScreen(loc)
         val hostW: Float
         val hostH: Float
         val originX: Int
         val originY: Int
         if (home) {
-            hostW = wf
-            hostH = hf
-            originX = 0
-            originY = 0
+            // Compose the bust against the phone canvas so it fills the
+            // headline→CTA band like the 05/06/07 references, not the short HeroSlot.
+            hostW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
+            hostH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
+            originX = loc[0]
+            originY = loc[1]
             navScrim.visibility = GONE
         } else {
-            val loc = IntArray(2)
-            getLocationOnScreen(loc)
             hostW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
             hostH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
             originX = loc[0]
             originY = loc[1]
             navScrim.visibility = VISIBLE
         }
-        val planetDrawable = planet.drawable
-        val dw = planetDrawable?.intrinsicWidth?.toFloat()?.takeIf { it > 0f } ?: 1024f
-        val dh = planetDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f } ?: 1024f
-        val planetLayout = HotfoxHeroComposition.planet(hostW, hostH, dw, dh, mode)
-        planet.alpha = planetLayout.alpha
-        planet.scaleType = ImageView.ScaleType.FIT_CENTER
-        val pd = planetLayout.diameter.toInt().coerceAtLeast(1)
-        place(planet, planetLayout.left - originX, planetLayout.top - originY, pd, pd)
+        if (planet.visibility == VISIBLE) {
+            val planetDrawable = planet.drawable
+            val dw = planetDrawable?.intrinsicWidth?.toFloat()?.takeIf { it > 0f } ?: 1024f
+            val dh = planetDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f } ?: 1024f
+            val planetLayout = HotfoxHeroComposition.planet(hostW, hostH, dw, dh, mode)
+            planet.alpha = planetLayout.alpha
+            planet.scaleType = ImageView.ScaleType.FIT_CENTER
+            val pd = planetLayout.diameter.toInt().coerceAtLeast(1)
+            place(planet, planetLayout.left - originX, planetLayout.top - originY, pd, pd)
 
-        val glowLayout = HotfoxHeroComposition.glow(hostW, hostH, mode)
-        glow.alpha = glowLayout.alpha
-        place(
-            glow,
-            glowLayout.left - originX,
-            glowLayout.top - originY,
-            glowLayout.diameter,
-            glowLayout.diameter,
-        )
+            val glowLayout = HotfoxHeroComposition.glow(hostW, hostH, mode)
+            glow.alpha = glowLayout.alpha
+            place(
+                glow,
+                glowLayout.left - originX,
+                glowLayout.top - originY,
+                glowLayout.diameter,
+                glowLayout.diameter,
+            )
+        } else {
+            place(planet, 0, 0, 1, 1)
+            place(glow, 0, 0, 1, 1)
+        }
 
         val foxDrawable = fox.drawable
         val foxDw = foxDrawable?.intrinsicWidth?.toFloat()?.takeIf { it > 0f }
