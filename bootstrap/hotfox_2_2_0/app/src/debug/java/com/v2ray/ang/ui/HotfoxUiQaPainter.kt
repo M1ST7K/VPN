@@ -118,6 +118,9 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
                 MainActivity.ConnectionVisualState.CONNECTING -> activity.getString(R.string.hotfox_stop)
                 else -> activity.getString(R.string.hotfox_connect)
             }
+            activity.window?.decorView?.post {
+                runCatching { HotfoxHomeSlotGuard.verify(activity) }
+            }
             if (visual == MainActivity.ConnectionVisualState.CONNECTED) {
                 activity.findViewById<TextView>(R.id.tv_vpn_status)?.text = "00:00:00"
                 activity.findViewById<TextView>(R.id.tv_downloaded)?.text = "0 MB"

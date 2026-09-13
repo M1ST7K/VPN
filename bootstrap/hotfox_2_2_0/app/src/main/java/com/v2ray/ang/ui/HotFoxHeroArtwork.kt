@@ -84,12 +84,11 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             if (ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroAnimate, false)) {
                 animationMode = AnimationMode.BREATHING
             }
-            // Clip is never allowed on the fox layer, even if XML still passes true.
-            ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false)
+            clipChildren = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false) ||
+                HotfoxHeroComposition.isHome(mode)
+            clipToPadding = clipChildren
             ta.recycle()
         }
-        clipChildren = false
-        clipToPadding = false
         planet.setImageResource(R.drawable.hf_native_planet_sphere)
         fox.setImageResource(R.drawable.hotfox_fox_master)
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
@@ -161,27 +160,45 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
 
     private fun layoutHero(w: Int, h: Int) {
         if (w < 2 || h < 2) return
+        val home = HotfoxHeroComposition.isHome(mode)
+        clipChildren = home
+        clipToPadding = home
         val wf = w.toFloat()
         val hf = h.toFloat()
-        val loc = IntArray(2)
-        getLocationOnScreen(loc)
-        val screenW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
-        val screenH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
+        val hostW: Float
+        val hostH: Float
+        val originX: Int
+        val originY: Int
+        if (home) {
+            hostW = wf
+            hostH = hf
+            originX = 0
+            originY = 0
+            navScrim.visibility = GONE
+        } else {
+            val loc = IntArray(2)
+            getLocationOnScreen(loc)
+            hostW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
+            hostH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
+            originX = loc[0]
+            originY = loc[1]
+            navScrim.visibility = VISIBLE
+        }
         val planetDrawable = planet.drawable
         val dw = planetDrawable?.intrinsicWidth?.toFloat()?.takeIf { it > 0f } ?: 1024f
         val dh = planetDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f } ?: 1024f
-        val planetLayout = HotfoxHeroComposition.planet(screenW, screenH, dw, dh, mode)
+        val planetLayout = HotfoxHeroComposition.planet(hostW, hostH, dw, dh, mode)
         planet.alpha = planetLayout.alpha
         planet.scaleType = ImageView.ScaleType.FIT_CENTER
         val pd = planetLayout.diameter.toInt().coerceAtLeast(1)
-        place(planet, planetLayout.left - loc[0], planetLayout.top - loc[1], pd, pd)
+        place(planet, planetLayout.left - originX, planetLayout.top - originY, pd, pd)
 
-        val glowLayout = HotfoxHeroComposition.glow(screenW, screenH, mode)
+        val glowLayout = HotfoxHeroComposition.glow(hostW, hostH, mode)
         glow.alpha = glowLayout.alpha
         place(
             glow,
-            glowLayout.left - loc[0],
-            glowLayout.top - loc[1],
+            glowLayout.left - originX,
+            glowLayout.top - originY,
             glowLayout.diameter,
             glowLayout.diameter,
         )
@@ -191,26 +208,30 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             ?: HotfoxHeroComposition.FOX_INTRINSIC_WIDTH
         val foxDh = foxDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f }
             ?: HotfoxHeroComposition.FOX_INTRINSIC_HEIGHT
-        val foxLayout = HotfoxHeroComposition.fox(screenW, screenH, mode, drawableW = foxDw, drawableH = foxDh)
+        val foxLayout = HotfoxHeroComposition.fox(hostW, hostH, mode, drawableW = foxDw, drawableH = foxDh)
         fox.setPadding(0, 0, 0, 0)
         fox.scaleType = ImageView.ScaleType.FIT_CENTER
         fox.adjustViewBounds = false
         place(
             fox,
-            foxLayout.left - loc[0],
-            foxLayout.top - loc[1],
+            foxLayout.left - originX,
+            foxLayout.top - originY,
             foxLayout.widthPx,
             foxLayout.heightPx,
         )
 
-        val blendH = if (HotfoxHeroComposition.isHome(mode)) {
-            (h * 0.48f).toInt().coerceAtLeast(1)
+        val blendH = if (home) {
+            (h * 0.22f).toInt().coerceAtLeast(1)
         } else {
             (h * 0.42f).toInt().coerceAtLeast(1)
         }
         place(blendBottom, 0, h - blendH, w, blendH)
-        val navH = (h * 0.12f).toInt().coerceAtLeast(1)
-        place(navScrim, 0, h - navH, w, navH)
+        if (!home) {
+            val navH = (h * 0.12f).toInt().coerceAtLeast(1)
+            place(navScrim, 0, h - navH, w, navH)
+        } else {
+            place(navScrim, 0, h, w, 1)
+        }
     }
 
     private fun place(view: View, x: Int, y: Int, widthPx: Int, heightPx: Int) {

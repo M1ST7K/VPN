@@ -1418,7 +1418,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.tvSmartRoutingMode.text = snapshot.uiLabel()
         binding.tvSmartRoutingSummary.setText(
             when (snapshot.mode) {
-                HotfoxRoutingMode.SMART -> R.string.hotfox_route_smart_summary
+                HotfoxRoutingMode.SMART -> R.string.hotfox_home_route_smart_summary
                 HotfoxRoutingMode.GLOBAL -> R.string.hotfox_route_global_summary
                 HotfoxRoutingMode.INCLUDE_APPS -> R.string.hotfox_route_include_summary
                 HotfoxRoutingMode.EXCLUDE_APPS -> R.string.hotfox_route_exclude_summary

@@ -11,28 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/hf_asset_background"
-        android:clipChildren="false"
-        android:clipToPadding="false">
-
-        <com.v2ray.ang.ui.HotFoxHeroArtwork
-            android:id="@+id/home_hero"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="false"
-            android:focusable="false"
-            android:importantForAccessibility="no"
-            android:paddingBottom="@dimen/hf_bottom_nav_height"
-            app:hfHeroAnimate="false"
-            app:hfHeroClip="false"
-            app:hfHeroShowFox="true"
-            app:hfHeroShowPlanet="true"
-            app:hfHeroVariant="homeDisconnected" />
+        android:clipChildren="true"
+        android:clipToPadding="true">
 
         <LinearLayout
             android:id="@+id/main_foreground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/transparent"
+            android:background="@color/hf_asset_background"
             android:fitsSystemWindows="true"
             android:orientation="vertical">
 
@@ -76,8 +62,8 @@
                 android:id="@+id/screen_connection"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:clipChildren="false"
-                android:clipToPadding="false"
+                android:clipChildren="true"
+                android:clipToPadding="true"
                 android:fillViewport="true"
                 android:overScrollMode="never"
                 android:scrollbars="none">
@@ -86,54 +72,64 @@
                     android:id="@+id/connection_column"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
+                    android:clipChildren="true"
+                    android:clipToPadding="true"
                     android:orientation="vertical"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
-                    android:paddingBottom="8dp">
+                    android:paddingBottom="0dp">
 
-                    <FrameLayout
-                        android:id="@+id/hero_surface"
+                    <LinearLayout
+                        android:id="@+id/header_status_slot"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:orientation="vertical"
                         android:paddingStart="@dimen/hf_page_gutter"
-                        android:paddingEnd="@dimen/hf_page_gutter">
-
-                        <ImageView
-                            android:id="@+id/brand_logo"
-                            android:layout_width="1dp"
-                            android:layout_height="1dp"
-                            android:visibility="gone" />
+                        android:paddingEnd="@dimen/hf_page_gutter"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="8dp">
 
                         <FrameLayout
-                            android:id="@+id/connect_halo"
-                            android:layout_width="1dp"
-                            android:layout_height="1dp"
-                            android:visibility="gone">
+                            android:id="@+id/hero_surface"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
 
-                            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                                android:id="@+id/fab"
+                            <ImageView
+                                android:id="@+id/brand_logo"
                                 android:layout_width="1dp"
                                 android:layout_height="1dp"
-                                android:contentDescription="@string/hotfox_connect"
-                                android:src="@drawable/ic_hotfox_power_36"
-                                android:visibility="gone"
-                                app:tint="@color/hf_asset_cream" />
+                                android:visibility="gone" />
+
+                            <FrameLayout
+                                android:id="@+id/connect_halo"
+                                android:layout_width="1dp"
+                                android:layout_height="1dp"
+                                android:visibility="gone">
+
+                                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                                    android:id="@+id/fab"
+                                    android:layout_width="1dp"
+                                    android:layout_height="1dp"
+                                    android:contentDescription="@string/hotfox_connect"
+                                    android:src="@drawable/ic_hotfox_power_36"
+                                    android:visibility="gone"
+                                    app:tint="@color/hf_asset_cream" />
+                            </FrameLayout>
                         </FrameLayout>
 
                         <LinearLayout
                             android:id="@+id/status_block"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingTop="4dp">
+                            android:orientation="vertical">
 
                             <TextView
                                 android:id="@+id/tv_connect_label"
                                 style="@style/HotFox.HomeHeadline"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:maxLines="1"
+                                android:ellipsize="end"
                                 android:text="@string/hotfox_headline_disconnected" />
 
                             <TextView
@@ -142,6 +138,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
+                                android:maxLines="2"
+                                android:ellipsize="end"
                                 android:text="@string/hotfox_disconnected_body" />
 
                             <TextView
@@ -150,310 +148,332 @@
                                 android:layout_height="wrap_content"
                                 android:visibility="gone" />
                         </LinearLayout>
-                    </FrameLayout>
-
-                    <View
-                        android:id="@+id/connection_hero_spacer"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:minHeight="48dp" />
-
-                    <ImageView
-                        android:id="@+id/img_art_ring"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:visibility="gone" />
-
-                    <ImageView
-                        android:id="@+id/img_connecting_rail"
-                        android:layout_width="match_parent"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="@dimen/hf_page_gutter"
-                        android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="4dp"
-                        android:contentDescription="@null"
-                        android:importantForAccessibility="no"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/hf_native_connecting_rail"
-                        android:visibility="gone" />
-
-                    <LinearLayout
-                        android:id="@+id/layout_connecting_stages"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/hf_page_gutter"
-                        android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="4dp"
-                        android:background="@drawable/hf_hero_progress_veil"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:id="@+id/tv_stage_select"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            android:text="@string/hotfox_stage_select_server"
-                            android:textColor="@color/hf_asset_orange"
-                            android:textSize="13sp"
-                            app:drawableStartCompat="@drawable/hf_stage_active" />
-
-                        <TextView
-                            android:id="@+id/tv_stage_establish"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            android:text="@string/hotfox_stage_establish"
-                            android:textColor="@color/hf_asset_muted"
-                            android:textSize="13sp"
-                            app:drawableStartCompat="@drawable/hf_stage_pending" />
-
-                        <TextView
-                            android:id="@+id/tv_stage_verify"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            android:text="@string/hotfox_stage_verify"
-                            android:textColor="@color/hf_asset_muted"
-                            android:textSize="13sp"
-                            app:drawableStartCompat="@drawable/hf_stage_pending" />
-
-                        <TextView
-                            android:id="@+id/tv_stage_rules"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            android:text="@string/hotfox_stage_rules"
-                            android:textColor="@color/hf_asset_muted"
-                            android:textSize="13sp"
-                            app:drawableStartCompat="@drawable/hf_stage_pending" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_connection_stage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textColor="@color/hf_asset_cream"
-                        android:textSize="13sp"
-                        android:visibility="gone" />
-
-                    <LinearLayout
-                        android:id="@+id/layout_protected_metrics"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/hf_page_gutter"
-                        android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="4dp"
-                        android:background="@drawable/hf_hero_progress_veil"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:visibility="gone">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:importantForAccessibility="no"
-                                    android:src="@drawable/hf_download_green" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
-                                    android:orientation="vertical">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/hotfox_downloaded"
-                                        android:textColor="@color/hf_asset_muted"
-                                        android:textSize="10sp" />
-
-                                    <TextView
-                                        android:id="@+id/tv_downloaded"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="0 MB"
-                                        android:textColor="@color/hf_asset_cream"
-                                        android:textSize="16sp" />
-                                </LinearLayout>
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="end|center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:importantForAccessibility="no"
-                                    android:src="@drawable/hf_upload_orange" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
-                                    android:orientation="vertical">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/hotfox_uploaded"
-                                        android:textColor="@color/hf_asset_muted"
-                                        android:textSize="10sp" />
-
-                                    <TextView
-                                        android:id="@+id/tv_uploaded"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="0 MB"
-                                        android:textColor="@color/hf_asset_cream"
-                                        android:textSize="16sp" />
-                                </LinearLayout>
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/layout_route_nodes"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:gravity="center"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:importantForAccessibility="no"
-                                    android:src="@drawable/hf_person_muted" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="@string/hotfox_route_you"
-                                    android:textColor="@color/hf_asset_muted"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:layout_width="48dp"
-                                android:layout_height="8dp"
-                                android:importantForAccessibility="no"
-                                android:scaleType="fitXY"
-                                android:src="@drawable/hf_route_link" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:importantForAccessibility="no"
-                                    android:src="@drawable/hf_shield_orange" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="@string/hotfox_route_hotfox"
-                                    android:textColor="@color/hf_asset_muted"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:layout_width="48dp"
-                                android:layout_height="8dp"
-                                android:importantForAccessibility="no"
-                                android:scaleType="fitXY"
-                                android:src="@drawable/hf_route_link" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:importantForAccessibility="no"
-                                    android:src="@drawable/hf_globe_muted" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="@string/hotfox_route_internet"
-                                    android:textColor="@color/hf_asset_muted"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-                        </LinearLayout>
                     </LinearLayout>
 
                     <FrameLayout
-                        android:id="@+id/connect_action_host"
+                        android:id="@+id/hero_slot"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/hf_cta_height"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:minHeight="@dimen/hf_home_hero_min_height"
+                        android:clipChildren="true"
+                        android:clipToPadding="true">
+
+                        <com.v2ray.ang.ui.HotFoxHeroArtwork
+                            android:id="@+id/home_hero"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clickable="false"
+                            android:clipChildren="true"
+                            android:clipToPadding="true"
+                            android:focusable="false"
+                            android:importantForAccessibility="no"
+                            app:hfHeroAnimate="false"
+                            app:hfHeroClip="true"
+                            app:hfHeroShowFox="true"
+                            app:hfHeroShowPlanet="true"
+                            app:hfHeroVariant="homeDisconnected" />
+
+                        <ImageView
+                            android:id="@+id/img_art_ring"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:visibility="gone" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/state_panel_slot"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/hf_home_state_panel_height"
                         android:layout_marginStart="@dimen/hf_page_gutter"
                         android:layout_marginEnd="@dimen/hf_page_gutter"
-                        android:layout_marginTop="8dp">
+                        android:layout_marginTop="8dp"
+                        android:clipChildren="true"
+                        android:clipToPadding="true">
+
+                        <LinearLayout
+                            android:id="@+id/layout_connecting_stages"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top"
+                            android:orientation="vertical"
+                            android:paddingTop="4dp"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/img_connecting_rail"
+                                android:layout_width="match_parent"
+                                android:layout_height="28dp"
+                                android:contentDescription="@null"
+                                android:importantForAccessibility="no"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/hf_native_connecting_rail" />
+
+                            <TextView
+                                android:id="@+id/tv_stage_select"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:drawablePadding="8dp"
+                                android:ellipsize="end"
+                                android:gravity="center_vertical"
+                                android:maxLines="1"
+                                android:text="@string/hotfox_stage_select_server"
+                                android:textColor="@color/hf_asset_orange"
+                                android:textSize="13sp"
+                                app:drawableStartCompat="@drawable/hf_stage_active" />
+
+                            <TextView
+                                android:id="@+id/tv_stage_establish"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:text="@string/hotfox_stage_establish"
+                                android:textColor="@color/hf_asset_muted"
+                                android:textSize="13sp"
+                                android:visibility="gone"
+                                app:drawableStartCompat="@drawable/hf_stage_pending" />
+
+                            <TextView
+                                android:id="@+id/tv_stage_verify"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:text="@string/hotfox_stage_verify"
+                                android:textColor="@color/hf_asset_muted"
+                                android:textSize="13sp"
+                                android:visibility="gone"
+                                app:drawableStartCompat="@drawable/hf_stage_pending" />
+
+                            <TextView
+                                android:id="@+id/tv_stage_rules"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:text="@string/hotfox_stage_rules"
+                                android:textColor="@color/hf_asset_muted"
+                                android:textSize="13sp"
+                                android:visibility="gone"
+                                app:drawableStartCompat="@drawable/hf_stage_pending" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layout_protected_metrics"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top"
+                            android:orientation="vertical"
+                            android:paddingTop="4dp"
+                            android:visibility="gone">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:importantForAccessibility="no"
+                                        android:src="@drawable/hf_download_green" />
+
+                                    <LinearLayout
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/hotfox_downloaded"
+                                            android:textColor="@color/hf_asset_muted"
+                                            android:textSize="10sp" />
+
+                                        <TextView
+                                            android:id="@+id/tv_downloaded"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0 MB"
+                                            android:textColor="@color/hf_asset_cream"
+                                            android:textSize="16sp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="end|center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:importantForAccessibility="no"
+                                        android:src="@drawable/hf_upload_orange" />
+
+                                    <LinearLayout
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/hotfox_uploaded"
+                                            android:textColor="@color/hf_asset_muted"
+                                            android:textSize="10sp" />
+
+                                        <TextView
+                                            android:id="@+id/tv_uploaded"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0 MB"
+                                            android:textColor="@color/hf_asset_cream"
+                                            android:textSize="16sp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/layout_route_nodes"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:importantForAccessibility="no"
+                                        android:src="@drawable/hf_person_muted" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="4dp"
+                                        android:text="@string/hotfox_route_you"
+                                        android:textColor="@color/hf_asset_muted"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+
+                                <ImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="8dp"
+                                    android:importantForAccessibility="no"
+                                    android:scaleType="fitXY"
+                                    android:src="@drawable/hf_route_link" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:importantForAccessibility="no"
+                                        android:src="@drawable/hf_shield_orange" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="4dp"
+                                        android:text="@string/hotfox_route_hotfox"
+                                        android:textColor="@color/hf_asset_muted"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+
+                                <ImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="8dp"
+                                    android:importantForAccessibility="no"
+                                    android:scaleType="fitXY"
+                                    android:src="@drawable/hf_route_link" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:importantForAccessibility="no"
+                                        android:src="@drawable/hf_globe_muted" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="4dp"
+                                        android:text="@string/hotfox_route_internet"
+                                        android:textColor="@color/hf_asset_muted"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
 
                         <TextView
-                            android:id="@+id/connect_action"
+                            android:id="@+id/tv_connection_stage"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/hf_cta_height"
-                            android:layout_gravity="center_horizontal"
-                            android:maxWidth="@dimen/hf_cta_max_width"
-                            android:background="@drawable/hf_native_primary"
-                            android:clickable="true"
-                            android:drawableEnd="@drawable/hf_arrow_right_ink"
-                            android:focusable="true"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top"
+                            android:ellipsize="end"
                             android:gravity="center"
-                            android:minHeight="@dimen/hf_cta_height"
-                            android:paddingStart="@dimen/hf_cta_padding_horizontal"
-                            android:paddingEnd="@dimen/hf_cta_padding_horizontal"
-                            android:text="@string/hotfox_connect"
-                            android:textColor="@color/hf_asset_ink"
-                            android:textSize="16sp" />
+                            android:maxLines="2"
+                            android:paddingTop="4dp"
+                            android:textColor="@color/hf_asset_cream"
+                            android:textSize="13sp"
+                            android:visibility="gone" />
+
+                        <FrameLayout
+                            android:id="@+id/connect_action_host"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/hf_home_cta_height"
+                            android:layout_gravity="bottom">
+
+                            <TextView
+                                android:id="@+id/connect_action"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/hf_home_cta_height"
+                                android:layout_gravity="center_horizontal"
+                                android:background="@drawable/hf_native_primary"
+                                android:clickable="true"
+                                android:drawableEnd="@drawable/hf_arrow_right_ink"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:maxWidth="@dimen/hf_cta_max_width"
+                                android:minHeight="@dimen/hf_home_cta_height"
+                                android:paddingStart="@dimen/hf_cta_padding_horizontal"
+                                android:paddingEnd="@dimen/hf_cta_padding_horizontal"
+                                android:text="@string/hotfox_connect"
+                                android:textColor="@color/hf_asset_ink"
+                                android:textSize="16sp" />
+                        </FrameLayout>
                     </FrameLayout>
 
                     <LinearLayout
@@ -476,7 +496,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="48dp"
+                            android:minHeight="52dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -499,6 +519,8 @@
                                     style="@style/HotFox.RowTitle"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
                                     android:text="@string/hotfox_row_server" />
 
                                 <TextView
@@ -507,6 +529,8 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
                                     android:text="@string/hotfox_value_auto_off" />
                             </LinearLayout>
 
@@ -542,7 +566,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="48dp"
+                            android:minHeight="52dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -564,6 +588,8 @@
                                     style="@style/HotFox.RowTitle"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
                                     android:text="@string/hotfox_row_subscription" />
 
                                 <TextView
@@ -572,6 +598,8 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
                                     android:text="@string/hotfox_add_subscription_to_start" />
                             </LinearLayout>
 
@@ -607,7 +635,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="48dp"
+                            android:minHeight="52dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -629,6 +657,8 @@
                                     style="@style/HotFox.RowTitle"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
                                     android:text="@string/hotfox_row_shadow" />
 
                                 <TextView
@@ -637,6 +667,8 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
                                     android:text="@string/hotfox_shadow_extra" />
                             </LinearLayout>
 
@@ -672,7 +704,7 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             android:gravity="center_vertical"
-                            android:minHeight="48dp"
+                            android:minHeight="52dp"
                             android:orientation="horizontal"
                             android:paddingStart="16dp"
                             android:paddingEnd="12dp">
@@ -705,8 +737,8 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
                                     android:ellipsize="end"
-                                    android:maxLines="2"
-                                    android:text="@string/hotfox_routing_apps_rules" />
+                                    android:maxLines="1"
+                                    android:text="@string/hotfox_home_route_smart_summary" />
                             </LinearLayout>
 
                             <ImageView
@@ -749,6 +781,8 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
                                 android:text="@string/hotfox_add_subscription_to_start"
                                 android:textColor="@color/hf_asset_cream"
                                 android:textSize="14sp" />
@@ -757,6 +791,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
+                                android:ellipsize="end"
+                                android:maxLines="1"
                                 android:text="@string/hotfox_add_subscription_hint"
                                 android:textColor="@color/hf_asset_muted"
                                 android:textSize="12sp" />

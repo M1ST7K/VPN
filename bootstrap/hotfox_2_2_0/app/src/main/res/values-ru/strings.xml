@@ -30,6 +30,7 @@
     <string name="hotfox_smart_routing_title">Как направлять трафик?</string>
     <string name="hotfox_route_smart">Умный маршрут</string>
     <string name="hotfox_route_smart_summary">Интернет через VPN; LAN только если включён доступ к локальной сети</string>
+    <string name="hotfox_home_route_smart_summary">Интернет через VPN · LAN по настройке</string>
     <string name="hotfox_route_global">Весь трафик</string>
     <string name="hotfox_route_global_summary">Весь захваченный трафик через VPN, включая LAN</string>
     <string name="hotfox_route_include">Только выбранные приложения</string>

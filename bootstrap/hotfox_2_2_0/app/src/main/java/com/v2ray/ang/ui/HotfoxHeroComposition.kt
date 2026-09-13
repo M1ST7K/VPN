@@ -9,14 +9,15 @@ import kotlin.math.abs
  * Splash and subscription keep their own specs.
  */
 object HomeHeroGeometry {
-    const val FOX_WIDTH = 0.62f
+    const val FOX_WIDTH = 0.86f
     const val FOX_CENTER_X = 0.54f
-    const val FOX_CENTER_Y = 0.42f
-    const val PLANET_WIDTH = 1.15f
+    const val FOX_CENTER_Y = 0.48f
+    const val PLANET_WIDTH = 1.28f
     const val PLANET_CENTER_X = 0.44f
-    const val PLANET_CENTER_Y = 0.40f
+    const val PLANET_CENTER_Y = 0.52f
     const val PLANET_ALPHA = 1f
     const val GLOW_ALPHA = 0.28f
+    const val FOX_MAX_HEIGHT = 0.96f
 }
 
 object HotfoxHeroComposition {
@@ -191,9 +192,17 @@ object HotfoxHeroComposition {
         }
         val spec = spec(mode)
         val aspect = if (drawableH > 0f) drawableW / drawableH else FOX_ASPECT
-        val widthFrac = spec.foxWidthFrac
-        val width = hostW * widthFrac
-        val height = width / aspect
+        var widthFrac = spec.foxWidthFrac
+        var width = hostW * widthFrac
+        var height = width / aspect
+        if (isHome(mode)) {
+            val maxH = hostH * HomeHeroGeometry.FOX_MAX_HEIGHT
+            if (height > maxH && maxH > 1f) {
+                height = maxH
+                width = height * aspect
+                widthFrac = width / hostW
+            }
+        }
         val cx = hostW * spec.foxCenterXFrac
         val cy = hostH * spec.foxCenterYFrac
         val left = (cx - width / 2f).toInt()
@@ -238,7 +247,7 @@ object HotfoxHeroComposition {
         insetBottom: Float = 0f,
     ): Boolean {
         val layout = fox(hostW, hostH, mode, insetTop, insetBottom)
-        val bottomLimit = if (isHome(mode)) hostH * 0.62f else hostH + 1f
+        val bottomLimit = if (isHome(mode)) hostH + 1f else hostH + 1f
         return layout.left >= -1 &&
             layout.left + layout.widthPx <= hostW + 1f &&
             layout.top >= -1 &&
