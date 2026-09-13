@@ -115,37 +115,35 @@ object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
                 else -> ConnectionUiMapper.Headline.DISCONNECTED
             }
             activity.applyConnectionChrome(visual, headline)
-            if (visual == MainActivity.ConnectionVisualState.CONNECTED ||
-                visual == MainActivity.ConnectionVisualState.CONNECTING
-            ) {
-                activity.hideConnectionStageLine()
-            }
             val headlineRes = when (visual) {
-                MainActivity.ConnectionVisualState.CONNECTED -> R.string.hotfox_headline_connected
-                MainActivity.ConnectionVisualState.CONNECTING -> R.string.hotfox_headline_connecting
-                else -> R.string.hotfox_headline_disconnected
+                MainActivity.ConnectionVisualState.CONNECTED -> R.string.hotfox_home_title_connected
+                MainActivity.ConnectionVisualState.CONNECTING -> R.string.hotfox_home_title_connecting
+                else -> R.string.hotfox_home_title_disconnected
             }
             activity.updateStatusText(
                 headlineRes,
-                if (visual == MainActivity.ConnectionVisualState.CONNECTED) {
-                    R.color.hf_asset_green
-                } else {
-                    R.color.hf_asset_cream
-                },
+                R.color.hf_v13_text,
             )
             val connect = activity.findViewById<TextView>(R.id.connect_action)
             connect?.text = when (visual) {
                 MainActivity.ConnectionVisualState.CONNECTED -> activity.getString(R.string.hotfox_disconnect)
-                MainActivity.ConnectionVisualState.CONNECTING -> activity.getString(R.string.hotfox_stop)
+                MainActivity.ConnectionVisualState.CONNECTING -> activity.getString(R.string.hotfox_home_cancel)
                 else -> activity.getString(R.string.hotfox_connect)
             }
             activity.window?.decorView?.post {
                 runCatching { HotfoxHomeSlotGuard.verify(activity) }
             }
             if (visual == MainActivity.ConnectionVisualState.CONNECTED) {
-                activity.findViewById<TextView>(R.id.tv_vpn_status)?.text = "00:00:00"
-                activity.findViewById<TextView>(R.id.tv_downloaded)?.text = "0 MB"
-                activity.findViewById<TextView>(R.id.tv_uploaded)?.text = "0 MB"
+                activity.findViewById<TextView>(R.id.tv_vpn_status)?.text =
+                    activity.getString(R.string.hotfox_home_subtitle_online, "00:00:00")
+                activity.findViewById<TextView>(R.id.tv_downloaded)?.text = "0 МБ"
+                activity.findViewById<TextView>(R.id.tv_uploaded)?.text = "0 МБ"
+            }
+            if (visual == MainActivity.ConnectionVisualState.CONNECTING) {
+                activity.findViewById<TextView>(R.id.tv_connection_stage)?.apply {
+                    visibility = View.VISIBLE
+                    setText(R.string.hotfox_home_checking)
+                }
             }
         }
         if (HotfoxUiVisualOverride.showAddSheet) {

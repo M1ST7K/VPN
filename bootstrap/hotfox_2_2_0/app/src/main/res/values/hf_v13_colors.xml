@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hf_v13_bg">#0B0B10</color>
+    <color name="hf_v13_card">#EE121319</color>
+    <color name="hf_v13_card_solid">#121319</color>
+    <color name="hf_v13_text">#F6F6F8</color>
+    <color name="hf_v13_muted">#ABAABB</color>
+    <color name="hf_v13_orange">#FF813B</color>
+    <color name="hf_v13_orange_start">#FF984F</color>
+    <color name="hf_v13_orange_end">#FF7028</color>
+    <color name="hf_v13_green">#39DE83</color>
+    <color name="hf_v13_hairline">#292A34</color>
+    <color name="hf_v13_icon_tile">#2C221B</color>
+    <color name="hf_v13_chip_idle">#CC16161C</color>
+    <color name="hf_v13_chip_on">#CC10301C</color>
+</resources>

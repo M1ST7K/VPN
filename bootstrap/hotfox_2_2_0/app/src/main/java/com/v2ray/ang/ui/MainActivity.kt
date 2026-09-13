@@ -230,9 +230,15 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.root.findViewById<android.view.View>(R.id.row_subscription)?.setOnClickListener {
             showSection(UiSection.SUBSCRIPTION)
         }
+        binding.root.findViewById<android.view.View>(R.id.home_pro_chip)?.setOnClickListener {
+            showSection(UiSection.SUBSCRIPTION)
+        }
         binding.root.findViewById<android.view.View>(R.id.row_shadow)?.setOnClickListener {
             startActivity(Intent(this, HotfoxShadowActivity::class.java))
         }
+        HotfoxHomeV13.bindShadowSwitch(
+            binding.root.findViewById(R.id.switch_home_shadow),
+        )
         binding.root.findViewById<android.view.View>(R.id.layout_connection_note)?.setOnClickListener {
             HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
         }
@@ -318,8 +324,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenConnection.isVisible = section == UiSection.CONNECTION
         binding.screenServers.isVisible = section == UiSection.SERVERS
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
-        binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)?.isVisible =
-            section == UiSection.CONNECTION
+        binding.root.findViewById<View>(R.id.hf_header)?.isVisible = section != UiSection.CONNECTION
+        binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)?.isVisible = false
         binding.root.findViewById<android.widget.ImageView>(R.id.home_planet_backdrop)?.isVisible =
             section == UiSection.CONNECTION
         binding.tvHeaderMicrocopy.text = when (section) {
@@ -334,7 +340,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             UiSection.SUBSCRIPTION -> HotfoxNavBinder.Destination.SUBSCRIPTION
             UiSection.SETTINGS -> HotfoxNavBinder.Destination.SETTINGS
         }
-        val protectedLook = lastVisualState == ConnectionVisualState.CONNECTED && section == UiSection.CONNECTION
         HotfoxNavBinder.bind(
             binding.root,
             dest,
@@ -342,7 +347,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             onServers = { showSection(UiSection.SERVERS) },
             onSubscription = { showSection(UiSection.SUBSCRIPTION) },
             onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
-            connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
+            connectionLabelRes = R.string.hotfox_nav_home,
             connectionActive = section == UiSection.CONNECTION,
         )
         if (section == UiSection.SUBSCRIPTION || section == UiSection.CONNECTION) refreshDashboard()
@@ -868,8 +873,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             applyRunningState(false, isRunning)
         }
         mainViewModel.tunnelTraffic.observe(this) { (txBytes, rxBytes) ->
-            binding.tvDownloaded.text = "↓ ${HotfoxTrafficFormatter.formatBytes(rxBytes)}"
-            binding.tvUploaded.text = "↑ ${HotfoxTrafficFormatter.formatBytes(txBytes)}"
+            binding.tvDownloaded.text = HotfoxTrafficFormatter.formatBytes(rxBytes)
+            binding.tvUploaded.text = HotfoxTrafficFormatter.formatBytes(txBytes)
         }
         mainViewModel.tunnelHealth.observe(this) { status ->
             if (mainViewModel.isRunning.value == true) {
@@ -1192,7 +1197,10 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 val hours = totalSeconds / 3600L
                 val minutes = (totalSeconds % 3600L) / 60L
                 val seconds = totalSeconds % 60L
-                binding.tvVpnStatus.text = String.format(java.util.Locale.US, "%02d:%02d:%02d", hours, minutes, seconds)
+                binding.tvVpnStatus.text = getString(
+                    R.string.hotfox_home_subtitle_online,
+                    String.format(java.util.Locale.US, "%02d:%02d:%02d", hours, minutes, seconds),
+                )
                 delay(1000L)
             }
         }
@@ -1202,7 +1210,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         connectionClockJob?.cancel()
         connectionClockJob = null
         if (reset) {
-            binding.tvVpnStatus.setText(R.string.hotfox_disconnected_body)
+            binding.tvVpnStatus.setText(R.string.hotfox_home_subtitle_disconnected)
         }
     }
 
@@ -1210,57 +1218,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         visual: ConnectionVisualState,
         headline: ConnectionUiMapper.Headline,
     ) {
-        val hero = binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)
-        val backdrop = binding.root.findViewById<android.widget.ImageView>(R.id.home_planet_backdrop)
-        val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
-        val rail = binding.root.findViewById<android.widget.ImageView>(R.id.img_connecting_rail)
-        val stages = binding.root.findViewById<android.view.View>(R.id.layout_connecting_stages)
-        val metrics = binding.root.findViewById<android.view.View>(R.id.layout_protected_metrics)
-        val note = binding.root.findViewById<android.view.View>(R.id.layout_connection_note)
-        val rows = binding.root.findViewById<android.view.View>(R.id.layout_connection_rows)
-        ring?.isVisible = false
         val onHome = currentSection == UiSection.CONNECTION
-        hero?.isVisible = onHome
-        backdrop?.isVisible = onHome
-        hero?.setHeroLayers(showPlanet = false, showFox = true)
-        hero?.setMode(HotFoxHeroMode.HOME_DISCONNECTED)
-        when (visual) {
-            ConnectionVisualState.CONNECTING -> {
-                rail?.isVisible = true
-                stages?.isVisible = true
-                metrics?.isVisible = false
-                note?.visibility = android.view.View.INVISIBLE
-                rows?.alpha = 1f
-                binding.connectAction.setBackgroundResource(R.drawable.hf_native_progress)
-                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_orange))
-                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.hf_stop_cream, 0, 0, 0)
-                binding.tvVpnStatus.setText(R.string.hotfox_connecting_body)
-            }
-            ConnectionVisualState.CONNECTED -> {
-                rail?.isVisible = false
-                stages?.isVisible = false
-                metrics?.isVisible = true
-                note?.visibility = android.view.View.INVISIBLE
-                rows?.alpha = 1f
-                binding.connectAction.setBackgroundResource(R.drawable.hf_native_secondary)
-                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_cream))
-                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-            }
-            else -> {
-                rail?.isVisible = false
-                stages?.isVisible = false
-                metrics?.isVisible = false
-                note?.isVisible = true
-                rows?.alpha = 1f
-                binding.connectAction.setBackgroundResource(R.drawable.hf_native_primary)
-                binding.connectAction.setTextColor(ContextCompat.getColor(this, R.color.hf_asset_ink))
-                binding.connectAction.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hf_arrow_right_ink, 0)
-                if (visual == ConnectionVisualState.DISCONNECTED) {
-                    binding.tvVpnStatus.setText(R.string.hotfox_disconnected_body)
-                }
-            }
-        }
-        val protectedLook = visual == ConnectionVisualState.CONNECTED && currentSection == UiSection.CONNECTION
+        HotfoxHomeV13.apply(this, visual, onHome)
         HotfoxNavBinder.bind(
             binding.root,
             when (currentSection) {
@@ -1273,7 +1232,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             onServers = { showSection(UiSection.SERVERS) },
             onSubscription = { showSection(UiSection.SUBSCRIPTION) },
             onSettings = { startActivity(Intent(this, HotfoxSettingsActivity::class.java)) },
-            connectionLabelRes = if (protectedLook) R.string.hotfox_nav_connection else R.string.hotfox_nav_home,
+            connectionLabelRes = R.string.hotfox_nav_home,
             connectionActive = currentSection == UiSection.CONNECTION,
         )
         headline.let { }
@@ -1415,20 +1374,14 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun refreshSmartRouting() {
+        HotfoxRoutingStore.load()
+        binding.tvSmartRoutingMode.setText(R.string.hotfox_home_smart)
+        binding.tvSmartRoutingSummary.setText(R.string.hotfox_home_smart_caption)
         val snapshot = HotfoxRoutingStore.load()
-        binding.tvSmartRoutingMode.text = snapshot.uiLabel()
-        binding.tvSmartRoutingSummary.setText(
-            when (snapshot.mode) {
-                HotfoxRoutingMode.SMART -> R.string.hotfox_home_route_smart_summary
-                HotfoxRoutingMode.GLOBAL -> R.string.hotfox_route_global_summary
-                HotfoxRoutingMode.INCLUDE_APPS -> R.string.hotfox_route_include_summary
-                HotfoxRoutingMode.EXCLUDE_APPS -> R.string.hotfox_route_exclude_summary
-                HotfoxRoutingMode.CUSTOM -> R.string.hotfox_route_custom_summary
-            },
-        )
         val lan = if (snapshot.bypassLanOnTun()) "LAN" else "без LAN"
         val shadow = if (HotfoxShadowStore.isShadowAuto()) HotfoxShadowPolicy.MODE_LABEL else "Shadow: выкл"
         binding.tvRoutingInline.text = "${snapshot.uiLabel()} · $lan · DNS VPN · $shadow"
+        HotfoxHomeV13.bindShadowSwitch(binding.root.findViewById(R.id.switch_home_shadow))
     }
 
     private fun animateRoutingCard() {
@@ -1475,12 +1428,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             autoPrefix = { getString(R.string.hotfox_auto_prefix, it) },
             shadowAuto = HotfoxShadowStore.isShadowAuto(),
         )
-        binding.tvAutoMode.text = if (HotfoxServerSelection.isAutoMode()) {
-            getString(R.string.hotfox_auto_server)
-        } else {
-            getString(R.string.hotfox_selected_server_label)
-        }
-        binding.tvSelectedServer.text = selectedLabel
+        val auto = HotfoxServerSelection.isAutoMode()
         val affiliation = selectedGuid?.let(MmkvManager::decodeServerAffiliationInfo)
         val delayMs = affiliation?.testDelayMillis
         val health = selectedGuid?.let { HotfoxServerSelection.health.snapshot(it) }
@@ -1488,12 +1436,52 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         val countryOrHint = presentation.country
             ?.takeIf { it.isNotBlank() && it != "—" && it != "_" }
             ?: selected?.description?.takeIf { it.isNotBlank() && it != "—" && it != "_" }
-        val hint = listOfNotNull(
-            countryOrHint,
-            delayLabel?.takeIf { it.isNotBlank() && it != "—" && it != "_" },
-        ).joinToString(" · ")
-        binding.tvSelectedServerHint.isVisible = hint.isNotBlank()
-        binding.tvSelectedServerHint.text = hint
+        val serverIcon = binding.root.findViewById<android.widget.ImageView>(R.id.img_home_server_icon)
+        if (auto) {
+            binding.tvSelectedServer.setText(R.string.hotfox_home_auto_title)
+            binding.tvSelectedServerHint.isVisible = true
+            binding.tvSelectedServerHint.setText(R.string.hotfox_home_auto_subtitle)
+            binding.tvAutoMode.setText(R.string.hotfox_home_auto_badge)
+            binding.tvAutoMode.setBackgroundResource(R.drawable.hf_v13_badge)
+            binding.tvAutoMode.setTextColor(ContextCompat.getColor(this, R.color.hf_v13_muted))
+            serverIcon?.setImageResource(R.drawable.ic_hotfox_globe)
+            serverIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.hf_v13_orange),
+            )
+        } else {
+            binding.tvSelectedServer.text = city ?: selectedLabel
+            val connected = session.isProtected()
+            val caption = listOfNotNull(
+                countryOrHint,
+                if (connected) getString(R.string.hotfox_home_connected_caption) else getString(R.string.hotfox_home_best_server),
+            ).joinToString(" · ")
+            binding.tvSelectedServerHint.isVisible = caption.isNotBlank()
+            binding.tvSelectedServerHint.text = caption
+            val ping = delayLabel?.takeIf { it.isNotBlank() && it != "—" && it != "_" }
+            binding.tvAutoMode.text = ping ?: ""
+            binding.tvAutoMode.isVisible = ping != null
+            binding.tvAutoMode.setBackgroundResource(
+                if (connected) R.drawable.hf_v13_badge_green else R.drawable.hf_v13_badge,
+            )
+            binding.tvAutoMode.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    if (connected) R.color.hf_v13_green else R.color.hf_v13_muted,
+                ),
+            )
+            val looksGerman = (countryOrHint?.contains("герман", ignoreCase = true) == true) ||
+                (city?.contains("франкфурт", ignoreCase = true) == true) ||
+                (city?.contains("frankfurt", ignoreCase = true) == true)
+            if (looksGerman) {
+                serverIcon?.setImageResource(R.drawable.hotfox_flag_de)
+                serverIcon?.imageTintList = null
+            } else {
+                serverIcon?.setImageResource(R.drawable.ic_hotfox_globe)
+                serverIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.hf_v13_orange),
+                )
+            }
+        }
         if (lastServerLabel != null && lastServerLabel != selectedLabel) {
             binding.selectedServerCard.alpha = 0.55f
             binding.selectedServerCard.animate().alpha(1f).setDuration(280L).start()
@@ -1510,6 +1498,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
         val commercialState = CommerceCoordinator.get(this).presentationSnapshot()
         applyCommercialOnboarding(commercialState)
+        HotfoxHomeV13.bindPro(
+            binding.root.findViewById(R.id.home_pro_chip),
+            HotfoxHomeV13.isPro(commercialState),
+        ) { showSection(UiSection.SUBSCRIPTION) }
+        HotfoxHomeV13.bindShadowSwitch(binding.root.findViewById(R.id.switch_home_shadow))
 
         if (subscription == null && CommerceAccessResolver.showPremiumOnboarding(commercialState)) {
             subscriptionUrlForCopy = null
@@ -1518,7 +1511,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.tvSubscriptionRemaining.text = getString(R.string.hotfox_expiry_unknown)
             binding.tvSubscriptionUrl.text = "—"
             binding.tvSubscriptionServers.text = serverCount.toString()
-            binding.tvSubscriptionSnapshot.text = ""
+            binding.tvSubscriptionSnapshot.setText(R.string.hotfox_home_subscription_caption)
             return
         }
 
@@ -1530,7 +1523,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.tvSubscriptionUrl.text = "—"
             binding.tvSubscriptionServers.text = serverCount.toString()
             bindCommercialStatus(commercialState, expiryKnown = false)
-            binding.tvSubscriptionSnapshot.text = ""
+            binding.tvSubscriptionSnapshot.setText(R.string.hotfox_home_subscription_caption)
             return
         }
 
@@ -1580,10 +1573,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             shown.remainingDays == 0 -> getString(R.string.hotfox_days_left, 0)
             else -> getString(R.string.hotfox_days_left, shown.remainingDays)
         }
-        binding.tvSubscriptionSnapshot.text = listOfNotNull(
-            shown.expiryLabel?.let { "до $it" },
-            shown.remainingDays?.let { getString(R.string.hotfox_days_left, it) },
-        ).joinToString(" · ")
+        binding.tvSubscriptionSnapshot.setText(R.string.hotfox_home_subscription_caption)
     }
 
     override fun onPause() {

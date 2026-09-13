@@ -42,10 +42,22 @@ object HotfoxNavBinder {
         val muted = ContextCompat.getColor(root.context, R.color.hf_asset_muted)
         val orange = ContextCompat.getColor(root.context, R.color.hf_asset_orange)
 
-        homeIcon?.setImageResource(if (selected == Destination.HOME) R.drawable.hf_home_active else R.drawable.hf_home_muted)
-        serversIcon?.setImageResource(if (selected == Destination.SERVERS) R.drawable.hf_servers_orange else R.drawable.hf_servers_muted)
-        subIcon?.setImageResource(if (selected == Destination.SUBSCRIPTION) R.drawable.hf_crown_orange else R.drawable.hf_crown_muted)
-        settingsIcon?.setImageResource(if (selected == Destination.SETTINGS) R.drawable.hf_settings_active else R.drawable.hf_settings_muted)
+        homeIcon?.setImageResource(R.drawable.ic_hotfox_home)
+        serversIcon?.setImageResource(R.drawable.ic_hotfox_servers)
+        subIcon?.setImageResource(R.drawable.ic_hotfox_crown)
+        settingsIcon?.setImageResource(R.drawable.ic_hotfox_settings)
+        homeIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
+            if (selected == Destination.HOME) orange else muted,
+        )
+        serversIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
+            if (selected == Destination.SERVERS) orange else muted,
+        )
+        subIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
+            if (selected == Destination.SUBSCRIPTION) orange else muted,
+        )
+        settingsIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
+            if (selected == Destination.SETTINGS) orange else muted,
+        )
 
         homeLabel?.setText(connectionLabelRes)
         homeLabel?.setTextColor(
