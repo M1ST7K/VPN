@@ -1,0 +1,29 @@
+{
+  "version": "V13 repository handoff / approved v2 artwork",
+  "references": [
+    {
+      "state": "disconnected",
+      "previousScreen": "05",
+      "path": "design/references/hotfox-01-disconnected-v2.png",
+      "width": 853,
+      "height": 1844,
+      "sha256": "5423619e75768d9114082ce2410ea888a0deccfa3266a304022fe88fdb20a638"
+    },
+    {
+      "state": "connecting",
+      "previousScreen": "06",
+      "path": "design/references/hotfox-02-connecting-v2.png",
+      "width": 853,
+      "height": 1844,
+      "sha256": "a6036ab831217fac16a17fbc40bdcde4b1ec8b06b8646df2106dc9df6c9c09f2"
+    },
+    {
+      "state": "connected",
+      "previousScreen": "07",
+      "path": "design/references/hotfox-03-connected-v2.png",
+      "width": 853,
+      "height": 1844,
+      "sha256": "29986543c2cdd7cefd8919c75ac33c516a08431eadde779e9051b1171b33fc73"
+    }
+  ]
+}

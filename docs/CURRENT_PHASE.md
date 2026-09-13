@@ -1,3 +1,25 @@
+# CURRENT OWNER TASK — HOTFOX V13 APPROVED HOME IMPLEMENTATION
+
+Status: **ACTIVE — owner approved three new Home concepts and requested committing their PNG assets and starting Cursor implementation to match them 1:1.**
+
+Active execution prompt: `design/HOTFOX_CURSOR_V13_APPROVED_HOME_EXECUTION.md`
+
+Active rule: `.cursor/rules/33-hotfox-v13-approved-home.mdc`
+
+Latest visual references: `design/hotfox_home_v13/design/references/`, all three v2 PNGs, 853×1844. Checksums: `design/hotfox_home_v13/REFERENCE_LOCK.json`.
+
+For Home Disconnected / Connecting / Connected visuals, **V13 supersedes conflicting V12 and earlier geometry/art/layout instructions**. This is the new owner-authorized design, not a return to the old 05/06/07 art. Preserve measured non-overlapping layout and all runtime/security/accessibility contracts. Other screens retain their existing requirements.
+
+The full asset kit is under `design/hotfox_home_v13/`; 22 runtime PNGs are also in the versioned bootstrap overlay. The actual Home uses Views/ViewBinding; the included Compose example is a visual reference, not authorization to migrate the framework or use absolute-positioned production controls.
+
+Start implementation on this PR branch. Build, capture all three real UI states, compare to the approved references, fix discrepancies and report evidence. Current asset-package checks are not an APK build or visual acceptance. Runtime/physical release gates remain open as documented below.
+
+---
+
+# HISTORICAL HOME TASK — V12
+
+The following V12 task is superseded by V13 for conflicting Home visuals. Its no-overlap and measured-layout principles remain binding. Its older status labels and geometry are historical, not the current task.
+
 # CURRENT OWNER TASK — HOTFOX V12 NO-OVERLAP HOME REBUILD
 
 Status: **ACTIVE — owner rejected the latest Home composition because functional layers still overlap. Rebuild the Home layout architecture now.**
@@ -111,3 +133,4 @@ All phases in the runtime-repair prompt, including reconstruction, P0/P1 impleme
 - fake CONNECTED / fake ping / TLS bypass;
 - exposing secrets;
 - changing `docs/AI_REVIEW_PHASE_ID` on this feature branch.
+
