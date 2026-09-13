@@ -162,7 +162,7 @@
                 android:layout_height="16dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_hotfox_crown"
-                android:tint="@color/hf_v13_orange" />
+                app:tint="@color/hf_v13_orange" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -331,7 +331,7 @@
                     android:layout_height="18dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_lock"
-                    android:tint="@color/hf_v13_muted" />
+                    app:tint="@color/hf_v13_muted" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -415,7 +415,7 @@
                         android:layout_height="16dp"
                         android:importantForAccessibility="no"
                         android:src="@drawable/ic_hotfox_download"
-                        android:tint="@color/hf_v13_green" />
+                        app:tint="@color/hf_v13_green" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -452,7 +452,7 @@
                         android:layout_height="16dp"
                         android:importantForAccessibility="no"
                         android:src="@drawable/ic_hotfox_upload"
-                        android:tint="@color/hf_v13_orange" />
+                        app:tint="@color/hf_v13_orange" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -476,6 +476,7 @@
                     android:id="@+id/layout_route_nodes"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
+                    android:orientation="horizontal"
                     android:visibility="gone" />
             </LinearLayout>
         </FrameLayout>
@@ -567,7 +568,7 @@
                         android:layout_gravity="center"
                         android:importantForAccessibility="no"
                         android:src="@drawable/ic_hotfox_globe"
-                        android:tint="@color/hf_v13_orange" />
+                        app:tint="@color/hf_v13_orange" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -619,7 +620,7 @@
                     android:layout_marginStart="6dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_chevron"
-                    android:tint="@color/hf_v13_muted" />
+                    app:tint="@color/hf_v13_muted" />
             </LinearLayout>
         </LinearLayout>
 
@@ -648,7 +649,7 @@
                     android:layout_height="22dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_shield"
-                    android:tint="@color/hf_v13_muted" />
+                    app:tint="@color/hf_v13_muted" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -706,7 +707,7 @@
                     android:layout_height="22dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_route"
-                    android:tint="@color/hf_v13_muted" />
+                    app:tint="@color/hf_v13_muted" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -740,7 +741,7 @@
                     android:layout_height="16dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_chevron"
-                    android:tint="@color/hf_v13_muted" />
+                    app:tint="@color/hf_v13_muted" />
             </LinearLayout>
         </LinearLayout>
 
@@ -762,7 +763,7 @@
                 android:layout_height="22dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_hotfox_crown"
-                android:tint="@color/hf_v13_orange" />
+                app:tint="@color/hf_v13_orange" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -795,7 +796,7 @@
                 android:layout_height="16dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_hotfox_chevron"
-                android:tint="@color/hf_v13_muted" />
+                app:tint="@color/hf_v13_muted" />
         </LinearLayout>
     </LinearLayout>
 
@@ -809,6 +810,7 @@
             android:id="@+id/layout_connection_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="gone" />
     </FrameLayout>
 
@@ -1102,6 +1104,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="56dp"
                                 android:gravity="center_vertical"
+                                android:orientation="horizontal"
                                 android:paddingStart="16dp"
                                 android:paddingEnd="16dp">
 
@@ -1145,6 +1148,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="56dp"
                                 android:gravity="center_vertical"
+                                android:orientation="horizontal"
                                 android:paddingStart="16dp"
                                 android:paddingEnd="16dp">
 
