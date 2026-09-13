@@ -180,7 +180,7 @@
                             android:visibility="gone" />
                     </FrameLayout>
 
-                    <FrameLayout
+                    <LinearLayout
                         android:id="@+id/state_panel_slot"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/hf_home_state_panel_height"
@@ -188,7 +188,16 @@
                         android:layout_marginEnd="@dimen/hf_page_gutter"
                         android:layout_marginTop="8dp"
                         android:clipChildren="true"
-                        android:clipToPadding="true">
+                        android:clipToPadding="true"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:id="@+id/state_panel_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:clipChildren="true"
+                            android:clipToPadding="true">
 
                         <LinearLayout
                             android:id="@+id/layout_connecting_stages"
@@ -265,7 +274,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="top"
                             android:orientation="vertical"
-                            android:paddingTop="4dp"
+                            android:paddingTop="0dp"
                             android:visibility="gone">
 
                             <LinearLayout
@@ -350,7 +359,7 @@
                                 android:id="@+id/layout_route_nodes"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="4dp"
                                 android:gravity="center"
                                 android:orientation="horizontal">
 
@@ -362,18 +371,18 @@
                                     android:orientation="vertical">
 
                                     <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
                                         android:importantForAccessibility="no"
                                         android:src="@drawable/hf_person_muted" />
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginTop="4dp"
+                                        android:layout_marginTop="2dp"
                                         android:text="@string/hotfox_route_you"
                                         android:textColor="@color/hf_asset_muted"
-                                        android:textSize="11sp" />
+                                        android:textSize="10sp" />
                                 </LinearLayout>
 
                                 <ImageView
@@ -391,18 +400,18 @@
                                     android:orientation="vertical">
 
                                     <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
                                         android:importantForAccessibility="no"
                                         android:src="@drawable/hf_shield_orange" />
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginTop="4dp"
+                                        android:layout_marginTop="2dp"
                                         android:text="@string/hotfox_route_hotfox"
                                         android:textColor="@color/hf_asset_muted"
-                                        android:textSize="11sp" />
+                                        android:textSize="10sp" />
                                 </LinearLayout>
 
                                 <ImageView
@@ -420,18 +429,18 @@
                                     android:orientation="vertical">
 
                                     <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
                                         android:importantForAccessibility="no"
                                         android:src="@drawable/hf_globe_muted" />
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginTop="4dp"
+                                        android:layout_marginTop="2dp"
                                         android:text="@string/hotfox_route_internet"
                                         android:textColor="@color/hf_asset_muted"
-                                        android:textSize="11sp" />
+                                        android:textSize="10sp" />
                                 </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
@@ -448,12 +457,12 @@
                             android:textColor="@color/hf_asset_cream"
                             android:textSize="13sp"
                             android:visibility="gone" />
+                        </FrameLayout>
 
                         <FrameLayout
                             android:id="@+id/connect_action_host"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/hf_home_cta_height"
-                            android:layout_gravity="bottom">
+                            android:layout_height="@dimen/hf_home_cta_height">
 
                             <TextView
                                 android:id="@+id/connect_action"
@@ -473,7 +482,7 @@
                                 android:textColor="@color/hf_asset_ink"
                                 android:textSize="16sp" />
                         </FrameLayout>
-                    </FrameLayout>
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/layout_connection_rows"
