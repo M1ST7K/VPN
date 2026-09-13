@@ -257,7 +257,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
         setupGroupTab()
         setupViewModel()
-        SubscriptionUpdater.sync()
+        binding.root.post {
+            if (!isFinishing) SubscriptionUpdater.sync()
+        }
         mainViewModel.reloadServerList()
         refreshDashboard()
         refreshSmartRouting()

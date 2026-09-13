@@ -55,13 +55,6 @@ object HotfoxHomeV13 {
         val green = ContextCompat.getColor(activity, R.color.hf_v13_green)
 
         fun android.widget.TextView.startIcon(res: Int, tint: Int, dp: Int = 18) {
-            val button = this as? com.google.android.material.button.MaterialButton
-            if (button != null) {
-                button.setIconResource(res)
-                button.iconTint = android.content.res.ColorStateList.valueOf(tint)
-                button.iconSize = (dp * resources.displayMetrics.density).toInt()
-                return
-            }
             val d = ContextCompat.getDrawable(context, res)?.mutate() ?: return
             d.setTint(tint)
             val px = (dp * resources.displayMetrics.density).toInt().coerceAtLeast(1)
@@ -94,11 +87,24 @@ object HotfoxHomeV13 {
                 cta?.setText(R.string.hotfox_home_cancel)
                 cta?.startIcon(R.drawable.ic_hotfox_stop, orange, 18)
                 host.findViewById<LinearProgressIndicator>(R.id.home_connecting_progress)?.let { bar ->
-                    if (HotfoxMotion.reducedMotion(activity)) {
-                        bar.isIndeterminate = false
-                        bar.setProgressCompat(42, false)
-                    } else {
-                        bar.isIndeterminate = true
+                    bar.post {
+                        val reduced = HotfoxMotion.reducedMotion(activity)
+                        try {
+                            if (reduced) {
+                                if (bar.isIndeterminate) {
+                                    bar.isVisible = false
+                                    bar.isIndeterminate = false
+                                    bar.isVisible = true
+                                }
+                                bar.setProgressCompat(42, false)
+                            } else if (!bar.isIndeterminate) {
+                                bar.isVisible = false
+                                bar.isIndeterminate = true
+                                bar.isVisible = true
+                            }
+                        } catch (_: RuntimeException) {
+                            // Keep the XML indicator mode rather than crashing Home chrome.
+                        }
                     }
                 }
             }

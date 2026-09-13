@@ -100,8 +100,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             }
             ta.recycle()
         }
-        planet.setImageResource(R.drawable.hf_native_planet_sphere)
-        fox.setImageResource(R.drawable.hotfox_fox_master)
+        ensureArtworkLoaded()
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
             val bars = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
@@ -129,12 +128,14 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             return
         }
         fox.visibility = if (show) VISIBLE else GONE
+        ensureArtworkLoaded()
     }
 
     fun setShowPlanet(show: Boolean) {
         val vis = if (show) VISIBLE else GONE
         planet.visibility = vis
         glow.visibility = vis
+        ensureArtworkLoaded()
         // Fade/nav scrims stay up so controls and navigation never sit on raw artwork.
     }
 
@@ -143,18 +144,23 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         setShowFox(showFox)
     }
 
+    private fun ensureArtworkLoaded() {
+        if (planet.visibility == VISIBLE && planet.drawable == null) {
+            planet.setImageResource(R.drawable.hf_native_planet_sphere)
+        }
+        if (!backdrop && fox.visibility == VISIBLE && fox.drawable == null) {
+            fox.setImageResource(R.drawable.hotfox_fox_master)
+        }
+    }
+
     fun setAnimationMode(mode: AnimationMode) {
         animationMode = mode
         if (isAttachedToWindow) restartBreath()
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        requestLayout()
-    }
-
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        ensureArtworkLoaded()
         restartBreath()
         requestApplyInsets()
         requestLayout()
@@ -175,6 +181,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
 
     private fun layoutHero(w: Int, h: Int) {
         if (w < 2 || h < 2) return
+        ensureArtworkLoaded()
         if (backdrop) {
             layoutBackdrop(w, h)
             return

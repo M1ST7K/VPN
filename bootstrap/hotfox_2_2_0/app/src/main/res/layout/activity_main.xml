@@ -491,30 +491,23 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="8dp">
 
-        <com.google.android.material.button.MaterialButton
+        <!-- Custom selector backgrounds belong on AppCompatButton, not MaterialButton. -->
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/connect_action"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@drawable/hf_v13_primary"
             android:clickable="true"
+            android:drawablePadding="10dp"
             android:focusable="true"
             android:gravity="center"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
             android:minHeight="56dp"
             android:stateListAnimator="@null"
             android:text="@string/hotfox_connect"
             android:textAllCaps="false"
             android:textColor="@color/hf_v13_text"
             android:textSize="16sp"
-            android:textStyle="bold"
-            app:backgroundTint="@null"
-            app:icon="@drawable/ic_hotfox_power"
-            app:iconGravity="textStart"
-            app:iconPadding="10dp"
-            app:iconSize="20dp"
-            app:iconTint="@color/hf_v13_text"
-            app:rippleColor="#33FFFFFF" />
+            android:textStyle="bold" />
     </FrameLayout>
 
     <LinearLayout
