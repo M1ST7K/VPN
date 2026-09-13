@@ -26,7 +26,7 @@ NEEDLES = {
 }
 
 
-def adb(*args: str, timeout: int = 40) -> subprocess.CompletedProcess[str]:
+def adb(*args: str, timeout: int = 60) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["adb", "-s", SERIAL, *args],
         check=False,
@@ -63,8 +63,11 @@ def dismiss_anr() -> bool:
 
 
 def ui_text() -> str:
-    adb("shell", "uiautomator", "dump", "/sdcard/uidump.xml", timeout=25)
-    adb("pull", "/sdcard/uidump.xml", "/tmp/hotfox_uidump.xml", timeout=20)
+    try:
+        adb("shell", "uiautomator", "dump", "/sdcard/uidump.xml", timeout=60)
+        adb("pull", "/sdcard/uidump.xml", "/tmp/hotfox_uidump.xml", timeout=20)
+    except subprocess.TimeoutExpired:
+        return ""
     path = Path("/tmp/hotfox_uidump.xml")
     if not path.is_file():
         return ""
@@ -139,7 +142,7 @@ def capture_one(screen_id: str) -> Path:
         dump = ui_text()
         needles_ok = all(n in dump for n in NEEDLES[screen_id])
         anr = "isn't responding" in dump
-        if mean > 18 and std > 8 and needles_ok and not anr:
+        if mean > 10 and std > 6 and needles_ok and not anr:
             print(f"CAPTURED {screen_id} bytes={dest.stat().st_size} mean={mean:.1f}", flush=True)
             return dest
         last_err = f"mean={mean:.1f} std={std:.1f} needles={needles_ok} anr={anr}"

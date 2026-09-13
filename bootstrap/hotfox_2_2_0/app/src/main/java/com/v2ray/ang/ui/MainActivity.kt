@@ -320,7 +320,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.screenSubscription.isVisible = section == UiSection.SUBSCRIPTION
         binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)?.isVisible =
             section == UiSection.CONNECTION
-        binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_planet_backdrop)?.isVisible =
+        binding.root.findViewById<android.widget.ImageView>(R.id.home_planet_backdrop)?.isVisible =
             section == UiSection.CONNECTION
         binding.tvHeaderMicrocopy.text = when (section) {
             UiSection.CONNECTION -> getString(R.string.hotfox_header_microcopy_connection)
@@ -1211,7 +1211,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         headline: ConnectionUiMapper.Headline,
     ) {
         val hero = binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_hero)
-        val backdrop = binding.root.findViewById<HotFoxHeroArtwork>(R.id.home_planet_backdrop)
+        val backdrop = binding.root.findViewById<android.widget.ImageView>(R.id.home_planet_backdrop)
         val ring = binding.root.findViewById<android.widget.ImageView>(R.id.img_art_ring)
         val rail = binding.root.findViewById<android.widget.ImageView>(R.id.img_connecting_rail)
         val stages = binding.root.findViewById<android.view.View>(R.id.layout_connecting_stages)
@@ -1224,8 +1224,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         backdrop?.isVisible = onHome
         hero?.setHeroLayers(showPlanet = false, showFox = true)
         hero?.setMode(HotFoxHeroMode.HOME_DISCONNECTED)
-        backdrop?.setHeroLayers(showPlanet = true, showFox = false)
-        backdrop?.setMode(HotFoxHeroMode.HOME_DISCONNECTED)
         when (visual) {
             ConnectionVisualState.CONNECTING -> {
                 rail?.isVisible = true

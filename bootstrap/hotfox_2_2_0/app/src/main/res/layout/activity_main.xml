@@ -14,21 +14,16 @@
         android:clipChildren="true"
         android:clipToPadding="true">
 
-        <com.v2ray.ang.ui.HotFoxHeroArtwork
+        <ImageView
             android:id="@+id/home_planet_backdrop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="false"
-            android:clipChildren="false"
-            android:clipToPadding="false"
+            android:contentDescription="@null"
             android:focusable="false"
             android:importantForAccessibility="no"
-            app:hfHeroAnimate="false"
-            app:hfHeroBackdrop="true"
-            app:hfHeroClip="false"
-            app:hfHeroShowFox="false"
-            app:hfHeroShowPlanet="true"
-            app:hfHeroVariant="homeDisconnected" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/hf_native_planet_backdrop" />
 
         <LinearLayout
             android:id="@+id/main_foreground"
