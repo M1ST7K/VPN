@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
@@ -47,11 +46,6 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
     private var breath: AnimatorSet? = null
     private var insetTopPx = 0
     private var insetBottomPx = 0
-    private var lastW = 0
-    private var lastH = 0
-    private var lastMode: HotFoxHeroMode? = null
-    private var lastInsetTop = -1
-    private var lastInsetBottom = -1
 
     init {
         clipChildren = false
@@ -104,7 +98,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             )
             insetTopPx = bars.top
             insetBottomPx = bars.bottom
-            applyComposition(force = true)
+            requestLayout()
             insets
         }
     }
@@ -112,7 +106,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
     fun setMode(next: HotFoxHeroMode) {
         if (mode == next) return
         mode = next
-        applyComposition(force = true)
+        requestLayout()
     }
 
     fun setVariant(next: HotfoxHeroComposition.Variant) {
@@ -142,14 +136,14 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        applyComposition()
+        requestLayout()
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        applyComposition(force = true)
         restartBreath()
         requestApplyInsets()
+        requestLayout()
     }
 
     override fun onDetachedFromWindow() {
@@ -161,96 +155,74 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
-    private fun applyComposition(force: Boolean = false) {
-        val w = width
-        val h = height
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        layoutHero(right - left, bottom - top)
+    }
+
+    private fun layoutHero(w: Int, h: Int) {
         if (w < 2 || h < 2) return
-        val insetTop = insetTopPx.toFloat()
-        val insetBottom = paddingBottom.toFloat()
-        if (
-            !force &&
-            w == lastW &&
-            h == lastH &&
-            mode == lastMode &&
-            insetTopPx == lastInsetTop &&
-            insetBottomPx == lastInsetBottom
-        ) {
-            return
-        }
         val wf = w.toFloat()
         val hf = h.toFloat()
+        val loc = IntArray(2)
+        getLocationOnScreen(loc)
+        val screenW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
+        val screenH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
         val planetDrawable = planet.drawable
         val dw = planetDrawable?.intrinsicWidth?.toFloat()?.takeIf { it > 0f } ?: 1024f
         val dh = planetDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f } ?: 1024f
-        val planetLayout = HotfoxHeroComposition.planet(
-            wf, hf, dw, dh, mode, insetTop, insetBottom,
-        )
-        layoutLayer(
-            planet,
-            planetLayout.diameter.toInt().coerceAtLeast(1),
-            planetLayout.diameter.toInt().coerceAtLeast(1),
-            planetLayout.left,
-            planetLayout.top,
-        )
+        val planetLayout = HotfoxHeroComposition.planet(screenW, screenH, dw, dh, mode)
         planet.alpha = planetLayout.alpha
         planet.scaleType = ImageView.ScaleType.FIT_CENTER
+        val pd = planetLayout.diameter.toInt().coerceAtLeast(1)
+        place(planet, planetLayout.left - loc[0], planetLayout.top - loc[1], pd, pd)
 
-        val glowLayout = HotfoxHeroComposition.glow(wf, hf, mode, insetTop, insetBottom)
-        layoutLayer(glow, glowLayout.diameter, glowLayout.diameter, glowLayout.left, glowLayout.top)
+        val glowLayout = HotfoxHeroComposition.glow(screenW, screenH, mode)
         glow.alpha = glowLayout.alpha
+        place(
+            glow,
+            glowLayout.left - loc[0],
+            glowLayout.top - loc[1],
+            glowLayout.diameter,
+            glowLayout.diameter,
+        )
 
         val foxDrawable = fox.drawable
         val foxDw = foxDrawable?.intrinsicWidth?.toFloat()?.takeIf { it > 0f }
             ?: HotfoxHeroComposition.FOX_INTRINSIC_WIDTH
         val foxDh = foxDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f }
             ?: HotfoxHeroComposition.FOX_INTRINSIC_HEIGHT
-        val foxLayout = HotfoxHeroComposition.fox(
-            wf, hf, mode, insetTop, insetBottom, foxDw, foxDh,
-        )
+        val foxLayout = HotfoxHeroComposition.fox(screenW, screenH, mode, drawableW = foxDw, drawableH = foxDh)
         fox.setPadding(0, 0, 0, 0)
         fox.scaleType = ImageView.ScaleType.FIT_CENTER
         fox.adjustViewBounds = false
-        layoutLayer(fox, foxLayout.widthPx, foxLayout.heightPx, foxLayout.left, foxLayout.top)
+        place(
+            fox,
+            foxLayout.left - loc[0],
+            foxLayout.top - loc[1],
+            foxLayout.widthPx,
+            foxLayout.heightPx,
+        )
 
         val blendH = if (HotfoxHeroComposition.isHome(mode)) {
             (h * 0.48f).toInt().coerceAtLeast(1)
         } else {
             (h * 0.42f).toInt().coerceAtLeast(1)
         }
-        val blendLp = blendBottom.layoutParams as LayoutParams
-        blendLp.width = LayoutParams.MATCH_PARENT
-        blendLp.height = blendH
-        blendLp.gravity = Gravity.BOTTOM
-        blendBottom.layoutParams = blendLp
-        blendBottom.bringToFront()
-
+        place(blendBottom, 0, h - blendH, w, blendH)
         val navH = (h * 0.12f).toInt().coerceAtLeast(1)
-        val navLp = navScrim.layoutParams as LayoutParams
-        navLp.width = LayoutParams.MATCH_PARENT
-        navLp.height = navH
-        navLp.gravity = Gravity.BOTTOM
-        navScrim.layoutParams = navLp
-        navScrim.bringToFront()
-
-        lastW = w
-        lastH = h
-        lastMode = mode
-        lastInsetTop = insetTopPx
-        lastInsetBottom = insetBottomPx
+        place(navScrim, 0, h - navH, w, navH)
     }
 
-    private fun layoutLayer(view: View, widthPx: Int, heightPx: Int, left: Int, top: Int) {
-        val lp = view.layoutParams as LayoutParams
-        lp.width = widthPx
-        lp.height = heightPx
-        lp.gravity = Gravity.TOP or Gravity.START
-        lp.leftMargin = 0
-        lp.rightMargin = 0
-        lp.marginStart = left
-        lp.marginEnd = 0
-        lp.topMargin = top
-        lp.bottomMargin = 0
-        view.layoutParams = lp
+    private fun place(view: View, x: Int, y: Int, widthPx: Int, heightPx: Int) {
+        val vw = widthPx.coerceAtLeast(1)
+        val vh = heightPx.coerceAtLeast(1)
+        view.measure(
+            MeasureSpec.makeMeasureSpec(vw, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(vh, MeasureSpec.EXACTLY),
+        )
+        view.layout(x, y, x + vw, y + vh)
+        view.translationX = 0f
+        view.translationY = 0f
     }
 
     private fun restartBreath() {
