@@ -1,0 +1,57 @@
+{
+  "task_id": "ONBOARDING-01-03-20260914",
+  "sha": "112308486236e3dd33685bbf9e42e0a713c7cc2f",
+  "locale": "ru-RU",
+  "density": 420,
+  "fontScale": "1.0",
+  "reference_crop": {
+    "01": [
+      24,
+      50,
+      474,
+      1050
+    ],
+    "02": [
+      499,
+      50,
+      948,
+      1050
+    ],
+    "03": [
+      974,
+      50,
+      1424,
+      1050
+    ]
+  },
+  "normalization": "LANCZOS resize of iOS-framed crop to Android actual; system bars kept; not EXACT",
+  "screens": [
+    {
+      "screen": "01",
+      "actual": "verification/ui/onboarding_01_03_20260914/actual/01.png",
+      "viewport": "1032x2231",
+      "actual_sha256": "7ab598439db25881c2c33683434a52f0db0ebe72b4235f8bcc663e67f11239dd",
+      "changed_pixels": 2281760,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    },
+    {
+      "screen": "02",
+      "actual": "verification/ui/onboarding_01_03_20260914/actual/02.png",
+      "viewport": "1032x2231",
+      "actual_sha256": "2b273699005c4efc62143af61e4fb9a580b8e1daa04d4c78864ef4f6575864a9",
+      "changed_pixels": 2294493,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    },
+    {
+      "screen": "03",
+      "actual": "verification/ui/onboarding_01_03_20260914/actual/03.png",
+      "viewport": "1032x2231",
+      "actual_sha256": "1ae361263d50e1af167d2474f6dae936e5b57541fe3df74c79925cc168060026",
+      "changed_pixels": 2277207,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    }
+  ]
+}

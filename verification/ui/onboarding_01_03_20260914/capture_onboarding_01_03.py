@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+import sys
 import time
 from io import BytesIO
 from pathlib import Path
@@ -39,7 +40,7 @@ NEEDLES = {
 }
 
 
-def adb(*args: str, timeout: int = 60) -> subprocess.CompletedProcess[str]:
+def adb(*args: str, timeout: int = 90) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["adb", "-s", SERIAL, *args],
         check=False,
@@ -51,7 +52,7 @@ def adb(*args: str, timeout: int = 60) -> subprocess.CompletedProcess[str]:
 
 def dismiss_anr() -> None:
     try:
-        out = adb("shell", "dumpsys", "window", timeout=20).stdout
+        out = adb("shell", "dumpsys", "window", timeout=30).stdout
     except subprocess.TimeoutExpired:
         return
     if "Application Not Responding:" not in out:
@@ -60,18 +61,26 @@ def dismiss_anr() -> None:
     time.sleep(1.2)
 
 
+def unlock() -> None:
+    adb("shell", "input", "keyevent", "224")
+    adb("shell", "wm", "dismiss-keyguard")
+    adb("shell", "settings", "put", "secure", "lockscreen.disabled", "1")
+    adb("shell", "locksettings", "set-disabled", "true")
+    adb("shell", "input", "swipe", "540", "1800", "540", "400", "200")
+
+
 def resumed_activity() -> str:
     try:
-        out = adb("shell", "dumpsys", "activity", "activities", timeout=45).stdout
+        out = adb("shell", "dumpsys", "activity", "activities", timeout=90).stdout
     except subprocess.TimeoutExpired:
         return ""
     for line in out.splitlines():
-        if "topResumedActivity=" in line:
+        if "topResumedActivity=" in line or "ResumedActivity:" in line or "mResumedActivity:" in line:
             return line.strip()
-    return ""
+    return out[-400:] if out else ""
 
 
-def wait_activity(token: str, timeout: float = 90.0) -> str:
+def wait_activity(token: str, timeout: float = 180.0) -> str:
     deadline = time.time() + timeout
     last = ""
     while time.time() < deadline:
@@ -89,7 +98,7 @@ def screencap_bytes() -> bytes:
         ["adb", "-s", SERIAL, "exec-out", "screencap", "-p"],
         check=False,
         capture_output=True,
-        timeout=40,
+        timeout=80,
     )
     if raw.returncode != 0 or len(raw.stdout) < 40_000:
         raise RuntimeError(f"screencap failed rc={raw.returncode} bytes={len(raw.stdout)}")
@@ -132,6 +141,7 @@ def capture_one(screen_id: str) -> Path:
     last_err = "unknown"
     for _ in range(14):
         dismiss_anr()
+        unlock()
         try:
             png = screencap_bytes()
         except Exception as exc:  # noqa: BLE001
@@ -206,6 +216,7 @@ def main() -> int:
     adb("shell", "settings", "put", "global", "transition_animation_scale", "0")
     adb("shell", "settings", "put", "global", "window_animation_scale", "0")
     adb("shell", "cmd", "locale", "set-app-locales", PKG, "--locales", "ru-RU")
+    unlock()
     refs = crop_refs()
     results = []
     paths = []
