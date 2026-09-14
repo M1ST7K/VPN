@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/hf_asset_background"
-    android:clipChildren="true"
-    android:clipToPadding="true">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <com.v2ray.ang.ui.HotFoxHeroArtwork
         android:id="@+id/splash_hero"
@@ -15,7 +15,7 @@
         android:focusable="false"
         android:importantForAccessibility="no"
         app:hfHeroAnimate="true"
-        app:hfHeroClip="true"
+        app:hfHeroClip="false"
         app:hfHeroFitParent="true"
         app:hfHeroShowFox="true"
         app:hfHeroShowPlanet="true"

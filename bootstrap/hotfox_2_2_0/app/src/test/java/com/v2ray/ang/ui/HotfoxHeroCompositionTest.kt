@@ -66,9 +66,18 @@ class HotfoxHeroCompositionTest {
                 assertTrue(planet.diameter >= w * 1.20f)
                 assertTrue(planet.diameter <= w * 1.35f + 0.5f)
             }
-            val splash = HotfoxHeroComposition.planet(w, 800f, sphere, sphere, HotFoxHeroMode.SPLASH)
-            assertTrue(splash.diameter > w)
-            assertTrue(splash.diameter <= w * 1.45f)
+            val splash = HotfoxHeroComposition.planet(w, h, 1080f, 1400f, HotFoxHeroMode.SPLASH)
+            assertTrue("splash planet must cover height ${splash.layoutHeight} vs $h", splash.layoutHeight >= h)
+            assertTrue("splash planet left crop ${splash.left}", splash.left <= 0)
+            assertTrue("splash planet top crop ${splash.top}", splash.top <= 0)
+            assertTrue(
+                "splash planet right crop",
+                splash.left + splash.layoutWidth >= w,
+            )
+            assertTrue(
+                "splash planet bottom crop",
+                splash.top + splash.layoutHeight >= h,
+            )
         }
     }
 
@@ -84,7 +93,12 @@ class HotfoxHeroCompositionTest {
                     assertTrue("ears into status ${mode.name}", fox.top + 1f >= hostH * HomeHeroGeometry.FOX_MIN_TOP_FRAC)
                     assertTrue("muzzle over CTA ${mode.name}", fox.bottom <= hostH * HomeHeroGeometry.FOX_SAFE_BOTTOM_FRAC + 1f)
                 } else {
-                    assertTrue("ears cropped ${mode.name}", fox.top >= -1)
+                    val spec = HotfoxHeroComposition.spec(mode)
+                    assertTrue("ears cropped ${mode.name}", fox.top + 1f >= hostH * spec.foxTopMinFrac)
+                    assertTrue(
+                        "muzzle over CTA ${mode.name}",
+                        fox.bottom <= hostH * spec.foxBottomMaxFrac + 1f,
+                    )
                 }
                 assertTrue("muzzle cropped ${mode.name}", fox.left + fox.widthPx <= w + 1f)
             }
@@ -142,11 +156,37 @@ class HotfoxHeroCompositionTest {
     }
 
     @Test
-    fun splashFoxIsLargerThanConnectSlotFox() {
+    fun splashFoxIsLargerThanConnectFox() {
         val splash = HotfoxHeroComposition.fox(360f, 800f, HotFoxHeroMode.SPLASH)
-        val connect = HotfoxHeroComposition.fox(360f, 280f, HotFoxHeroMode.SUBSCRIPTION)
-        assertTrue("splash fox should be taller than connect-slot fox", splash.heightPx > connect.heightPx)
-        assertTrue("connect fox stays in art slot", connect.top >= -1 && connect.bottom <= 280 + 1)
+        val connect = HotfoxHeroComposition.fox(360f, 800f, HotFoxHeroMode.SUBSCRIPTION)
+        assertTrue("splash fox should be taller than connect fox", splash.heightPx > connect.heightPx)
+        assertTrue("connect fox stays below title", connect.top + 1f >= 800f * 0.28f)
+        assertTrue("connect fox stays above CTA", connect.bottom <= 800f * 0.73f + 1f)
         assertTrue("splash fox stays on canvas", splash.top >= -1 && splash.bottom <= 801)
+    }
+
+    @Test
+    fun onboardingPlanetCoversThePhoneNotASlot() {
+        val dw = 1080f
+        val dh = 1400f
+        phones.forEach { (w, h) ->
+            listOf(HotFoxHeroMode.SPLASH, HotFoxHeroMode.SUBSCRIPTION).forEach { mode ->
+                val planet = HotfoxHeroComposition.planet(w, h, dw, dh, mode)
+                assertTrue("${mode.name} left crop ${planet.left}", planet.left <= 0)
+                assertTrue("${mode.name} top crop ${planet.top}", planet.top <= 0)
+                assertTrue(
+                    "${mode.name} right crop",
+                    planet.left + planet.layoutWidth >= w,
+                )
+                assertTrue(
+                    "${mode.name} bottom crop ${planet.top + planet.layoutHeight} vs $h",
+                    planet.top + planet.layoutHeight >= h,
+                )
+                assertTrue(
+                    "${mode.name} must not use a width-only square shorter than the phone",
+                    planet.layoutHeight > w * 1.38f,
+                )
+            }
+        }
     }
 }

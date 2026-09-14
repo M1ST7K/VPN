@@ -50,15 +50,30 @@ def adb(*args: str, timeout: int = 90) -> subprocess.CompletedProcess[str]:
     )
 
 
-def dismiss_anr() -> None:
+def has_anr() -> bool:
     try:
         out = adb("shell", "dumpsys", "window", timeout=30).stdout
     except subprocess.TimeoutExpired:
+        return False
+    return any(
+        token in out
+        for token in (
+            "Application Not Responding:",
+            "AppErrorDialog",
+            "aerr_application",
+            "aerr_close",
+        )
+    )
+
+
+def dismiss_anr() -> None:
+    if not has_anr():
         return
-    if "Application Not Responding:" not in out:
-        return
-    adb("shell", "input", "tap", "300", "1320")
-    time.sleep(1.2)
+    # Wait button on the TCG System UI ANR dialog (1080-class portrait).
+    for x, y in ((516, 1306), (300, 1320), (540, 1400), (700, 1260)):
+        adb("shell", "input", "tap", str(x), str(y))
+        time.sleep(0.4)
+    time.sleep(1.0)
 
 
 def unlock() -> None:
@@ -150,10 +165,12 @@ def capture_one(screen_id: str) -> Path:
             continue
         ok, stats = frame_ok(screen_id, png)
         dest.write_bytes(png)
-        if ok:
+        if ok and not has_anr():
             print(f"CAPTURED {screen_id} bytes={dest.stat().st_size} {stats}", flush=True)
             return dest
-        last_err = stats
+        last_err = stats if ok else stats
+        if has_anr():
+            last_err = f"ANR dialog visible ({stats})"
         time.sleep(2.5)
     raise RuntimeError(f"{screen_id} invalid frame: {last_err}")
 

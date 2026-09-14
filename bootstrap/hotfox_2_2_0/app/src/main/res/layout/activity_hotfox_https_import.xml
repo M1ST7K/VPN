@@ -16,6 +16,7 @@
         android:importantForAccessibility="no"
         app:hfHeroAnimate="false"
         app:hfHeroClip="false"
+        app:hfHeroFitParent="true"
         app:hfHeroShowFox="true"
         app:hfHeroShowPlanet="true"
         app:hfHeroVariant="subscriptionInput" />
@@ -117,16 +118,18 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_https_add"
             style="@style/HotFox.PrimaryButton"
             android:layout_width="match_parent"
             android:layout_height="@dimen/hf_cta_height"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
+            android:background="@drawable/hf_native_primary"
             android:drawableEnd="@drawable/hf_arrow_right_ink"
             android:maxWidth="@dimen/hf_cta_max_width"
-            android:text="@string/hotfox_https_add" />
+            android:text="@string/hotfox_https_add"
+            android:textAllCaps="false" />
 
         <FrameLayout
             android:id="@+id/https_hero_host"

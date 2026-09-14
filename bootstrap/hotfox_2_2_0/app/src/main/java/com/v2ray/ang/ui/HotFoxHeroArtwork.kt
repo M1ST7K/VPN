@@ -97,9 +97,10 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
                 clipChildren = false
                 clipToPadding = false
             } else if (fitParent) {
-                clipChildren = true
-                clipToPadding = true
-                clipToOutline = true
+                // Local coordinates only. Never box the planet into a postage stamp.
+                clipChildren = false
+                clipToPadding = false
+                clipToOutline = false
             } else {
                 clipChildren = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false)
                 clipToPadding = clipChildren
@@ -155,9 +156,9 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         if (fitParent == enabled) return
         fitParent = enabled
         if (enabled) {
-            clipChildren = true
-            clipToPadding = true
-            clipToOutline = true
+            clipChildren = false
+            clipToPadding = false
+            clipToOutline = false
         }
         requestLayout()
     }
@@ -230,9 +231,9 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         val originX: Int
         val originY: Int
         if (fitParent) {
-            clipChildren = true
-            clipToPadding = true
-            clipToOutline = true
+            clipChildren = false
+            clipToPadding = false
+            clipToOutline = false
             hostW = wf
             hostH = hf
             originX = 0
@@ -267,9 +268,16 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             val dh = planetDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f } ?: 1024f
             val planetLayout = HotfoxHeroComposition.planet(hostW, hostH, dw, dh, mode)
             planet.alpha = planetLayout.alpha
-            planet.scaleType = ImageView.ScaleType.FIT_CENTER
-            val pd = planetLayout.diameter.toInt().coerceAtLeast(1)
-            place(planet, planetLayout.left - originX, planetLayout.top - originY, pd, pd)
+            planet.scaleType = ImageView.ScaleType.FIT_XY
+            val pw = planetLayout.layoutWidth.takeIf { it > 0 } ?: planetLayout.diameter.toInt()
+            val ph = planetLayout.layoutHeight.takeIf { it > 0 } ?: planetLayout.diameter.toInt()
+            place(
+                planet,
+                planetLayout.left - originX,
+                planetLayout.top - originY,
+                pw.coerceAtLeast(1),
+                ph.coerceAtLeast(1),
+            )
 
             val glowLayout = HotfoxHeroComposition.glow(hostW, hostH, mode)
             glow.alpha = glowLayout.alpha
@@ -340,9 +348,10 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         val dh = planetDrawable?.intrinsicHeight?.toFloat()?.takeIf { it > 0f } ?: 1024f
         val planetLayout = HotfoxHeroComposition.fullscreenPlanet(w.toFloat(), h.toFloat(), dw, dh)
         planet.alpha = planetLayout.alpha
-        planet.scaleType = ImageView.ScaleType.FIT_CENTER
-        val pd = planetLayout.diameter.toInt().coerceAtLeast(1)
-        place(planet, planetLayout.left, planetLayout.top, pd, pd)
+        planet.scaleType = ImageView.ScaleType.FIT_XY
+        val pw = planetLayout.layoutWidth.takeIf { it > 0 } ?: planetLayout.diameter.toInt()
+        val ph = planetLayout.layoutHeight.takeIf { it > 0 } ?: planetLayout.diameter.toInt()
+        place(planet, planetLayout.left, planetLayout.top, pw.coerceAtLeast(1), ph.coerceAtLeast(1))
         val glowLayout = HotfoxHeroComposition.fullscreenGlow(w.toFloat(), h.toFloat())
         glow.alpha = glowLayout.alpha
         place(glow, glowLayout.left, glowLayout.top, glowLayout.diameter, glowLayout.diameter)

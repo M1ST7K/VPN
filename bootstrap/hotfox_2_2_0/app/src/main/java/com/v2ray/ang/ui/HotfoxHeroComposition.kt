@@ -70,7 +70,12 @@ object HotfoxHeroComposition {
         val centerY: Float,
         val left: Int,
         val top: Int,
-    )
+        val layoutWidth: Int = 0,
+        val layoutHeight: Int = 0,
+    ) {
+        val right: Int get() = left + layoutWidth.coerceAtLeast(diameter.toInt())
+        val bottom: Int get() = top + layoutHeight.coerceAtLeast(diameter.toInt())
+    }
 
     data class FoxLayout(
         val widthPx: Int,
@@ -102,6 +107,9 @@ object HotfoxHeroComposition {
         val planetAlpha: Float,
         val glowAlpha: Float,
         val useLockedHome: Boolean = false,
+        val planetCoverViewport: Boolean = false,
+        val foxTopMinFrac: Float = 0f,
+        val foxBottomMaxFrac: Float = 1f,
     )
 
     fun isHome(mode: HotFoxHeroMode): Boolean = when (mode) {
@@ -128,32 +136,41 @@ object HotfoxHeroComposition {
         HotFoxHeroMode.SPLASH -> ModeSpec(
             foxWidthFrac = 0.96f,
             foxCenterXFrac = 0.50f,
-            foxCenterYFrac = 0.44f,
-            planetOverflow = 1.38f,
-            planetCenterXFrac = 0.36f,
-            planetCenterYFrac = 0.36f,
-            planetAlpha = 1f,
-            glowAlpha = 0f,
-        )
-        HotFoxHeroMode.SUBSCRIPTION -> ModeSpec(
-            foxWidthFrac = 0.90f,
-            foxCenterXFrac = 0.50f,
-            foxCenterYFrac = 0.58f,
-            planetOverflow = 1.42f,
-            planetCenterXFrac = 0.40f,
+            foxCenterYFrac = 0.42f,
+            planetOverflow = 1.22f,
+            planetCenterXFrac = 0.38f,
             planetCenterYFrac = 0.42f,
             planetAlpha = 1f,
             glowAlpha = 0f,
+            planetCoverViewport = true,
+            foxTopMinFrac = 0.04f,
+            foxBottomMaxFrac = 0.82f,
+        )
+        HotFoxHeroMode.SUBSCRIPTION -> ModeSpec(
+            foxWidthFrac = 0.74f,
+            foxCenterXFrac = 0.50f,
+            foxCenterYFrac = 0.52f,
+            planetOverflow = 1.22f,
+            planetCenterXFrac = 0.40f,
+            planetCenterYFrac = 0.48f,
+            planetAlpha = 1f,
+            glowAlpha = 0f,
+            planetCoverViewport = true,
+            foxTopMinFrac = 0.28f,
+            foxBottomMaxFrac = 0.73f,
         )
         HotFoxHeroMode.SUBSCRIPTION_INPUT -> ModeSpec(
             foxWidthFrac = 0.62f,
             foxCenterXFrac = 0.54f,
-            foxCenterYFrac = 0.62f,
-            planetOverflow = 1.18f,
-            planetCenterXFrac = 0.43f,
-            planetCenterYFrac = 0.58f,
+            foxCenterYFrac = 0.66f,
+            planetOverflow = 1.22f,
+            planetCenterXFrac = 0.40f,
+            planetCenterYFrac = 0.52f,
             planetAlpha = 0.94f,
             glowAlpha = 0.24f,
+            planetCoverViewport = true,
+            foxTopMinFrac = 0.38f,
+            foxBottomMaxFrac = 0.94f,
         )
         else -> spec(HotFoxHeroMode.HOME_DISCONNECTED)
     }
@@ -171,6 +188,18 @@ object HotfoxHeroComposition {
             return PlanetTransform(1f, 0f, 0f, 1f, 0f, 0f, 0f, 0, 0)
         }
         val spec = spec(mode)
+        if (spec.planetCoverViewport) {
+            return coverViewportPlanet(
+                hostW = hostW,
+                hostH = hostH,
+                drawableW = drawableW,
+                drawableH = drawableH,
+                cover = spec.planetOverflow,
+                cxFrac = spec.planetCenterXFrac,
+                cyFrac = spec.planetCenterYFrac,
+                alpha = spec.planetAlpha,
+            )
+        }
         val overflow = spec.planetOverflow
         val diameter = hostW * overflow
         val scale = diameter / drawableW
@@ -178,6 +207,7 @@ object HotfoxHeroComposition {
         val cy = hostH * spec.planetCenterYFrac
         val left = cx - diameter / 2f
         val top = cy - drawableH * scale / 2f
+        val layout = diameter.toInt().coerceAtLeast(1)
         return PlanetTransform(
             scale = scale,
             translateX = left,
@@ -188,6 +218,50 @@ object HotfoxHeroComposition {
             centerY = cy,
             left = left.toInt(),
             top = top.toInt(),
+            layoutWidth = layout,
+            layoutHeight = layout,
+        )
+    }
+
+    /**
+     * Size the planet so its layout rect covers the phone. The onboarding PNG is
+     * 1080×1400, not square: a width-based square leaves a hard crop line on-screen.
+     */
+    private fun coverViewportPlanet(
+        hostW: Float,
+        hostH: Float,
+        drawableW: Float,
+        drawableH: Float,
+        cover: Float,
+        cxFrac: Float,
+        cyFrac: Float,
+        alpha: Float,
+    ): PlanetTransform {
+        val aspect = drawableW / drawableH
+        val needW = hostW * cover
+        val needH = hostH * cover
+        var layoutH = needH
+        var layoutW = layoutH * aspect
+        if (layoutW < needW) {
+            layoutW = needW
+            layoutH = layoutW / aspect
+        }
+        val cx = hostW * cxFrac
+        val cy = hostH * cyFrac
+        val left = cx - layoutW / 2f
+        val top = cy - layoutH / 2f
+        return PlanetTransform(
+            scale = layoutW / drawableW,
+            translateX = left,
+            translateY = top,
+            alpha = alpha,
+            diameter = max(layoutW, layoutH),
+            centerX = cx,
+            centerY = cy,
+            left = left.toInt(),
+            top = top.toInt(),
+            layoutWidth = layoutW.toInt().coerceAtLeast(1),
+            layoutHeight = layoutH.toInt().coerceAtLeast(1),
         )
     }
 
@@ -214,6 +288,7 @@ object HotfoxHeroComposition {
         val cy = hostH * HomePlanetBackdropGeometry.CENTER_Y
         val left = cx - diameter / 2f
         val top = cy - drawableH * scale / 2f
+        val layout = diameter.toInt().coerceAtLeast(1)
         return PlanetTransform(
             scale = scale,
             translateX = left,
@@ -224,6 +299,8 @@ object HotfoxHeroComposition {
             centerY = cy,
             left = left.toInt(),
             top = top.toInt(),
+            layoutWidth = layout,
+            layoutHeight = layout,
         )
     }
 
@@ -305,10 +382,13 @@ object HotfoxHeroComposition {
                 widthFrac = widthFrac,
             )
         }
-        // Splash/onboarding art slots: keep the bust inside the measured host.
-        // Planet may still overflow and is clipped by hfHeroFitParent.
-        if (height > hostH && hostH > 1f) {
-            height = hostH
+        // Splash/Connect: fox stays in the measured canvas and between title/CTA
+        // bands. Planet is a separate full-screen layer and must not be boxed.
+        val minTop = hostH * spec.foxTopMinFrac
+        val maxBottom = hostH * spec.foxBottomMaxFrac
+        val avail = maxBottom - minTop
+        if (avail > 1f && height > avail) {
+            height = avail
             width = height * aspect
             widthFrac = width / hostW
         }
@@ -316,27 +396,32 @@ object HotfoxHeroComposition {
             width = hostW
             height = width / aspect
             widthFrac = 1f
+            if (avail > 1f && height > avail) {
+                height = avail
+                width = height * aspect
+                widthFrac = width / hostW
+            }
         }
         var top = cy - height / 2f
         var bottom = cy + height / 2f
-        if (top < 0f) {
-            cy -= top
-            top = 0f
-            bottom = height
-        }
-        if (bottom > hostH) {
-            val shift = bottom - hostH
+        if (bottom > maxBottom) {
+            val shift = bottom - maxBottom
             top -= shift
             bottom -= shift
             cy -= shift
-            if (top < 0f) {
-                top = 0f
-                bottom = hostH
-                height = hostH
-                width = (height * aspect).coerceAtMost(hostW)
+        }
+        if (top < minTop) {
+            val shift = minTop - top
+            top += shift
+            bottom += shift
+            cy += shift
+            if (bottom > maxBottom) {
+                bottom = maxBottom
+                top = (bottom - height).coerceAtLeast(minTop)
+                height = bottom - top
+                width = height * aspect
                 widthFrac = width / hostW
-                cy = height / 2f
-                cx = hostW / 2f
+                cy = (top + bottom) / 2f
             }
         }
         val left = (cx - width / 2f).toInt()
@@ -380,12 +465,17 @@ object HotfoxHeroComposition {
         insetBottom: Float = 0f,
     ): Boolean {
         val layout = fox(hostW, hostH, mode, insetTop, insetBottom)
+        val spec = spec(mode)
         val bottomLimit = if (isHome(mode)) {
             hostH * HomeHeroGeometry.FOX_SAFE_BOTTOM_FRAC + 1f
         } else {
-            hostH + 1f
+            hostH * spec.foxBottomMaxFrac + 1f
         }
-        val topLimit = if (isHome(mode)) hostH * HomeHeroGeometry.FOX_MIN_TOP_FRAC - 1f else -1f
+        val topLimit = if (isHome(mode)) {
+            hostH * HomeHeroGeometry.FOX_MIN_TOP_FRAC - 1f
+        } else {
+            hostH * spec.foxTopMinFrac - 1f
+        }
         return layout.left >= -1 &&
             layout.left + layout.widthPx <= hostW + 1f &&
             layout.top.toFloat() >= topLimit &&
@@ -405,7 +495,10 @@ object HotfoxHeroComposition {
         insetBottom: Float = 0f,
     ): Boolean {
         val planet = planet(hostW, hostH, drawableW, drawableH, mode, insetTop, insetBottom)
-        return planet.diameter > hostW
+        val width = planet.layoutWidth.takeIf { it > 0 } ?: planet.diameter.toInt()
+        val height = planet.layoutHeight.takeIf { it > 0 } ?: planet.diameter.toInt()
+        return planet.left < 0 || planet.top < 0 ||
+            planet.left + width > hostW || planet.top + height > hostH
     }
 
     fun planetOverflowsHost(
