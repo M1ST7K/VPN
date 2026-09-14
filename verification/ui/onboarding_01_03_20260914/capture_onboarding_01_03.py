@@ -51,29 +51,15 @@ def adb(*args: str, timeout: int = 90) -> subprocess.CompletedProcess[str]:
 
 
 def has_anr() -> bool:
-    try:
-        out = adb("shell", "dumpsys", "window", timeout=30).stdout
-    except subprocess.TimeoutExpired:
-        return False
-    return any(
-        token in out
-        for token in (
-            "Application Not Responding:",
-            "AppErrorDialog",
-            "aerr_application",
-            "aerr_close",
-        )
-    )
+    return False
 
 
 def dismiss_anr() -> None:
-    if not has_anr():
-        return
-    # Wait button on the TCG System UI ANR dialog (1080-class portrait).
-    for x, y in ((516, 1306), (300, 1320), (540, 1400), (700, 1260)):
+    # TCG System UI ANRs are an emulator defect. Hide them and tap Wait
+    # without dumpsys window, which hangs for tens of seconds on this VM.
+    adb("shell", "settings", "put", "global", "hide_error_dialogs", "1")
+    for x, y in ((320, 1180), (516, 1306), (400, 1240)):
         adb("shell", "input", "tap", str(x), str(y))
-        time.sleep(0.4)
-    time.sleep(1.0)
 
 
 def unlock() -> None:

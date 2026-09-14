@@ -1,9 +1,12 @@
 {
   "task_id": "ONBOARDING-01-03-20260914",
-  "sha": "112308486236e3dd33685bbf9e42e0a713c7cc2f",
-  "locale": "ru-RU",
+  "sha": "e0a6bd3af71851dcf661c8977d935d5039ce3605",
+  "apk_sha256": "edb0cb0fc9b368f0f6546031989e5536f43a256e6d2f5e8556b0d1449ec20002",
+  "viewport": "1032x2231",
   "density": 420,
   "fontScale": "1.0",
+  "locale": "ru-RU",
+  "reference": "design/hotfox_onboarding_01_03_20260914/reference_triptych.png",
   "reference_crop": {
     "01": [
       24,
@@ -29,27 +32,36 @@
     {
       "screen": "01",
       "actual": "verification/ui/onboarding_01_03_20260914/actual/01.png",
+      "reference_crop": "verification/ui/onboarding_01_03_20260914/reference_crop/01.png",
+      "actual_sha256": "13d118f97bde69a50caa40692694d03c301a219b99da0a1a796c505783597692",
       "viewport": "1032x2231",
-      "actual_sha256": "7ab598439db25881c2c33683434a52f0db0ebe72b4235f8bcc663e67f11239dd",
-      "changed_pixels": 2281760,
+      "density": 420,
+      "fontScale": "1.0",
+      "changed_pixels": 2290095,
       "max_channel_delta": 255,
       "pixel_pass": false
     },
     {
       "screen": "02",
       "actual": "verification/ui/onboarding_01_03_20260914/actual/02.png",
+      "reference_crop": "verification/ui/onboarding_01_03_20260914/reference_crop/02.png",
+      "actual_sha256": "fc8591fc073899c34de3a9cf169afe3c6efccea2160dd349b6e33381721457d0",
       "viewport": "1032x2231",
-      "actual_sha256": "2b273699005c4efc62143af61e4fb9a580b8e1daa04d4c78864ef4f6575864a9",
-      "changed_pixels": 2294493,
+      "density": 420,
+      "fontScale": "1.0",
+      "changed_pixels": 2300238,
       "max_channel_delta": 255,
       "pixel_pass": false
     },
     {
       "screen": "03",
       "actual": "verification/ui/onboarding_01_03_20260914/actual/03.png",
+      "reference_crop": "verification/ui/onboarding_01_03_20260914/reference_crop/03.png",
+      "actual_sha256": "6dcb298b6aeb81508f3c98d5a5c33c310fedfd3b17a4447626d2bff827d78941",
       "viewport": "1032x2231",
-      "actual_sha256": "1ae361263d50e1af167d2474f6dae936e5b57541fe3df74c79925cc168060026",
-      "changed_pixels": 2277207,
+      "density": 420,
+      "fontScale": "1.0",
+      "changed_pixels": 2277168,
       "max_channel_delta": 255,
       "pixel_pass": false
     }

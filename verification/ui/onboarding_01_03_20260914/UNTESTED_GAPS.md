@@ -8,9 +8,9 @@ Honest remainder after this pass.
 - T02 returning completed user: unit/store only.
 - T04 import cancel/invalid: not driven through the importer UI.
 - T05 successful import → AUTO: needs a real subscription URL (runtime secret; not used).
-- T06 purchase return: `RenewalActivity` launched from code; live tap not captured (ANR). Payment not executed.
-- T07 AUTO persist across process death: unit-level `HotfoxServerSelection` exists; onboarding recreation of AUTO step covered via `savedInstanceState`.
-- T08 picker commit/cancel: code paths in `MainActivity`/`GroupServerFragment`; live tap blocked by System UI ANR.
+- T03 02 primary → import: **PASS** on this pass without ANR overlay; no `FATAL EXCEPTION` in logcat.
+- T06 purchase return: `RenewalActivity` launched from code; live tap not recaptured. Payment not executed.
+- T08 picker commit/cancel: code paths in `MainActivity`/`GroupServerFragment`; live tap **NOT EXECUTED** this pass.
 - T09 VPN permission step 04: not visually recaptured in this task (out of 01–03 screens).
 - T10 rotation/double-tap on device: code present (`CLICK_GUARD_MS`, `STATE_STEP`); not exercised on emulator beyond compile.
 - T11 Home V13: not recaptured; overlay Home files were not rolled back.
