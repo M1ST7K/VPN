@@ -88,6 +88,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     companion object {
         const val EXTRA_SKIP_ONBOARDING = "hotfox_skip_onboarding"
         const val EXTRA_OPEN_SECTION = "hotfox_open_section"
+        const val EXTRA_ONBOARDING_SERVER_PICK = "hotfox_onboarding_server_pick"
         const val SECTION_CONNECTION = "connection"
         const val SECTION_SERVERS = "servers"
         const val SECTION_SUBSCRIPTION = "subscription"
@@ -565,6 +566,15 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         setIntent(intent)
         applyOpenSection(intent)
         handlePossibleCheckoutReturn()
+    }
+
+    fun isOnboardingServerPick(): Boolean =
+        intent?.getBooleanExtra(EXTRA_ONBOARDING_SERVER_PICK, false) == true
+
+    fun maybeFinishOnboardingServerPick() {
+        if (!isOnboardingServerPick()) return
+        setResult(RESULT_OK)
+        finish()
     }
 
     private fun applyOpenSection(intent: Intent?) {
@@ -2016,6 +2026,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_BUTTON_B) {
+            if (isOnboardingServerPick()) {
+                setResult(RESULT_CANCELED)
+                finish()
+                return true
+            }
             moveTaskToBack(false)
             return true
         }

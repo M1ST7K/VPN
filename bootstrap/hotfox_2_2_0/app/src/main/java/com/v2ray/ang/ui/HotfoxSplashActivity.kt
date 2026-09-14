@@ -7,21 +7,35 @@ import com.v2ray.ang.databinding.ActivityHotfoxSplashBinding
 import com.v2ray.ang.vpn.HotfoxOnboardingStore
 
 class HotfoxSplashActivity : AppCompatActivity() {
+    companion object {
+        private const val STATE_HANDED_OFF = "hotfox_splash_handed_off"
+    }
+
     internal var skipAutoAdvance = false
+    private var handedOff = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         HotfoxSystemUi.applyDarkEditorialBars(this)
         val binding = ActivityHotfoxSplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        handedOff = savedInstanceState?.getBoolean(STATE_HANDED_OFF) == true
         // No artificial delay: proceed after the first real layout of the cold/warm start.
-        binding.root.post {
-            if (!skipAutoAdvance) continueToApp()
+        if (!handedOff) {
+            binding.root.post {
+                if (!skipAutoAdvance) continueToApp()
+            }
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(STATE_HANDED_OFF, handedOff)
+    }
+
     private fun continueToApp() {
-        if (isFinishing) return
+        if (handedOff || isFinishing) return
+        handedOff = true
         val next = if (HotfoxOnboardingStore.shouldPrompt()) {
             Intent(this, HotfoxOnboardingActivity::class.java)
         } else {

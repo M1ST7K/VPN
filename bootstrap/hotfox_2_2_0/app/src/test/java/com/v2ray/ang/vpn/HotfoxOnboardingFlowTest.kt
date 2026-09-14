@@ -11,17 +11,25 @@ class HotfoxOnboardingFlowTest {
     private val ready = HotfoxOnboardingFlow.Facts(vpnPermissionGranted = true, hasAccess = true)
 
     @Test
-    fun welcomeGoesToVpnWhenPermissionMissing() {
+    fun welcomeDoesNotRequestVpnForSubscriptionCta() {
         assertEquals(
-            HotfoxOnboardingFlow.Step.VPN_PERMISSION,
+            HotfoxOnboardingFlow.Step.ACCESS,
             HotfoxOnboardingFlow.afterWelcome(fresh),
         )
         assertEquals(
-            HotfoxOnboardingFlow.Step.VPN_PERMISSION,
+            HotfoxOnboardingFlow.Step.ACCESS,
             HotfoxOnboardingFlow.advance(
                 HotfoxOnboardingFlow.Step.WELCOME,
                 HotfoxOnboardingFlow.Event.NEXT,
                 fresh,
+            ),
+        )
+        assertEquals(
+            HotfoxOnboardingFlow.Step.AUTO,
+            HotfoxOnboardingFlow.advance(
+                HotfoxOnboardingFlow.Step.WELCOME,
+                HotfoxOnboardingFlow.Event.NEXT,
+                ready,
             ),
         )
     }
@@ -37,9 +45,9 @@ class HotfoxOnboardingFlowTest {
     }
 
     @Test
-    fun vpnGrantSkipsAccessWhenUserAlreadyHasServers() {
+    fun vpnGrantContinuesToFirstConnection() {
         assertEquals(
-            HotfoxOnboardingFlow.Step.AUTO,
+            HotfoxOnboardingFlow.Step.FIRST_CONNECTION,
             HotfoxOnboardingFlow.advance(
                 HotfoxOnboardingFlow.Step.VPN_PERMISSION,
                 HotfoxOnboardingFlow.Event.VPN_GRANTED,
@@ -49,7 +57,7 @@ class HotfoxOnboardingFlowTest {
     }
 
     @Test
-    fun accessIsOptionalAndLeadsToAuto() {
+    fun accessLeadsToAutoOnlyAfterNext() {
         assertEquals(
             HotfoxOnboardingFlow.Step.AUTO,
             HotfoxOnboardingFlow.advance(
@@ -61,13 +69,13 @@ class HotfoxOnboardingFlowTest {
     }
 
     @Test
-    fun autoKeepAndManualBothReachFirstConnection() {
+    fun autoKeepRequestsVpnWhenMissing() {
         assertEquals(
-            HotfoxOnboardingFlow.Step.FIRST_CONNECTION,
+            HotfoxOnboardingFlow.Step.VPN_PERMISSION,
             HotfoxOnboardingFlow.advance(
                 HotfoxOnboardingFlow.Step.AUTO,
                 HotfoxOnboardingFlow.Event.KEEP_AUTO,
-                ready,
+                fresh,
             ),
         )
         assertEquals(
@@ -76,6 +84,68 @@ class HotfoxOnboardingFlowTest {
                 HotfoxOnboardingFlow.Step.AUTO,
                 HotfoxOnboardingFlow.Event.MANUAL_SERVERS,
                 ready,
+            ),
+        )
+    }
+
+    @Test
+    fun autoBackReturnsToAccessOrWelcome() {
+        assertEquals(
+            HotfoxOnboardingFlow.Step.ACCESS,
+            HotfoxOnboardingFlow.advance(
+                HotfoxOnboardingFlow.Step.AUTO,
+                HotfoxOnboardingFlow.Event.BACK,
+                fresh,
+            ),
+        )
+        assertEquals(
+            HotfoxOnboardingFlow.Step.WELCOME,
+            HotfoxOnboardingFlow.advance(
+                HotfoxOnboardingFlow.Step.AUTO,
+                HotfoxOnboardingFlow.Event.BACK,
+                ready,
+            ),
+        )
+    }
+
+    @Test
+    fun vpnBackReturnsToAutoNotWelcome() {
+        assertEquals(
+            HotfoxOnboardingFlow.Step.AUTO,
+            HotfoxOnboardingFlow.advance(
+                HotfoxOnboardingFlow.Step.VPN_PERMISSION,
+                HotfoxOnboardingFlow.Event.BACK,
+                fresh,
+            ),
+        )
+    }
+
+    @Test
+    fun welcomeBackDoesNotCompleteOnboarding() {
+        assertEquals(
+            HotfoxOnboardingFlow.Step.WELCOME,
+            HotfoxOnboardingFlow.advance(
+                HotfoxOnboardingFlow.Step.WELCOME,
+                HotfoxOnboardingFlow.Event.BACK,
+                fresh,
+            ),
+        )
+        assertFalse(
+            HotfoxOnboardingFlow.completesOnboarding(
+                HotfoxOnboardingFlow.Step.WELCOME,
+                HotfoxOnboardingFlow.Event.NEXT,
+            ),
+        )
+        assertFalse(
+            HotfoxOnboardingFlow.completesOnboarding(
+                HotfoxOnboardingFlow.Step.ACCESS,
+                HotfoxOnboardingFlow.Event.NEXT,
+            ),
+        )
+        assertFalse(
+            HotfoxOnboardingFlow.completesOnboarding(
+                HotfoxOnboardingFlow.Step.AUTO,
+                HotfoxOnboardingFlow.Event.KEEP_AUTO,
             ),
         )
     }

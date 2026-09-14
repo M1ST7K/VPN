@@ -256,7 +256,7 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
         adapter.setSelectServer(fromPosition, toPosition)
         ownerActivity.refreshDashboard()
 
-        if (mainViewModel.isRunning.value == true) {
+        if (mainViewModel.isRunning.value == true && !ownerActivity.isOnboardingServerPick()) {
             ownerActivity.restartV2Ray()
         }
     }
@@ -280,8 +280,9 @@ class GroupServerFragment : BaseFragment<FragmentGroupServerBinding>(),
         }
 
         override fun onSelectServer(guid: String) {
-            if (guid == HotfoxServerSelection.AUTO_GUID) {
+            if (guid == HotfoxServerSelection.AUTO_GUID || ownerActivity.isOnboardingServerPick()) {
                 setSelectServer(guid)
+                ownerActivity.maybeFinishOnboardingServerPick()
                 return
             }
             detailsLauncher.launch(

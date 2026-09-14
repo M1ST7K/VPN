@@ -126,24 +126,24 @@ object HotfoxHeroComposition {
         )
     } else when (mode) {
         HotFoxHeroMode.SPLASH -> ModeSpec(
-            foxWidthFrac = 0.72f,
-            foxCenterXFrac = 0.54f,
-            foxCenterYFrac = 0.56f,
-            planetOverflow = 1.22f,
-            planetCenterXFrac = 0.45f,
-            planetCenterYFrac = 0.46f,
+            foxWidthFrac = 0.96f,
+            foxCenterXFrac = 0.50f,
+            foxCenterYFrac = 0.44f,
+            planetOverflow = 1.38f,
+            planetCenterXFrac = 0.36f,
+            planetCenterYFrac = 0.36f,
             planetAlpha = 1f,
-            glowAlpha = 0.36f,
+            glowAlpha = 0f,
         )
         HotFoxHeroMode.SUBSCRIPTION -> ModeSpec(
-            foxWidthFrac = 0.64f,
-            foxCenterXFrac = 0.54f,
-            foxCenterYFrac = 0.54f,
-            planetOverflow = 1.20f,
-            planetCenterXFrac = 0.44f,
-            planetCenterYFrac = 0.46f,
+            foxWidthFrac = 0.90f,
+            foxCenterXFrac = 0.50f,
+            foxCenterYFrac = 0.58f,
+            planetOverflow = 1.42f,
+            planetCenterXFrac = 0.40f,
+            planetCenterYFrac = 0.42f,
             planetAlpha = 1f,
-            glowAlpha = 0.30f,
+            glowAlpha = 0f,
         )
         HotFoxHeroMode.SUBSCRIPTION_INPUT -> ModeSpec(
             foxWidthFrac = 0.62f,
@@ -305,13 +305,46 @@ object HotfoxHeroComposition {
                 widthFrac = widthFrac,
             )
         }
+        // Splash/onboarding art slots: keep the bust inside the measured host.
+        // Planet may still overflow and is clipped by hfHeroFitParent.
+        if (height > hostH && hostH > 1f) {
+            height = hostH
+            width = height * aspect
+            widthFrac = width / hostW
+        }
+        if (width > hostW && hostW > 1f) {
+            width = hostW
+            height = width / aspect
+            widthFrac = 1f
+        }
+        var top = cy - height / 2f
+        var bottom = cy + height / 2f
+        if (top < 0f) {
+            cy -= top
+            top = 0f
+            bottom = height
+        }
+        if (bottom > hostH) {
+            val shift = bottom - hostH
+            top -= shift
+            bottom -= shift
+            cy -= shift
+            if (top < 0f) {
+                top = 0f
+                bottom = hostH
+                height = hostH
+                width = (height * aspect).coerceAtMost(hostW)
+                widthFrac = width / hostW
+                cy = height / 2f
+                cx = hostW / 2f
+            }
+        }
         val left = (cx - width / 2f).toInt()
-        val top = (cy - height / 2f).toInt()
         return FoxLayout(
             widthPx = width.toInt().coerceAtLeast(1),
             heightPx = height.toInt().coerceAtLeast(1),
             left = left,
-            top = top,
+            top = top.toInt(),
             centerX = cx,
             centerY = cy,
             widthFrac = widthFrac,

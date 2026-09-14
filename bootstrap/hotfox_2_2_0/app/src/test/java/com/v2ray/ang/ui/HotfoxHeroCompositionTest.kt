@@ -68,7 +68,7 @@ class HotfoxHeroCompositionTest {
             }
             val splash = HotfoxHeroComposition.planet(w, 800f, sphere, sphere, HotFoxHeroMode.SPLASH)
             assertTrue(splash.diameter > w)
-            assertTrue(splash.diameter <= w * 1.30f)
+            assertTrue(splash.diameter <= w * 1.45f)
         }
     }
 
@@ -139,5 +139,14 @@ class HotfoxHeroCompositionTest {
         val disconnected = HotfoxHeroComposition.fox(393f, 873f, HotFoxHeroMode.HOME_DISCONNECTED)
         val connected = HotfoxHeroComposition.fox(393f, 873f, HotFoxHeroMode.HOME_CONNECTED)
         assertEquals(0f, abs(disconnected.centerY - connected.centerY), 0.01f)
+    }
+
+    @Test
+    fun splashFoxIsLargerThanConnectSlotFox() {
+        val splash = HotfoxHeroComposition.fox(360f, 800f, HotFoxHeroMode.SPLASH)
+        val connect = HotfoxHeroComposition.fox(360f, 280f, HotFoxHeroMode.SUBSCRIPTION)
+        assertTrue("splash fox should be taller than connect-slot fox", splash.heightPx > connect.heightPx)
+        assertTrue("connect fox stays in art slot", connect.top >= -1 && connect.bottom <= 280 + 1)
+        assertTrue("splash fox stays on canvas", splash.top >= -1 && splash.bottom <= 801)
     }
 }

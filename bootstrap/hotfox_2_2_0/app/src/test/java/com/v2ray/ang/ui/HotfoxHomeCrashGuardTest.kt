@@ -18,6 +18,17 @@ class HotfoxHomeCrashGuardTest {
     }
 
     @Test
+    fun onboardingPrimaryDoesNotUseMaterialButtonBackgroundOverride() {
+        val xml = layout("activity_hotfox_onboarding.xml")
+        val idx = xml.indexOf("""android:id="@+id/btn_onboarding_primary"""")
+        assertTrue("btn_onboarding_primary missing", idx > 0)
+        val open = xml.lastIndexOf('<', idx)
+        val window = xml.substring(open.coerceAtLeast(0), (idx + 50).coerceAtMost(xml.length))
+        assertTrue("onboarding primary must stay AppCompatButton, window=$window", window.contains("AppCompatButton"))
+        assertFalse("MaterialButton + custom android:background crashes on ShapeAppearanceModel", window.contains("MaterialButton"))
+    }
+
+    @Test
     fun hiddenHeroDoesNotBakeLargeBitmapSrc() {
         val xml = layout("view_hotfox_hero.xml")
         assertFalse(xml.contains("@drawable/hf_native_planet_sphere"))

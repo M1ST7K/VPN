@@ -44,6 +44,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
     private var mode = HotFoxHeroMode.HOME_DISCONNECTED
     private var animationMode = AnimationMode.NONE
     private var backdrop = false
+    private var fitParent = false
     private var breath: AnimatorSet? = null
     private var insetTopPx = 0
     private var insetBottomPx = 0
@@ -86,6 +87,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
                 animationMode = AnimationMode.BREATHING
             }
             backdrop = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroBackdrop, false)
+            fitParent = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroFitParent, false)
             if (backdrop) {
                 fox.visibility = GONE
                 planet.visibility = VISIBLE
@@ -94,6 +96,10 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
                 navScrim.visibility = GONE
                 clipChildren = false
                 clipToPadding = false
+            } else if (fitParent) {
+                clipChildren = true
+                clipToPadding = true
+                clipToOutline = true
             } else {
                 clipChildren = ta.getBoolean(R.styleable.HotFoxHeroArtwork_hfHeroClip, false)
                 clipToPadding = clipChildren
@@ -115,6 +121,7 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
     fun setMode(next: HotFoxHeroMode) {
         if (mode == next) return
         mode = next
+        ensureArtworkLoaded()
         requestLayout()
     }
 
@@ -144,12 +151,40 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
         setShowFox(showFox)
     }
 
-    private fun ensureArtworkLoaded() {
-        if (planet.visibility == VISIBLE && planet.drawable == null) {
-            planet.setImageResource(R.drawable.hf_native_planet_sphere)
+    fun setFitParent(enabled: Boolean) {
+        if (fitParent == enabled) return
+        fitParent = enabled
+        if (enabled) {
+            clipChildren = true
+            clipToPadding = true
+            clipToOutline = true
         }
-        if (!backdrop && fox.visibility == VISIBLE && fox.drawable == null) {
-            fox.setImageResource(R.drawable.hotfox_fox_master)
+        requestLayout()
+    }
+
+    private fun editorialOnboardingArt(): Boolean =
+        mode == HotFoxHeroMode.SPLASH ||
+            mode == HotFoxHeroMode.SUBSCRIPTION ||
+            mode == HotFoxHeroMode.SUBSCRIPTION_INPUT
+
+    private fun ensureArtworkLoaded() {
+        if (planet.visibility == VISIBLE) {
+            planet.setImageResource(
+                if (editorialOnboardingArt()) {
+                    R.drawable.hf_native_planet_onboarding
+                } else {
+                    R.drawable.hf_native_planet_sphere
+                },
+            )
+        }
+        if (!backdrop && fox.visibility == VISIBLE) {
+            fox.setImageResource(
+                if (editorialOnboardingArt()) {
+                    R.drawable.hotfox_fox
+                } else {
+                    R.drawable.hotfox_fox_master
+                },
+            )
         }
     }
 
@@ -187,31 +222,44 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             return
         }
         val home = HotfoxHeroComposition.isHome(mode)
-        clipChildren = false
-        clipToPadding = false
-        clipToOutline = false
         val wf = w.toFloat()
         val hf = h.toFloat()
         val loc = IntArray(2)
-        getLocationOnScreen(loc)
         val hostW: Float
         val hostH: Float
         val originX: Int
         val originY: Int
-        if (home) {
-            // Compose the bust against the phone canvas so it fills the
-            // headline→CTA band like the 05/06/07 references, not the short HeroSlot.
-            hostW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
-            hostH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
-            originX = loc[0]
-            originY = loc[1]
+        if (fitParent) {
+            clipChildren = true
+            clipToPadding = true
+            clipToOutline = true
+            hostW = wf
+            hostH = hf
+            originX = 0
+            originY = 0
+            glow.visibility = GONE
+            blendBottom.visibility = GONE
             navScrim.visibility = GONE
         } else {
-            hostW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
-            hostH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
-            originX = loc[0]
-            originY = loc[1]
-            navScrim.visibility = VISIBLE
+            clipChildren = false
+            clipToPadding = false
+            clipToOutline = false
+            getLocationOnScreen(loc)
+            if (home) {
+                // Compose the bust against the phone canvas so it fills the
+                // headline→CTA band like the 05/06/07 references, not the short HeroSlot.
+                hostW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
+                hostH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
+                originX = loc[0]
+                originY = loc[1]
+                navScrim.visibility = GONE
+            } else {
+                hostW = resources.displayMetrics.widthPixels.toFloat().coerceAtLeast(wf)
+                hostH = resources.displayMetrics.heightPixels.toFloat().coerceAtLeast(hf)
+                originX = loc[0]
+                originY = loc[1]
+                navScrim.visibility = VISIBLE
+            }
         }
         if (planet.visibility == VISIBLE) {
             val planetDrawable = planet.drawable
@@ -254,6 +302,11 @@ open class HotFoxHeroArtwork @JvmOverloads constructor(
             foxLayout.heightPx,
         )
 
+        if (fitParent) {
+            place(blendBottom, 0, h, w, 1)
+            place(navScrim, 0, h, w, 1)
+            return
+        }
         val blendH = if (home) {
             1
         } else {
