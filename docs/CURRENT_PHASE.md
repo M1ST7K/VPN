@@ -1,3 +1,26 @@
+# CURRENT OWNER TASK — SCREENS 01–03 / EXISTING ASSETS / 2026-09-14
+
+Status: **ACTIVE — implement the newly selected Splash, Connect HotFox and AUTO onboarding screens.**
+
+Execution prompt: `design/HOTFOX_CURSOR_SCREENS_01_03_EXISTING_ASSETS.txt`
+Scoped rule: `.cursor/rules/34-hotfox-onboarding-01-03-existing-assets.mdc`
+Latest visual: `design/hotfox_onboarding_01_03_20260914/reference_triptych.png`
+Integrity/provenance: `design/hotfox_onboarding_01_03_20260914/REFERENCE_LOCK.json`
+
+The owner explicitly corrected the numbering: **01 Splash, 02 Connect HotFox, 03 AUTO from the 18-screen collection**. These are not the three V13 Home states. Implement this bounded task now in the existing Views/ViewBinding bootstrap overlay, using existing runtime artwork/resources. The new image is a design reference only and must never become a runtime screenshot background.
+
+This task updates composition and interaction wiring for 01–03, with no new artwork generation. A restrained globe/orbit illustration is specifically authorized on onboarding screen 03 by the new selected image; older blanket orbit bans do not override this local choice. Do not introduce fox rings or spread this exception to other screens.
+
+V13 remains the visual source for Home 05/06/07. Preserve its implementation and later legitimate fixes. Other screens retain their requirements; adapt only necessary existing onboarding/import/server-picker navigation. Preserve VPN/security/entitlement truth, required engineering/review gates and the runtime-repair ledger below.
+
+Continue in PR #10 on `cursor/hotfox-ui-pixel-lock-rebuild`. Build, exercise real actions, capture all three production layouts using debug-only capture support where needed, compare, fix and provide commit-bound APK/evidence. No merge or release claim. Do not stop after a plan or answer with old Home screenshots.
+
+---
+
+# INHERITED HOME CONTRACT — V13 (not the current 01–03 assignment)
+
+The following historical task text is retained for the unchanged Home contract. Its active-task wording is historical; the current work scope is the 01–03 task above.
+
 # CURRENT OWNER TASK — HOTFOX V13 APPROVED HOME IMPLEMENTATION
 
 Status: **ACTIVE — owner approved three new Home concepts and requested committing their PNG assets and starting Cursor implementation to match them 1:1.**

@@ -1,0 +1,21 @@
+---
+description: Owner-selected screens 01–03 from the 18-screen collection, using existing assets
+alwaysApply: true
+---
+
+# HotFox — current onboarding 01–03 assignment
+
+Read `docs/CURRENT_PHASE.md` and `design/HOTFOX_CURSOR_SCREENS_01_03_EXISTING_ASSETS.txt`.
+The current owner task is 01 Splash / 02 Connect HotFox / 03 AUTO; not V13 Home states.
+
+- View `design/hotfox_onboarding_01_03_20260914/reference_triptych.png` and verify its lock.
+- Reuse existing runtime PNGs/resources. No new generated fox/planet/orbits/icons, no screenshot-as-UI.
+- Keep one fox on 01 and 02, no fox on 03. Existing separate fox/planet layers are preferred.
+- The selected globe/orbit illustration is authorized only on 03, superseding older visual orbit bans for that screen. Home V13 and other screens keep their own rules.
+- Use measured local artwork slots. Existing HotFoxHeroArtwork computes fullscreen geometry and can disable clipping: simply nesting it is insufficient.
+- Brand/title/body/art/CTA/footer must not overlap. System insets, font scaling and short screens remain usable.
+- Existing subscription/import, purchase entry, AUTO and manual picker actions must perform their visible labels. Preserve permission, lifecycle, data and backend entitlement truth.
+- Keep Views/ViewBinding, version edits under bootstrap/hotfox_2_2_0/app. Do not globally change Home resources to fix onboarding.
+- Build and obtain real 01/02/03 screenshots and interaction evidence; debug fixtures are capture aids, not real payment or VPN proof.
+- Preserve AGENTS.md engineering/review/security gates. No fake EXACT, no changed reference/gate to force PASS, no merge or release.
+- Scope is these three screens and their necessary existing navigation wiring, not another 18-screen redesign.
