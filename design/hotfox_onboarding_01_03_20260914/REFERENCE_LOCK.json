@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "task_id": "ONBOARDING-01-03-20260914",
+  "created_date": "2026-09-14",
+  "source": "User-selected regenerated triptych in the current conversation, after explicit correction to screens 1–3 from the 18-screen collection.",
+  "usage": "Design reference only; not a production runtime asset and not actual APK evidence.",
+  "file": "reference_triptych.png",
+  "sha256": "01c1cbc65e6e8dc3610a509e83184f67a60fa3dd8b1999600b74fb6c147bc846",
+  "size_bytes": 1467792,
+  "width": 1448,
+  "height": 1086,
+  "screens": [
+    {
+      "id": "01",
+      "role": "Splash / Brand Entry",
+      "position": "left"
+    },
+    {
+      "id": "02",
+      "role": "Connect HotFox onboarding",
+      "position": "middle"
+    },
+    {
+      "id": "03",
+      "role": "AUTO onboarding",
+      "position": "right"
+    }
+  ],
+  "originals": [
+    "design/hotfox_18_final_style_reference/01_splash_brand_entry.jpeg",
+    "design/hotfox_18_final_style_reference/02_onboarding_connect_hotfox.jpeg",
+    "design/hotfox_18_final_style_reference/03_onboarding_auto.jpeg"
+  ],
+  "runtime_assets_policy": "Reuse existing checked-in assets. Preserve source bytes; no generated replacements. Native responsive controls remain live.",
+  "baseline_commit": "10d4f3c2d58c82207fe1ce32d58c46214d4fba7c",
+  "system_chrome": "Use real Android SystemUI. External labels/borders/gutters are not app content.",
+  "acceptance": "Measured layout, real actions and honest image comparisons. Existing assets may differ from generated concept; document residuals, do not claim pixel exact without proof."
+}

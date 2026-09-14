@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="#1A1816" />
+            <corners android:radius="@dimen/hf_onboard_cta_radius" />
+        </shape>
+    </item>
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#E66B2B" />
+            <corners android:radius="@dimen/hf_onboard_cta_radius" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:angle="0"
+                android:endColor="#FF722B"
+                android:startColor="#FF9255" />
+            <corners android:radius="@dimen/hf_onboard_cta_radius" />
+        </shape>
+    </item>
+</selector>

@@ -1,0 +1,14 @@
+HOTFOX V11 ASSET MANIFEST
+
+New V11 isolated planet reference cues committed for Cursor intake:
+hotfox_planet_reference_a.webp	6448 bytes	420x560	SHA256 e80ba822b5ab36c0eb2ea8a234dd7d35767745cdd1fa4d93cdc942ded2524421
+hotfox_planet_reference_b.webp	6858 bytes	420x746	SHA256 491d419af64e0a76ea88eedcad77fe59642b6483051191fe554063895cff9bc4
+
+IMPORTANT
+- These two files are compact isolated visual cues for the approved planet character, rim, texture and lighting.
+- Final screen fidelity is judged against the full approved boards already committed in design/hotfox_18_final_style_reference/.
+- Do not blindly upscale these compact cues as final production artwork. Reconstruct/derive the responsive planet backdrop while matching both the isolated cue and the exact screen reference.
+
+Existing repo assets to preserve/use:
+bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_bust_transparent.png — clean production fox foreground
+bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_planet.png — historical combined reference only; do not restore as production composite

@@ -1,0 +1,695 @@
+HOTFOX — SUPERVISORY ASSET-FIRST UI REBUILD V2
+STRICT EXECUTION / NO-CHEATING / NO-CREATIVE-DRIFT PROMPT FOR CURSOR
+
+ROLE
+Ты работаешь как senior Android UI engineer + design systems engineer + visual QA engineer.
+Твоя задача — не “передизайнить” HotFox и не сделать “похожий” интерфейс.
+Твоя задача — безопасно интегрировать приложенный asset kit в существующее Android-приложение,
+пересобрать 18 экранов по утверждённым reference boards, сохранить реальную функциональность VPN
+и доказать визуальный результат через реальные emulator screenshots.
+
+ATTACHED ARCHIVE
+Архив НЕ приложен к Cursor-чату. Asset kit лежит в репозитории частями:
+design/HOTFOX_ASSETS_PART_A_CORE.zip
+design/HOTFOX_ASSETS_PART_B_REFERENCES_01_09.zip
+design/HOTFOX_ASSETS_PART_C_REFERENCES_10_14.zip
+design/HOTFOX_ASSETS_PART_D_REFERENCES_15_18.zip
+design/UNPACK_HOTFOX_ASSET_PARTS.py
+
+Сначала запусти:
+python design/UNPACK_HOTFOX_ASSET_PARTS.py
+
+Скрипт должен собрать:
+design/HOTFOX_APP_ASSET_KIT_EXTRACTED/HOTFOX_APP_ASSET_KIT/
+
+Именно эту распакованную директорию считать input asset kit.
+
+НЕ НАЧИНАЙ ПЕРЕПИСЫВАТЬ UI, ПОКА НЕ ВЫПОЛНИШЬ ASSET INTAKE GATE НИЖЕ.
+
+======================================================================
+0. BRANCH / SAFETY LOCK
+======================================================================
+
+1. Покажи:
+   - git branch --show-current
+   - git rev-parse HEAD
+   - git status --short
+
+2. Рабочая UI-ветка должна быть:
+   cursor/hotfox-ui-pixel-lock-rebuild
+
+3. НИКОГДА не коммить эту работу напрямую в main.
+
+4. Не изменяй VPN datapath, Xray/HEV/tun2socks, VpnService semantics, subscription security,
+   entitlement truth, routing truth, payment truth, TLS/REALITY validation, readiness gates
+   или lifecycle/security logic ради визуального совпадения.
+
+5. Если UI требует новое значение, которого нет в production model:
+   - НЕ выдумывай его;
+   - НЕ хардкодь fake state;
+   - используй реальное runtime state;
+   - deterministic fixture допускается только в debug/test screenshot harness.
+
+6. RELEASE READY не объявлять.
+   Эта задача — UI reconstruction + visual validation.
+   Emulator VPN E2E и physical-device gate остаются отдельными release gates.
+
+======================================================================
+1. ASSET INTAKE GATE — СНАЧАЛА АУДИТ, ПОТОМ КОД
+======================================================================
+
+Не ищи attachment в Cursor-чате.
+Используй четыре ZIP-part файла из `design/` и `design/UNPACK_HOTFOX_ASSET_PARTS.py`.
+Запусти reconstruction/extraction script и проверь, что он завершился успешно.
+Ожидаемый корень:
+design/HOTFOX_APP_ASSET_KIT_EXTRACTED/HOTFOX_APP_ASSET_KIT/
+
+Не копируй содержимое в production `app/src/main/res` до завершения ASSET INTAKE GATE.
+
+Не копируй весь ZIP вслепую в app/src/main/res.
+
+После распаковки ОБЯЗАТЕЛЬНО проверь структуру архива.
+
+Ожидаемые верхнеуровневые части комплекта:
+- README_START_HERE_RU.md
+- CURSOR_TASK_RU.md
+- png/
+- sources/svg/
+- manifest/
+- android/
+- scripts/
+- preview/
+- references/
+- docs/
+
+Комплект заявляет:
+- 212 уникальных ассетов;
+- 842 production-oriented PNG variants по density;
+- отдельные original reference boards;
+- SVG source geometry;
+- Android export resources;
+- manifest assets/screens/components/tokens;
+- SHA-256 manifest.
+
+При этом НЕЛЬЗЯ просто доверять README.
+Сначала сам посчитай:
+- общее число файлов;
+- число PNG;
+- число SVG;
+- число XML;
+- число файлов в каждой category;
+- число PNG по mdpi/xhdpi/xxhdpi/xxxhdpi;
+- число unique asset IDs из manifest/assets.json.
+
+Проверь минимум следующие файлы:
+- manifest/assets.json
+- manifest/screens.json
+- manifest/components.json
+- manifest/tokens.json
+- manifest/SHA256SUMS.txt
+- android/README_RU.md
+- README_START_HERE_RU.md
+- references/MANIFEST.txt
+
+Проверь SHA-256 для файлов, перечисленных в manifest/SHA256SUMS.txt.
+Если есть mismatch:
+STOP.
+Создай P0 report и не интегрируй ассеты.
+
+Проверь каждый PNG:
+- файл читается;
+- width/height > 0;
+- expected density size согласуется с logical_size_dp;
+- alpha channel там, где manifest говорит alpha=true;
+- нет повреждённых изображений;
+- нет неожиданного full-screen screenshot bitmap внутри production png categories.
+
+Проверь SVG:
+- валидный XML;
+- viewBox присутствует;
+- нет embedded raster screenshot;
+- нет внешних URL dependency;
+- нет script/executable content.
+
+Создай:
+verification/ui_rebuild/ASSET_INTAKE_REPORT.md
+
+В отчёте зафиксируй:
+- actual counts;
+- expected counts;
+- SHA status;
+- corrupt files;
+- duplicates;
+- suspicious assets;
+- PASS/FAIL.
+
+ПОКА ASSET_INTAKE_REPORT != PASS — UI НЕ ПЕРЕСТРАИВАТЬ.
+
+======================================================================
+2. SOURCE-OF-TRUTH HIERARCHY
+======================================================================
+
+Строгий приоритет источников:
+
+1. Конкретный approved original reference board конкретного экрана.
+2. references/MANIFEST.txt + immutable hashes.
+3. Новый asset kit и его manifest/assets.json.
+4. manifest/screens.json / components.json / tokens.json.
+5. Existing implementation.
+6. Старые prose prompts.
+
+ВАЖНО:
+manifest/screens.json сам говорит, что его geometry —
+RECONSTRUCTED_STARTING_POINTS_NOT_MEASURED_GOLDENS.
+
+Следовательно:
+- box_dp из manifest/screens.json — стартовая геометрия;
+- это НЕ доказательство pixel-perfect;
+- реальные размеры корректируются только по screenshot comparison с original board.
+
+manifest/tokens.json также является engineering baseline,
+а не лицензией игнорировать конкретный reference screen.
+
+Если current implementation конфликтует с конкретным approved screen:
+конкретный approved screen выигрывает по presentation,
+НО реальная функциональная семантика должна сохраниться.
+
+======================================================================
+3. ABSOLUTE VISUAL NEGATIVE PROMPT
+======================================================================
+
+ЗАПРЕЩЕНО:
+
+- generic Material redesign;
+- бело-фиолетовый Android template;
+- cyberpunk;
+- neon;
+- gamer UI;
+- glassmorphism;
+- huge dashboard cards;
+- creative interpretation “по мотивам”;
+- перенос декоративного artwork между экранами;
+- создание новых planet/globe/orbit/celestial horizon/eclipse мотивов;
+- использование full-screen reference screenshot как production UI;
+- crop большого прямоугольного куска reference board и вставка его как “art”;
+- запекание runtime text/buttons/switches/lists/navigation в PNG;
+- fake ping;
+- fake traffic;
+- fake server;
+- fake subscription;
+- fake payment;
+- fake connected state.
+
+ПЛАНЕТАРНОЕ ПРАВИЛО:
+references/MANIFEST.txt прямо запрещает добавлять новые планеты,
+планетарные дуги, горизонты планет, затмения и подобную эстетику.
+
+Если asset kit содержит элемент, визуально похожий на orbit/globe,
+используй его ТОЛЬКО если конкретный target reference screen буквально требует этот элемент.
+Не делай из него глобальный HotFox motif.
+Не переноси его на другие экраны.
+
+FOX RULE:
+Лиса допускается только там, где её показывает конкретный reference screen.
+Не добавляй лису на экраны, где её нет.
+Не меняй identity/shape/style лисы от себя.
+
+======================================================================
+4. НЕ ИСПОЛЬЗУЙ СТАРЫЕ КРИВЫЕ LEGACY ASSETS
+======================================================================
+
+Найди все старые ресурсы вроде:
+- hotfox_art_fox_planet_*
+- hotfox_art_globe_orbits.png
+- hotfox_art_server_ready.png
+- hotfox_art_shadow_shield.png
+- hotfox_art_always_on_shield.png
+- другие screenshot-derived composite crops
+
+Создай inventory:
+verification/ui_rebuild/LEGACY_ART_USAGE_BEFORE.txt
+
+Для каждого:
+- resource name;
+- file;
+- layouts/code references;
+- replacement from new asset kit.
+
+После миграции:
+- production layouts не должны ссылаться на legacy screenshot-derived art;
+- если файл больше не используется, удалить его;
+- если удалить небезопасно, оставить временно только с documented zero-production-references.
+
+Создай:
+verification/ui_rebuild/LEGACY_ART_USAGE_AFTER.txt
+
+PASS только если production refs = 0.
+
+======================================================================
+5. ASSET KIT INTEGRATION CONTRACT
+======================================================================
+
+Используй комплект как design-system source, но НЕ превращай Android app в bitmap UI.
+
+Категории:
+
+A. png/icons/
+Можно использовать как декоративные визуальные слои внутри real native semantic controls.
+Touch target задаётся родительским native control, минимум 48dp.
+
+B. png/navigation/
+Визуальные states nav.
+Каждый destination остаётся отдельно clickable real navigation destination.
+
+C. png/controls/
+Это визуальные state assets.
+Они НЕ должны создавать вторую независимую невидимую control layer поверх native semantics.
+
+D. png/surfaces/
+Card/input/sheet/segment/divider surfaces.
+Text остаётся native.
+Runtime values остаются native.
+
+E. png/flags/
+Можно использовать как static country visuals.
+Никаких emoji-флагов, если kit даёт соответствующий asset.
+
+F. png/illustrations/
+Использовать строго по конкретному screen map.
+Не распространять на другие экраны.
+
+G. png/artwork/
+Использовать строго по manifest/screens.json + конкретному reference.
+Не добавлять artwork туда, где reference его не показывает.
+
+H. png/fixture_apps/
+ТОЛЬКО screenshot/test fixture.
+Не подменять ими реальные installed-app icons в production.
+
+I. references/
+НИКОГДА не импортировать original boards в Android res как production assets.
+Они только visual truth / comparison source.
+
+J. sources/svg/
+Это editable source geometry.
+При необходимости лучше экспортировать Android-compatible resources из source,
+чем повторно резать reference screenshots.
+
+======================================================================
+6. ANDROID EXPORT
+======================================================================
+
+Прочитай android/README_RU.md полностью.
+
+Используй scripts/export-android.cjs согласно документации
+в новую чистую output directory.
+
+НЕ экспортируй поверх существующего res вслепую.
+
+Сначала сделай staging:
+build/hotfox_asset_export/
+
+Сравни staging с:
+bootstrap/hotfox_2_2_0/app/src/main/res
+
+Перед копированием создай:
+verification/ui_rebuild/ASSET_COLLISION_REPORT.md
+
+Для каждого filename collision:
+- old SHA;
+- new SHA;
+- currently referenced where;
+- action: keep / replace / rename;
+- reason.
+
+Никаких silent overwrites.
+
+Все новые app resources должны использовать hf_ prefix,
+как предусмотрено комплектом.
+
+======================================================================
+7. 18 SCREEN EXECUTION ORDER
+======================================================================
+
+Пересобирай экраны строго по одному.
+
+Canonical set:
+01 Splash / Brand Entry
+02 Onboarding: Connect HotFox
+03 Onboarding: AUTO
+04 Onboarding: Ready / VPN Permission
+05 Connection: Disconnected
+06 Connection: Connecting / Reconnecting
+07 Connection: Protected
+08 Add Connection Bottom Sheet
+09 HTTPS Subscription Import / Refresh
+10 Servers
+11 Server Details
+12 Subscription / Entitlement
+13 Settings
+14 Smart Routing
+15 Apps & Custom Rules
+16 Autopilot
+17 Shadow
+18 Always-on VPN / Kill Switch
+
+НЕ делай сначала все XML, а потом “когда-нибудь проверим”.
+Для каждого screen:
+IMPLEMENT → BUILD → CAPTURE → COMPARE → FIX → ACCEPT → NEXT.
+
+======================================================================
+8. NATIVE UI / FUNCTIONAL SEMANTICS
+======================================================================
+
+Text:
+- native TextView/EditText/etc;
+- не raster;
+- реальные localized strings;
+- динамические values из реальной model.
+
+PrimaryButton:
+- один настоящий semantic action;
+- visual background/arrow from asset system;
+- existing listener сохраняется;
+- accessibility сохраняется.
+
+Rows:
+- native row;
+- leading visual;
+- native title/subtitle;
+- actual runtime trailing value;
+- chevron OR switch;
+- не создавать конкурирующие невидимые click overlays.
+
+BottomNavigation:
+- real navigation;
+- отдельный clickable target;
+- выбранный destination должен соответствовать actual destination;
+- не глобализировать одну nav interpretation на все screens, если exact reference конфликтует.
+
+BottomSheet:
+- настоящий sheet;
+- native scrim;
+- native rows;
+- Back / drag dismissal;
+- accessibility focus handling.
+
+Inputs:
+- real editable field;
+- selection/paste/IME;
+- реальная validation;
+- error semantics.
+
+Switch/checkbox:
+- state bound к существующей persisted model;
+- никаких fake visual-only states.
+
+Installed apps:
+- production list = реальные installed apps;
+- fixture app icons = только deterministic screenshot fixture.
+
+======================================================================
+9. TECHNICAL CORE NON-REGRESSION
+======================================================================
+
+Не ломай и не упрощай:
+
+Android app
+→ VpnService/TUN
+→ HEV/tun2socks
+→ local Xray SOCKS 127.0.0.1:10808
+→ Xray outbound
+→ VPN server
+→ Internet
+
+CONNECTED/“Защищено” разрешено показывать только после real readiness.
+
+Не считать подключением:
+- наличие VPN icon;
+- только TUN;
+- только запущенный Xray;
+- только открытый SOCKS;
+- только animation completion.
+
+Сохранять:
+- DNS no-bypass;
+- IPv6 route/fail-closed;
+- loop prevention;
+- clean disconnect/reconnect;
+- stale async protection;
+- truthful latency;
+- real server state;
+- real entitlement state;
+- real traffic counters.
+
+======================================================================
+10. EXACT SCREEN ≠ GLOBAL NORMALIZATION
+======================================================================
+
+НЕ пытайся сделать все экраны “системнее”, если конкретные references различаются.
+
+Уже известная ловушка:
+один экран может показывать один navigation label/state,
+другой approved screen — другой.
+
+Exact screen reference wins.
+
+Не меняй Screen 07 только потому, что Screen 05 выглядит иначе.
+Не меняй конкретные rows только ради глобальной симметрии.
+Не добавляй Settings tab на все screens только потому, что current implementation это делает.
+
+Каждое несовпадение разрешается по конкретному reference.
+
+======================================================================
+11. VISUAL QA — ОБЯЗАТЕЛЬНЫЙ REAL SCREENSHOT LOOP
+======================================================================
+
+После каждого экрана:
+
+1. Собери debug APK.
+2. Запусти на emulator API 34.
+3. Выставь deterministic screenshot profile:
+   - locale ru-RU;
+   - dark theme;
+   - font scale 1.0;
+   - predictable density;
+   - animations off для static comparison, кроме отдельного motion test.
+4. Открой конкретный экран.
+5. Получи REAL emulator screenshot.
+6. Crop только системные внешние области, если это документировано.
+7. Align с approved phone reference.
+8. Сделай:
+   - side-by-side;
+   - 50% overlay;
+   - pixel/structural diff;
+   - geometry notes.
+9. Исправь.
+10. Повтори.
+
+Создавай:
+verification/ui_rebuild/actual/01.png ... 18.png
+verification/ui_rebuild/overlay/01.png ... 18.png
+verification/ui_rebuild/diff/01.png ... 18.png
+
+Обновляй:
+verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS.csv
+
+Поля минимум:
+screen_id,
+reference,
+actual,
+capture_status,
+geometry_status,
+typography_status,
+color_status,
+asset_status,
+functional_status,
+accessibility_status,
+visual_status,
+notes.
+
+НЕЛЬЗЯ ставить PASS, если actual screenshot отсутствует.
+
+`NOT_CAPTURED` = FAIL / NOT EXECUTED.
+`NOT_EXECUTED` = FAIL / NOT EXECUTED.
+
+======================================================================
+12. SCREENSHOT FIXTURE RULE
+======================================================================
+
+Для screen states, которые трудно получить deterministic production data:
+
+Разрешён debug/test-only fixture harness.
+
+Он может задавать:
+- deterministic server names;
+- deterministic latency;
+- deterministic traffic values;
+- deterministic entitlement display;
+- deterministic app list.
+
+НО:
+- fixture code только debug/test;
+- release source не должен получать fake operational data;
+- production truth не меняется;
+- screenshot fixture должен быть явно маркирован.
+
+======================================================================
+13. ACCESSIBILITY / SMALL-SCREEN CHECK
+======================================================================
+
+Pixel reconstruction не разрешает ломать доступность.
+
+Проверь:
+- минимум 48dp touch target;
+- contentDescription;
+- switch/checkbox semantics;
+- focus order;
+- editable fields;
+- Back behavior;
+- sheet dismissal;
+- TalkBack-friendly labels;
+- font scaling;
+- system insets;
+- small-height screen.
+
+Если literal screenshot geometry конфликтует с essential accessibility:
+зафиксируй conflict в report и выбери functional accessible behavior,
+не скрывая отклонение.
+
+======================================================================
+14. COMMIT STRATEGY
+======================================================================
+
+Не делай один гигантский неаудируемый commit.
+
+Минимальная стратегия:
+- commit 1: asset intake + manifests + staging only
+- commit 2: shared tokens/resources/component primitives
+- commit 3+: screen groups или отдельные screen fixes
+- commit: remove legacy asset production references
+- commit: screenshot/diff evidence + reports
+
+Каждый commit должен:
+- быть buildable либо явно staging-only;
+- не трогать VPN core без необходимости;
+- иметь понятное message.
+
+Не merge.
+
+======================================================================
+15. SELF-REVIEW BEFORE CLAIMING SUCCESS
+======================================================================
+
+Перед финальным отчётом сам выполни жёсткий review:
+
+Ищи:
+- legacy fox_planet references;
+- full-screen bitmap cheating;
+- baked native text;
+- fake runtime values;
+- generic Material defaults;
+- accidental white backgrounds;
+- purple #6200EE leftovers;
+- unexpected elevation;
+- random icon families;
+- emoji flags;
+- invented planets/arcs;
+- fox on wrong screens;
+- missing assets;
+- asset stretching;
+- wrong aspect ratio;
+- navigation normalization;
+- unmeasured screens;
+- NOT_CAPTURED rows;
+- hidden test fixtures leaking into release.
+
+Любой найденный пункт исправить до финального статуса.
+
+======================================================================
+16. REQUIRED FINAL REPORT
+======================================================================
+
+Создай:
+verification/ui_rebuild/HOTFOX_ASSET_FIRST_FINAL_REPORT.md
+
+В нём обязательно:
+
+A. Environment
+- branch
+- HEAD
+- Android build variant
+- emulator API/device
+
+B. Asset intake
+- actual counts
+- unique asset IDs
+- PNG/SVG/XML counts
+- checksum verification
+- corrupt = 0/...
+- collisions
+
+C. Legacy cleanup
+- old assets found
+- old production refs before
+- old production refs after
+
+D. Build
+- assembleDebug result
+- unit tests
+- lint status
+
+E. Screen table 01–18
+- implementation
+- capture
+- visual QA
+- functionality
+- accessibility
+- PASS/FAIL
+
+F. Remaining gaps
+- everything not actually executed
+- no optimistic wording
+
+G. Explicit statements
+- RELEASE READY: NO
+  unless separate final release gate has genuinely been executed elsewhere.
+- Emulator screenshots captured: YES/NO
+- Physical device VPN E2E: YES/NO
+- 18/18 visual evidence: YES/NO
+
+======================================================================
+17. HARD STOP CONDITIONS
+======================================================================
+
+STOP AND REPORT instead of improvising if:
+
+- attached ZIP missing/unreadable;
+- checksum verification fails;
+- branch is wrong and cannot be switched safely;
+- Android project is missing;
+- emulator cannot be started after reasonable repair;
+- reference originals are unavailable;
+- a required asset is genuinely absent and cannot be reconstructed from included SVG;
+- proposed change would require weakening VPN/security truth.
+
+Не заменяй отсутствие данных выдумкой.
+
+======================================================================
+18. START NOW
+======================================================================
+
+Сейчас:
+
+1. Проверь branch/head/status.
+2. Собери asset kit из четырёх ZIP-part файлов в `design/` через `python design/UNPACK_HOTFOX_ASSET_PARTS.py`.
+3. Выполни полный ASSET INTAKE GATE.
+4. Напиши ASSET_INTAKE_REPORT.md.
+5. Только если PASS — экспортируй Android resources в staging.
+6. Проведи collision audit.
+7. Удали production dependency на старые screenshot-derived legacy assets.
+8. Пересобирай 01 → 18 по циклу IMPLEMENT → BUILD → CAPTURE → COMPARE → FIX.
+9. Не останавливайся после planning.
+10. Не проси owner подтверждать каждый экран.
+11. Не claim pixel-perfect без 18 actual screenshots.
+12. Не merge.

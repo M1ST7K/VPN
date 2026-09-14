@@ -1,0 +1,21 @@
+---
+description: Latest owner-approved V13 Home screenshots and PNG integration
+alwaysApply: true
+---
+
+# HotFox V13: latest Home visual source
+
+For Home Disconnected / Connecting / Connected, read and execute
+`design/HOTFOX_CURSOR_V13_APPROVED_HOME_EXECUTION.md`.
+
+The three PNGs in `design/hotfox_home_v13/design/references/` supersede older Home appearance/geometry (including V12/V11 and 05/06/07 originals) wherever they conflict. Other screens and runtime/security gates remain unchanged.
+
+- Use supplied art; no circles, rings, outline or additional halo around the fox.
+- Prefer hotfox_hero_scene.png once. Do not add a second fox. Separate real-alpha assets also supplied.
+- Recreate the whole approved Home: brand, status, hero, stable state detail, CTA, server, Shadow/Smart side by side, subscription, Home-active navigation.
+- Keep measured responsive layout; no independent absolute XY/offset control layers or screenshot-only renderer.
+- Current repository uses Views/ViewBinding. Packaged Compose files are visual references, not an instruction to migrate frameworks.
+- Version all production edits under bootstrap/hotfox_2_2_0/app; ignored V2rayNG-only changes are insufficient.
+- Real system bars, real interaction/state/data/entitlement; debug fixtures never prove real VPN behavior.
+- Build and produce fresh three-state screenshots with documented reference comparisons. Compile alone does not establish 1:1.
+

@@ -15,10 +15,21 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_vertical"
-        android:minHeight="64dp"
+        android:minHeight="56dp"
         android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/iv_flag"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/hf_globe_orange"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/layout_indicator"
@@ -38,10 +49,10 @@
                 style="@style/HotFoxTextHeadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
+                android:ellipsize="none"
+                android:maxLines="2"
                 android:textColor="@color/hotfox_editorial_text"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 tools:text="Амстердам" />
 
             <TextView
@@ -68,6 +79,14 @@
             android:textColor="@color/hotfox_editorial_text_dim"
             android:textSize="13sp"
             tools:text="28 ms" />
+
+        <ImageView
+            android:id="@+id/img_row_chevron"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/hf_chevron_muted" />
 
         <LinearLayout
             android:id="@+id/layout_favorite"

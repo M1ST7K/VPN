@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="hf_onboard_gutter">24dp</dimen>
+    <dimen name="hf_onboard_cta_height">56dp</dimen>
+    <dimen name="hf_onboard_cta_radius">18dp</dimen>
+    <dimen name="hf_onboard_title_size">36sp</dimen>
+    <dimen name="hf_onboard_body_size">16sp</dimen>
+    <dimen name="hf_onboard_art_min">160dp</dimen>
+    <dimen name="hf_onboard_orbits">268dp</dimen>
+    <dimen name="hf_onboard_globe">96dp</dimen>
+    <dimen name="hf_splash_wordmark_onboard_width">168dp</dimen>
+</resources>

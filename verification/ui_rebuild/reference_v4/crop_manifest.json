@@ -1,0 +1,333 @@
+{
+  "algorithm": "bezel-edge + dark-column center, aspect-assisted, recorded once",
+  "target_size": [
+    1080,
+    2400
+  ],
+  "screens": {
+    "01": {
+      "source": "design/hotfox_18_final_style_reference/01_splash_brand_entry.jpeg",
+      "crop_xyxy": [
+        549,
+        140,
+        897,
+        960
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/01.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "02": {
+      "source": "design/hotfox_18_final_style_reference/02_onboarding_connect_hotfox.jpeg",
+      "crop_xyxy": [
+        553,
+        149,
+        893,
+        951
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/02.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "03": {
+      "source": "design/hotfox_18_final_style_reference/03_onboarding_auto.jpeg",
+      "crop_xyxy": [
+        547,
+        137,
+        899,
+        963
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/03.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "04": {
+      "source": "design/hotfox_18_final_style_reference/04_onboarding_ready.jpeg",
+      "crop_xyxy": [
+        546,
+        133,
+        901,
+        966
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/04.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "05": {
+      "source": "design/hotfox_18_final_style_reference/05_main_not_protected.jpeg",
+      "crop_xyxy": [
+        291,
+        258,
+        731,
+        1295
+      ],
+      "source_size": [
+        1024,
+        1536
+      ],
+      "output": "verification/ui_rebuild/reference_v4/05.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "06": {
+      "source": "design/hotfox_18_final_style_reference/06_connecting.png",
+      "crop_xyxy": [
+        544,
+        134,
+        898,
+        965
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/06.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "07": {
+      "source": "design/hotfox_18_final_style_reference/07_protected.png",
+      "crop_xyxy": [
+        546,
+        135,
+        899,
+        964
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/07.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "08": {
+      "source": "design/hotfox_18_final_style_reference/08_add_connection.png",
+      "crop_xyxy": [
+        548,
+        140,
+        897,
+        960
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/08.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "09": {
+      "source": "design/hotfox_18_final_style_reference/09_https_subscription.png",
+      "crop_xyxy": [
+        548,
+        139,
+        898,
+        961
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/09.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "10": {
+      "source": "design/hotfox_18_final_style_reference/10_servers.png",
+      "crop_xyxy": [
+        548,
+        140,
+        897,
+        960
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/10.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "11": {
+      "source": "design/hotfox_18_final_style_reference/11_server_details.png",
+      "crop_xyxy": [
+        553,
+        146,
+        895,
+        953
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/11.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "12": {
+      "source": "design/hotfox_18_final_style_reference/12_subscription.png",
+      "crop_xyxy": [
+        548,
+        140,
+        897,
+        960
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/12.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "13": {
+      "source": "design/hotfox_18_final_style_reference/13_settings.png",
+      "crop_xyxy": [
+        547,
+        135,
+        900,
+        964
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/13.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "14": {
+      "source": "design/hotfox_18_final_style_reference/14_smart_routing.png",
+      "crop_xyxy": [
+        545,
+        133,
+        900,
+        966
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/14.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "15": {
+      "source": "design/hotfox_18_final_style_reference/15_apps_and_rules.png",
+      "crop_xyxy": [
+        546,
+        135,
+        899,
+        964
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/15.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "16": {
+      "source": "design/hotfox_18_final_style_reference/16_autopilot.png",
+      "crop_xyxy": [
+        548,
+        137,
+        900,
+        963
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/16.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "17": {
+      "source": "design/hotfox_18_final_style_reference/17_shadow.png",
+      "crop_xyxy": [
+        547,
+        138,
+        898,
+        962
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/17.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    },
+    "18": {
+      "source": "design/hotfox_18_final_style_reference/18_always_on_kill_switch.png",
+      "crop_xyxy": [
+        548,
+        139,
+        898,
+        961
+      ],
+      "source_size": [
+        1448,
+        1086
+      ],
+      "output": "verification/ui_rebuild/reference_v4/18.png",
+      "output_size": [
+        1080,
+        2400
+      ]
+    }
+  }
+}

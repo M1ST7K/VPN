@@ -1,0 +1,206 @@
+package com.v2ray.ang.ui
+
+import android.app.Activity
+import android.app.Application
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
+import android.view.WindowManager
+import android.widget.TextView
+import java.lang.ref.WeakReference
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.v2ray.ang.R
+import com.v2ray.ang.dto.AppInfo
+import com.v2ray.ang.vpn.ConnectionUiMapper
+
+/**
+ * Debug-only view painter. Applies screenshot presentation after production
+ * layouts inflate. Never writes VPN/security/subscription stores.
+ */
+object HotfoxUiQaPainter : Application.ActivityLifecycleCallbacks {
+    private val main = Handler(Looper.getMainLooper())
+    private var paintGeneration = 0
+    private var lastMain = WeakReference<MainActivity>(null)
+
+    fun applyConnectionChromeNow(chrome: String) {
+        val scenarioId = when (chrome) {
+            HotfoxUiVisualOverride.CHROME_CONNECTING -> HotfoxUiScreenshotScenario.CONNECTING.id
+            HotfoxUiVisualOverride.CHROME_CONNECTED -> HotfoxUiScreenshotScenario.PROTECTED.id
+            else -> HotfoxUiScreenshotScenario.DISCONNECTED.id
+        }
+        HotfoxUiVisualOverride.installDebugPresentation(
+            scenarioId = scenarioId,
+            connectionChrome = chrome,
+        )
+        val activity = lastMain.get()
+        if (activity != null) {
+            paintMain(activity)
+        }
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        if (HotfoxUiVisualOverride.holdSplash && activity is HotfoxSplashActivity) {
+            activity.skipAutoAdvance = true
+        }
+        if (HotfoxUiVisualOverride.appsFixture && activity is PerAppProxyActivity) {
+            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    override fun onActivityStarted(activity: Activity) = Unit
+
+    override fun onActivityResumed(activity: Activity) {
+        if (activity is MainActivity) {
+            lastMain = WeakReference(activity)
+        }
+        paint(activity)
+        main.post { paint(activity) }
+        main.postDelayed({ paint(activity) }, 450L)
+        main.postDelayed({ paint(activity) }, 1600L)
+        main.postDelayed({ paint(activity) }, 4000L)
+        scheduleRepeatingPaint(activity)
+    }
+
+    private fun scheduleRepeatingPaint(activity: Activity) {
+        val needsRepeat = HotfoxUiVisualOverride.subscriptionFixture ||
+            HotfoxUiVisualOverride.serversFixture ||
+            HotfoxUiVisualOverride.showAddSheet ||
+            HotfoxUiVisualOverride.connectionChrome != null ||
+            HotfoxUiVisualOverride.appsFixture
+        if (!needsRepeat) return
+        // Repeats only fixture labels/state. Production applyRunningState can
+        // overwrite chrome and the VPN-permission stage line; geometry stays in XML.
+        paintGeneration += 1
+        val generation = paintGeneration
+        val tick = object : Runnable {
+            override fun run() {
+                if (generation != paintGeneration) return
+                if (activity.isFinishing || activity.isDestroyed) return
+                paint(activity)
+                main.postDelayed(this, 700L)
+            }
+        }
+        main.postDelayed(tick, 700L)
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        paintGeneration += 1
+    }
+    override fun onActivityStopped(activity: Activity) = Unit
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+    override fun onActivityDestroyed(activity: Activity) = Unit
+
+    private fun paint(activity: Activity) {
+        if (activity.isFinishing) return
+        when (activity) {
+            is MainActivity -> paintMain(activity)
+            is PerAppProxyActivity -> paintApps(activity)
+        }
+    }
+
+    private fun paintMain(activity: MainActivity) {
+        val chrome = HotfoxUiVisualOverride.connectionChrome
+        if (chrome != null) {
+            val visual = when (chrome) {
+                HotfoxUiVisualOverride.CHROME_CONNECTING -> MainActivity.ConnectionVisualState.CONNECTING
+                HotfoxUiVisualOverride.CHROME_CONNECTED -> MainActivity.ConnectionVisualState.CONNECTED
+                else -> MainActivity.ConnectionVisualState.DISCONNECTED
+            }
+            val headline = when (visual) {
+                MainActivity.ConnectionVisualState.CONNECTING -> ConnectionUiMapper.Headline.CONNECTING
+                MainActivity.ConnectionVisualState.CONNECTED -> ConnectionUiMapper.Headline.CONNECTED
+                else -> ConnectionUiMapper.Headline.DISCONNECTED
+            }
+            activity.applyConnectionChrome(visual, headline)
+            val headlineRes = when (visual) {
+                MainActivity.ConnectionVisualState.CONNECTED -> R.string.hotfox_home_title_connected
+                MainActivity.ConnectionVisualState.CONNECTING -> R.string.hotfox_home_title_connecting
+                else -> R.string.hotfox_home_title_disconnected
+            }
+            activity.updateStatusText(
+                headlineRes,
+                R.color.hf_v13_text,
+            )
+            val connect = activity.findViewById<TextView>(R.id.connect_action)
+            connect?.text = when (visual) {
+                MainActivity.ConnectionVisualState.CONNECTED -> activity.getString(R.string.hotfox_disconnect)
+                MainActivity.ConnectionVisualState.CONNECTING -> activity.getString(R.string.hotfox_home_cancel)
+                else -> activity.getString(R.string.hotfox_connect)
+            }
+            activity.window?.decorView?.post {
+                runCatching { HotfoxHomeSlotGuard.verify(activity) }
+            }
+            if (visual == MainActivity.ConnectionVisualState.CONNECTED) {
+                activity.findViewById<TextView>(R.id.tv_vpn_status)?.text =
+                    activity.getString(R.string.hotfox_home_subtitle_online, "00:00:00")
+                activity.findViewById<TextView>(R.id.tv_downloaded)?.text = "0 МБ"
+                activity.findViewById<TextView>(R.id.tv_uploaded)?.text = "0 МБ"
+            }
+            if (visual == MainActivity.ConnectionVisualState.CONNECTING) {
+                activity.findViewById<TextView>(R.id.tv_connection_stage)?.apply {
+                    visibility = View.VISIBLE
+                    setText(R.string.hotfox_home_checking)
+                }
+            }
+        }
+        if (HotfoxUiVisualOverride.showAddSheet) {
+            activity.presentAddConnectionSheet()
+        }
+        if (HotfoxUiVisualOverride.subscriptionFixture) {
+            activity.findViewById<View>(R.id.layout_premium_onboarding)?.isVisible = false
+            activity.findViewById<View>(R.id.layout_subscription_details)?.isVisible = true
+            activity.findViewById<TextView>(R.id.tv_subscription_state)?.text = "● HotFox Premium"
+            activity.findViewById<TextView>(R.id.tv_subscription_expire)?.text = "31.12.2026"
+            activity.findViewById<TextView>(R.id.tv_subscription_remaining)?.text = "110 дней"
+            activity.findViewById<TextView>(R.id.tv_subscription_servers)?.text = "6"
+            activity.findViewById<TextView>(R.id.tv_subscription_url)?.text = "https://sub.example/***"
+        }
+        if (HotfoxUiVisualOverride.serversFixture) {
+            bindServerCatalogOverlay(activity)
+        }
+    }
+
+    private fun bindServerCatalogOverlay(activity: MainActivity) {
+        val overlay = activity.findViewById<RecyclerView>(R.id.content_list_overlay) ?: return
+        val pager = activity.findViewById<View>(R.id.view_pager)
+        pager?.isVisible = false
+        overlay.isVisible = true
+        overlay.overScrollMode = View.OVER_SCROLL_NEVER
+        overlay.isVerticalScrollBarEnabled = false
+        if (overlay.layoutManager == null) {
+            overlay.layoutManager = LinearLayoutManager(activity)
+        }
+        val rows = HotfoxUiVisualOverride.referenceServers
+        val current = overlay.adapter as? HotfoxUiQaServerAdapter
+        if (current == null || overlay.tag != rows.size) {
+            overlay.adapter = HotfoxUiQaServerAdapter(rows)
+            overlay.tag = rows.size
+        }
+    }
+
+    private fun paintApps(activity: PerAppProxyActivity) {
+        if (!HotfoxUiVisualOverride.appsFixture) return
+        activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        val rows = HotfoxUiVisualOverride.referenceApps
+        if (rows.isEmpty()) return
+        val apps = rows.map { row ->
+            AppInfo(
+                appName = row.appName,
+                packageName = row.packageName,
+                appIcon = HotfoxUiQaAppIcons.drawable(activity, row.packageName),
+                isSystemApp = false,
+                isSelected = if (row.selected) 1 else 0,
+            )
+        }
+        val recycler = activity.findViewById<RecyclerView>(R.id.recycler_view) ?: return
+        recycler.isVerticalScrollBarEnabled = false
+        recycler.overScrollMode = View.OVER_SCROLL_NEVER
+        recycler.adapter = HotfoxUiQaAppAdapter(apps)
+        activity.findViewById<TextView>(R.id.tv_selected_count)?.text =
+            apps.count { it.isSelected == 1 }.toString()
+        activity.findViewById<TextView>(R.id.tv_custom_rules_count)?.text = "3"
+    }
+}

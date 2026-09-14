@@ -1,0 +1,457 @@
+HOTFOX — РЕАЛИЗАЦИЯ ЭКРАНОВ 01–03 ИЗ СЕРИИ 18 ЭКРАНОВ
+Поручение владельца, 14 сентября 2026. Версия: ONBOARDING-01-03-20260914.
+
+0. НАЧНИ РЕАЛИЗАЦИЮ В ЭТОМ ЗАПУСКЕ
+
+Реализуй в существующем Android-приложении три экрана по новому референсу,
+используя ДЕЙСТВУЮЩИЕ ассеты репозитория. Нужны production UI, работающие
+переходы, сборка APK и реальные скриншоты. Не заканчивай на плане или отчёте.
+
+Репозиторий: M1ST7K/VPN.
+Ветка: cursor/hotfox-ui-pixel-lock-rebuild. Продолжай существующий PR #10.
+HEAD, проверенный при подготовке задания: 10d4f3c2d58c82207fe1ce32d58c46214d4fba7c.
+Это baseline, НЕ команда reset/checkout на старый коммит. Включи актуальный
+tip ветки и коммит этого задания, сохрани более поздние исправления.
+Не force-push, не reset чужой работы, не merge PR, не выпускай релиз.
+
+Владелец прямо уточнил: «нужны именно экраны 1-3 из 18 экранов».
+Правильная нумерация:
+01 = Splash / Brand Entry, заставка.
+02 = Onboarding / Подключите HotFox, выбор существующей подписки или покупки.
+03 = Onboarding / AUTO, автоматический или ручной выбор сервера.
+05/06/07 = Home: Disconnected / Connecting / Connected. ЭТО ДРУГОЕ ЗАДАНИЕ.
+Никакие файлы hotfox-01-disconnected-v2.png не являются референсом экрана 01.
+
+1. ИСТОЧНИКИ, ПРИОРИТЕТ И ОГРАНИЧЕНИЕ ОБЪЁМА
+
+Читай AGENTS.md, docs/CURRENT_PHASE.md, этот файл полностью и новую локальную
+инструкцию .cursor/rules/34-hotfox-onboarding-01-03-existing-assets.mdc.
+Сохрани применимые инженерные, security, review и release правила.
+
+Новый визуальный референс:
+design/hotfox_onboarding_01_03_20260914/reference_triptych.png
+Контроль целостности:
+design/hotfox_onboarding_01_03_20260914/REFERENCE_LOCK.json
+Открой PNG как изображение. Текстовый prompt не заменяет просмотра.
+
+В референсе слева направо 01, 02, 03. Это новый макет из текущего диалога.
+Подписи над экранами, внешние промежутки и тонкая рамка презентации НЕ UI.
+Не рисуй нарисованную статусную строку/жестовую полоску: используй SystemUI.
+Не устанавливай PNG целиком как background приложения. Он reference-only.
+
+Первоначальные источники для смысла экранов и точного копирайта:
+design/hotfox_18_final_style_reference/01_splash_brand_entry.jpeg
+design/hotfox_18_final_style_reference/02_onboarding_connect_hotfox.jpeg
+design/hotfox_18_final_style_reference/03_onboarding_auto.jpeg
+design/HOTFOX_18_PIXEL_LOCK_RECREATION_MASTER_PROMPT.txt
+
+Новый триптих определяет актуальную композицию 01–03. Оригиналы сохраняются
+неизменными. Архивные callout-панели вокруг телефона не переносить в приложение.
+Для Home остаётся V13; не распространяй новую onboarding-композицию на Home.
+Экраны 04–18 не перепроектируй. Нужные переходы в 04/08/09/10 и существующую
+покупку подключи без изменения их внешности и бизнес-правил.
+
+Явный локальный конфликт старых визуальных правил:
+Новый экран 03 содержит globe + тонкие пунктирные орбиты с узлами. В этой
+onboarding-иллюстрации это теперь выбранная владельцем композиция.
+Старое blanket «orbit forbidden everywhere» не должно подменять экран 03
+другой картинкой. Исключение касается ТОЛЬКО экрана 03. Не добавляй кольца
+вокруг лисы, в Home или остальные экраны. Планета разрешена на 01/02.
+Это локальное уточнение визуального задания, не отмена защитных механизмов,
+разрешений, тестов, reviewer policy или ограничений выпуска приложения.
+
+2. ДЕЙСТВУЮЩИЙ СТЕК И КУДА ВНОСИТЬ КОД
+
+Используй существующие Views/XML/ViewBinding. Не мигрируй в Compose/WebView.
+Versioned source of truth: bootstrap/hotfox_2_2_0/app/.
+Изменения только в игнорируемом V2rayNG/ не считаются доставленной реализацией.
+Reconstruct/apply overlay по действующим bootstrap-инструкциям, проверяй,
+что из чистого checkout получается тот же APK и те же ресурсы.
+
+Подтверждённые точки реализации:
+bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_splash.xml
+bootstrap/hotfox_2_2_0/app/src/main/res/layout/activity_hotfox_onboarding.xml
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxSplashActivity.kt
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxOnboardingActivity.kt
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotFoxHeroArtwork.kt
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxHeroComposition.kt
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxOnboarding.kt
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/vpn/HotfoxServerSelection.kt
+bootstrap/hotfox_2_2_0/app/src/main/res/layout/include_hf_header.xml
+
+Первым делом найди реальный manifest/launcher, существующие navigation targets,
+strings, styles, dimens и debug capture harness. Не угадывай имена Activity.
+Не переписывай shared header/hero глобально ради трёх экранов. Предпочти
+scoped onboarding layout/helper или отдельный opt-in layout mode с прежними
+defaults для остальных потребителей. Сохрани их существующие view id/callbacks.
+
+3. ЧТО УЖЕ НАЙДЕНО В КОДЕ — ПРОВЕРЬ И УСТРАНИ ПРИЧИНУ
+
+На baseline activity_hotfox_onboarding.xml содержит полноэкранный
+HotFoxHeroArtwork за foreground и пустой weighted onboarding_hero_host.
+Сам HotFoxHeroArtwork.layoutHero() опирается на displayMetrics всего дисплея,
+getLocationOnScreen и ручную расстановку, принудительно снимая clipping.
+Поэтому просто перенести такой View внутрь маленького контейнера недостаточно:
+он может продолжать рисовать лису относительно экрана и выходить за контейнер.
+Для 01/02 используй реальные размеры доступной art-области и её локальные
+координаты; не наследуй fullscreen-поведение случайно.
+
+include_hf_header имеет собственный paddingStart=16dp поверх page gutter.
+Не оставляй wordmark на одной вертикали, а H1/body/CTA — на другой.
+Реши локально, без смещения header на других экранах.
+
+WELCOME и ACCESS сейчас показывают один текст «У меня уже есть подписка»,
+но WELCOME обрабатывает NEXT и может сначала открыть разрешение VPN;
+ACCESS запускает импорт и сразу advance(NEXT), не дожидаясь результата.
+AUTO secondary сейчас setAutoMode(false) + переход FIRST_CONNECTION,
+вместо явного открытия списка серверов. Не копируй эти несоответствия
+в новую реализацию. Кнопки обязаны выполнять подписанное действие.
+onCreate также не восстанавливает step из savedInstanceState — проверь
+поворот/пересоздание и возврат из импорта/покупки; исправь UI lifecycle.
+
+4. АССЕТЫ — ПЕРЕИСПОЛЬЗОВАНИЕ, А НЕ НОВАЯ ГЕНЕРАЦИЯ
+
+Создай короткий ASSET_INTAKE.md: resource id, реальный путь, размеры, density,
+alpha, SHA-256, экран, способ отображения. Посмотри картинки до выбора.
+Не считай одинаковыми ассеты только по схожему имени.
+
+Подтверждённые текущие PNG в
+bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/:
+hotfox_fox.png — отдельная чёрная лиса с оранжевой подсветкой;
+hotfox_fox_master.png — текущая лиса общего renderer, проверь визуально;
+hotfox_planet_background.png — отдельный фон планеты;
+hotfox_planet_overlay.png — отдельный слой планеты;
+hotfox_hero_scene.png — готовая сцена V13;
+hf_native_planet_sphere.png;
+hf_native_planet_onboarding.png;
+hf_native_planet_backdrop.png.
+
+Предпочтительный путь для 01/02: одна проверенная прозрачная лиса плюс ОДИН
+подходящий существующий планетный фон. На обоих экранах один и тот же fox
+resource, но разные локальные размеры/положение. Копировать PNG с новым именем
+или заменять байты исходника не требуется. Пригодный V13 hotfox_fox.png уже
+визуально проверен при подготовке задания; сравни с master перед финальным выбором.
+Готовая hotfox_hero_scene допустима только если её crop в собственной art-области
+даёт нужную композицию; не ставь поверх неё ещё одну лису или вторую планету.
+Поскольку Splash и Connect имеют разную композицию, отдельные слои предпочтительны.
+
+Для 03 уже существуют density-варианты:
+bootstrap/hotfox_2_2_0/app/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/hf_auto_orbits.png
+и hf_globe_orange.png. Проверь реально имеющиеся qualifiers через rg --files.
+hf_auto_orbits — слой орбит/узлов, центральный globe накладывается отдельным
+существующим ресурсом. Не помещай два globe. Проверь результат на тёмном фоне:
+у orbit PNG есть заметное свечение, подбери alpha слоёв под спокойный референс.
+Не добавляй новый glow, не рисуй новый радар. Не используй hf_shadow_orbits.
+Текущий hf_native_auto_routing.xml рисует асимметричную hub-сеть и не совпадает
+с выбранным экраном 03; не оставляй его молча вместо орбит из макета.
+
+Для бренда/контролов/индикатора доступны существующие ресурсы:
+hf_brand_wordmark, hf_arrow_right_ink, hf_loading_track, hf_loading_fill,
+действующие HotFox.PrimaryButton / HotFox.TextButton и цвета hf_asset_*.
+Реальный список и плотности проверь в checkout.
+
+Запрещено:
+- генерировать/скачивать новую лису, планету, иконки, orbit artwork;
+- вытаскивать картинку лисы или кнопки из нового триптиха;
+- возвращать legacy hf_fox_planet и screenshot-derived composites;
+- менять байты общих PNG, что меняет Home/остальные экраны;
+- растягивать artwork через FIT_XY, портить пропорции головы/планеты;
+- использовать png кнопки с запечённым текстом вместо живого control;
+- пересоздавать UI целиком в Canvas или background-bitmap.
+
+Нативные shape/ripple/selector/dimens для функциональных контролов допустимы.
+Это не новый художественный ассет. Шрифты: существующая семейство с Cyrillic,
+либо действующий системный fallback. Не загружай новый font ради макета.
+Зафиксируй ограничения фактических ассетов вместо заявления ложного pixel-perfect.
+
+5. ЕДИНАЯ ГЕОМЕТРИЯ И АДАПТАЦИЯ
+
+Тёмный фон около #0F0E14, кремовый основной текст около #EFEAE1,
+читабельный приглушённый серый body, тёплый оранжевый около #F18148.
+Точные значения сверь с референсом и текущими tokens; scoped overrides вместо
+перекрашивания всего приложения. Без карточек, blur, glass, неоновых рамок.
+
+Ориентир телефона — 9:20, реальная компоновка в dp/sp по измеренным insets.
+Референс — не причина ставить реальные controls по абсолютным процентам экрана.
+У 02 и 03 совпадают left/right gutter, верх label, headline/body rhythm,
+нижняя CTA и вторичное действие. Эти элементы должны стоять на одной высоте
+при одинаковом viewport/fontScale и обычной длине русского текста.
+
+Порядок 02/03 в normal layout flow:
+system top inset → brand → title → body → flexible bounded art slot →
+gap → primary CTA → divider/gap → secondary action → system bottom inset.
+Подход: ConstraintLayout или разумный LinearLayout с измеряемой гибкой областью.
+Внутри art slot можно накладывать artwork-слои. Текст и controls не накладываются.
+
+Gutter ориентировочно 24dp; H1 34–36sp/около40sp line height, semibold;
+body 16sp/24sp; primary минимум56dp высота и около18dp radius;
+secondary минимум48dp touch target; label около18sp.
+Это стартовые tokens, их довести по screenshot comparison, не догма для
+маленького экрана и большого шрифта. Не жертвовать читаемостью ради фиксированного XY.
+Длинная primary подпись без обрезания и без all-caps. Стрелка справа отдельно
+от текстового расчёта ширины, не наезжает на последнюю букву.
+
+На коротком экране сначала уменьши decorative art и вертикальный воздух.
+Если этого недостаточно — доступный вертикальный scroll без наложений.
+Не уменьшай системный fontScale, не обрезай body многоточием и не делай CTA
+недоступной под gesture/three-button navigation. При fontScale 1.3–1.5 высота
+button при необходимости wrap_content с minHeight; текст может корректно переноситься.
+Не сохраняй огромную лису ценой кнопок и текста.
+
+Прозрачные поля bitmap учитывай по реальному alpha bounds: высота View не
+равна высоте видимой лисы. Масштабируй пропорционально, измеряй видимые уши,
+нос и нижний край. Лиса никогда не входит в H1/body/CTA.
+Не лечи это отрицательными margin, translationY controls, z-order или scrim,
+который только скрывает уже случившееся наложение.
+
+6. ЭКРАН 01 — ЗАСТАВКА
+
+Чистый тёмный экран, одна лиса в центральной области, дуга планеты позади.
+Визуальный центр лисы примерно 42–48% высоты полезного viewport; она крупнее,
+чем на 02. Уши далеко от status bar. Оранжевая кромка не заливает весь экран.
+Внизу изображения плавное слияние шерсти с фоном без прямоугольной подложки.
+Ниже artwork отдельный brand block:
+HotFox
+БОЛЬШЕ, ЧЕМ VPN
+Крупный оранжевый wordmark, маленький серый tagline с межбуквенным интервалом.
+Ещё ниже тонкая короткая loading line, как в референсе.
+Нет второго логотипа сверху, кнопок, настроек, сервера или bottom navigation.
+
+Сохрани быстрый старт: не добавляй sleep/delay 2–3 секунды ради демонстрации.
+На Android 12+ согласуй системный splash и существующий branded entry без
+двух длинных последовательных заставок. Не ломай Android 7/API24.
+Линия не должна показывать выдуманный процент загрузки. Если нет реальной
+длительной загрузки, не удерживай Splash; кадр для приёмки получай debug harness.
+Переход один раз, без двойного startActivity при recreation/повторном callback.
+Existing completed onboarding не сбрасывать: возвращающийся пользователь
+попадает в действующий Main, новый — в Onboarding.
+Не маркируй onboarding complete на заставке.
+
+7. ЭКРАН 02 — ПОДКЛЮЧИТЕ HOTFOX
+
+Сверху слева маленький оранжевый HotFox.
+Заголовок ровно:
+Подключите
+HotFox
+
+Body ровно:
+Добавьте свою подписку или продолжите с уже существующим доступом.
+Переносы адаптивные, форма блока как на референсе. Никакого нового marketing text.
+
+Лиса+планета в нижней-средней art-области, полностью ниже body и выше CTA.
+Лиса меньше Splash и опущена в свой slot, не приклеена к верхнему краю экрана.
+Основная широкая оранжевая кнопка:
+У меня уже есть подписка
+Вторичная текстовая кнопка:
+Купить доступ
+Обе постоянно видимы в этом состоянии, действие вторичной не прячется
+без объяснения availability. Нет технического текста про оплату/webhook/backend.
+
+Действия:
+1) Existing subscription CTA открывает существующий путь добавления/импорта
+   подписки. При имеющейся нижней панели импорта используй её; иначе текущую
+   HotfoxHttpsImportActivity. Не создавай второй importer.
+2) При уже существующем пригодном доступе используй текущую проверенную модель
+   доступа и корректный путь продолжения в AUTO. Не выдумывай entitlement.
+3) Отмена/ошибка/невалидная подписка возвращает на осмысленный экран и не
+   выдаёт успех, не помечает onboarding complete, не дублирует импорт.
+4) Успешное добавление продолжает существующий onboarding с фактическим доступом.
+   Используй ActivityResult/canonical state refresh; запуска импорт-Activity
+   недостаточно, чтобы считать импорт успешным. Повторные callbacks idempotent.
+5) «Купить доступ» открывает существующий RenewalActivity/действующий commerce
+   маршрут после проверки фактического класса/доступности. Не новый checkout,
+   не внешняя выдуманная ссылка. Возврат из браузера не доказывает оплату.
+6) При недоступности покупки корректно покажи существующее состояние/сообщение;
+   путь внешней подписки остаётся доступным. Не превращай кнопку в silent no-op.
+7) Не показывай VPN permission по кнопке, обещающей только импорт подписки.
+   Реальное разрешение запроси в предусмотренном onboarding step 04 / перед
+   реальным VPN-действием, сохрани все проверки разрешения и отказа.
+
+Изменения в контроллере onboarding/navigation допустимы для этих действий.
+Не переписывай access resolver, crypto, импорт/parser или платёжный backend.
+Если flow helper нужно локально согласовать с новым порядком, добавь meaningful
+тест переходов; не удаляй permission gate и не подменяй facts фиктивными true.
+
+8. ЭКРАН 03 — AUTO
+
+Тот же маленький HotFox, тот же gutter и ритм.
+Заголовок ровно:
+Лучший сервер —
+автоматически
+
+Body ровно:
+HotFox сам выберет подходящий сервер и переключится при необходимости.
+
+В art slot существующий слой орбит/узлов и один центральный globe.
+Тонкие приглушённые пунктирные окружности, небольшие тёплые узлы.
+Это иллюстрация; она не изображает реальные ping/load/traffic.
+На 03 НЕТ ЛИСЫ И ПЛАНЕТЫ. Скрытие artwork должно останавливать его анимацию
+и исключать прежние слои, а не только делать прозрачным foreground.
+Используй ресурсную композицию без нового растрового artwork.
+
+Primary: Использовать AUTO
+Secondary: Выбрать вручную
+Геометрия CTA/footer совпадает с 02 в одинаковом устройстве.
+
+Primary вызывает существующий HotfoxServerSelection.setAutoMode(true) и
+сохраняет first-class AUTO mode. AUTO не fake GUID, не выдуманный сервер.
+Далее — существующий следующий шаг подготовки/разрешения (04), без fake VPN start.
+Secondary открывает реальный существующий server picker/list в режиме
+осмысленного ручного выбора. Нельзя просто выключить AUTO и перейти к FINISH.
+Manual selection сохраняет существующую sticky-семантику. Cancel без выбора
+не должен молча сбрасывать прежний mode/server; зафиксируй результат явно.
+Нет доступных серверов — корректный empty/import path, без fake Netherlands.
+Не меняй алгоритм выбора, latency, capacity-aware failover или connection truth.
+Автоматическое продолжение не запускает VPN без системного consent.
+
+9. LIFECYCLE, ДОСТУПНОСТЬ, АНИМАЦИЯ
+
+Храни текущий step/незавершённое действие корректно через saved instance state
+или существующий state holder. Возврат из импорта, settings или browser должен
+перечитать актуальные facts. Не отмечай покупку/доступ локальной кнопкой.
+Back возвращает осмысленно; не повторяет импорт/checkout и не создаёт loop.
+Rapid double tap не открывает две Activity и не делает две покупки.
+Сохрани данные уже установленных приложений, настройки AUTO/manual и подписки.
+
+TextView/Button реальные, доступны TalkBack; decorative fox/planet/orbits
+importantForAccessibility=no. У meaningful кнопок текст и корректная роль.
+Никаких pixel-only invisible click rectangles поверх PNG.
+System bars управляет существующий HotfoxSystemUi с правильным contrast;
+не наращивай insets дважды через fitsSystemWindows и listener одновременно.
+
+Лёгкие переходы alpha/translation внутри own art slot разрешены, спокойные
+и короткие. Не двигай title/body/CTA в независимых бесконечных анимациях.
+Reduced motion / animator scale zero должны работать. Stop/cancel на detach,
+при скрытии 03 и при background; не держать скрытую лису в бесконечном animator.
+Край анимированного artwork при любом кадре остаётся внутри safe art bounds.
+
+10. СОХРАННОСТЬ VPN И ДРУГИХ ЭКРАНОВ
+
+Не менять com.hotfox.vpn / com.v2ray.ang, minSdk24, зависимости или build flavors
+без конкретной необходимости, которой эта задача не создаёт.
+Нельзя менять VpnService/TUN → HEV → SOCKS → Xray datapath, socket protection,
+readiness, canonical session state, routing/DNS/IPv6, backend entitlement,
+secure storage, TLS/REALITY, private credentials или subscription format.
+CONNECTED/Защищено остаётся только по настоящему verified runtime.
+Не менять docs/AI_REVIEW_PHASE_ID и reviewer/approval/branch protection.
+Не добавлять private URLs/UUID/tokens в репозиторий, APK, логи и screenshots.
+
+Home V13, экран 04, import и server list должны оставаться функциональны.
+Если общий style/helper влияет на них — проверь конкретных потребителей.
+Не переписывай все 18 экранов «заодно». Не откатывай V13 или более поздние fixes.
+
+11. ПРОВЕРКА — РЕАЛЬНЫЙ APK, А НЕ НОВЫЙ РЕНДЕР
+
+Перед кодом коротко зафиксируй baseline SHA, chosen assets, текущие entrypoints,
+action map и уже известные build failures. Затем сразу переходи к реализации.
+После UI изменений: reconstruct/apply overlay, нужная сборка, запуск, screenshots,
+сравнение с новым референсом, исправление конкретных расхождений.
+
+Используй существующий debug harness:
+bootstrap/hotfox_2_2_0/app/src/debug/java/com/v2ray/ang/ui/HotfoxUiScreenshotHarnessActivity.kt
+и связанные scenario/fixtures. Открой их код прежде чем пользоваться.
+Snapshot должен вызывать те же production layouts/bindings. Не дорисовывай
+снимок через HotfoxUiQaPainter и не меняй production UI только при capture mode.
+Splash удерживается только test/debug механизмом; production-delay запрещён.
+Для 02/03 можно задать шаг debug fixture, но capture fixture НЕ доказывает
+работоспособность импорта/покупки/выбора — нужны отдельные interaction проверки.
+Не экспортируй production Activity и не ослабляй защиту ради adb capture.
+
+Минимальные профили layout проверки:
+- около360×800dp, ru-RU, fontScale1.0, Android API34;
+- около412×915dp, ru-RU, fontScale1.0;
+- короткий экран около320×568dp и/или доступный близкий профиль;
+- fontScale1.3 и1.5 на небольшом viewport;
+- gesture и three-button insets; API24 запуск/совместимость где доступно.
+Не подделывай профиль: сохрани фактические px/dp/density/API/fontScale/insets.
+Если среда ограничена, выполни доступные проверки и явно перечисли невыполненные.
+
+На основном профиле нужны все три actual screenshots, side-by-side, overlay,
+diff и UI hierarchy / bounds. Экран01 слишком быстрый и exported=false —
+решаются существующим debug harness, не считаются автоматическим оправданием
+отсутствия capture. Не выдавай генерированный триптих за actual.
+
+Новый референс1448×1086 содержит три viewport примерно в x24–474,
+x499–948, x974–1424; y50–1050. Это ориентиры crop, а не утверждённые координаты
+реального Android UI. Проверь границы и объяви reference crop один раз до compare.
+Не включай внешние заголовки и gutter. Отдельно зафиксируй SystemUI регионы.
+Системная батарея/часы могут отличаться; никакой masking текста, CTA или лисы.
+Не растягивай раздельные элементы и не перерисовывай reference под actual.
+Любой crop/scale и отличие платформенного chrome объясни в capture manifest.
+
+Критерии layout: 0 пересечений title/body/art-visible-bounds/CTA/footer,
+0 обрезанных подписей, 0 недоступных действий, корректный alpha и aspect ratio,
+на 01/02 ровно одна лиса, на03 ни одной; совпадающая CTA-база 02/03.
+Измерь bounds через реальную layout hierarchy, в том числе при увеличенном тексте.
+
+Генерированный концепт и существующие ассеты не гарантируют математический
+нулевой diff. Доведи композицию по референсу и честно покажи остаточные различия.
+Не называй результат EXACT/pixel-perfect без нулевого diff и provenance.
+Не запускай бесконечный цикл ради отличий сглаживания/меха, которые нельзя
+устранить без новых ассетов: локализуй их, сохрани доказательства и закончи
+все независимые изменения. Не ослабляй существующий comparator ради PASS.
+
+12. ФУНКЦИОНАЛЬНЫЕ ПРОВЕРКИ
+
+T01 Fresh install: splash быстро ведёт к02, нет автоматического VPN старта.
+T02 Existing completed user: штатный Main, без сброса onboarding/подписок.
+T03 На02 primary действительно открывает import/access continuation.
+T04 Import cancel/invalid/failure: нет false success/complete, можно повторить.
+T05 Успешный import: актуальные facts, корректное продолжение в AUTO.
+T06 Purchase entry работает; cancel/return не выдаёт оплаченный доступ.
+T07 AUTO сохраняется и считывается после process/activity recreation.
+T08 Manual открывает picker; commit сохраняет выбранный сервер, cancel не
+    ломает предыдущий mode; нет выдуманного кандидата при пустом списке.
+T09 Системное VPN permission запрашивается в правильном месте; отказ
+    не помечает granted/Protected и не завершает onboarding ложно.
+T10 Back, поворот, background/foreground и double tap не дублируют действия.
+T11 Экран04 и переход кHome остаются рабочими; Home V13 не переоформлен.
+T12 Debug snapshot mechanisms отсутствуют в release entrypoints.
+
+Используй текущие HotfoxOnboardingFlowTest, HotfoxServerSelectionTest,
+HotfoxUiScreenshotFixtureLeakTest и regression tests.
+Добавь focused тесты изменённых navigation/lifecycle boundaries, а не тесты
+на простое повторение строк/размеров из XML. Не удаляй существующие тесты.
+Commerce sandbox допускается только как честно помеченный test результат.
+Не выполнять реальную покупку и не просить у владельца секреты для UI проверки.
+
+Из reconstructed V2rayNG/ выполни актуальные применимые gates:
+./gradlew :app:assemblePlaystoreDebug
+./gradlew :app:testPlaystoreDebugUnitTest
+./gradlew :app:lintPlaystoreDebug
+./gradlew :app:assemblePlaystoreRelease
+Из корня — действующие bootstrap/static/integrity/core/fixture-leak проверки,
+включая python3 verification/static_check_2_2_0.py и
+python3 verification/ui_rebuild/verify_reference_lock.py integrity / core.
+Сначала уточни синтаксис и существующие команды по скриптам/workflow.
+Не гоняй полный suite после каждого 1dp; итоговые обязательные gates не пропускай.
+Если protected core hash изменился из-за согласования UI flow helper, не
+перегенерируй baseline: отчёт о точном файле/изменении/тестах; core semantics
+VPN/server-selection не менять. UI-only smoke не заменяет VPN/device E2E.
+
+13. РЕЗУЛЬТАТ И ЗАПУСК
+
+Сохрани evidence в verification/ui/onboarding_01_03_20260914/:
+ASSET_INTAKE.md; ACTION_MAP.md; actual/01.png,02.png,03.png;
+comparison/; capture_manifest.json; VALIDATION.md; UNTESTED_GAPS.md.
+Не прячь исходный failure за общим PASS. В отчёте отдельно build, interactions,
+layout, visual residuals, fixture exclusion, runtime/device NOT_EXECUTED.
+
+Нужен APK, привязанный к source commit: variant, applicationId, SHA256,
+source SHA и ссылка на CI artifact. Не только mutable latest-release.
+Versioned source/лицензии и уведомления сохранить. RELEASE READY не объявлять.
+Ordinary commits во время правок. Финальный [hotfox-review] checkpoint —
+по действующей policy только после согласованного блока и зелёных нужных gates.
+Не ставь review/phase-exit маркер на коммит этого задания или каждый fix.
+
+Сразу после sync/read/asset intake сообщи в PR: фактический HEAD, прочитанную
+версию ONBOARDING-01-03-20260914, resource ids для01/02/03 и реальные файлы,
+которые начинаешь менять. «Taking a look!» не доказывает выполнение.
+Далее implement → build → run → capture → compare → fix без запроса
+«продолжать?» между этими тремя экранами.
+Если объективный blocker — сначала выполни всё независимое, укажи точную
+команду/ошибку/остаток и предоставь готовые изменения. Не выдавай старые
+скриншоты Home V13 за результат нового задания.
+
+НАЧНИ СЕЙЧАС: 01 SPLASH → 02 ПОДКЛЮЧИТЕ HOTFOX → 03 AUTO.
+ПЕРЕИСПОЛЬЗУЙ РЕАЛЬНЫЕ АССЕТЫ. СОХРАНИ VPN. ПОКАЖИ РЕАЛЬНЫЙ APK И ТРИ КАДРА.

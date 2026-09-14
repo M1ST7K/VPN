@@ -1,86 +1,475 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/hotfox_editorial_bg"
+    android:background="@color/hf_asset_background"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:paddingStart="20dp"
-    android:paddingTop="20dp"
-    android:paddingEnd="20dp"
-    android:paddingBottom="20dp">
+    android:paddingStart="@dimen/hf_page_gutter"
+    android:paddingEnd="@dimen/hf_page_gutter">
+
+    <include layout="@layout/include_hf_header" />
 
     <TextView
         android:id="@+id/tv_autopilot_title"
+        style="@style/HotFox.ScreenTitleSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:gravity="center_vertical"
-        android:text="@string/hotfox_autopilot_screen_title"
-        android:textColor="@color/hotfox_editorial_text"
-        android:textSize="22sp" />
+        android:text="@string/hotfox_autopilot_screen_title" />
 
     <TextView
         android:id="@+id/tv_autopilot_summary"
+        style="@style/HotFox.Body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/hotfox_autopilot_screen_summary"
-        android:textColor="@color/hotfox_editorial_text_dim"
-        android:textSize="13sp" />
+        android:text="@string/hotfox_autopilot_body" />
 
-    <TextView
-        android:id="@+id/tv_autopilot_decision"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_refresh_cream" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/HotFox.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_autopilot_screen_title" />
+
+                    <TextView
+                        android:id="@+id/tv_autopilot_toggle_caption"
+                        style="@style/HotFox.RowCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_autopilot_enabled_short" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatCheckBox
+                    android:id="@+id/btn_autopilot_toggle"
+                    android:layout_width="48dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/hf_native_switch_orange"
+                    android:button="@null"
+                    android:contentDescription="@string/hotfox_autopilot_screen_title"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <include layout="@layout/include_hf_row_hairline" />
+
+            <LinearLayout
+                android:id="@+id/btn_autopilot_wifi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_wifi_cream" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/HotFox.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_new_wifi" />
+
+                    <TextView
+                        style="@style/HotFox.RowCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_wifi_auto_caption" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_autopilot_wifi_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/hf_asset_muted"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_chevron_muted" />
+            </LinearLayout>
+
+            <include layout="@layout/include_hf_row_hairline" />
+
+            <LinearLayout
+                android:id="@+id/btn_autopilot_cellular"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_signal_cream" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/HotFox.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_cellular" />
+
+                    <TextView
+                        style="@style/HotFox.RowCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_cellular_auto_caption" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_autopilot_cellular_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/hf_asset_muted"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_chevron_muted" />
+            </LinearLayout>
+
+            <include layout="@layout/include_hf_row_hairline" />
+
+            <LinearLayout
+                android:id="@+id/btn_autopilot_trusted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_shield_cream" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/HotFox.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_trusted_networks" />
+
+                    <TextView
+                        style="@style/HotFox.RowCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_trusted_caption" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_autopilot_trusted_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/hf_asset_muted"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_chevron_muted" />
+            </LinearLayout>
+
+            <include layout="@layout/include_hf_row_hairline" />
+
+            <LinearLayout
+                android:id="@+id/btn_autopilot_pause"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_pause_cream" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/HotFox.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_pause" />
+
+                    <TextView
+                        style="@style/HotFox.RowCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_pause_caption" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_autopilot_pause_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/hf_asset_muted"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_chevron_muted" />
+            </LinearLayout>
+
+            <include layout="@layout/include_hf_row_hairline" />
+
+            <LinearLayout
+                android:id="@+id/btn_autopilot_captive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_link_cream" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/HotFox.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_captive_portal" />
+
+                    <TextView
+                        style="@style/HotFox.RowCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_captive_caption" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_autopilot_captive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/hotfox_autopilot_captive_idle"
+                    android:textColor="@color/hf_asset_muted"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_chevron_muted" />
+            </LinearLayout>
+
+            <include layout="@layout/include_hf_row_hairline" />
+
+            <LinearLayout
+                android:id="@+id/btn_autopilot_protection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_bell_cream" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/HotFox.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_notifications" />
+
+                    <TextView
+                        style="@style/HotFox.RowCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hotfox_notifications_caption" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_autopilot_notifications_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/hf_asset_muted"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/hf_chevron_muted" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_autopilot_decision"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                style="@style/HotFox.LegalCaption" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btn_autopilot_done"
+        style="@style/HotFox.SubpagePrimary"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="@dimen/hf_cta_height"
+        android:layout_marginTop="8dp"
+        android:minWidth="200dp"
+        android:drawableEnd="@drawable/hf_arrow_right_ink"
+        android:text="@string/hotfox_done" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:textColor="@color/hotfox_editorial_text"
-        android:textSize="15sp" />
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tv_autopilot_captive"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="@string/hotfox_autopilot_captive_idle"
-        android:textColor="@color/hotfox_editorial_text_secondary"
-        android:textSize="13sp" />
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/hf_info_muted" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_autopilot_toggle"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="24dp"
-        android:minHeight="48dp"
-        android:text="@string/hotfox_autopilot_enabled"
-        app:backgroundTint="@color/hotfox_orange"
-        app:cornerRadius="16dp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_autopilot_pause"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:minHeight="48dp"
-        android:text="@string/hotfox_settings_pause"
-        android:textColor="@color/hotfox_editorial_text" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_autopilot_protection"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:minHeight="48dp"
-        android:text="@string/hotfox_settings_protection"
-        android:textColor="@color/hotfox_editorial_text" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_autopilot_trusted"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:minHeight="48dp"
-        android:text="@string/hotfox_settings_trusted"
-        android:textColor="@color/hotfox_editorial_text" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/hotfox_autopilot_footer"
+            android:textColor="@color/hf_asset_muted"
+            android:textSize="13sp" />
+    </LinearLayout>
 </LinearLayout>

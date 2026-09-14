@@ -1,0 +1,846 @@
+HOTFOX VISUAL REFINEMENT MASTER V4
+OWNER CORRECTIVE PASS — 18/18 DESIGN QA, DEBUG SCREENSHOT HARNESS, NO CELESTIAL MOTIFS
+
+READ THIS ENTIRE FILE BEFORE TOUCHING CODE.
+
+======================================================================
+0. CURRENT STATE / WHY THIS PASS EXISTS
+======================================================================
+
+Previous asset-first rebuild is NOT final.
+
+Current branch:
+cursor/hotfox-ui-pixel-lock-rebuild
+
+Previous completed head before this corrective task:
+842ab1f24a397f17245f42c98d8f77231ccb5526
+
+Known evidence:
+- ASSET INTAKE = PASS
+- build = PASS
+- unit tests = 363/363
+- static check = PASS
+- real emulator screenshots = 9/18
+- pixel PASS = 0/18
+- RELEASE READY = NO
+- physical-device VPN E2E = NO
+
+The goal now is not another broad rebuild.
+The goal is a strict visual refinement and evidence pass.
+
+DO NOT MERGE.
+
+======================================================================
+1. SOURCE OF TRUTH — UPDATED OWNER OVERRIDES
+======================================================================
+
+Priority:
+
+1. Latest owner directives in this file.
+2. Exact approved reference board for each screen.
+3. design reference lock/conflict documents.
+4. Production asset kit.
+5. Existing layout implementation.
+6. generic tokens / Material defaults.
+
+CRITICAL:
+The asset kit is a PARTS BIN, not a visual authority.
+Do not use an asset just because it exists.
+If an asset conflicts with owner direction, it is forbidden.
+
+OWNER OVERRIDE — ABSOLUTE:
+NEVER use decorative:
+- planet
+- planetary arc
+- planetary horizon
+- eclipse
+- celestial body
+- orbital ring
+- “space orbit” motif
+
+This override is newer than any old visual board.
+If an old board contains a planetary arc, do NOT recreate it.
+Document the difference as OWNER_OVERRIDE_CELESTIAL_REMOVAL.
+
+`hf_fox_planet` MUST have zero production references.
+`hf_shadow_orbits` MUST have zero production references in its current orbital form.
+
+Fox artwork is allowed.
+Planet around fox is not.
+
+For Shadow, abstract routing/network paths are allowed,
+but they must read as network topology, not orbital/celestial curves.
+
+======================================================================
+2. DESIGN DIRECTION
+======================================================================
+
+HotFox visual identity:
+- premium 2026;
+- dark editorial;
+- almost-black warm-violet background;
+- cream typography, not harsh pure white;
+- orange rare and precise;
+- green only real success;
+- strong typography hierarchy;
+- content over containers;
+- controlled negative space;
+- thin separators;
+- one coherent rounded-outline icon family;
+- almost no heavy cards;
+- no neon;
+- no glow-heavy gamer aesthetic;
+- no glass;
+- no cyberpunk;
+- no generic VPN dashboard;
+- no generic Material settings clone.
+
+The target must feel authored, not themed.
+
+======================================================================
+3. FIRST ACTION — FREEZE AND AUDIT CURRENT SCREENSHOTS
+======================================================================
+
+Before changing UI:
+
+1. Verify current branch/head/status.
+2. Preserve current screenshots as baseline:
+   verification/ui_rebuild/baseline_v4/actual/
+3. Copy or reference current 9 captures:
+   02,05,10,12,13,14,16,17,18
+4. Create:
+   verification/ui_rebuild/HOTFOX_VISUAL_AUDIT_V4.md
+
+The audit must explicitly include all issues from:
+verification/ui_rebuild/HOTFOX_DESIGN_REVIEW_FAIL_V4.md
+
+Do not downgrade or summarize away these findings.
+
+======================================================================
+4. P0 DESIGN FAILURES TO FIX FIRST
+======================================================================
+
+P0-A — FORBIDDEN PLANET / ORBIT ART
+
+Search production for:
+hf_fox_planet
+img_art_planet
+hf_shadow_orbits
+planet
+orbit
+
+Expected:
+- no production layout/code reference to `hf_fox_planet`;
+- no production `img_art_planet` using planetary art;
+- no production use of `hf_shadow_orbits` in current celestial form.
+
+Screen 02:
+Replace planetary fox composition with fox-only artwork.
+Prefer clean kit fox artwork if available.
+Do NOT crop an old screenshot board into a rectangle.
+Do NOT generate a fake new planet-less screenshot.
+Keep fox as isolated art and rebuild layout natively.
+
+Screen 05:
+Same. No planet, no arc, no horizon.
+Use fox-only composition.
+
+Screen 17:
+Keep shield if suitable.
+Replace orbits with abstract network-routing paths:
+- asymmetrical;
+- topology-like;
+- small nodes;
+- no closed ellipse;
+- no planetary arc;
+- no circular “orbit around shield”.
+Prefer vector.
+
+Create:
+verification/ui_rebuild/CELESTIAL_ASSET_USAGE_AFTER_V4.txt
+It must show zero forbidden production refs.
+
+P0-B — SYSTEM BAR CONTRAST
+
+On every dark HotFox screen:
+- status icons must be light;
+- navigation-bar gesture area must match dark background;
+- no black time/wifi/battery on black background.
+
+Verify:
+WindowInsetsControllerCompat
+isAppearanceLightStatusBars = false
+isAppearanceLightNavigationBars = false
+
+Do not rely on inherited DayNight behavior.
+
+Capture proof on screens 02,05,10,13.
+
+P0-C — CONTENT HIDDEN BY BOTTOM NAV
+
+No scroll content may finish under the persistent bottom navigation.
+Fix with real insets/padding, not arbitrary spacer hacks.
+
+Screen 05 and 13 currently visibly clip content.
+This is unacceptable.
+
+Use:
+- bottom inset-aware padding;
+- persistent nav measured height;
+- clipToPadding=false only when visually correct;
+- scrollbars disabled if not shown in reference.
+
+No production screenshot may show a visible vertical scrollbar unless reference literally contains it.
+
+======================================================================
+5. TYPOGRAPHY REBUILD
+======================================================================
+
+Current problem:
+a global `32sp ScreenTitle` is being treated as universal truth.
+This produces generic Material scale.
+
+Do not globally change one number and call it done.
+
+Create measured style levels:
+- BrandWordmark
+- DisplayTitle
+- ScreenTitlePrimary
+- ScreenTitleSecondary
+- SectionEyebrow
+- BodyPrimary
+- BodySecondary
+- RowTitle
+- RowCaption
+- RuntimeValue
+- NavLabel
+- LegalCaption
+
+Measure reference screenshots per screen.
+
+Requirements:
+- cream should visually read warm, not pure white;
+- titles must not overpower hero art;
+- body width/line-height must feel editorial;
+- section labels must be legible but quiet;
+- row titles must not truncate at normal 360dp width unless exact reference truncates;
+- runtime value must be aligned and not collide with title.
+
+Use native Android text.
+No raster text.
+
+Do not hard-force all screens to identical typography if exact references differ.
+
+Create:
+verification/ui_rebuild/TYPOGRAPHY_MEASUREMENTS_V4.md
+
+For each screen:
+- target title size;
+- weight;
+- line height;
+- top baseline;
+- body size;
+- row title/caption;
+- notes.
+
+======================================================================
+6. COLOR / SURFACE REFINEMENT
+======================================================================
+
+Current UI is too white/gray and too Material.
+
+Refine:
+- background: warm near-black violet;
+- primary cream: softer;
+- muted text: warm desaturated violet-grey;
+- separators: thin and low-contrast;
+- orange: precise and slightly restrained;
+- disabled surface: readable and intentional.
+
+Screen 12 disabled Buy:
+Current muddy brown state has weak readability.
+Do not make it active if backend is unavailable.
+Keep disabled truth, but design a proper disabled state:
+- readable label;
+- clear disabled affordance;
+- no accidental “broken button” appearance.
+
+No fake enabled commerce.
+
+======================================================================
+7. CARD / CONTAINER REDUCTION
+======================================================================
+
+Do not use rounded cards as the default answer to hierarchy.
+
+Audit every `hf_native_card`, large rounded group, and heavy container.
+
+For each:
+Ask whether the approved screen needs:
+- a card,
+- hairline grouping,
+- simple row stack,
+- typography-only grouping,
+- subtle surface.
+
+Goal:
+content over containers.
+
+Especially:
+05 connection rows
+13 settings
+14 smart routing
+16 autopilot
+17 shadow
+18 always-on
+
+Do not remove touch semantics.
+Rows remain accessible.
+Visual grouping can be lighter.
+
+======================================================================
+8. BOTTOM NAVIGATION REFINEMENT
+======================================================================
+
+Audit exact per-screen presence.
+
+Never globally add nav because “most screens have it”.
+Exact screen wins.
+
+When present:
+- reduce visual weight;
+- match reference height;
+- align icons and labels;
+- selected orange must be precise, not fluorescent;
+- inactive cream/muted must retain contrast;
+- no content overlap;
+- icon stroke weight must match row icon family.
+
+Check screens:
+05
+07
+10
+12
+13
+18
+and any others from approved references.
+
+Screen 07 conflict is documented.
+Do not silently normalize it.
+
+======================================================================
+9. HEADER REFINEMENT
+======================================================================
+
+Current header often reads:
+HotFox + large gear/back + huge title
+
+This creates competing hierarchy.
+
+Measure exact reference:
+- wordmark size;
+- top inset;
+- settings/back icon size;
+- title offset;
+- touch target vs visible icon size.
+
+Visible icon may be 20–24dp inside 48dp target.
+Do not make gear visually 32–36dp just to satisfy touch target.
+
+Back + wordmark + title must feel intentional, not stacked boilerplate.
+
+======================================================================
+10. SCREEN-SPECIFIC FIXES
+======================================================================
+
+SCREEN 01 — SPLASH
+- capture is mandatory;
+- do NOT add production fake delay;
+- use debug screenshot harness to hold frame;
+- verify exact wordmark/loading/art composition;
+- no celestial motif if current owner override conflicts;
+- visual fixture only.
+
+SCREEN 02 — ONBOARDING CONNECT
+- remove planet completely;
+- fox-only hero;
+- rebalance negative space after removing planet;
+- refine title/body width and line height;
+- CTA height/radius/text baseline measured, not generic;
+- secondary action must visually belong to composition;
+- system bar light.
+
+SCREEN 03 — ONBOARDING AUTO
+- capture mandatory;
+- use exact intended AUTO illustration;
+- avoid treating globe/network visual as decorative celestial planet;
+- typography and CTA measured;
+- debug fixture to select onboarding step.
+
+SCREEN 04 — ONBOARDING READY
+- capture mandatory;
+- debug fixture may show pre-permission presentation;
+- do not fake OS VPN permission result;
+- geometric server/check artwork should be vector/native;
+- no screenshot crop.
+
+SCREEN 05 — DISCONNECTED
+- remove `hf_fox_planet`;
+- fox-only hero;
+- recompute hero height and placement;
+- fix `Нет разрешения VPN` hierarchy;
+- CTA must not dwarf content;
+- lighten rows container;
+- eliminate subtitle truncation;
+- no scrollbar;
+- content must clear bottom nav;
+- system bar must be light;
+- next card must not be visibly chopped at capture boundary unless reference does so.
+
+SCREEN 06 — CONNECTING
+- capture mandatory via DEBUG UI fixture;
+- do NOT start fake production VPN;
+- same production layout must render a debug presentation model;
+- ring/dots may animate in runtime, but static screenshot fixture must be deterministic;
+- fox separate from progress graphics;
+- no planet.
+
+SCREEN 07 — PROTECTED
+- capture mandatory.
+- production CONNECTED truth remains gated by real readiness.
+- DEBUG screenshot fixture must be isolated under src/debug and must never mutate/reuse real connection state.
+- green only where success is represented in fixture.
+- document that screenshot fixture is visual-only.
+- preserve exact screen nav conflict from reference documentation.
+
+SCREEN 08 — ADD CONNECTION SHEET
+- capture mandatory;
+- open same real sheet from debug harness or deterministic in-app navigation;
+- native sheet, real rows, proper scrim;
+- no screenshot-as-sheet;
+- verify handle/close/title/rows/padding;
+- background screen must remain live-looking but fixture-safe.
+
+SCREEN 09 — HTTPS SUBSCRIPTION
+- capture mandatory;
+- do not make production activity exported=true.
+- add debug-only launcher/harness if needed;
+- real EditText semantics;
+- paste/validation native;
+- no fake successful subscription.
+- fox art, if used, must be planet-free.
+
+SCREEN 10 — SERVERS
+- fix broken top filter rhythm;
+- `Нет соединения` must not awkwardly wrap unless exact reference says so;
+- do not make font tiny just to force one line; rework widths/layout;
+- `Мои серверы` treatment must match reference, not generic web-tab;
+- AUTO row title must not truncate unnecessarily;
+- truthful empty server state stays truthful;
+- use intentional negative space / empty-state composition without inventing servers;
+- bottom nav lighter.
+
+SCREEN 11 — SERVER DETAILS
+- capture mandatory;
+- use DEBUG fixture server under src/debug only;
+- production still requires real server;
+- deterministic name/latency/protocol values are allowed only in harness;
+- no secret URLs;
+- verify rows, copy actions, spacing, header.
+
+SCREEN 12 — SUBSCRIPTION
+- redesign unavailable backend presentation;
+- keep runtime truth;
+- disabled purchase stays disabled;
+- better hierarchy and spacing;
+- no muddy unreadable disabled CTA;
+- legal caption readable;
+- no fake plan/status.
+
+SCREEN 13 — SETTINGS
+- reduce Material settings feel;
+- reduce heavy card dependence;
+- fix top header hierarchy;
+- section labels more intentional;
+- unify icon stroke;
+- eliminate visible scrollbar;
+- fix bottom content clipping;
+- privacy row fully reachable/visible;
+- bottom nav must not cover content.
+
+SCREEN 14 — SMART ROUTING
+- reduce container heaviness;
+- refine subtitle measure/line-break;
+- native switch styled consistently;
+- CTA proportional;
+- use negative space intentionally;
+- preserve routing semantics;
+- no fake rule state.
+
+SCREEN 15 — APPS & RULES
+- capture mandatory;
+- navigate through real row OR debug-only launcher;
+- use deterministic fixture apps only in screenshot harness;
+- production installed-app list remains real;
+- verify search, include/exclude controls, rules, scroll behavior;
+- no fixture leakage to release.
+
+SCREEN 16 — AUTOPILOT
+- reduce generic card feel;
+- switch visual size/stroke/radius measured;
+- secondary rows cleaner;
+- technical VPN permission note quieter;
+- CTA not oversized;
+- preserve persisted autopilot store behavior.
+
+SCREEN 17 — SHADOW
+- remove `hf_shadow_orbits`;
+- replace with non-celestial network topology lines;
+- shield can remain but refine proportions/stroke;
+- avoid cyberpunk;
+- lighter grouping;
+- CTA quieter;
+- no decorative space-orbit cues.
+
+SCREEN 18 — ALWAYS-ON VPN
+- refine shield;
+- lighter information grouping;
+- status values truthfully unknown if Android cannot report;
+- CTA opens Android settings;
+- exact reference decides whether bottom nav exists;
+- no global normalization;
+- lower whitespace must feel deliberate.
+
+======================================================================
+11. DEBUG-ONLY 18-SCREEN SCREENSHOT HARNESS
+======================================================================
+
+The previous run failed to capture 9 screens because:
+- splash advances immediately;
+- connecting/protected cannot be faked in production;
+- internal activities exported=false;
+- server details require imported data.
+
+Solve this properly.
+
+Create ONLY under:
+app/src/debug/
+
+Suggested:
+HotfoxUiScreenshotHarnessActivity.kt
+HotfoxUiScreenshotScenario.kt
+debug/AndroidManifest.xml additions
+
+Requirements:
+- exported debug launcher is allowed;
+- release manifest unchanged;
+- production app behavior unchanged;
+- no calls that mark real VPN CONNECTED;
+- no writes to production entitlement/server/subscription stores;
+- no secrets;
+- no network dependency;
+- deterministic rendering only.
+
+Harness scenarios:
+01_SPLASH
+02_ONBOARD_CONNECT
+03_ONBOARD_AUTO
+04_ONBOARD_READY
+05_DISCONNECTED
+06_CONNECTING_VISUAL
+07_PROTECTED_VISUAL
+08_ADD_CONNECTION_SHEET
+09_HTTPS_SUBSCRIPTION
+10_SERVERS
+11_SERVER_DETAILS
+12_SUBSCRIPTION
+13_SETTINGS
+14_SMART_ROUTING
+15_APPS_RULES
+16_AUTOPILOT
+17_SHADOW
+18_ALWAYS_ON
+
+Implementation preference:
+Reuse the exact production layouts/components/presentation mappers.
+Inject a debug presentation model at view-binding boundary.
+Do NOT duplicate whole screens into a separate fake UI implementation.
+
+For runtime-truth screens:
+- fixture labels must be deterministic;
+- fixture state must have DEBUG-only provenance;
+- release compilation must not include harness classes.
+
+Add a unit/static test:
+release source cannot reference screenshot fixtures.
+
+======================================================================
+12. REFERENCE NORMALIZATION / VISUAL DIFF
+======================================================================
+
+The excuse “phone board has chassis, so pixel compare cannot run” is no longer acceptable.
+
+Build a deterministic reference normalization pipeline.
+
+For each original reference:
+- determine inner phone viewport bounds;
+- crop inner UI once;
+- record crop coordinates in JSON;
+- never eyeball a new crop on every run.
+
+Create:
+verification/ui_rebuild/reference_v4/crop_manifest.json
+verification/ui_rebuild/reference_v4/01.png ... 18.png
+
+Then capture:
+verification/ui_rebuild/actual_v4/01.png ... 18.png
+
+Normalize to same viewport size/profile.
+
+For each:
+- side-by-side image;
+- 50% overlay;
+- absolute diff or perceptual diff;
+- geometry notes.
+
+Create:
+verification/ui_rebuild/compare_v4/side_by_side/01.png ... 18.png
+verification/ui_rebuild/compare_v4/overlay/01.png ... 18.png
+verification/ui_rebuild/compare_v4/diff/01.png ... 18.png
+
+Do not call “pixel-perfect” merely because exact image diff is low.
+Fonts/system rasterization vary.
+Use diff as evidence plus manual geometry review.
+
+======================================================================
+13. VISUAL ACCEPTANCE RUBRIC
+======================================================================
+
+Each screen must receive explicit statuses:
+
+STRUCTURE
+- all required elements present
+- no extra elements
+- correct nav presence
+
+GEOMETRY
+- major anchors aligned
+- consistent margins
+- art scale correct
+- no clipping
+
+TYPOGRAPHY
+- correct hierarchy
+- baseline/line-height close to reference
+- no accidental truncation
+- no wrong wrapping
+
+COLOR
+- background
+- cream
+- muted
+- orange
+- green only success
+
+ASSETS
+- correct asset
+- no forbidden celestial art
+- no distortion
+- correct aspect ratio
+
+SYSTEM UI
+- status bar contrast correct
+- navigation bar correct
+- system insets handled
+
+FUNCTIONAL
+- real listeners/bindings preserved
+- no fake runtime production values
+
+ACCESSIBILITY
+- 48dp targets
+- content descriptions
+- focus/checked semantics
+
+EVIDENCE
+- actual capture exists
+- comparison exists
+
+A screen cannot PASS if capture or comparison is missing.
+
+======================================================================
+14. HARD DESIGN RULES
+======================================================================
+
+NO:
+- planet
+- planetary arc
+- orbit
+- eclipse
+- celestial horizon
+- new glow motifs
+- cyberpunk
+- neon
+- glass
+- generic big-card dashboard
+- bitmap whole-screen cheat
+- baked text in PNG
+- fake ping
+- fake traffic
+- fake server
+- fake subscription
+- fake payment
+- fake VPN readiness
+- release fixture leakage
+- visible scrollbar unless reference explicitly has one
+- clipped content behind bottom nav
+- black status icons on black background
+- universal 32sp titles without per-screen measurement
+- global navigation normalization when exact references differ
+
+======================================================================
+15. TECHNICAL NON-REGRESSION
+======================================================================
+
+Do not alter canonical VPN truth:
+
+Android apps
+→ VpnService/TUN
+→ HEV/tun2socks
+→ local Xray SOCKS 127.0.0.1:10808
+→ Xray outbound
+→ VPN server
+→ Internet
+
+CONNECTED/Защищено only after real production readiness.
+
+Preserve:
+- DNS no-bypass
+- IPv6 route/fail-closed
+- loop prevention
+- clean disconnect/reconnect
+- stale async protection
+- real subscription truth
+- real server truth
+- real traffic
+- real latency
+
+Debug screenshot fixture must not cross into this state machine.
+
+======================================================================
+16. BUILD / QA LOOP
+======================================================================
+
+For each meaningful visual group:
+1. edit
+2. build
+3. unit tests
+4. install
+5. capture relevant scenarios
+6. compare
+7. fix
+8. repeat
+
+Do not wait until the end to discover spacing is wrong.
+
+At minimum:
+:app:assemblePlaystoreDebug
+:app:testPlaystoreDebugUnitTest
+static_check_2_2_0.py
+
+Also execute lint if environment permits.
+
+======================================================================
+17. REQUIRED REPORTS
+======================================================================
+
+Create/update:
+
+verification/ui_rebuild/HOTFOX_VISUAL_AUDIT_V4.md
+verification/ui_rebuild/TYPOGRAPHY_MEASUREMENTS_V4.md
+verification/ui_rebuild/CELESTIAL_ASSET_USAGE_AFTER_V4.txt
+verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V4.csv
+verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V4.md
+
+Final report must state:
+
+- branch
+- head
+- build result
+- tests
+- 18/18 capture status
+- 18/18 compare status
+- forbidden celestial refs count
+- clipping defects count
+- visible scrollbar defects count
+- system-bar contrast status
+- pixel/visual status per screen
+- release fixture leakage status
+- RELEASE READY = NO unless separate final release gate truly executed
+- physical device VPN E2E status
+
+======================================================================
+18. COMMIT STRATEGY
+======================================================================
+
+Use auditable commits, for example:
+
+1. ui: remove forbidden celestial artwork and fix system bars
+2. ui: refine typography grid and shared chrome
+3. ui: refine screens 02 05 10 12 13
+4. ui: refine screens 14 16 17 18
+5. test(ui): add debug-only 18-screen screenshot harness
+6. ui: complete missing screens and evidence pass
+7. qa(ui): add 18-screen visual comparisons and final report
+
+Do not merge.
+
+======================================================================
+19. EXIT CRITERIA
+======================================================================
+
+You may stop only when one of these is true:
+
+A. SUCCESS
+- 18/18 real emulator screenshots captured via production UI or debug-only presentation harness
+- 18/18 reference normalized
+- 18/18 comparison artifacts exist
+- no forbidden planet/orbit production refs
+- no visible clipping
+- no hidden content behind nav
+- no wrong dark system-bar icons
+- no obvious unintentional text truncation
+- all 18 have explicit reviewed status
+- build/tests pass
+- final report honest
+
+OR
+
+B. HARD BLOCKER
+A genuine technical blocker exists that cannot be solved without weakening production security/truth.
+Document exact command/error/file and do not substitute fake production behavior.
+
+“Activity is exported=false” is NOT a hard blocker.
+Use debug-only harness.
+
+“Splash exits quickly” is NOT a hard blocker.
+Use debug-only harness.
+
+“Protected requires real VPN” is NOT a hard blocker for visual QA.
+Use isolated debug presentation fixture, while keeping production CONNECTED truth unchanged.
+
+======================================================================
+20. START NOW
+======================================================================
+
+Begin by:
+- reading `verification/ui_rebuild/HOTFOX_DESIGN_REVIEW_FAIL_V4.md`;
+- verifying current screenshot set;
+- searching for `hf_fox_planet` and `hf_shadow_orbits`;
+- fixing P0 celestial/system-bar/inset issues;
+- then build the debug screenshot harness;
+- then execute the full 18-screen refinement loop.
+
+Do not return with 9/18 again.
+Do not call the task done with 0/18 visual PASS.
+Do not merge.
