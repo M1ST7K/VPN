@@ -644,7 +644,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
-                android:paddingEnd="12dp">
+                android:paddingEnd="4dp">
 
                 <ImageView
                     android:layout_width="22dp"
@@ -663,6 +663,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:text="@string/hotfox_home_shadow"
                         android:textColor="@color/hf_v13_text"
                         android:textSize="14sp"
