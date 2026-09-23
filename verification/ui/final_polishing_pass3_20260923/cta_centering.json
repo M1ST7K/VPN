@@ -1,0 +1,142 @@
+[
+  {
+    "capture": "actual/05_disconnected",
+    "label": "Подключить",
+    "button_px": [
+      106,
+      926
+    ],
+    "group_px": [
+      354,
+      679
+    ],
+    "center_delta_dp": 0.19,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "actual/06_connecting",
+    "label": "Отменить",
+    "button_px": [
+      106,
+      926
+    ],
+    "group_px": [
+      385,
+      650
+    ],
+    "center_delta_dp": 0.57,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "actual/07_connected",
+    "label": "Отключить",
+    "button_px": [
+      106,
+      926
+    ],
+    "group_px": [
+      369,
+      665
+    ],
+    "center_delta_dp": 0.38,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "matrix/05_home_360",
+    "label": "Подключить",
+    "button_px": [
+      106,
+      839
+    ],
+    "group_px": [
+      311,
+      635
+    ],
+    "center_delta_dp": 0.19,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "matrix/06_connecting_360",
+    "label": "Отменить",
+    "button_px": [
+      106,
+      839
+    ],
+    "group_px": [
+      342,
+      606
+    ],
+    "center_delta_dp": 0.57,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "matrix/07_connected_360",
+    "label": "Отключить",
+    "button_px": [
+      106,
+      839
+    ],
+    "group_px": [
+      325,
+      622
+    ],
+    "center_delta_dp": 0.38,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "matrix/05_home_412",
+    "label": "Подключить",
+    "button_px": [
+      106,
+      976
+    ],
+    "group_px": [
+      379,
+      704
+    ],
+    "center_delta_dp": 0.19,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "matrix/07_connected_412",
+    "label": "Отключить",
+    "button_px": [
+      106,
+      976
+    ],
+    "group_px": [
+      394,
+      690
+    ],
+    "center_delta_dp": 0.38,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "matrix/05_home_fs115",
+    "label": "Подключить",
+    "button_px": [
+      106,
+      926
+    ],
+    "group_px": [
+      337,
+      697
+    ],
+    "center_delta_dp": 0.38,
+    "pass_le_2dp": true
+  },
+  {
+    "capture": "matrix/05_home_360_fs115",
+    "label": "Подключить",
+    "button_px": [
+      106,
+      839
+    ],
+    "group_px": [
+      294,
+      654
+    ],
+    "center_delta_dp": 0.57,
+    "pass_le_2dp": true
+  }
+]

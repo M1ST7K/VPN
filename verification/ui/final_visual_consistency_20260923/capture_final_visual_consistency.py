@@ -102,6 +102,7 @@ def wait_until_rendered(scenario: str, timeout_seconds: int = 120) -> None:
     marker = READY_TEXT[scenario]
     deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
+        adb("shell", "rm", "-f", "/sdcard/hotfox-window.xml")
         adb("shell", "uiautomator", "dump", "/sdcard/hotfox-window.xml", timeout=30)
         window = adb("exec-out", "cat", "/sdcard/hotfox-window.xml", timeout=30)
         if window.returncode == 0 and marker in window.stdout:
