@@ -166,6 +166,19 @@ class HotfoxHeroCompositionTest {
     }
 
     @Test
+    fun httpsImportArtStaysSecondaryToTheForm() {
+        phones.forEach { (w, h) ->
+            val input = HotfoxHeroComposition.fox(w, h, HotFoxHeroMode.SUBSCRIPTION_INPUT)
+            val connect = HotfoxHeroComposition.fox(w, h, HotFoxHeroMode.SUBSCRIPTION)
+            val spec = HotfoxHeroComposition.spec(HotFoxHeroMode.SUBSCRIPTION_INPUT)
+            assertTrue("HTTPS fox must be smaller than Connect on $w x $h", input.widthPx < connect.widthPx)
+            assertTrue("HTTPS fox enters form band on $w x $h", input.top + 1f >= h * 0.56f)
+            assertTrue("HTTPS fox cropped on $w x $h", input.bottom <= h * 0.96f + 1f)
+            assertTrue("HTTPS planet must stay atmospheric", spec.planetAlpha <= 0.60f)
+        }
+    }
+
+    @Test
     fun onboardingPlanetCoversThePhoneNotASlot() {
         val dw = 1080f
         val dh = 1400f

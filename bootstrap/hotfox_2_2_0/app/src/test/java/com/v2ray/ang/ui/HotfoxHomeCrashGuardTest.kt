@@ -40,6 +40,19 @@ class HotfoxHomeCrashGuardTest {
     }
 
     @Test
+    fun httpsImportKeepsFormAboveAtmosphericHero() {
+        val xml = layout("activity_hotfox_https_import.xml")
+        val hero = xml.indexOf("""android:id="@+id/https_hero"""")
+        val scrim = xml.indexOf("@drawable/hf_https_form_scrim")
+        val foreground = xml.indexOf("""android:id="@+id/https_foreground"""")
+        assertTrue("HTTPS hero missing", hero > 0)
+        assertTrue("form scrim must sit above hero", scrim > hero)
+        assertTrue("form must sit above readability scrim", foreground > scrim)
+        assertTrue("security note must be constrained", xml.contains("""android:maxLines="2""""))
+        assertTrue("HTTPS confirm must use compact utility surface", xml.contains("@drawable/hf_native_primary_compact"))
+    }
+
+    @Test
     fun onboardingHeroIsFullscreenBehindChrome() {
         val xml = layout("activity_hotfox_onboarding.xml")
         val heroIdx = xml.indexOf("""android:id="@+id/onboarding_hero"""")
