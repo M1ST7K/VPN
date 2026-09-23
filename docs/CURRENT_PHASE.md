@@ -1,3 +1,30 @@
+# CURRENT OWNER TASK — HOTFOX TYPOGRAPHY FINAL PASS 4 / ONEST / 2026-09-23
+
+Status: **ACTIVE — lock Onest as the HotFox UI typeface and finish typography micro-polish without changing approved layout geometry.**
+
+Execution prompt:
+
+`design/HOTFOX_TYPOGRAPHY_ONEST_FINAL_PASS_4_20260923.txt`
+
+Mandatory rule:
+
+`.cursor/rules/37-hotfox-onest-typography-final-pass-4.mdc`
+
+Owner decision:
+- primary UI font = Onest;
+- use official upstream / Google Fonts source only;
+- bundle static 400/500/600/700 locally for API 24 compatibility;
+- preserve graphical HotFox wordmark;
+- preserve approved fox geometry and current screen architecture;
+- revalidate CTA centering, Shadow caption/toggle, AUTO native art, HTTPS hierarchy, Home cards and nav after the font metrics change;
+- fresh screenshots and responsive/fontScale checks are mandatory;
+- no VPN/core/security/entitlement changes;
+- no merge and no RELEASE READY claim.
+
+This pass supersedes older typography choices where it is more specific. Visual geometry from Pass 3 remains the approved baseline.
+
+---
+
 # CURRENT OWNER TASK — HOTFOX FINAL POLISHING PASS 3 / 2026-09-23
 
 Status: **ACTIVE — converge the approved UI without redesigning it.**
