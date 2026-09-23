@@ -1,0 +1,19 @@
+---
+description: ChatGPT-led orchestration and durable task handoff
+alwaysApply: true
+---
+
+Before changing code, read the repository's existing mandatory rules, then read:
+- `.ai/ORCHESTRATION.md`
+- `.ai/TASK.md`
+- `.ai/STATE.json`
+
+Treat repository-specific engineering/product/release rules as higher priority for implementation details. This rule governs coordination and handoff.
+
+When this task was dispatched by ChatGPT:
+1. Work only on the assigned task branch/worktree.
+2. Do not merge main and do not deploy production unless `.ai/TASK.md` explicitly opens that gate.
+3. Do not ask the owner whether to continue through internally solvable steps.
+4. Before handoff, run the required verification and update `.ai/HANDOFF.md` with factual evidence.
+5. Never claim checks you did not actually perform.
+6. If blocked, record the blocker and continue any independent solvable work.
