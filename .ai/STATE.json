@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "task_id": null,
+  "status": "NO_ACTIVE_TASK",
+  "owner": "Maxim",
+  "orchestrator": "ChatGPT",
+  "primary_executor": null,
+  "base_branch": "main",
+  "task_branch": null,
+  "pr_number": null,
+  "last_verified_sha": null,
+  "production_allowed": false,
+  "blockers": [],
+  "next_action": "Wait for ChatGPT to create the next active task."
+}
