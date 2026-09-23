@@ -1,3 +1,31 @@
+# CURRENT OWNER TASK — ONBOARDING 01–03 CORRECTIVE PASS 2 / 2026-09-23
+
+Status: **ACTIVE — finish visual quality and responsive verification for 01 Splash, 02 Connect HotFox, 03 AUTO.**
+
+Execution prompt:
+
+`design/HOTFOX_ONBOARDING_01_03_CORRECTIVE_PASS_2_20260923.md`
+
+Mandatory rule:
+
+`.cursor/rules/35-hotfox-onboarding-01-03-corrective-pass-2.mdc`
+
+This corrective pass supersedes conflicting visual details in the earlier 01–03 onboarding task wherever it is more specific.
+
+Primary owner defect:
+
+- 03 AUTO currently looks visibly lower quality because production uses blurry/fixed raster orbit + globe art.
+- Rebuild 03 as native scalable orbit/globe geometry with crisp anti-aliased linework.
+- 01/02 receive measured polish only, preserving their current approved fox direction and live behavior.
+- Verify more than one viewport and font scale.
+- Re-test 02 import CTA and 03 AUTO/manual actions.
+- Preserve Home V13 and all VPN/runtime/security/entitlement guarantees.
+- Do not stop at compile success. Fresh screenshots and visual review are mandatory.
+- GitHub Actions `skipped` must be reported as skipped, not CI PASS.
+- No merge and no RELEASE READY claim.
+
+---
+
 # CURRENT OWNER TASK — SCREENS 01–03 / EXISTING ASSETS / 2026-09-14
 
 Status: **ACTIVE — implement the newly selected Splash, Connect HotFox and AUTO onboarding screens.**
