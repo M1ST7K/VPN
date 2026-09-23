@@ -1,0 +1,150 @@
+{
+  "task": "HOTFOX-FINAL-VISUAL-CONSISTENCY-20260923",
+  "source_sha": "aca4c38f81ae691195261527b173b5987d8a55c4",
+  "captures": [
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/actual/01_splash.png",
+      "viewport": "1032x2231",
+      "bytes": 632328,
+      "mean": 22.04,
+      "std": 22.76,
+      "screen": "01_splash",
+      "scenario": "01_SPLASH",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/actual/02_connect.png",
+      "viewport": "1032x2231",
+      "bytes": 609886,
+      "mean": 32.9,
+      "std": 45.57,
+      "screen": "02_connect",
+      "scenario": "02_ONBOARD_CONNECT",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/actual/03_auto.png",
+      "viewport": "1032x2231",
+      "bytes": 192445,
+      "mean": 28.34,
+      "std": 48.18,
+      "screen": "03_auto",
+      "scenario": "03_ONBOARD_AUTO",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/actual/04_https.png",
+      "viewport": "1032x2231",
+      "bytes": 286554,
+      "mean": 23.89,
+      "std": 40.97,
+      "screen": "04_https",
+      "scenario": "09_HTTPS_SUBSCRIPTION",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/actual/05_disconnected.png",
+      "viewport": "1032x2231",
+      "bytes": 1086410,
+      "mean": 30.89,
+      "std": 48.34,
+      "screen": "05_disconnected",
+      "scenario": "05_DISCONNECTED",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/actual/06_connecting.png",
+      "viewport": "1032x2231",
+      "bytes": 1066342,
+      "mean": 24.64,
+      "std": 36.63,
+      "screen": "06_connecting",
+      "scenario": "06_CONNECTING_VISUAL",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/actual/07_connected.png",
+      "viewport": "1032x2231",
+      "bytes": 1069761,
+      "mean": 25.28,
+      "std": 36.7,
+      "screen": "07_connected",
+      "scenario": "07_PROTECTED_VISUAL",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/matrix/03_auto_compact.png",
+      "viewport": "945x2100",
+      "bytes": 181208,
+      "mean": 29.46,
+      "std": 50.1,
+      "screen": "03_auto_compact",
+      "scenario": "03_ONBOARD_AUTO",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/matrix/04_https_compact.png",
+      "viewport": "945x2100",
+      "bytes": 260008,
+      "mean": 24.69,
+      "std": 42.44,
+      "screen": "04_https_compact",
+      "scenario": "09_HTTPS_SUBSCRIPTION",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/matrix/05_home_compact.png",
+      "viewport": "945x2100",
+      "bytes": 976089,
+      "mean": 32.09,
+      "std": 49.99,
+      "screen": "05_home_compact",
+      "scenario": "05_DISCONNECTED",
+      "density": 420,
+      "fontScale": "1.0",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/matrix/02_connect_fs115.png",
+      "viewport": "1032x2231",
+      "bytes": 611199,
+      "mean": 33.3,
+      "std": 46.16,
+      "screen": "02_connect_fs115",
+      "scenario": "02_ONBOARD_CONNECT",
+      "density": 420,
+      "fontScale": "1.15",
+      "locale": "ru-RU"
+    },
+    {
+      "path": "verification/ui/final_visual_consistency_20260923/matrix/03_auto_fs115.png",
+      "viewport": "1032x2231",
+      "bytes": 197174,
+      "mean": 28.64,
+      "std": 48.58,
+      "screen": "03_auto_fs115",
+      "scenario": "03_ONBOARD_AUTO",
+      "density": 420,
+      "fontScale": "1.15",
+      "locale": "ru-RU"
+    }
+  ]
+}
