@@ -1,0 +1,633 @@
+HOTFOX — TYPOGRAPHY SYSTEM + FINAL MICRO-POLISH PASS 4
+DATE: 2026-09-23
+PRIMARY TYPEFACE: ONEST
+SCOPE: GLOBAL UI TYPOGRAPHY + LAST VISUAL POLISH
+BASELINE: current approved Pass 3 UI
+
+======================================================================
+0. OWNER DECISION
+======================================================================
+
+The current HotFox design is approved.
+
+Do NOT redesign layouts.
+Do NOT move approved fox geometry.
+Do NOT reintroduce overlap hacks.
+Do NOT change VPN/core/network/security/entitlement semantics.
+
+This pass has two goals only:
+
+1. replace the current generic Android sans-serif typography with a coherent HotFox typography system based on Onest;
+2. perform the last micro-polish that naturally follows from the new font metrics.
+
+The product should keep its current visual composition.
+
+======================================================================
+1. FONT CHOICE — LOCKED
+======================================================================
+
+Use:
+ONEST
+
+Source:
+official upstream / Google Fonts source only.
+
+License:
+SIL Open Font License 1.1.
+
+Use current official Onest source/release.
+Do not use random font mirrors.
+Do not use unofficial repacks.
+
+Important:
+HotFox min Android is API 24.
+
+Do NOT rely on a single variable font file for runtime weight interpolation on all supported devices.
+
+Use static instances:
+- Onest Regular 400
+- Onest Medium 500
+- Onest SemiBold 600
+- Onest Bold 700
+
+Preferred implementation:
+res/font/onest_regular.ttf
+res/font/onest_medium.ttf
+res/font/onest_semibold.ttf
+res/font/onest_bold.ttf
+
+and one XML font family:
+res/font/hotfox_onest.xml
+
+Map:
+400 -> Regular
+500 -> Medium
+600 -> SemiBold
+700 -> Bold
+
+If the official package only exposes a variable font:
+generate static instances from the official variable source inside the build/workspace using fonttools/varLib.instancer or equivalent.
+Do not alter outlines manually.
+Do not synthesize fake bold/medium.
+
+Include the upstream OFL license text in an appropriate legal/licenses location in the repository/app distribution.
+
+Do not expose or share raw font files in chat/report artifacts; keep them as project resources.
+
+======================================================================
+2. BRAND WORDMARK EXCEPTION
+======================================================================
+
+Do NOT replace existing graphical HotFox wordmark/logo assets.
+
+The wordmark remains brand artwork.
+
+Onest applies to UI typography:
+- screen titles
+- body copy
+- card titles
+- captions
+- buttons
+- chips
+- bottom navigation
+- form labels
+- helper text
+- stats
+- settings text
+
+Do not force Onest onto embedded text inside raster/vector brand artwork.
+
+======================================================================
+3. TYPOGRAPHIC HIERARCHY
+======================================================================
+
+Create semantic typography styles instead of scattered raw fontFamily/fontStyle values.
+
+Recommended semantic roles:
+
+HOTFOX_DISPLAY
+- Onest Bold 700
+- major screen headline
+
+HOTFOX_TITLE
+- Onest SemiBold 600 or Bold 700 depending hierarchy
+- section/page titles
+
+HOTFOX_CARD_TITLE
+- Onest SemiBold 600
+
+HOTFOX_BUTTON
+- Onest SemiBold 600
+
+HOTFOX_BODY
+- Onest Regular 400
+
+HOTFOX_BODY_MEDIUM
+- Onest Medium 500
+
+HOTFOX_CAPTION
+- Onest Regular 400 / Medium 500
+
+HOTFOX_NAV
+- Onest Medium 500
+
+HOTFOX_CHIP
+- Onest Medium 500
+
+Use Android style resources wherever possible.
+
+Do not manually set unrelated font families on every TextView.
+
+======================================================================
+4. WEIGHT MAPPING
+======================================================================
+
+Use weight intentionally.
+
+700:
+- primary screen headlines only
+- important protected/disconnected state headings
+- major onboarding titles where current hierarchy requires it
+
+600:
+- card titles
+- primary buttons
+- important menu/action labels
+- secondary section titles
+
+500:
+- nav labels
+- chips
+- small utility labels
+- secondary actions if needed
+- form action "Вставить"
+
+400:
+- body copy
+- captions
+- helper copy
+- muted descriptions
+- timer/stat labels
+
+Do NOT make everything SemiBold/Bold.
+
+Premium UI depends on contrast between weights.
+
+======================================================================
+5. SIZE BASELINE
+======================================================================
+
+Do not blindly preserve all old sizes if Onest optical metrics differ.
+
+Use current sizes as the starting point and tune from real renders.
+
+Target ranges:
+
+Splash:
+- tagline: current equivalent 10–11sp, 500
+
+Onboarding page titles:
+- 33–35sp visual range, 700
+- current two-line breaks preserved where approved
+
+Onboarding body:
+- 15–16sp, 400
+- clean 1.20–1.28 line height
+
+Home main state:
+- 27–29sp, 700
+
+Home subtitle:
+- 13–14sp, 400
+
+CTA:
+- 16sp, 600
+
+Server/card titles:
+- 15–16sp, 600
+
+Card captions:
+- 11.5–13sp, 400
+
+Section overline e.g. "СЕРВЕР":
+- 10.5–11.5sp, 500
+- preserve letterSpacing only if it visually improves Onest uppercase
+
+Bottom nav:
+- 11–12sp, 500
+
+Status chips:
+- 10.5–11.5sp, 500
+
+HTTPS input:
+- placeholder/input: 15–16sp, 400/500
+- paste action: 14–15sp, 600
+
+The exact final size must come from screenshots, not from blindly copying this table.
+
+======================================================================
+6. LINE HEIGHT / BASELINES
+======================================================================
+
+Onest has different vertical metrics from the current generic Android sans.
+
+Inspect:
+- title line spacing
+- button vertical centering
+- card title/caption baselines
+- navigation label baseline
+- chip text baseline
+- input text baseline
+
+Do not accept:
+- text sitting visually low in buttons
+- excessive top/bottom padding created by font metrics
+- clipped accents/diacritics
+- labels touching icons
+
+Use explicit lineHeight / includeFontPadding decisions where justified.
+
+Be careful with android:includeFontPadding:
+do not disable it globally without checking Cyrillic glyph extents and clipping.
+
+Prefer scoped use after visual verification.
+
+======================================================================
+7. CURRENT HOME CTA CENTERING MUST REMAIN FIXED
+======================================================================
+
+Pass 3 fixed icon+text optical centering.
+
+Do not regress it.
+
+The Onest change will alter text width.
+
+HotfoxCenteredIconButton must continue to recompute content width correctly.
+
+Validate:
+- Подключить
+- Отменить
+- Отключить
+
+at:
+- 360×800
+- 393×873
+- 412×915
+- fontScale 1.0
+- fontScale 1.15
+
+Target icon+label group center:
+<= 2dp from button center.
+
+Do not hardcode centering using old font metrics.
+
+======================================================================
+8. SHADOW CARD MUST REMAIN CLEAN
+======================================================================
+
+Do not regress:
+- "Доп. защита" / deliberate compact fallback
+- no "Доп. защ..."
+- ON/OFF visual truth
+- toggle persistence
+
+Onest may change caption width.
+
+Re-run width logic.
+
+At 360dp:
+use full "Доп. защита" if it truly fits.
+If it does not:
+use deliberate "Защита".
+
+Never ellipsize to "Доп. защ...".
+
+======================================================================
+9. SPLASH
+======================================================================
+
+Do not move fox.
+
+Only check typography:
+- tagline spacing
+- Onest letter shape with uppercase tracking
+- brand block balance
+
+Wordmark image remains unchanged.
+
+Do not overtrack Onest uppercase.
+
+If existing letterSpacing looks too artificial with Onest:
+reduce it subtly.
+
+======================================================================
+10. CONNECT HOTFOX
+======================================================================
+
+Do not move fox.
+
+Apply Onest to:
+- title
+- body
+- buttons
+
+Preserve approved two-line title.
+
+Check:
+- Cyrillic width
+- line break
+- body line count
+- CTA label width
+
+Do not create a third title line.
+
+If Onest Bold is wider/narrower:
+adjust size/lineHeight slightly, not layout geometry.
+
+======================================================================
+11. AUTO
+======================================================================
+
+Keep native HotfoxAutoOrbitView.
+
+Typography:
+- Onest Bold headline
+- Onest Regular body
+- Onest SemiBold CTA
+- Onest Medium secondary action
+
+Do not touch orbit geometry solely because text metrics changed unless the measured art host genuinely changes.
+
+Maintain balance.
+
+======================================================================
+12. HTTPS IMPORT
+======================================================================
+
+Typography is especially important here.
+
+Use Onest to make the screen feel more product-like and less like default Android.
+
+Apply:
+- page title 700
+- description 400
+- URL field 400/500
+- "Вставить" 600
+- security note 400
+- "Добавить" 600
+
+Check vertical centering inside input.
+
+Input text and Paste action must share a clean baseline.
+
+Do not increase decorative hero prominence.
+
+Utility-first hierarchy remains mandatory.
+
+======================================================================
+13. HOME
+======================================================================
+
+Apply Onest systematically to:
+- state title
+- state subtitle
+- chip
+- hint
+- CTA
+- section label
+- server title/subtitle
+- Shadow/Smart titles
+- Shadow/Smart captions
+- subscription title/caption
+- bottom nav
+
+Do not move fox.
+
+Do not change Home region geometry unless the font physically causes clipping.
+
+If spacing adjustment is required:
+prefer micro-adjustments inside text/container padding.
+
+Do not rebuild the screen.
+
+======================================================================
+14. LAST MICRO-POLISH — PERMITTED
+======================================================================
+
+After Onest is applied, only these micro-polish changes are permitted:
+
+- 1–3dp baseline/padding adjustments
+- 1–2sp text-size adjustments
+- lineHeight tuning
+- letterSpacing tuning
+- minor icon/text spacing
+- minor opacity tuning
+- minor card text alignment
+- minor status-chip balance
+- minor bottom-nav typography balance
+
+Not permitted:
+- moving fox
+- changing major card positions
+- changing CTA dimensions radically
+- changing screen architecture
+- changing hero scale
+- introducing new cards
+- introducing new colors
+
+======================================================================
+15. FONT FILE / LICENSE INTEGRITY
+======================================================================
+
+Record:
+- source URL/repository
+- upstream version/commit if practical
+- license
+- SHA256 for each bundled font file
+
+Create a small typography provenance document, e.g.:
+docs/HOTFOX_TYPOGRAPHY_ONEST.md
+
+Include:
+- source
+- license
+- bundled weights
+- SHA256
+- UI weight mapping
+
+Do not download font from a random CDN.
+
+======================================================================
+16. PERFORMANCE / APK
+======================================================================
+
+Use only necessary weights:
+400 / 500 / 600 / 700.
+
+Do not bundle seven or nine redundant weights.
+
+Avoid runtime web font downloads.
+
+Font must work offline.
+
+No first-launch font network dependency.
+
+No Google Play Services dependency for typography.
+
+======================================================================
+17. API 24 COMPATIBILITY
+======================================================================
+
+Test at least compile/runtime path compatible with minSdk 24.
+
+If available, boot/run API 24 emulator and smoke test:
+- Splash
+- Home
+- HTTPS
+
+If API 24 emulator is unavailable:
+document NOT EXECUTED honestly.
+
+Do not assume variable-font behavior on API24.
+
+Static font resources are required specifically to avoid this uncertainty.
+
+======================================================================
+18. RESPONSIVE MATRIX
+======================================================================
+
+Fresh captures after Onest:
+
+01 Splash
+02 Connect
+03 AUTO
+04 HTTPS
+05 Home Disconnected
+06 Home Connecting
+07 Home Connected
+
+At standard 393×873.
+
+Additional:
+05 Home 360×800
+05 Home 412×915
+02 or 03 @ fontScale 1.15
+05 Home @ fontScale 1.15
+04 HTTPS compact
+
+Check:
+- no clipping
+- no unexpected wrap
+- no ellipsis
+- CTA centered
+- nav labels fit
+- cards remain stable
+
+======================================================================
+19. SIDE-BY-SIDE FONT COMPARISON
+======================================================================
+
+Before finalizing, capture a controlled comparison:
+
+A. current pre-Onest UI
+B. Onest candidate
+
+At minimum:
+- Home Disconnected
+- Connect HotFox
+- HTTPS
+
+The final report should state whether Onest improves:
+- Cyrillic appearance
+- hierarchy
+- density
+- premium feel
+- readability
+
+Do not keep dual fonts in production for A/B.
+This is verification only.
+
+======================================================================
+20. REGRESSION TESTS
+======================================================================
+
+Re-run:
+- CTA centering measurement
+- Shadow caption width
+- Shadow toggle persistence
+- interaction smoke suite
+- visual hierarchy tests
+- static check
+- fixture leak guard
+- unit tests
+- lint if feasible
+- release compile if feasible
+
+No screenshots/reference fixtures in production resources.
+
+======================================================================
+21. DEFINITION OF DONE
+======================================================================
+
+Done only when:
+
+- Onest is the real application UI typeface;
+- weights 400/500/600/700 are bundled locally;
+- OFL license/provenance recorded;
+- no variable-font-only dependency for API24;
+- brand wordmark assets remain unchanged;
+- no headline unexpectedly wraps;
+- CTA icon+text centering remains correct;
+- Shadow caption remains deliberate;
+- nav labels fit;
+- HTTPS form typography is aligned;
+- Home cards look coherent;
+- all 01–07 captures visually pass;
+- current approved fox geometry remains unchanged;
+- build/tests pass;
+- no runtime/business/security logic was rewritten.
+
+======================================================================
+22. FINAL REPORT
+======================================================================
+
+Report:
+
+1. final HEAD
+2. commits
+3. exact Onest upstream source/version
+4. font files bundled
+5. SHA256 values
+6. license path
+7. typography style mapping
+8. UI files/styles changed
+9. screenshots
+10. responsive/fontScale results
+11. CTA centering result after font change
+12. Shadow results
+13. interaction results
+14. API24 status
+15. build/unit/lint/static results
+16. remaining honest gaps
+
+Do not claim RELEASE READY.
+
+======================================================================
+23. OWNER INTENT
+======================================================================
+
+This is the final typographic identity pass.
+
+Do not search for more visual concepts.
+
+Use Onest to make HotFox feel:
+- less like generic Android;
+- more branded;
+- cleaner in Cyrillic;
+- more modern;
+- more premium;
+- more coherent across all screens.
+
+Preserve the approved visual composition.
+
+TYPOGRAPHY SHOULD UPGRADE THE PRODUCT WITHOUT DESTABILIZING IT.
