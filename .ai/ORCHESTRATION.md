@@ -28,7 +28,7 @@ The intended execution path uses the owner's paid Claude and Cursor subscription
 
 - Claude Code must authenticate with Claude.ai / Max, not an Anthropic API key.
 - Cursor CLI must authenticate with `agent login`, not a Cursor API key.
-- Use `tools/ai/claude-subscription.sh` and `tools/ai/cursor-subscription.sh` when launched by the orchestrator. They remove API-key environment variables before execution.
+- When launched by the orchestrator, use `bash tools/ai/claude-subscription.sh ...` and `bash tools/ai/cursor-subscription.sh ...`. They remove API-key environment variables before execution.
 - Never print, commit, paste or log secrets/tokens.
 - If a native login expires, stop only the dependent executor and report AUTH_REQUIRED. Do not silently fall back to API billing.
 
