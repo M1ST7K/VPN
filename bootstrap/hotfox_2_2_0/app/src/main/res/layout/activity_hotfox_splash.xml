@@ -28,7 +28,7 @@
         android:fitsSystemWindows="true"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingBottom="48dp">
+        android:paddingBottom="40dp">
 
         <ImageView
             android:layout_width="@dimen/hf_splash_wordmark_onboard_width"

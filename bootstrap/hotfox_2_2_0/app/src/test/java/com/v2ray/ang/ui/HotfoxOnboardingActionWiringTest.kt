@@ -38,6 +38,20 @@ class HotfoxOnboardingActionWiringTest {
     }
 
     @Test
+    fun autoCtaKeepsNativeOrbitAndSetAutoMode() {
+        val src = source("HotfoxOnboardingActivity.kt")
+        assertTrue(src.contains("showAutoArt()"))
+        assertTrue(src.contains("autoOrbitView"))
+        assertFalse("AUTO must not paint hf_auto_orbits", src.contains("hf_auto_orbits"))
+        assertFalse("AUTO must not paint hf_globe_orange", src.contains("hf_globe_orange"))
+        val primary = src.substring(src.indexOf("private fun onPrimary()"))
+        val autoArm = primary.substringAfter("HotfoxOnboardingFlow.Step.AUTO")
+            .substringBefore("HotfoxOnboardingFlow.Step.WELCOME")
+        assertTrue(autoArm.contains("setAutoMode(true)"))
+        assertTrue(autoArm.contains("KEEP_AUTO"))
+    }
+
+    @Test
     fun purchaseOpensExistingRenewal() {
         val src = source("HotfoxOnboardingActivity.kt")
         assertTrue(src.contains("RenewalActivity"))

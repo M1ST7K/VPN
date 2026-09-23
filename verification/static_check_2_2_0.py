@@ -891,11 +891,6 @@ def main() -> int:
 
     skip_dirs = {"build", "test", "androidTest", "debug"}
     celestial_needles = ("hf_fox_planet", "hf_shadow_orbits", "hf_auto_orbits", "hf_ready_orbits")
-    # Owner override ONBOARDING-01-03-20260914: existing hf_auto_orbits + globe
-    # are the authorized screen-03 illustration. Do not spread this exception.
-    allowed_auto_orbits = {
-        "app/src/main/java/com/v2ray/ang/ui/HotfoxOnboardingActivity.kt",
-    }
     for path in (PROJECT / "app" / "src" / "main").rglob("*"):
         if not path.is_file():
             continue
@@ -912,8 +907,6 @@ def main() -> int:
         rel = str(path.relative_to(PROJECT))
         for needle in celestial_needles:
             if needle in text:
-                if needle == "hf_auto_orbits" and rel in allowed_auto_orbits:
-                    continue
                 fail(f"forbidden celestial production ref {needle} in {rel}")
         if re.search(r"@drawable/hf_fox_bust\"|R\.drawable\.hf_fox_bust(?!_transparent)", text):
             fail(f"opaque fox bust still referenced in {path.relative_to(PROJECT)}")

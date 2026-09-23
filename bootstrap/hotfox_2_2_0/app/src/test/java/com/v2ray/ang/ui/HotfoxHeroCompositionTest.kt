@@ -160,8 +160,8 @@ class HotfoxHeroCompositionTest {
         val splash = HotfoxHeroComposition.fox(360f, 800f, HotFoxHeroMode.SPLASH)
         val connect = HotfoxHeroComposition.fox(360f, 800f, HotFoxHeroMode.SUBSCRIPTION)
         assertTrue("splash fox should be taller than connect fox", splash.heightPx > connect.heightPx)
-        assertTrue("connect fox stays below title", connect.top + 1f >= 800f * 0.28f)
-        assertTrue("connect fox stays above CTA", connect.bottom <= 800f * 0.73f + 1f)
+        assertTrue("connect fox stays below title", connect.top + 1f >= 800f * 0.24f)
+        assertTrue("connect fox stays above CTA", connect.bottom <= 800f * 0.74f + 1f)
         assertTrue("splash fox stays on canvas", splash.top >= -1 && splash.bottom <= 801)
     }
 

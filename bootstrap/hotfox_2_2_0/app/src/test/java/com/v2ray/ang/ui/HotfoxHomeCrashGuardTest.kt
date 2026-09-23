@@ -54,6 +54,13 @@ class HotfoxHomeCrashGuardTest {
     }
 
     @Test
+    fun autoOrbitIsNativeHostedInArtSlot() {
+        val xml = layout("activity_hotfox_onboarding.xml")
+        assertTrue("native AUTO orbit view missing", xml.contains("com.v2ray.ang.ui.HotfoxAutoOrbitView"))
+        assertTrue(xml.contains("""android:id="@+id/auto_orbit_view""""))
+    }
+
+    @Test
     fun hiddenHeroDoesNotBakeLargeBitmapSrc() {
         val xml = layout("view_hotfox_hero.xml")
         assertFalse(xml.contains("@drawable/hf_native_planet_sphere"))
