@@ -717,7 +717,7 @@
     <string name="hotfox_https_body">Вставьте ссылку подписки. Полный URL не сохраняется в скриншотах и логах.</string>
     <string name="hotfox_https_paste">Вставить</string>
     <string name="hotfox_https_add">Добавить</string>
-    <string name="hotfox_https_lock_note">Ссылка обрабатывается только после вашего действия. Секреты не попадают в логи.</string>
+    <string name="hotfox_https_lock_note">Обрабатывается только по вашему действию. Секреты не логируются.</string>
     <string name="hotfox_https_hint">https://</string>
     <string name="hotfox_servers_best_auto">Лучший сервер автоматически</string>
     <string name="hotfox_servers_popular">ПОПУЛЯРНЫЕ ЛОКАЦИИ</string>

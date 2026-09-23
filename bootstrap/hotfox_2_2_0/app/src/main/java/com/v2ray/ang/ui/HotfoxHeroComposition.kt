@@ -160,17 +160,17 @@ object HotfoxHeroComposition {
             foxBottomMaxFrac = 0.74f,
         )
         HotFoxHeroMode.SUBSCRIPTION_INPUT -> ModeSpec(
-            foxWidthFrac = 0.62f,
+            foxWidthFrac = 0.50f,
             foxCenterXFrac = 0.54f,
-            foxCenterYFrac = 0.66f,
+            foxCenterYFrac = 0.80f,
             planetOverflow = 1.22f,
             planetCenterXFrac = 0.40f,
-            planetCenterYFrac = 0.52f,
-            planetAlpha = 0.94f,
-            glowAlpha = 0.24f,
+            planetCenterYFrac = 0.46f,
+            planetAlpha = 0.58f,
+            glowAlpha = 0.10f,
             planetCoverViewport = true,
-            foxTopMinFrac = 0.38f,
-            foxBottomMaxFrac = 0.94f,
+            foxTopMinFrac = 0.56f,
+            foxBottomMaxFrac = 0.96f,
         )
         else -> spec(HotFoxHeroMode.HOME_DISCONNECTED)
     }

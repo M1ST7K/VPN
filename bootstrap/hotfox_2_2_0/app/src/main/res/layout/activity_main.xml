@@ -26,6 +26,14 @@
             android:scaleType="fitStart"
             android:src="@drawable/hotfox_hero_scene" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/hf_v13_hero_bottom_fade"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no" />
+
         <LinearLayout
             android:id="@+id/main_foreground"
             android:layout_width="match_parent"
@@ -133,7 +141,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Fox"
-                android:textColor="@color/hf_v13_orange"
+                android:textColor="@color/hf_v13_orange_soft"
                 android:textSize="22sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -178,18 +186,18 @@
     <TextView
         android:id="@+id/tv_home_status_chip"
         android:layout_width="wrap_content"
-        android:layout_height="32dp"
+        android:layout_height="28dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/hf_v13_chip_idle"
         android:drawablePadding="6dp"
             android:gravity="center"
-            android:minHeight="32dp"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
+            android:minHeight="28dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:text="@string/hotfox_home_status_off"
             android:textColor="@color/hf_v13_muted"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
 
     <FrameLayout
         android:id="@+id/hero_surface"
@@ -322,13 +330,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:alpha="0.85"
                 android:orientation="horizontal"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp">
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_lock"
                     app:tint="@color/hf_v13_muted" />
@@ -336,10 +345,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:text="@string/hotfox_home_hint_tap"
                     android:textColor="@color/hf_v13_muted"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -391,7 +400,7 @@
                     app:indicatorColor="@color/hf_v13_orange"
                     app:trackColor="#33343C"
                     app:trackCornerRadius="3dp"
-                    app:trackThickness="6dp" />
+                    app:trackThickness="4dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -452,7 +461,7 @@
                         android:layout_height="16dp"
                         android:importantForAccessibility="no"
                         android:src="@drawable/ic_hotfox_upload"
-                        app:tint="@color/hf_v13_orange" />
+                        app:tint="@color/hf_v13_muted" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -487,7 +496,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="8dp">
 
@@ -561,7 +570,7 @@
                         android:layout_gravity="center"
                         android:importantForAccessibility="no"
                         android:src="@drawable/ic_hotfox_globe"
-                        app:tint="@color/hf_v13_orange" />
+                        app:tint="@color/hf_v13_orange_soft" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -634,8 +643,8 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="8dp">
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
 
                 <ImageView
                     android:layout_width="22dp"
@@ -691,8 +700,8 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="10dp">
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
 
                 <ImageView
                     android:id="@+id/smart_routing_icon"

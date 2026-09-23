@@ -89,14 +89,14 @@ class HotfoxAutoOrbitView @JvmOverloads constructor(
         auraPaint.color = withAlpha(orange, 16)
         canvas.drawCircle(cx, cy, group * 0.22f, auraPaint)
 
-        drawOrbit(canvas, cx, cy, group * 0.50f, alpha = 40, strokeDp = 1.05f)
-        drawOrbit(canvas, cx, cy, group * 0.39f, alpha = 30, strokeDp = 0.9f)
-        drawOrbit(canvas, cx, cy, group * 0.28f, alpha = 24, strokeDp = 0.8f)
+        drawOrbit(canvas, cx, cy, group * 0.50f, yScale = 0.86f, alpha = 25, strokeDp = 0.85f)
+        drawOrbit(canvas, cx, cy, group * 0.39f, yScale = 0.92f, alpha = 30, strokeDp = 0.9f)
+        drawOrbit(canvas, cx, cy, group * 0.28f, yScale = 0.97f, alpha = 36, strokeDp = 0.95f)
 
-        drawNode(canvas, cx, cy, group * 0.50f, 214f, group)
-        drawNode(canvas, cx, cy, group * 0.50f, 28f, group)
-        drawNode(canvas, cx, cy, group * 0.39f, 138f, group)
-        drawNode(canvas, cx, cy, group * 0.39f, 328f, group)
+        drawNode(canvas, cx, cy, group * 0.50f, 0.86f, 214f, group)
+        drawNode(canvas, cx, cy, group * 0.50f, 0.86f, 28f, group)
+        drawNode(canvas, cx, cy, group * 0.39f, 0.92f, 138f, group)
+        drawNode(canvas, cx, cy, group * 0.39f, 0.92f, 328f, group)
 
         val globeRadius = (group * 0.155f)
             .coerceIn(dp(41f), dp(54f))
@@ -108,12 +108,14 @@ class HotfoxAutoOrbitView @JvmOverloads constructor(
         cx: Float,
         cy: Float,
         radius: Float,
+        yScale: Float,
         alpha: Int,
         strokeDp: Float,
     ) {
         orbitPaint.color = withAlpha(orangeWarm, alpha)
         orbitPaint.strokeWidth = dp(strokeDp)
-        canvas.drawCircle(cx, cy, radius, orbitPaint)
+        rect.set(cx - radius, cy - radius * yScale, cx + radius, cy + radius * yScale)
+        canvas.drawOval(rect, orbitPaint)
     }
 
     private fun drawNode(
@@ -121,12 +123,13 @@ class HotfoxAutoOrbitView @JvmOverloads constructor(
         cx: Float,
         cy: Float,
         radius: Float,
+        yScale: Float,
         angleDegrees: Float,
         group: Float,
     ) {
         val radians = Math.toRadians(angleDegrees.toDouble())
         val x = cx + cos(radians).toFloat() * radius
-        val y = cy + sin(radians).toFloat() * radius
+        val y = cy + sin(radians).toFloat() * radius * yScale
 
         val halo = (group * 0.044f).coerceIn(dp(10f), dp(17f))
         val core = (group * 0.018f).coerceIn(dp(4f), dp(7f))
@@ -158,18 +161,18 @@ class HotfoxAutoOrbitView @JvmOverloads constructor(
         val save = canvas.save()
         canvas.clipPath(globeClip)
 
-        globePaint.strokeWidth = dp(2.2f)
-        globePaint.color = withAlpha(orange, 230)
+        globePaint.strokeWidth = dp(1.85f)
+        globePaint.color = withAlpha(orangeWarm, 190)
         canvas.drawLine(cx, cy - r, cx, cy + r, globePaint)
 
         rect.set(cx - r * 0.58f, cy - r, cx + r * 0.58f, cy + r)
         canvas.drawOval(rect, globePaint)
-        rect.set(cx - r * 0.28f, cy - r, cx + r * 0.28f, cy + r)
-        canvas.drawOval(rect, globePaint)
 
-        globePaint.strokeWidth = dp(2.4f)
+        globePaint.strokeWidth = dp(2.1f)
+        globePaint.color = withAlpha(orange, 220)
         canvas.drawLine(cx - r, cy, cx + r, cy, globePaint)
-        globePaint.strokeWidth = dp(2.05f)
+        globePaint.strokeWidth = dp(1.75f)
+        globePaint.color = withAlpha(orangeWarm, 176)
         val lat = r * 0.42f
         rect.set(cx - r, cy - lat - r * 0.08f, cx + r, cy - lat + r * 0.08f)
         canvas.drawOval(rect, globePaint)

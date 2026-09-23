@@ -21,6 +21,14 @@
         app:hfHeroShowPlanet="true"
         app:hfHeroVariant="subscriptionInput" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/hf_https_form_scrim"
+        android:clickable="false"
+        android:focusable="false"
+        android:importantForAccessibility="no" />
+
     <LinearLayout
         android:id="@+id/https_foreground"
         android:layout_width="match_parent"
@@ -41,16 +49,18 @@
             android:text="@string/hotfox_https_title" />
 
         <TextView
-            style="@style/HotFox.Body"
+            style="@style/HotFox.BodySecondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:lineSpacingMultiplier="1.12"
+            android:maxLines="3"
             android:text="@string/hotfox_https_body" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/hf_native_input"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -78,7 +88,7 @@
                 android:singleLine="true"
                 android:textColor="@color/hf_asset_cream"
                 android:textColorHint="@color/hf_asset_muted"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/btn_https_paste"
@@ -87,18 +97,19 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:minWidth="48dp"
+                android:minWidth="72dp"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:text="@string/hotfox_https_paste"
                 android:textColor="@color/hf_asset_orange"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -109,26 +120,29 @@
                 android:src="@drawable/hf_lock_muted" />
 
             <TextView
+                android:id="@+id/tv_https_security"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
+                android:lineSpacingMultiplier="1.05"
+                android:maxLines="2"
                 android:text="@string/hotfox_https_lock_note"
                 android:textColor="@color/hf_asset_muted"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_https_add"
             style="@style/HotFox.PrimaryButton"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/hf_cta_height"
+            android:layout_height="48dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/hf_native_primary"
-            android:drawableEnd="@drawable/hf_arrow_right_ink"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/hf_native_primary_compact"
             android:maxWidth="@dimen/hf_cta_max_width"
             android:text="@string/hotfox_https_add"
+            android:textSize="15sp"
             android:textAllCaps="false" />
 
         <FrameLayout

@@ -1458,7 +1458,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.tvAutoMode.setTextColor(ContextCompat.getColor(this, R.color.hf_v13_muted))
             serverIcon?.setImageResource(R.drawable.ic_hotfox_globe)
             serverIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
-                ContextCompat.getColor(this, R.color.hf_v13_orange),
+                ContextCompat.getColor(this, R.color.hf_v13_orange_soft),
             )
         } else {
             binding.tvSelectedServer.text = city ?: selectedLabel
@@ -1490,7 +1490,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             } else {
                 serverIcon?.setImageResource(R.drawable.ic_hotfox_globe)
                 serverIcon?.imageTintList = android.content.res.ColorStateList.valueOf(
-                    ContextCompat.getColor(this, R.color.hf_v13_orange),
+                    ContextCompat.getColor(this, R.color.hf_v13_orange_soft),
                 )
             }
         }
