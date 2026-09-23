@@ -1,0 +1,29 @@
+---
+description: HotFox onboarding 01-03 corrective visual pass 2026-09-23
+alwaysApply: true
+---
+
+# ACTIVE OVERRIDE — ONBOARDING 01–03 CORRECTIVE PASS 2
+
+For Splash 01, Connect HotFox 02, and AUTO 03, read and execute:
+
+`design/HOTFOX_ONBOARDING_01_03_CORRECTIVE_PASS_2_20260923.md`
+
+This rule overrides conflicting visual details in older 01–03 onboarding instructions where the new corrective pass is more specific.
+
+Mandatory:
+
+- Do not touch VPN/core/security/entitlement truth.
+- Do not roll back Home V13.
+- Do not regenerate or replace the fox asset.
+- Do not use screenshot/reference bitmaps as runtime UI.
+- Screen 03 must not visibly rely on the blurry raster combination `hf_auto_orbits` + `hf_globe_orange`.
+- Implement screen 03 orbit/globe as crisp native scalable geometry (Canvas/custom View preferred, VectorDrawable acceptable).
+- Keep AUTO art separate from HotFoxHeroArtwork to avoid shared-Hero regressions.
+- 01 and 02 receive measured polish only; no radical redesign.
+- Validate at multiple viewport sizes, not only 1032×2231.
+- Preserve live CTA/action wiring.
+- Fresh rendered evidence is required.
+- A skipped GitHub Actions run is not CI PASS.
+- Do not stop on compile-only success.
+- Do not claim pixel exact or RELEASE READY without proof.
