@@ -1,3 +1,34 @@
+# CURRENT OWNER TASK — HOTFOX FINAL POLISHING PASS 3 / 2026-09-23
+
+Status: **ACTIVE — converge the approved UI without redesigning it.**
+
+Execution prompt:
+
+`design/HOTFOX_FINAL_POLISHING_PASS_3_20260923.txt`
+
+Mandatory rule:
+
+`.cursor/rules/36-hotfox-final-polishing-pass-3.mdc`
+
+Current owner requirements:
+- freeze fox geometry on Splash / Connect / Home;
+- fix the visibly shifted power icon inside "Подключить" so icon + text are centered as one group;
+- remove "Доп. защ..." truncation;
+- make Shadow toggle OFF/ON visually unambiguous and truthful;
+- reduce Home secondary orange competition, especially subscription outline;
+- keep AUTO native crisp Canvas art and polish its line hierarchy;
+- make HTTPS import utility-first and reduce fox dominance there;
+- polish brown/copper atmosphere without changing the approved composition;
+- preserve stable Home 05/06/07 scaffold and zero-overlap behavior;
+- validate multiple viewports and fresh real screenshots;
+- do not stop on compile-only green;
+- preserve all VPN/network/security/entitlement behavior;
+- no merge and no RELEASE READY claim.
+
+This pass supersedes older visual-polish instructions where it is more specific. Older task text remains historical/reference context.
+
+---
+
 # CURRENT OWNER TASK — ONBOARDING 01–03 CORRECTIVE PASS 2 / 2026-09-23
 
 Status: **ACTIVE — finish visual quality and responsive verification for 01 Splash, 02 Connect HotFox, 03 AUTO.**
