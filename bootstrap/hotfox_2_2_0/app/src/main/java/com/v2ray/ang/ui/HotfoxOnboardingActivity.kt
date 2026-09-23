@@ -187,6 +187,7 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
                 binding.tvOnboardingTitle.setText(R.string.hotfox_onboarding_ready_title_ui)
                 binding.tvOnboardingBody.setText(R.string.hotfox_onboarding_ready_body_ui)
                 hideHero()
+                binding.autoOrbitView.isVisible = false
                 binding.imgOnboardingArt.setImageResource(R.drawable.hf_native_ready_complete)
                 binding.imgOnboardingArt.alpha = 1f
                 binding.imgOnboardingArt.isVisible = true
@@ -207,18 +208,16 @@ class HotfoxOnboardingActivity : AppCompatActivity() {
         binding.onboardingHero.setFitParent(true)
         binding.onboardingHero.setHeroLayers(showPlanet = true, showFox = true)
         binding.onboardingHero.setAnimationMode(HotFoxHeroArtwork.AnimationMode.BREATHING)
+        binding.autoOrbitView.isVisible = false
         binding.imgOnboardingArt.isVisible = false
         binding.imgOnboardingOverlay.isVisible = false
     }
 
     private fun showAutoArt() {
         hideHero()
-        binding.imgOnboardingArt.setImageResource(R.drawable.hf_auto_orbits)
-        binding.imgOnboardingArt.alpha = 0.42f
-        binding.imgOnboardingArt.isVisible = true
-        binding.imgOnboardingOverlay.setImageResource(R.drawable.hf_globe_orange)
-        binding.imgOnboardingOverlay.alpha = 0.95f
-        binding.imgOnboardingOverlay.isVisible = true
+        binding.imgOnboardingArt.isVisible = false
+        binding.imgOnboardingOverlay.isVisible = false
+        binding.autoOrbitView.isVisible = true
     }
 
     private fun hideHero() {
