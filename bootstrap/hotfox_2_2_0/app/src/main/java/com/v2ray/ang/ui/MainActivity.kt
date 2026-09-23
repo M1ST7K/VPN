@@ -240,6 +240,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         HotfoxHomeV13.bindShadowSwitch(
             binding.root.findViewById(R.id.switch_home_shadow),
         )
+        HotfoxHomeV13.fitShadowCaption(binding.root.findViewById(R.id.tv_home_shadow_caption))
         binding.root.findViewById<android.view.View>(R.id.layout_connection_note)?.setOnClickListener {
             HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
         }

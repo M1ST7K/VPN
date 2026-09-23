@@ -329,15 +329,16 @@
                 android:id="@+id/layout_disconnected_hint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
                 android:gravity="center"
-                android:alpha="0.85"
+                android:alpha="0.72"
                 android:orientation="horizontal"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp">
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_lock"
                     app:tint="@color/hf_v13_muted" />
@@ -345,7 +346,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="5dp"
                     android:text="@string/hotfox_home_hint_tap"
                     android:textColor="@color/hf_v13_muted"
                     android:textSize="12sp" />
@@ -501,7 +502,7 @@
         android:layout_marginBottom="8dp">
 
         <!-- Custom selector backgrounds belong on AppCompatButton, not MaterialButton. -->
-        <androidx.appcompat.widget.AppCompatButton
+        <com.v2ray.ang.ui.HotfoxCenteredIconButton
             android:id="@+id/connect_action"
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -509,7 +510,6 @@
             android:clickable="true"
             android:drawablePadding="10dp"
             android:focusable="true"
-            android:gravity="center"
             android:minHeight="56dp"
             android:stateListAnimator="@null"
             android:text="@string/hotfox_connect"
@@ -524,8 +524,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:paddingStart="@dimen/hf_page_gutter"
+        android:paddingEnd="@dimen/hf_page_gutter">
 
         <LinearLayout
             android:id="@+id/selected_server_card"
@@ -643,12 +643,12 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="16dp"
+                android:paddingStart="14dp"
                 android:paddingEnd="4dp">
 
                 <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_shield"
                     app:tint="@color/hf_v13_muted" />
@@ -671,9 +671,9 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tv_home_shadow_caption"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:ellipsize="end"
                         android:maxLines="1"
                         android:text="@string/hotfox_home_shadow_caption"
                         android:textColor="@color/hf_v13_muted"
@@ -702,13 +702,13 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="16dp"
+                android:paddingStart="14dp"
                 android:paddingEnd="12dp">
 
                 <ImageView
                     android:id="@+id/smart_routing_icon"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_hotfox_route"
                     app:tint="@color/hf_v13_muted" />

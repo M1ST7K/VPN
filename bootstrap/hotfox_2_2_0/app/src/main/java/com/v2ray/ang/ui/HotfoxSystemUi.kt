@@ -72,7 +72,8 @@ object HotfoxSystemUi {
                 }
             }
         }
-        content.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ -> apply(v) }
+        // Padding changed from inside a layout pass can be dropped; apply on the next frame.
+        content.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ -> v.post { apply(v) } }
         content.post { apply(content) }
     }
 

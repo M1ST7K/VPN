@@ -17,6 +17,7 @@
     <string name="hotfox_home_auto_badge">AUTO</string>
     <string name="hotfox_home_shadow">Shadow</string>
     <string name="hotfox_home_shadow_caption">Extra protection</string>
+    <string name="hotfox_home_shadow_caption_short">Protection</string>
     <string name="hotfox_home_smart">Smart</string>
     <string name="hotfox_home_smart_caption">All traffic</string>
     <string name="hotfox_home_subscription">Subscription</string>

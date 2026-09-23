@@ -60,7 +60,8 @@ object HotfoxHomeV13 {
             val px = (dp * resources.displayMetrics.density).toInt().coerceAtLeast(1)
             d.setBounds(0, 0, px, px)
             setCompoundDrawablesRelative(d, null, null, null)
-            compoundDrawablePadding = (8 * resources.displayMetrics.density).toInt()
+            val gapDp = if (this is HotfoxCenteredIconButton) 10 else 8
+            compoundDrawablePadding = (gapDp * resources.displayMetrics.density).toInt()
         }
 
         when (visual) {
@@ -181,6 +182,23 @@ object HotfoxHomeV13 {
         chip ?: return
         chip.isVisible = visible
         chip.setOnClickListener { onClick() }
+    }
+
+    /** Shows the full Shadow caption when it fits, otherwise the short product phrase — never an ellipsis. */
+    fun fitShadowCaption(caption: TextView?) {
+        caption ?: return
+        val full = caption.context.getString(R.string.hotfox_home_shadow_caption)
+        val short = caption.context.getString(R.string.hotfox_home_shadow_caption_short)
+        fun apply() {
+            val available = caption.width - caption.totalPaddingLeft - caption.totalPaddingRight
+            if (available <= 0) return
+            val next = if (caption.paint.measureText(full) <= available) full else short
+            if (caption.text.toString() != next) caption.text = next
+        }
+        caption.addOnLayoutChangeListener { _, l, _, r, _, oldL, _, oldR, _ ->
+            if (r - l != oldR - oldL) caption.post { apply() }
+        }
+        caption.post { apply() }
     }
 
     fun bindShadowSwitch(sw: androidx.appcompat.widget.SwitchCompat?) {

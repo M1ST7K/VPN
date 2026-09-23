@@ -13,8 +13,40 @@ class HotfoxHomeCrashGuardTest {
         assertTrue("connect_action missing from activity_main.xml", idx > 0)
         val open = xml.lastIndexOf('<', idx)
         val window = xml.substring(open.coerceAtLeast(0), (idx + 40).coerceAtMost(xml.length))
-        assertTrue("connect_action must stay AppCompatButton, window=$window", window.contains("AppCompatButton"))
+        assertTrue(
+            "connect_action must stay an AppCompatButton-based centered CTA, window=$window",
+            window.contains("com.v2ray.ang.ui.HotfoxCenteredIconButton"),
+        )
         assertFalse("MaterialButton + custom android:background crashes on ShapeAppearanceModel", window.contains("MaterialButton"))
+        val button = File(
+            "src/main/java/com/v2ray/ang/ui/HotfoxCenteredIconButton.kt",
+        ).let { if (it.exists()) it else File("app/src/main/java/com/v2ray/ang/ui/HotfoxCenteredIconButton.kt") }
+            .readText()
+        assertTrue(button.contains(": AppCompatButton("))
+        assertTrue("icon and label must be centered as one group", button.contains("canvas.translate(offset, 0f)"))
+    }
+
+    @Test
+    fun shadowCaptionNeverEllipsizes() {
+        val xml = layout("activity_main.xml")
+        val idx = xml.indexOf("""android:id="@+id/tv_home_shadow_caption"""")
+        assertTrue("tv_home_shadow_caption missing", idx > 0)
+        val element = xml.substring(xml.lastIndexOf('<', idx), xml.indexOf("/>", idx))
+        assertFalse("Shadow caption must fall back to a short phrase, not an ellipsis", element.contains("ellipsize"))
+        assertTrue(element.contains("""android:maxLines="1""""))
+    }
+
+    @Test
+    fun homeCardRowsStartOnThePageGutter() {
+        val xml = layout("activity_main.xml")
+        val idx = xml.indexOf("""android:id="@+id/layout_connection_rows"""")
+        assertTrue("layout_connection_rows missing", idx > 0)
+        val element = xml.substring(idx, xml.indexOf('>', idx))
+        assertTrue(
+            "card rows must match the runtime reading gutter from the first frame",
+            element.contains("""android:paddingStart="@dimen/hf_page_gutter"""") &&
+                element.contains("""android:paddingEnd="@dimen/hf_page_gutter""""),
+        )
     }
 
     @Test
