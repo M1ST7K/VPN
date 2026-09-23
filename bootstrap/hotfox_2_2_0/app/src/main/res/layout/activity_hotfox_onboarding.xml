@@ -71,6 +71,14 @@
             android:clipToPadding="false"
             android:minHeight="@dimen/hf_onboard_art_min">
 
+            <com.v2ray.ang.ui.HotfoxAutoOrbitView
+                android:id="@+id/auto_orbit_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:visibility="gone" />
+
             <ImageView
                 android:id="@+id/img_onboarding_art"
                 android:layout_width="@dimen/hf_onboard_orbits"
