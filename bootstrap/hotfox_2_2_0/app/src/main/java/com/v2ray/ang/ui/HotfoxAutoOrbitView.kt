@@ -89,9 +89,9 @@ class HotfoxAutoOrbitView @JvmOverloads constructor(
         auraPaint.color = withAlpha(orange, 16)
         canvas.drawCircle(cx, cy, group * 0.22f, auraPaint)
 
-        drawOrbit(canvas, cx, cy, group * 0.50f, yScale = 0.86f, alpha = 25, strokeDp = 0.85f)
-        drawOrbit(canvas, cx, cy, group * 0.39f, yScale = 0.92f, alpha = 30, strokeDp = 0.9f)
-        drawOrbit(canvas, cx, cy, group * 0.28f, yScale = 0.97f, alpha = 36, strokeDp = 0.95f)
+        drawOrbit(canvas, cx, cy, group * 0.50f, yScale = 0.86f, alpha = 19, strokeDp = 0.8f)
+        drawOrbit(canvas, cx, cy, group * 0.39f, yScale = 0.92f, alpha = 25, strokeDp = 0.85f)
+        drawOrbit(canvas, cx, cy, group * 0.28f, yScale = 0.97f, alpha = 32, strokeDp = 0.9f)
 
         drawNode(canvas, cx, cy, group * 0.50f, 0.86f, 214f, group)
         drawNode(canvas, cx, cy, group * 0.50f, 0.86f, 28f, group)
@@ -145,8 +145,8 @@ class HotfoxAutoOrbitView @JvmOverloads constructor(
     }
 
     private fun drawGlobe(canvas: Canvas, cx: Float, cy: Float, r: Float) {
-        globeGlowPaint.color = withAlpha(orange, 36)
-        globeGlowPaint.strokeWidth = dp(7.5f)
+        globeGlowPaint.color = withAlpha(orange, 24)
+        globeGlowPaint.strokeWidth = dp(6f)
         canvas.drawCircle(cx, cy, r + dp(1.2f), globeGlowPaint)
 
         globeFillPaint.color = withAlpha(orange, 22)
@@ -161,27 +161,29 @@ class HotfoxAutoOrbitView @JvmOverloads constructor(
         val save = canvas.save()
         canvas.clipPath(globeClip)
 
-        globePaint.strokeWidth = dp(1.85f)
-        globePaint.color = withAlpha(orangeWarm, 190)
+        // Inner linework stays clearly subordinate to the outer contour.
+        globePaint.strokeWidth = dp(1.3f)
+        globePaint.color = withAlpha(orangeWarm, 138)
         canvas.drawLine(cx, cy - r, cx, cy + r, globePaint)
-
-        rect.set(cx - r * 0.58f, cy - r, cx + r * 0.58f, cy + r)
+        rect.set(cx - r * 0.56f, cy - r, cx + r * 0.56f, cy + r)
         canvas.drawOval(rect, globePaint)
 
-        globePaint.strokeWidth = dp(2.1f)
-        globePaint.color = withAlpha(orange, 220)
+        globePaint.strokeWidth = dp(1.45f)
+        globePaint.color = withAlpha(orange, 160)
         canvas.drawLine(cx - r, cy, cx + r, cy, globePaint)
-        globePaint.strokeWidth = dp(1.75f)
-        globePaint.color = withAlpha(orangeWarm, 176)
-        val lat = r * 0.42f
-        rect.set(cx - r, cy - lat - r * 0.08f, cx + r, cy - lat + r * 0.08f)
+
+        globePaint.strokeWidth = dp(1.2f)
+        globePaint.color = withAlpha(orangeWarm, 112)
+        val lat = r * 0.44f
+        val latHalfWidth = r * 0.9f
+        rect.set(cx - latHalfWidth, cy - lat - r * 0.07f, cx + latHalfWidth, cy - lat + r * 0.07f)
         canvas.drawOval(rect, globePaint)
-        rect.set(cx - r, cy + lat - r * 0.08f, cx + r, cy + lat + r * 0.08f)
+        rect.set(cx - latHalfWidth, cy + lat - r * 0.07f, cx + latHalfWidth, cy + lat + r * 0.07f)
         canvas.drawOval(rect, globePaint)
 
         canvas.restoreToCount(save)
 
-        globePaint.strokeWidth = dp(3.2f)
+        globePaint.strokeWidth = dp(3f)
         globePaint.color = withAlpha(orange, 255)
         canvas.drawCircle(cx, cy, r, globePaint)
     }

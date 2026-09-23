@@ -174,8 +174,27 @@ class HotfoxHeroCompositionTest {
             assertTrue("HTTPS fox must be smaller than Connect on $w x $h", input.widthPx < connect.widthPx)
             assertTrue("HTTPS fox enters form band on $w x $h", input.top + 1f >= h * 0.56f)
             assertTrue("HTTPS fox cropped on $w x $h", input.bottom <= h * 0.96f + 1f)
-            assertTrue("HTTPS planet must stay atmospheric", spec.planetAlpha <= 0.60f)
+            assertTrue("HTTPS planet must stay atmospheric", spec.planetAlpha <= 0.50f)
+            assertTrue("HTTPS fox must stay clearly secondary on $w x $h", input.widthPx <= connect.widthPx * 0.62f)
         }
+    }
+
+    @Test
+    fun approvedFoxGeometryIsFrozenOnSplashConnectAndHome() {
+        val splash = HotfoxHeroComposition.spec(HotFoxHeroMode.SPLASH)
+        assertEquals(0.96f, splash.foxWidthFrac, 0f)
+        assertEquals(0.50f, splash.foxCenterXFrac, 0f)
+        assertEquals(0.42f, splash.foxCenterYFrac, 0f)
+        val connect = HotfoxHeroComposition.spec(HotFoxHeroMode.SUBSCRIPTION)
+        assertEquals(0.72f, connect.foxWidthFrac, 0f)
+        assertEquals(0.50f, connect.foxCenterXFrac, 0f)
+        assertEquals(0.50f, connect.foxCenterYFrac, 0f)
+        val home = listOf(
+            HotFoxHeroMode.HOME_DISCONNECTED,
+            HotFoxHeroMode.HOME_CONNECTING,
+            HotFoxHeroMode.HOME_CONNECTED,
+        ).map { HotfoxHeroComposition.spec(it) }
+        assertTrue("Home fox geometry must not be state-specific", home.distinct().size == 1)
     }
 
     @Test
