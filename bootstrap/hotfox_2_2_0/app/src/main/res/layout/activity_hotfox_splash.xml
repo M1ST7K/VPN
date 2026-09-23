@@ -38,10 +38,11 @@
             android:src="@drawable/hf_brand_wordmark" />
 
         <TextView
+            style="@style/HotFox.Type.BodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:letterSpacing="0.22"
+            android:letterSpacing="0.16"
             android:text="@string/hotfox_tagline_more_than_vpn"
             android:textAllCaps="true"
             android:textColor="@color/hf_asset_muted"

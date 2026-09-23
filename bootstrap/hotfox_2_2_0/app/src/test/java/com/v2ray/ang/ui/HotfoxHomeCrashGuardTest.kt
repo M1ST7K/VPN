@@ -37,6 +37,23 @@ class HotfoxHomeCrashGuardTest {
     }
 
     @Test
+    fun shadowAndSmartTitlesShrinkInsteadOfEllipsizing() {
+        val xml = layout("activity_main.xml")
+        listOf("tv_home_shadow_title", "tv_smart_routing_mode").forEach { id ->
+            val idx = xml.indexOf("""android:id="@+id/$id"""")
+            assertTrue("$id missing", idx > 0)
+            val element = xml.substring(xml.lastIndexOf('<', idx), xml.indexOf("/>", idx))
+            assertFalse("$id must not ellipsize to «Shad…»", element.contains("ellipsize"))
+            assertTrue(element.contains("""android:layout_width="match_parent""""))
+        }
+        val main = File("src/main/java/com/v2ray/ang/ui/MainActivity.kt")
+            .let { if (it.exists()) it else File("app/src/main/java/com/v2ray/ang/ui/MainActivity.kt") }
+            .readText()
+        assertTrue(main.contains("fitSingleLine(binding.root.findViewById(R.id.tv_home_shadow_title)"))
+        assertTrue(main.contains("fitSingleLine(binding.tvSmartRoutingMode"))
+    }
+
+    @Test
     fun homeCardRowsStartOnThePageGutter() {
         val xml = layout("activity_main.xml")
         val idx = xml.indexOf("""android:id="@+id/layout_connection_rows"""")

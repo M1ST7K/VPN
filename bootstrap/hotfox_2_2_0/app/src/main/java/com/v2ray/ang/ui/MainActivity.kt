@@ -241,6 +241,8 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             binding.root.findViewById(R.id.switch_home_shadow),
         )
         HotfoxHomeV13.fitShadowCaption(binding.root.findViewById(R.id.tv_home_shadow_caption))
+        HotfoxHomeV13.fitSingleLine(binding.root.findViewById(R.id.tv_home_shadow_title), maxSp = 15f, minSp = 12f)
+        HotfoxHomeV13.fitSingleLine(binding.tvSmartRoutingMode, maxSp = 15f, minSp = 12f)
         binding.root.findViewById<android.view.View>(R.id.layout_connection_note)?.setOnClickListener {
             HotfoxAddConnectionSheet().show(supportFragmentManager, "add")
         }

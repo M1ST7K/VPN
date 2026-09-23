@@ -201,6 +201,30 @@ object HotfoxHomeV13 {
         caption.post { apply() }
     }
 
+    /**
+     * Keeps a single-line card title whole: steps down from [maxSp] to [minSp] until the
+     * measured text fits the view width (sp already includes the user's fontScale).
+     */
+    fun fitSingleLine(title: TextView?, maxSp: Float, minSp: Float) {
+        title ?: return
+        fun apply() {
+            val available = title.width - title.totalPaddingLeft - title.totalPaddingRight
+            if (available <= 0) return
+            val text = title.text.toString()
+            // Measure with the view's own paint: API 34+ applies non-linear sp scaling.
+            var sp = maxSp
+            while (true) {
+                title.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, sp)
+                if (sp <= minSp || title.paint.measureText(text) <= available - 1) break
+                sp -= 0.5f
+            }
+        }
+        title.addOnLayoutChangeListener { _, l, _, r, _, oldL, _, oldR, _ ->
+            if (r - l != oldR - oldL) title.post { apply() }
+        }
+        title.post { apply() }
+    }
+
     fun bindShadowSwitch(sw: androidx.appcompat.widget.SwitchCompat?) {
         sw ?: return
         val current = HotfoxShadowStore.isShadowAuto()

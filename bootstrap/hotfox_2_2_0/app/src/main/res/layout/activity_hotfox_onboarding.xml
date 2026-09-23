@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:lineSpacingMultiplier="0.98"
+            android:lineSpacingMultiplier="0.92"
             android:maxLines="2"
             android:text="@string/hotfox_onboarding_connect_title_ui"
             android:textSize="@dimen/hf_onboard_title_size" />
@@ -58,7 +58,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:lineSpacingMultiplier="1.12"
+            android:lineSpacingExtra="0dp"
+            android:lineSpacingMultiplier="1.0"
             android:maxLines="3"
             android:text="@string/hotfox_onboarding_connect_body_ui"
             android:textSize="@dimen/hf_onboard_body_size" />
@@ -125,6 +126,7 @@
                 android:src="@drawable/hf_info_muted" />
 
             <TextView
+                style="@style/HotFox.Type.Caption"
                 android:id="@+id/tv_onboarding_note"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -136,6 +138,7 @@
         </LinearLayout>
 
         <TextView
+            style="@style/HotFox.Type.Overline"
             android:id="@+id/tv_onboarding_kicker"
             android:layout_width="0dp"
             android:layout_height="0dp"
