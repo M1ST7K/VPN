@@ -1,0 +1,27 @@
+---
+description: HotFox final release validation gate — active runtime/device proof and release truth
+alwaysApply: true
+---
+
+# HOTFOX FINAL RELEASE VALIDATION — ACTIVE
+
+Read and execute:
+`docs/HOTFOX_FINAL_RELEASE_VALIDATION_EXECUTION_20260924.md`
+
+Canonical gate:
+`docs/phases/final-release-validation-gate.md`
+
+Mandatory:
+- This is validation, not feature development.
+- Do not redesign approved UI.
+- Historical UI rules 23–37 are completed and non-active.
+- Candidate/evidence must be tied to exact SHA/artifact.
+- Missing evidence is BLOCKED or NOT EXECUTED, never PASS.
+- Do not expose subscription/signing/payment secrets.
+- Run all available CI/runtime/emulator checks.
+- Signed RC requires existing authorized signing identity; never invent a production key.
+- Real VPN proof must cover TUN→HEV→SOCKS→Xray→server→Internet, real traffic and truthful protected state.
+- Physical R1–R8 remains mandatory before RELEASE READY.
+- If no device/test secret/signing material is available, record the blocker and continue every independent gate.
+- Any blocking defect returns to fix→rebuild→rerun loop.
+- Do not claim RELEASE READY until the final gate actually passes.

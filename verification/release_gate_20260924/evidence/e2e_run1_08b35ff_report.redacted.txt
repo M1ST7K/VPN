@@ -1,0 +1,15 @@
+engineeringRuntimeE2e=FAIL
+physicalDeviceE2e=NOT_EXECUTED
+reason=socks-only-https
+socksOnlyHttps=false
+cycles=0
+protectedCycles=0
+ipBefore=34.239.238.x
+ipDuring=none
+ipAfter=44.208.231.x
+ipChanged=false
+protectCalled=0 protectOk=0 lastProtect=none bindAttempted=false bindOk=false underlyingTransport=none
+tunEstablished=false hevReceivedFd=false hevStoppedBeforeClose=false tunClosed=false
+tunHttp=none tunHttp4=none tunHttp6=none tunDns=none
+socksHttps=none
+generatedPresent=false

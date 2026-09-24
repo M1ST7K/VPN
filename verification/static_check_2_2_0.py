@@ -120,6 +120,11 @@ def main() -> int:
     if manager:
         if "Thread.sleep(500L)" in manager:
             fail("CoreServiceManager still uses Thread.sleep as restart synchronization")
+        start_loop = extract_balanced_block(manager, "fun startCoreLoop(")
+        assets_at = start_loop.find("SettingsManager.initAssets(")
+        launch_at = start_loop.find("doStartCoreLoop(")
+        if assets_at < 0 or launch_at < 0 or assets_at > launch_at:
+            fail("startCoreLoop must install geosite/geoip assets before launching Xray")
         if "CoroutineScope(Dispatchers.IO).launch" in manager and "stopLoop()" in manager:
             if "awaitCoreStop" not in manager:
                 fail("core stop is still fire-and-forget")

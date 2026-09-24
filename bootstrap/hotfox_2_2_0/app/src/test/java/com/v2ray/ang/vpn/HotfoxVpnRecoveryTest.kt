@@ -425,12 +425,34 @@ class HotfoxVpnRecoveryTest {
         assertTrue(HotfoxIpEvidence.changed("1.1.1.1", "8.8.8.8"))
         assertFalse(HotfoxIpEvidence.changed("1.1.1.1", "1.1.1.1"))
         assertFalse(HotfoxIpEvidence.changed("", "8.8.8.8"))
+        assertTrue(HotfoxIpEvidence.leftVpnEgress("8.8.8.8", "1.1.1.1"))
+        assertFalse(HotfoxIpEvidence.leftVpnEgress("8.8.8.8", "8.8.8.8"))
+        assertFalse(HotfoxIpEvidence.leftVpnEgress(null, "1.1.1.1"))
     }
 
     @Test
-    fun engineeringE2eGateRequiresSocksOnlyBeforeTun() {
-        assertEquals("FAIL" to "socks-only-https", HotfoxEngineeringE2eGate.outcome(false, 3, 3))
-        assertEquals("FAIL" to "not-protected", HotfoxEngineeringE2eGate.outcome(true, 1, 3))
-        assertEquals("PASS" to "ok", HotfoxEngineeringE2eGate.outcome(true, 3, 3))
+    fun engineeringE2eGateRequiresSocksTunAndPublicIpProof() {
+        fun outcome(
+            socks: Boolean = true,
+            protected: Int = 3,
+            requested: Int = 3,
+            tunHttp4: Int = 3,
+            ipChanged: Boolean = true,
+            leftVpn: Boolean = true,
+        ) = HotfoxEngineeringE2eGate.outcome(
+            socksOnlyHttps = socks,
+            protectedCycles = protected,
+            requestedCycles = requested,
+            tunHttp4Cycles = tunHttp4,
+            ipChangedThroughTun = ipChanged,
+            leftVpnEgressAfterDisconnect = leftVpn,
+        )
+
+        assertEquals("FAIL" to "socks-only-https", outcome(socks = false))
+        assertEquals("FAIL" to "not-protected", outcome(protected = 1))
+        assertEquals("FAIL" to "tun-http4", outcome(tunHttp4 = 2))
+        assertEquals("FAIL" to "tun-public-ip-unchanged", outcome(ipChanged = false))
+        assertEquals("FAIL" to "disconnect-egress-not-restored", outcome(leftVpn = false))
+        assertEquals("PASS" to "ok", outcome())
     }
 }

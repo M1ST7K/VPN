@@ -103,10 +103,14 @@ object HotfoxEngineeringRuntimeE2e {
         CoreServiceManager.stopVService(context)
         runCatching { kotlinx.coroutines.runBlocking { VpnSessionCoordinator.awaitIdle(12_000L) } }
         val ipAfter = fetchDirectIp()
+        val ipDuringTun = results.firstOrNull { it.protected && !it.ipDuringTun.isNullOrBlank() }?.ipDuringTun
         val (result, reason) = HotfoxEngineeringE2eGate.outcome(
             socksOnlyHttps = true,
             protectedCycles = results.count { it.protected },
             requestedCycles = requested,
+            tunHttp4Cycles = results.count { it.tunHttp4 == true },
+            ipChangedThroughTun = HotfoxIpEvidence.changed(ipBefore, ipDuringTun),
+            leftVpnEgressAfterDisconnect = HotfoxIpEvidence.leftVpnEgress(ipDuringTun, ipAfter),
         )
         return finish(result, reason, results, ipBefore, ipAfter, socksOnlyHttps = true)
     }
@@ -125,7 +129,9 @@ object HotfoxEngineeringRuntimeE2e {
         ipAfter: String?,
         socksOnlyHttps: Boolean? = null,
     ): String {
-        val during = cycles.firstOrNull { it.protected }?.ipDuringSocks
+        val duringTun = cycles.firstOrNull { it.protected && !it.ipDuringTun.isNullOrBlank() }?.ipDuringTun
+            ?: cycles.firstOrNull()?.ipDuringTun
+        val duringSocks = cycles.firstOrNull { it.protected && !it.ipDuringSocks.isNullOrBlank() }?.ipDuringSocks
             ?: cycles.firstOrNull()?.ipDuringSocks
         val report = buildString {
             appendLine("engineeringRuntimeE2e=$result")
@@ -134,10 +140,14 @@ object HotfoxEngineeringRuntimeE2e {
             appendLine("socksOnlyHttps=${socksOnlyHttps ?: "none"}")
             appendLine("cycles=${cycles.size}")
             appendLine("protectedCycles=${cycles.count { it.protected }}")
+            appendLine("tunHttp4Cycles=${cycles.count { it.tunHttp4 == true }}")
             appendLine("ipBefore=${HotfoxIpEvidence.redact(ipBefore)}")
-            appendLine("ipDuring=${HotfoxIpEvidence.redact(during)}")
+            appendLine("ipDuring=${HotfoxIpEvidence.redact(duringTun)}")
+            appendLine("ipDuringTun=${HotfoxIpEvidence.redact(duringTun)}")
+            appendLine("ipDuringSocks=${HotfoxIpEvidence.redact(duringSocks)}")
             appendLine("ipAfter=${HotfoxIpEvidence.redact(ipAfter)}")
-            appendLine("ipChanged=${HotfoxIpEvidence.changed(ipBefore, during)}")
+            appendLine("ipChangedThroughTun=${HotfoxIpEvidence.changed(ipBefore, duringTun)}")
+            appendLine("leftVpnEgressAfterDisconnect=${HotfoxIpEvidence.leftVpnEgress(duringTun, ipAfter)}")
             appendLine(VpnProtectEvidence.summary())
             appendLine(TunFdEvidence.summary())
             appendLine(HotfoxTunLayerEvidence.summary())
@@ -147,7 +157,7 @@ object HotfoxEngineeringRuntimeE2e {
                 appendLine(
                     "cycle=${cycle.index} protected=${cycle.protected} state=${cycle.state} " +
                         "socksHttps=${cycle.socksHttps ?: "none"} tunHttp4=${cycle.tunHttp4 ?: "none"} " +
-                        "error=${cycle.lastError ?: "none"}",
+                        "tunHttp6=${cycle.tunHttp6 ?: "none"} error=${cycle.lastError ?: "none"}",
                 )
             }
         }
