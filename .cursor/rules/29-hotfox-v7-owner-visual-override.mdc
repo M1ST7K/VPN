@@ -1,7 +1,9 @@
 ---
 description: HotFox V7 latest owner visual override — 03/04 anchor lock and planet backdrop on fox hero screens
-alwaysApply: true
+alwaysApply: false
 ---
+
+> HISTORICAL / COMPLETED UI RULE. Do not auto-apply during the Final Release Validation Gate. Read only when explicitly referenced for regression context.
 
 # HotFox V7 latest owner visual law
 
