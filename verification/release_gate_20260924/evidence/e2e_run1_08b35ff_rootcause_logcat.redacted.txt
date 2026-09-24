@@ -1,0 +1,1 @@
+09-24 09:53:36.118  4678  4678 E com.hotfox.vpn: StartCore-Manager: config error: infra/conf/serial: failed to parse json config > infra/conf: failed to build routing configuration > infra/conf: invalid field rule > common/geodata: illegal domain rule: geosite:google > common/geodata: failed to open geosite.dat > stat /<secret>.hotfox.<secret>.dat: no such file or directory

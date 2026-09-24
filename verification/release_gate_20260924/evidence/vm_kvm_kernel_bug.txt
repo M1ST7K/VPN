@@ -1,0 +1,6 @@
+416:[ 2302.122343] kernel BUG at arch/x86/kvm/x86.c:702!
+417:[ 2302.122554] Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+419:[ 2302.123112] RIP: 0010:kvm_spurious_fault+0xe/0x10
+462:[ 2302.132605] RIP: 0010:kvm_spurious_fault+0xe/0x10
+476:[ 2302.142160] kernel BUG at arch/x86/kvm/x86.c:702!
+477:[ 2302.142379] Oops: invalid opcode: 0000 [#2] PREEMPT SMP NOPTI
