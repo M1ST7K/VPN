@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
   "task_id": "hotfox-final-release-validation-20260924",
-  "status": "ACTIVE",
+  "status": "BLOCKED",
   "owner": "Maxim",
   "orchestrator": "ChatGPT",
   "primary_executor": "Cursor background agent + authorized Mac validation",
   "base_branch": "main",
   "task_branch": "cursor/hotfox-final-release-validation-20260924",
   "pr_number": 12,
-  "last_verified_sha": null,
+  "last_verified_sha": "2c3df36f7c6d788ff76d4d2dc4ed8ea6981a94c2",
   "production_allowed": false,
+  "release_ready": false,
   "blockers": [
-    "No Android device detected on authorized Mac at preflight",
-    "No AVD detected on authorized Mac at preflight",
-    "Release signing environment variables unset on authorized Mac at preflight",
-    "HOTFOX_TEST_SUBSCRIPTION_URL unset on authorized Mac at preflight"
+    "SIGNED_RC: no authorized release signing identity in cloud VM, Mac env or CI",
+    "VPN_E2E_GITHUB: hotfox-vpn-e2e.yml never dispatched; agent cannot dispatch; test secret presence unknown",
+    "EMULATOR_E2E: Cursor cloud VM nested KVM kernel BUG; rerun on fixed candidate 2c3df36 not possible here",
+    "PHYSICAL_R1_R8: no authorized physical Android device"
   ],
-  "next_action": "Execute final release validation plan; run all non-blocked gates and establish exact remaining prerequisites."
+  "next_action": "Owner/orchestrator: dispatch hotfox-vpn-e2e.yml on the task branch with dedicated HOTFOX_TEST_SUBSCRIPTION_URL to rerun E2E on 2c3df36; supply signing material for signed RC; then physical R1-R8."
 }
