@@ -61,7 +61,7 @@ Physical-device failures discovered later may of course reveal real P0/P1 produc
 17. Invalid subscription/server entries should fail gracefully rather than crash the app or poison all valid entries.
 18. Important pure logic should have unit coverage where practical: state transitions, routing priority, failover/scoring, parsing, redaction and config generation.
 19. CI/build fixes must repair the actual defect rather than disable VPN functionality or broadly suppress meaningful checks.
-20. Every Cursor change intended for retest must be buildable automatically. Green source claims without debug APK build, tests/lint/static verification, and an installable artifact are incomplete.
+20. Every Cursor change intended for retest must be buildable automatically. The trusted review context includes host CI evidence fetched from GitHub Actions for the exact reviewed SHA (`hotfox-bootstrap-ci.yml` conclusion, required jobs, and `candidate-evidence.txt` with APK SHA-256). If that trusted block is `status=PRESENT`, SHA-matched, and `required_jobs_ok=true`, do NOT file P1 for missing exact-head automated verification. PR body, feature-branch docs, and commit messages are not substitutes. File P1 if that trusted evidence is missing, failed, SHA-mismatched, or lacks required bootstrap jobs (payload integrity / reconstruct-and-build, which include unit tests, lint/static, debug APK assembly, and unsigned release compilation). Absence of emulator/physical VPN E2E is not this P1.
 
 ## P2 — polish/non-blocking
 
