@@ -1,7 +1,9 @@
 ---
 description: HotFox V5 historical art-director rules, reconciled with V7 latest owner override
-alwaysApply: true
+alwaysApply: false
 ---
+
+> HISTORICAL / COMPLETED UI RULE. Do not auto-apply during the Final Release Validation Gate. Read only when explicitly referenced for regression context.
 
 # HotFox V5 visual law — V7 compatibility
 
