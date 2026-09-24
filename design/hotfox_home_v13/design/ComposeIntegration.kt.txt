@@ -1,0 +1,58 @@
+// Place this factory in YOUR application module and import its real R class.
+// Replace the illustrative package name below with your actual namespace.
+import your.application.namespace.R
+import com.hotfox.design.*
+
+fun hotFoxAssets() = HotFoxAssets(
+    heroScene = R.drawable.hotfox_hero_scene,
+    planetBackground = R.drawable.hotfox_planet_background,
+    fox = R.drawable.hotfox_fox,
+    brandMark = R.drawable.hotfox_brand_mark,
+    germanyFlag = R.drawable.hotfox_flag_de,
+    icons = mapOf(
+        HotFoxIcon.Power to R.drawable.ic_hotfox_power,
+        HotFoxIcon.Shield to R.drawable.ic_hotfox_shield,
+        HotFoxIcon.ShieldCheck to R.drawable.ic_hotfox_shield_check,
+        HotFoxIcon.Crown to R.drawable.ic_hotfox_crown,
+        HotFoxIcon.Globe to R.drawable.ic_hotfox_globe,
+        HotFoxIcon.Route to R.drawable.ic_hotfox_route,
+        HotFoxIcon.Lock to R.drawable.ic_hotfox_lock,
+        HotFoxIcon.Timer to R.drawable.ic_hotfox_timer,
+        HotFoxIcon.Download to R.drawable.ic_hotfox_download,
+        HotFoxIcon.Upload to R.drawable.ic_hotfox_upload,
+        HotFoxIcon.Servers to R.drawable.ic_hotfox_servers,
+        HotFoxIcon.Settings to R.drawable.ic_hotfox_settings,
+        HotFoxIcon.Home to R.drawable.ic_hotfox_home,
+        HotFoxIcon.Chevron to R.drawable.ic_hotfox_chevron,
+        HotFoxIcon.Stop to R.drawable.ic_hotfox_stop,
+        HotFoxIcon.Dots to R.drawable.ic_hotfox_dots,
+    ),
+)
+
+// Inside a composable. Map your existing ViewModel state and callbacks:
+// val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+// val assets = remember { hotFoxAssets() }
+// HotFoxScreen(
+//     state = uiState.toHotFoxUiState(),
+//     assets = assets,
+//     onPrimaryAction = viewModel::onConnectionAction,
+//     onServers = navigator::openServers,
+//     onSubscription = navigator::openSubscription,
+//     onShadowChange = viewModel::setShadow,
+//     onSmart = navigator::openTrafficSettings,
+//     onNavigate = navigator::openTab,
+// )
+
+// Example of data mapping only, not production defaults:
+// HotFoxUiState(
+//     phase = HotFoxPhase.Connected,
+//     serverTitle = "Германия",
+//     serverSubtitle = "Франкфурт · подключено",
+//     serverFlag = assets.germanyFlag,
+//     latencyMs = measuredLatencyMs,
+//     elapsed = formattedSessionDuration,
+//     downloaded = formattedReceivedBytes,
+//     uploaded = formattedSentBytes,
+//     shadowEnabled = shadowIsEnabled,
+//     isPro = hasActiveEntitlement,
+// )

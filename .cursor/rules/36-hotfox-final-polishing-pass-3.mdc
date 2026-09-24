@@ -1,0 +1,27 @@
+---
+description: HotFox final polishing pass 3 — freeze approved geometry and remove remaining visual defects
+alwaysApply: true
+---
+
+# HOTFOX FINAL POLISHING PASS 3 — ACTIVE OVERRIDE
+
+Read and execute:
+
+`design/HOTFOX_FINAL_POLISHING_PASS_3_20260923.txt`
+
+This rule supersedes conflicting visual polish instructions for screens 01–07 where the new pass is more specific.
+
+Mandatory:
+- Freeze fox geometry on Splash, Connect HotFox, and all Home states.
+- Do not redesign the product.
+- Do not reintroduce overlap/offset hacks.
+- Fix Home Connect CTA so power icon + text are one optically centered group. Do not leave the icon floating at the far left.
+- Remove visible "Доп. защ..." truncation from Shadow card.
+- Make Shadow OFF/ON visually unambiguous and reflect real store state.
+- Reduce subscription-card accent weight.
+- Keep AUTO native Canvas art; no raster fallback.
+- Make HTTPS utility-first; fox must be secondary.
+- Preserve VPN/core/security/entitlement semantics.
+- Build, render, inspect, fix, recapture.
+- A compile alone is not completion.
+- Do not claim RELEASE READY.

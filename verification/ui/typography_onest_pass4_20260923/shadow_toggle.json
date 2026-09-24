@@ -1,0 +1,29 @@
+{
+  "pass": true,
+  "steps": [
+    {
+      "step": "initial_launch",
+      "checked": true
+    },
+    {
+      "step": "tap_1",
+      "expected": false,
+      "checked": false
+    },
+    {
+      "step": "tap_1_recreate",
+      "expected": false,
+      "checked": false
+    },
+    {
+      "step": "tap_2",
+      "expected": true,
+      "checked": true
+    },
+    {
+      "step": "tap_2_recreate",
+      "expected": true,
+      "checked": true
+    }
+  ]
+}

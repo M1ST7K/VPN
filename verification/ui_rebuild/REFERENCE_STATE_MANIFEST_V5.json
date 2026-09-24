@@ -1,0 +1,218 @@
+{
+  "version": "V5",
+  "branch": "cursor/hotfox-ui-pixel-lock-rebuild",
+  "rule": "Production stores, entitlement, VPN CONNECTED and installed-app lists stay truthful. Debug visual fixtures exist only under src/debug and HotfoxUiVisualOverride writes from the debug harness.",
+  "screens": [
+    {
+      "id": "01",
+      "name": "Splash",
+      "reference": "verification/ui_rebuild/reference_v4/01.png",
+      "expected_visual_state": "Fox hero + wordmark + loading track held on splash",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "holdSplash": true },
+      "forbidden_fake_production_writes": ["delaying real splash for product UX"],
+      "notes": "Debug hold only. Production splash still advances after real init."
+    },
+    {
+      "id": "02",
+      "name": "Onboarding connect",
+      "reference": "verification/ui_rebuild/reference_v4/02.png",
+      "expected_visual_state": "Connect onboarding copy + transparent fox + primary/secondary actions",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "onboardingStep": "CONNECT" },
+      "forbidden_fake_production_writes": [],
+      "notes": "Presentation step only."
+    },
+    {
+      "id": "03",
+      "name": "Onboarding AUTO",
+      "reference": "verification/ui_rebuild/reference_v4/03.png",
+      "expected_visual_state": "Routing intelligence topology, not solar-system orbits",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "onboardingStep": "AUTO" },
+      "forbidden_fake_production_writes": [],
+      "notes": "Uses hf_native_auto_routing. OWNER_OVERRIDE: no closed orbits."
+    },
+    {
+      "id": "04",
+      "name": "Onboarding ready",
+      "reference": "verification/ui_rebuild/reference_v4/04.png",
+      "expected_visual_state": "Servers + check completion, not radar rings",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "onboardingStep": "READY" },
+      "forbidden_fake_production_writes": [],
+      "notes": "Uses hf_native_ready_complete."
+    },
+    {
+      "id": "05",
+      "name": "Home disconnected",
+      "reference": "verification/ui_rebuild/reference_v4/05.png",
+      "expected_visual_state": "Не защищено, fox-only, Connect CTA",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "connectionChrome": "DISCONNECTED" },
+      "forbidden_fake_production_writes": ["VpnService state", "CONNECTED"],
+      "notes": "Chrome fixture only. Does not mark VPN ready."
+    },
+    {
+      "id": "06",
+      "name": "Home connecting visual",
+      "reference": "verification/ui_rebuild/reference_v4/06.png",
+      "expected_visual_state": "Connecting stages + ProgressPrimary CTA",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "connectionChrome": "CONNECTING" },
+      "forbidden_fake_production_writes": ["VpnService state"],
+      "notes": "Visual chrome only."
+    },
+    {
+      "id": "07",
+      "name": "Home protected visual",
+      "reference": "verification/ui_rebuild/reference_v4/07.png",
+      "expected_visual_state": "Защищено success hierarchy for board comparison",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "connectionChrome": "CONNECTED" },
+      "forbidden_fake_production_writes": ["production CONNECTED", "readiness gate", "traffic counters"],
+      "notes": "Debug presentation fixture. Production CONNECTED remains gated by real readiness."
+    },
+    {
+      "id": "08",
+      "name": "Add connection sheet",
+      "reference": "verification/ui_rebuild/reference_v4/08.png",
+      "expected_visual_state": "Compact native sheet over live disconnected home, lighter scrim",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "showAddSheet": true, "connectionChrome": "DISCONNECTED" },
+      "forbidden_fake_production_writes": [],
+      "notes": "Native BottomSheetDialog. Dim ~0.38."
+    },
+    {
+      "id": "09",
+      "name": "HTTPS subscription import",
+      "reference": "verification/ui_rebuild/reference_v4/09.png",
+      "expected_visual_state": "Import form + compact fox, no secrets",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "scenarioId": "09_HTTPS_SUBSCRIPTION" },
+      "forbidden_fake_production_writes": ["subscription URL", "tokens"],
+      "notes": "Empty editor. No credentials."
+    },
+    {
+      "id": "10",
+      "name": "Servers",
+      "reference": "verification/ui_rebuild/reference_v4/10.png",
+      "expected_visual_state": "Populated server list matching board density (6 cities + ping)",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": {
+        "serversFixture": true,
+        "referenceServers": [
+          "Amsterdam / NL / 18 ms",
+          "Frankfurt / DE / 24 ms",
+          "Paris / FR / 31 ms",
+          "London / GB / 28 ms",
+          "New York / US / 86 ms",
+          "Toronto / CA / 92 ms"
+        ]
+      },
+      "forbidden_fake_production_writes": ["Mmkv server store", "imported subscription"],
+      "notes": "Adapter reads HotfoxUiVisualOverride.referenceServers. Production empty catalog stays empty."
+    },
+    {
+      "id": "11",
+      "name": "Server details",
+      "reference": "verification/ui_rebuild/reference_v4/11.png",
+      "expected_visual_state": "Amsterdam / NL / 18 ms / 12% / disabled CTA",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "serverDetailsFixture": true, "guid": "debug-ui-fixture-server" },
+      "forbidden_fake_production_writes": ["Mmkv", "live latency"],
+      "notes": "Deterministic placeholders. CTA remains disabled."
+    },
+    {
+      "id": "12",
+      "name": "Subscription",
+      "reference": "verification/ui_rebuild/reference_v4/12.png",
+      "expected_visual_state": "Reference entitlement density: HotFox Premium / 31.12.2026 / 110 days / 6 servers / masked URL",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "subscriptionFixture": true },
+      "forbidden_fake_production_writes": ["CommercePreferences", "entitlement store", "payment status"],
+      "notes": "applySubscriptionVisualFixture() paints labels only. No purchase enablement."
+    },
+    {
+      "id": "13",
+      "name": "Settings",
+      "reference": "verification/ui_rebuild/reference_v4/13.png",
+      "expected_visual_state": "Editorial rows with hairlines, not heavy cards or raw Android list",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "scenarioId": "13_SETTINGS" },
+      "forbidden_fake_production_writes": [],
+      "notes": "Real settings activity. Row height 48dp, icons 20dp."
+    },
+    {
+      "id": "14",
+      "name": "Smart routing",
+      "reference": "verification/ui_rebuild/reference_v4/14.png",
+      "expected_visual_state": "Routing mode rows + compact CTA",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "scenarioId": "14_SMART_ROUTING" },
+      "forbidden_fake_production_writes": ["DNS/IPv6 policy"],
+      "notes": "Production routing semantics unchanged. Fixture only opens the screen."
+    },
+    {
+      "id": "15",
+      "name": "Apps and rules",
+      "reference": "verification/ui_rebuild/reference_v4/15.png",
+      "expected_visual_state": "8 fixture apps, Chrome+Messages selected, rules caption 3",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": {
+        "appsFixture": true,
+        "referenceApps": ["Chrome", "Messages", "YouTube", "Maps", "Photos", "Clock", "Settings", "Files"]
+      },
+      "forbidden_fake_production_writes": ["installed-app store", "per-app proxy prefs"],
+      "notes": "In-memory AppInfo + ColorDrawable. FLAG_SECURE cleared only while appsFixture is on."
+    },
+    {
+      "id": "16",
+      "name": "Autopilot",
+      "reference": "verification/ui_rebuild/reference_v4/16.png",
+      "expected_visual_state": "Autopilot rows + compact CTA",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "scenarioId": "16_AUTOPILOT" },
+      "forbidden_fake_production_writes": [],
+      "notes": "Presentation open only."
+    },
+    {
+      "id": "17",
+      "name": "Shadow",
+      "reference": "verification/ui_rebuild/reference_v4/17.png",
+      "expected_visual_state": "Network topology framing the shield, no orbits, no lines through shield",
+      "production_state_required": false,
+      "debug_fixture_required": true,
+      "fixture_fields": { "scenarioId": "17_SHADOW" },
+      "forbidden_fake_production_writes": [],
+      "notes": "hf_native_network_topology paths stay in the outer band."
+    },
+    {
+      "id": "18",
+      "name": "Always-on",
+      "reference": "verification/ui_rebuild/reference_v4/18.png",
+      "expected_visual_state": "Always-on rows + compact CTA, truthful Android always-on status",
+      "production_state_required": true,
+      "debug_fixture_required": true,
+      "fixture_fields": { "scenarioId": "18_ALWAYS_ON" },
+      "forbidden_fake_production_writes": ["Settings.Secure always-on VPN"],
+      "notes": "Harness opens the screen. Real Android always-on bit is not spoofed."
+    }
+  ]
+}

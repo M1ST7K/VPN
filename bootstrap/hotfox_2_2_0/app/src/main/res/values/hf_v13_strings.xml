@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hotfox_home_status_off">VPN off</string>
+    <string name="hotfox_home_status_connecting">Connecting</string>
+    <string name="hotfox_home_status_on">VPN active</string>
+    <string name="hotfox_home_title_disconnected">Not protected</string>
+    <string name="hotfox_home_title_connecting">Connecting…</string>
+    <string name="hotfox_home_title_connected">You are protected</string>
+    <string name="hotfox_home_subtitle_disconnected">Connect to protect your traffic</string>
+    <string name="hotfox_home_subtitle_connecting">Creating a protected connection</string>
+    <string name="hotfox_home_subtitle_online">Online %1$s</string>
+    <string name="hotfox_home_hint_tap">One tap to protection</string>
+    <string name="hotfox_home_cancel">Cancel</string>
+    <string name="hotfox_home_server_section">SERVER</string>
+    <string name="hotfox_home_auto_title">Auto select</string>
+    <string name="hotfox_home_auto_subtitle">Best server for you</string>
+    <string name="hotfox_home_auto_badge">AUTO</string>
+    <string name="hotfox_home_shadow">Shadow</string>
+    <string name="hotfox_home_shadow_caption">Extra protection</string>
+    <string name="hotfox_home_shadow_caption_short">Protection</string>
+    <string name="hotfox_home_smart">Smart</string>
+    <string name="hotfox_home_smart_caption">All traffic</string>
+    <string name="hotfox_home_subscription">Subscription</string>
+    <string name="hotfox_home_subscription_caption">Manage access</string>
+    <string name="hotfox_home_pro">PRO</string>
+    <string name="hotfox_home_checking">Checking the connection</string>
+    <string name="hotfox_home_latency_ms">%1$d ms</string>
+    <string name="hotfox_home_best_server">best server</string>
+    <string name="hotfox_home_connected_caption">connected</string>
+</resources>

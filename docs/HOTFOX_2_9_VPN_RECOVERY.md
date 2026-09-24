@@ -1,6 +1,6 @@
 # HotFox Proxy 2.9 — VPN Core Recovery / Real Connection Fix
 
-Status: **PLANNED — starts only after 2.8 ENGINEERING COMPLETE**
+Status: **ENGINEERING-EXIT CANDIDATE** (2.8 is ENGINEERING COMPLETE — physical release validation deferred). Runtime and physical VPN E2E: **NOT EXECUTED / deferred**.
 
 Owner decision: this phase is inserted before Premium UI because real E2E testing exposed a production-path failure that must be fixed before visual pre-release work continues.
 
@@ -784,26 +784,30 @@ A VPN icon, TUN fd, running process, or `accepted tcp:` log alone is insufficien
 
 # 36. 2.9 EXIT GATE
 
-2.9 cannot be marked engineering-complete while the observed HotFox datapath failure remains unresolved.
+Validation **timing** is overridden by `.cursor/rules/22-hotfox-owner-release-validation-gate.mdc`. The production architecture, fail-closed UI, TLS/REALITY, DNS/IPv6, and no-secret requirements are not weakened.
 
-Required exit:
+Repository-side engineering exit:
 
-1. all P0/blocker networking defects resolved;
-2. real emulator/runtime E2E passes in the available engineering environment;
-3. tested APK is identified by SHA-256;
+1. known HotFox-side datapath defects that can be fixed from repository/CI evidence are addressed;
+2. diagnostic/runtime E2E harnesses remain in the tree (not deleted, not claimed PASS if unrun);
+3. tested/debug APK SHA-256 is recorded by CI;
 4. build/unit/integration/static/lint gates required by the repository pass;
 5. no secrets are committed/logged;
 6. bootstrap/source-of-truth reproduces the fixes;
 7. final candidate commit contains `[hotfox-phase-exit]`;
 8. trusted final review reports no substantiated P0/P1.
 
+Missing emulator/runtime/physical execution is **NOT EXECUTED / deferred** and is not a 2.9 P0/P1 under the owner override.
+
 Then record:
 
-`2.9 ENGINEERING COMPLETE — real engineering-runtime VPN E2E passed; final physical release validation deferred.`
+`2.9 ENGINEERING COMPLETE — runtime and physical release validation deferred.`
 
 and immediately begin:
 
 `3.0 Premium Android Experience`.
+
+Actual SOCKS-only + full TUN/HEV/Xray + browser/IP/reconnect proof is required later at the `FINAL RELEASE VALIDATION GATE`, not to close this engineering phase.
 
 ---
 
@@ -831,4 +835,8 @@ Allowed final answers:
 - `NO — <exact remaining root cause>`;
 - `NOT FULLY VERIFIED — <exact missing evidence>`.
 
-No `probably`, no `should work`, and no build-only acceptance.
+For this engineering-exit candidate the truthful answer is:
+
+`NOT FULLY VERIFIED — runtime and physical release validation deferred.`
+
+No `probably`, no `should work`, and no converting `NOT EXECUTED` into PASS.

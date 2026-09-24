@@ -1,0 +1,4 @@
+{
+  "name": "HotFox Proxy Android",
+  "install": "bash .cursor/install.sh"
+}

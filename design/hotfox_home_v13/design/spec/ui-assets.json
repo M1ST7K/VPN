@@ -1,0 +1,146 @@
+[
+  {
+    "name": "ic_hotfox_power.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_shield.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_shield_check.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_crown.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_globe.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_route.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_lock.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_timer.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_download.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_upload.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_servers.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_settings.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_home.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_chevron.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_stop.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "ic_hotfox_dots.png",
+    "width": 128,
+    "height": 128,
+    "alpha": true,
+    "type": "tintable icon",
+    "nominalDp": 32
+  },
+  {
+    "name": "hotfox_brand_mark.png",
+    "width": 256,
+    "height": 288,
+    "alpha": true,
+    "type": "brand mark",
+    "tint": false
+  },
+  {
+    "name": "hotfox_flag_de.png",
+    "width": 192,
+    "height": 144,
+    "alpha": true,
+    "type": "flag",
+    "tint": false
+  }
+]

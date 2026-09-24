@@ -1,0 +1,27 @@
+---
+description: HotFox Onest typography final pass 4
+alwaysApply: true
+---
+
+# HOTFOX TYPOGRAPHY FINAL PASS 4 — ACTIVE
+
+Read and execute:
+
+`design/HOTFOX_TYPOGRAPHY_ONEST_FINAL_PASS_4_20260923.txt`
+
+Mandatory:
+- Onest is the locked primary UI typeface.
+- Use official upstream / Google Fonts source only.
+- Bundle local static weights 400 / 500 / 600 / 700 for API 24 compatibility.
+- Include SIL OFL license/provenance.
+- Do not use runtime downloadable fonts.
+- Do not change the graphical HotFox wordmark.
+- Do not move approved fox geometry.
+- Do not redesign layouts.
+- Revalidate CTA icon+label centering after font metrics change.
+- Do not regress Shadow caption/toggle fixes.
+- Preserve native AUTO Canvas art.
+- Preserve HTTPS utility-first hierarchy.
+- Build + real screenshots + responsive/fontScale validation required.
+- Do not touch VPN/core/security/entitlement semantics.
+- Do not claim RELEASE READY.

@@ -1,0 +1,47 @@
+{
+  "sha": "b7f35ffed8df903f0a0c77c0aaecc9efad0a104f",
+  "viewport": "1032x2231",
+  "density": 420,
+  "fontScale": "1.0",
+  "locale": "ru-RU",
+  "normalization": "fitStart scene; real system bars kept; refs resized with LANCZOS to actual viewport for diff only",
+  "contact_sheet": "verification/ui/v13/home_v13_sbs.png",
+  "states": [
+    {
+      "state": "disconnected",
+      "actual": "verification/ui/v13/actual_disconnected.png",
+      "reference": "design/hotfox_home_v13/design/references/hotfox-01-disconnected-v2.png",
+      "actual_sha256": "9ccbb83c64952e423560c38f02306c847d64c44ff917efc649e344b4539af936",
+      "viewport": "1032x2231",
+      "density": 420,
+      "fontScale": "1.0",
+      "changed_pixels": 2278506,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    },
+    {
+      "state": "connecting",
+      "actual": "verification/ui/v13/actual_connecting.png",
+      "reference": "design/hotfox_home_v13/design/references/hotfox-02-connecting-v2.png",
+      "actual_sha256": "4bac6e711bbd40b75ece154e173c6926519f67a874dfa7aad8bb89bcf3ca555b",
+      "viewport": "1032x2231",
+      "density": 420,
+      "fontScale": "1.0",
+      "changed_pixels": 2294455,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    },
+    {
+      "state": "connected",
+      "actual": "verification/ui/v13/actual_connected.png",
+      "reference": "design/hotfox_home_v13/design/references/hotfox-03-connected-v2.png",
+      "actual_sha256": "4ff2191b6376fc671ead53fc882b9f73a8630f02ffa43cd25039a2fd2dbf584f",
+      "viewport": "1032x2231",
+      "density": 420,
+      "fontScale": "1.0",
+      "changed_pixels": 2280401,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    }
+  ]
+}

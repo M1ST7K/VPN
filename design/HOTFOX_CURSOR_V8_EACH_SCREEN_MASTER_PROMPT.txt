@@ -1,0 +1,1019 @@
+HOTFOX V8 — COLOSSAL PAGE-BY-PAGE FINAL VISUAL REFINEMENT
+OWNER ART-DIRECTOR EXECUTION SPEC
+18 SCREENS / EVERY PAGE MUST BE REVIEWED / FOX+PLANET COMPOSITION LOCK
+
+READ THIS ENTIRE FILE BEFORE EDITING.
+THIS IS AN EXECUTION TASK, NOT A REQUEST FOR A PLAN.
+
+======================================================================
+0. REPOSITORY / STARTING STATE
+======================================================================
+
+Repository: M1ST7K/VPN
+Required branch: cursor/hotfox-ui-pixel-lock-rebuild
+V7 evidence head: ab6606f83a584fa5f4a3c61819cfcb7c54e82ca1
+
+V7 evidence must be preserved and never overwritten:
+- verification/ui_rebuild/actual_v7/
+- verification/ui_rebuild/compare_v7/
+- verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V7.csv
+- verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V7.csv
+- verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V7.md
+
+Current honest V7 state:
+- 18/18 ru-RU captures;
+- 18/18 comparison sets;
+- visual/pixel PASS = 0/18;
+- art-director PASS = 0/18;
+- build/tests/static/leak checks PASS;
+- RELEASE READY = NO;
+- physical/runtime VPN E2E = NOT EXECUTED.
+
+Do not rewrite V7 evidence. Do not merge. Do not claim RELEASE READY.
+
+======================================================================
+1. READ BEFORE TOUCHING UI
+======================================================================
+
+Read, in this order:
+1. verification/ui_rebuild/HOTFOX_V8_OWNER_ART_DIRECTOR_REVIEW.md
+2. verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V7.md
+3. verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V7.csv
+4. verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V7.csv
+5. verification/ui_rebuild/TYPOGRAPHY_MATRIX_V7.md
+6. verification/ui_rebuild/V6_GEOMETRY_MATRIX.md
+7. verification/ui_rebuild/V6_CTA_MATRIX.md
+8. verification/ui_rebuild/V6_COLOR_USAGE_MATRIX.md
+9. verification/ui_rebuild/V6_ICON_OPTICAL_MATRIX.md
+10. .cursor/rules/30-hotfox-v8-page-by-page-final.mdc
+11. all 18 approved original reference boards
+12. V7 actual screenshots and V7 side-by-side / overlay / diff evidence.
+
+The per-screen approved reference wins over generic Android defaults and generic tokens.
+
+======================================================================
+2. LATEST OWNER VISUAL LAW
+======================================================================
+
+The owner explicitly wants a planet behind the fox on fox-led screens, as in the references, because the composition feels incomplete without it.
+
+Planet REQUIRED on:
+01 Splash
+02 Onboarding Connect
+05 Disconnected
+06 Connecting
+07 Protected
+09 HTTPS Subscription
+
+08 Add Connection Sheet inherits live screen 05 behind the sheet, therefore the fox+planet composition must remain correct under the scrim.
+
+Planet FORBIDDEN on:
+03 AUTO
+04 Ready
+10 Servers
+11 Server Details
+12 Subscription
+13 Settings
+14 Smart Routing
+15 Apps & Rules
+16 Autopilot
+17 Shadow
+18 Always-on VPN
+
+Screens 03 and 04 are owner-approved directionally. They are ANCHORS. Do not conceptually redesign them. Micro-polish only.
+
+======================================================================
+3. V8 PLANET — CURRENT V7 DOUBLE-ARC LOOK IS NOT ACCEPTED
+======================================================================
+
+The V7 planet is directionally useful but visually unfinished. It often reads as two parallel semicircular wires / an outlined bowl under the fox. That is not the reference feeling.
+
+The V8 planet must read as a DARK ATMOSPHERIC BODY in the background.
+
+Required construction:
+- fox and planet remain separate layers;
+- keep transparent fox foreground clean;
+- use a filled dark planetary mass;
+- body should be only slightly separated from HotFox background;
+- ONE principal warm copper/orange rim;
+- optional extremely soft inner atmospheric falloff;
+- NO second hard parallel rim;
+- NO double-wire geometry;
+- NO stars;
+- NO nebulae;
+- NO satellite dots;
+- NO orbit rings;
+- NO radar circles;
+- NO space texture;
+- NO cyberpunk glow;
+- NO sci-fi poster.
+
+Optical behavior:
+- planet apparent diameter roughly 1.35x–1.80x fox width, adjusted per screen;
+- visible sphere/horizon supports lower 35–60% of hero zone;
+- planet center generally below fox chest/neck;
+- fox significantly overlaps and occludes the rim;
+- the rim disappears naturally behind the fox;
+- rim endpoints fade into the black background instead of ending abruptly;
+- body blends into background;
+- planet never steals attention from headline or CTA.
+
+Allowed planet variants only if composition genuinely needs them:
+- SplashLarge
+- OnboardingLarge
+- HomeMedium
+- CompactSupporting for 09
+
+They must share one design language. Do not make six unrelated planets.
+
+Do not bake fox+planet+text/buttons into one bitmap. Do not use a whole reference crop.
+
+Create V8 planet QA evidence:
+- verification/ui_rebuild/v8_assets/planet_on_black.png
+- verification/ui_rebuild/v8_assets/planet_with_fox_01.png
+- verification/ui_rebuild/v8_assets/planet_with_fox_05.png
+- verification/ui_rebuild/v8_assets/planet_contrast_notes.md
+- verification/ui_rebuild/PLANET_COMPOSITION_AUDIT_V8.md
+
+======================================================================
+4. TECHNICAL CORE — ABSOLUTELY DO NOT BREAK
+======================================================================
+
+This is a visual/presentation task.
+
+Do not alter canonical production path:
+Android apps -> VpnService/TUN -> HEV/tun2socks -> local Xray SOCKS 127.0.0.1:10808 -> Xray outbound -> VPN server -> Internet.
+
+Production CONNECTED / Защищено only after real readiness.
+
+Preserve:
+- VpnService lifecycle;
+- admission/readiness gates;
+- Xray/HEV/tun2socks;
+- DNS no-bypass;
+- IPv6 route/fail-closed;
+- loop prevention;
+- stale async/session-generation protection;
+- clean disconnect/reconnect;
+- real traffic;
+- real latency;
+- subscription truth;
+- entitlement/payment truth;
+- server truth;
+- routing truth;
+- Shadow behavior;
+- Autopilot behavior;
+- secure storage;
+- Android Always-on semantics.
+
+Do not move debug fixture data into src/main.
+Do not fake server catalog, entitlement, payment, VPN readiness, traffic or ping in release.
+`verification/ui_rebuild/check_no_fixture_leak_v51.py` must remain PASS.
+
+======================================================================
+5. V8 CAPTURE / QA ENVIRONMENT
+======================================================================
+
+Final approval evidence:
+- locale ru-RU;
+- font scale 1.0;
+- API 34;
+- same 1080×2400 reference/capture profile;
+- stable density/insets;
+- dark theme;
+- light status/navigation system icons;
+- no launcher frame substituted for target UI;
+- no accidental English in Russian evidence;
+- debug-only presentation fixtures may inject state/data but must reuse production UI layout/components.
+
+Preserve all V7 evidence.
+Write only new V8 paths:
+- verification/ui_rebuild/actual_v8/01.png ... 18.png
+- verification/ui_rebuild/compare_v8/side_by_side/01.png ... 18.png
+- verification/ui_rebuild/compare_v8/overlay/01.png ... 18.png
+- verification/ui_rebuild/compare_v8/diff/01.png ... 18.png
+- verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V8.csv
+- verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V8.csv
+- verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V8.md
+- verification/ui_rebuild/V8_LOCALE_PROOF.txt
+
+Missing actual screenshot = FAIL.
+Missing comparison set = FAIL.
+
+======================================================================
+6. GLOBAL DESIGN TARGET
+======================================================================
+
+HotFox must read as one authored premium 2026 product:
+- warm near-black violet background;
+- warm cream typography;
+- restrained orange/copper brand accent;
+- green only explicit success semantics;
+- strong editorial hierarchy;
+- controlled negative space;
+- content over containers;
+- thin low-contrast separators;
+- coherent rounded-outline icon family;
+- calm cinematic restraint.
+
+Never drift into:
+- stock Material Settings;
+- generic free VPN dashboard;
+- giant-card zoo;
+- cyberpunk;
+- neon;
+- gamer UI;
+- glassmorphism;
+- decorative sci-fi.
+
+======================================================================
+7. TYPOGRAPHY SYSTEM V8
+======================================================================
+
+Do not solve all pages with one title size.
+
+Create/update:
+verification/ui_rebuild/TYPOGRAPHY_MATRIX_V8.md
+
+For every screen record:
+- brand size;
+- main title size;
+- weight;
+- line height;
+- desired line break;
+- body size;
+- body line height;
+- section eyebrow;
+- row title;
+- row caption;
+- runtime value;
+- CTA label;
+- nav label;
+- notes.
+
+Rules:
+- warm cream primary, not clinical #FFFFFF;
+- muted text readable, not washed out;
+- hero title must not overpower artwork;
+- tabs/filters must not be tiny just to fit;
+- primary labels must not accidentally ellipsize;
+- right-side values align consistently;
+- intentional line breaks;
+- avoid stock Android preference typography.
+
+03 and 04 are the restraint benchmark.
+
+======================================================================
+8. GEOMETRY / SPACING SYSTEM V8
+======================================================================
+
+Create:
+verification/ui_rebuild/GEOMETRY_MATRIX_V8.md
+
+For 01–18 record:
+- content L/R inset;
+- header top/baseline;
+- title top;
+- title/body gap;
+- body/art gap;
+- hero bounds;
+- CTA bounds;
+- first content group top;
+- row heights;
+- group radii;
+- separator positions;
+- nav height;
+- bottom safe-space.
+
+Do not blindly use 20dp everywhere. Use a 4/8dp rhythm as engineering basis, while exact reference anchors win.
+
+Negative space must look intentional. A huge unused lower half is not premium minimalism unless the reference composition explicitly supports it.
+
+======================================================================
+9. CTA SYSTEM V8
+======================================================================
+
+Keep contextual variants:
+- OnboardingPrimary;
+- HomeConnectPrimary;
+- ProgressAction / Stop;
+- HomeDisconnectQuiet;
+- SubpagePrimaryCompact;
+- AppsSave;
+- TextAction;
+- DisabledAction.
+
+Rules:
+- touch target >=48dp;
+- visible geometry follows reference;
+- orange must not dominate every subpage;
+- arrow smaller and optically centered;
+- Stop/Disconnect neutral unless actually destructive;
+- disabled state readable;
+- CTA belongs to page composition instead of floating in empty space.
+
+======================================================================
+10. HEADER / NAV / ICON SYSTEM V8
+======================================================================
+
+Header variants:
+A. root: HotFox + optional gear/action
+B. subpage: back + HotFox
+C. splash: no normal header
+D. exact reference-specific exception only where proven
+
+Touch target ≠ glyph. Keep 48dp targets with visible glyph roughly 20–22dp when appropriate.
+
+Bottom navigation:
+- exact per-screen presence;
+- exact active destination according to each reference;
+- do not globally normalize `Главная` vs `Соединение` if approved screens differ;
+- readable inactive items;
+- precise orange active state;
+- no content overlap;
+- icon/label optical centers consistent.
+
+======================================================================
+11. SCREEN 01 — SPLASH
+======================================================================
+
+V7 problems visible in current capture:
+- planet is double-arc / bowl-like;
+- huge upper dead area;
+- hero and brand block still feel separated;
+- wordmark is visually oversized relative to scene;
+- loading track feels generic.
+
+V8 requirements:
+1. Replace wire planet with filled dark sphere/horizon.
+2. One warm rim only; endpoints fade.
+3. Fox naturally overlaps/occludes rim.
+4. Planet must have actual dark mass behind fox.
+5. Rebalance vertical position so upper space is deliberate, not empty.
+6. Fox+planet and HotFox wordmark must read as one brand entrance.
+7. Tune wordmark scale relative to hero; no oversized detached logo block.
+8. Tagline quieter and precisely tracked.
+9. Loading track thinner/subordinate and aligned with brand block.
+10. No normal app header/nav.
+11. Preserve real splash transition; no fake production delay.
+12. Debug harness may hold frame only for capture.
+
+PASS feeling: cinematic premium brand entrance, not image + logo + progress bar.
+
+======================================================================
+12. SCREEN 02 — ONBOARDING CONNECT
+======================================================================
+
+V7 problems:
+- hero still feels inserted between copy and actions;
+- planet looks like a drawn semicircle;
+- secondary action feels weakly attached;
+- spacing is better but not yet reference-tight.
+
+V8 requirements:
+1. Keep ru-RU title `Подключите / HotFox` with intentional two-line break.
+2. Tune title size/line height against reference.
+3. Body copy width/line height measured, not arbitrary full width.
+4. Replace wire planet with filled dark planet mass and one rim.
+5. Fox must overlap planet naturally.
+6. Keep art clear of text and CTA.
+7. Primary CTA retains onboarding emphasis but exact height/radius/padding measured.
+8. Arrow right alignment exact.
+9. `Купить доступ` remains quiet but intentional/tappable.
+10. Reduce any floating dead gap.
+11. Preserve existing subscription/access navigation.
+12. Do not fake access state.
+
+PASS feeling: one premium onboarding composition rather than text/art/button stack.
+
+======================================================================
+13. SCREEN 03 — AUTO — OWNER ANCHOR
+======================================================================
+
+CONCEPT FREEZE. NO PLANET. DO NOT REDESIGN.
+
+Micro-polish only:
+1. Preserve intelligent-routing topology concept.
+2. No globe-as-planet, no orbit.
+3. Normalize route line weights.
+4. Candidate nodes same optical scale.
+5. Selected route/node uses restrained orange.
+6. Hub alignment intentional.
+7. Title wrapping exactly intentional in ru-RU.
+8. Body width/leading aligned with 02/04.
+9. Primary CTA geometry aligned with onboarding system.
+10. Secondary manual-selection action spacing exact.
+11. Preserve functionality.
+
+Any conceptual V8 change to 03 = regression FAIL.
+
+======================================================================
+14. SCREEN 04 — READY — OWNER ANCHOR
+======================================================================
+
+CONCEPT FREEZE. NO PLANET. DO NOT REDESIGN.
+
+Micro-polish only:
+1. Preserve server/check completion art.
+2. Refine server cards/check optical center.
+3. Maintain calm completion state.
+4. Title/body spacing aligned with 03.
+5. Permission note quiet/readable.
+6. CTA closes story cleanly.
+7. No radar/orbit circles.
+8. Preserve real Android VPN permission flow.
+9. No fake permission success.
+
+Any conceptual V8 change to 04 = regression FAIL.
+
+======================================================================
+15. SCREEN 05 — DISCONNECTED HOME
+======================================================================
+
+V7 problems:
+- planet still reads as outlined bowl;
+- hero not fully integrated with headline/CTA;
+- `Нет разрешения VPN` looks technical;
+- option group heavy/generic;
+- helper notice feels detached.
+
+V8 requirements:
+1. Filled planet mass, one copper rim, fox overlap, fading ends.
+2. Refine `Не защищено` title size/weight against reference.
+3. Subtitle clearly secondary.
+4. Hero height/scale must not feel like a separate art card.
+5. Permission line remains truthful but visually quiet and connected to CTA.
+6. Connect CTA is primary but not cartoonishly dominant.
+7. Main option group: lower border weight, thin separators, exact icon column, title/caption/value/chevron alignment.
+8. Smart row subtitle fully readable; no clipping.
+9. Helper notice becomes lighter editorial information, not second heavy card.
+10. Gear glyph optical 20–22dp in 48dp target.
+11. Correct bottom-nav active state per exact reference.
+12. No content overlap.
+13. Preserve real subscription/server/Shadow/routing state.
+
+PASS feeling: premium HotFox home, not a themed settings dashboard.
+
+======================================================================
+16. SCREEN 06 — CONNECTING
+======================================================================
+
+V7 problems:
+- rail/stages still diagnostic;
+- too many competing blocks;
+- lower settings remain too visually strong.
+
+V8 requirements:
+1. Same V8 planet language as 05, static only.
+2. No orbit/progress ring around fox.
+3. Connection rail remains separate linear/asymmetric progress graphic.
+4. Stages: Выбираем сервер / Устанавливаем соединение / Проверяем доступ / Применяем правила with exact active/pending hierarchy.
+5. Active stage restrained orange.
+6. Pending muted/readable.
+7. Completed stages do not spray green everywhere.
+8. Stop action neutral outlined/progress control, not destructive.
+9. De-emphasize lower settings while connecting without removing needed functionality.
+10. Progress rail/stages/Stop must form one workflow.
+11. Preserve actual cancel/disconnect semantics.
+12. Planet is backdrop only, never progress geometry.
+
+PASS feeling: focused connection process first, settings second.
+
+======================================================================
+17. SCREEN 07 — PROTECTED
+======================================================================
+
+V7 problems:
+- too many micro-elements compete;
+- planet still too arc-like;
+- traffic/path/rows/nav make protected state busier than necessary.
+
+V8 requirements:
+1. Filled deep planet + one rim.
+2. `Защищено` soft success green, not neon.
+3. Timer supports status directly.
+4. Fox+planet hero calm/confident.
+5. Download/upload stats symmetrical and readable.
+6. User -> HotFox -> Internet diagram: refine icon sizes, path line, direction and labels.
+7. Disconnect action quiet/neutral.
+8. Option group same visual family as 05 but calm.
+9. Green only explicit success semantics.
+10. Debug protected fixture must hide contradictory VPN permission warning.
+11. Production CONNECTED gate untouched.
+12. Correct nav active label per reference.
+
+PASS feeling: protected screen calmer than disconnected, not a dashboard explosion.
+
+======================================================================
+18. SCREEN 08 — ADD CONNECTION BOTTOM SHEET
+======================================================================
+
+V7 problems:
+- system/Material feel remains;
+- scrim makes underlying orange muddy brown;
+- handle/title/close/rows need tighter rhythm.
+
+V8 requirements:
+1. Keep real native sheet behavior.
+2. Underlying screen is real 05 composition, not a duplicate fake layout.
+3. Background fox+planet remains visible enough under scrim to preserve context.
+4. Scrim neutral dark and hue-safe; do not dirty orange.
+5. Handle subtle, centered, correctly spaced.
+6. Title measured, not oversized.
+7. Close visible glyph ~20–22dp inside 48dp hit target.
+8. Rows: HTTPS subscription / clipboard / QR / file / Always-on-Kill Switch.
+9. Visible row height ~56–64dp if reference supports.
+10. Exact leading icon column.
+11. Exact text baseline.
+12. Exact trailing chevron column.
+13. No giant row gaps.
+14. Sheet radius/border one coherent system.
+15. Back/drag/close behavior preserved.
+16. Accessibility focus preserved.
+
+PASS feeling: branded premium HotFox sheet, not stock Material bottom sheet.
+
+======================================================================
+19. SCREEN 09 — HTTPS SUBSCRIPTION — HIGH PRIORITY
+======================================================================
+
+V7 mean diff is one of the highest. Rebuild composition carefully.
+
+V7 problems:
+- form and art split into separate zones;
+- lower art feels decorative/random;
+- large empty zone;
+- input/CTA generic.
+
+V8 requirements:
+1. Form is primary task.
+2. Back + HotFox header exact.
+3. `HTTPS-подписка` title/support copy compact and grouped.
+4. URL EditText remains native: selection/paste/IME/focus/error.
+5. Paste action integrated, not floating.
+6. Helper/privacy note aligned and readable.
+7. Add/import CTA contextual, not giant by default.
+8. Fox+planet supporting art uses filled dark planet and one rim, lower contrast than 05.
+9. Artwork cannot dominate URL task.
+10. Reduce blank lower area by composition, not invented content.
+11. No secret URL in screenshots/logs.
+12. No fake successful subscription.
+13. Preserve import/parser behavior.
+
+PASS feeling: secure premium import flow, not a form with wallpaper underneath.
+
+======================================================================
+20. SCREEN 10 — SERVERS
+======================================================================
+
+V7 is relatively strong. Polish, do not over-design.
+
+V8 requirements:
+1. No planet.
+2. HotFox + gear header exact.
+3. `Серверы` title spacing exact.
+4. Filter row: Все / Избранные / Страны / Нет соединения readable and balanced.
+5. No awkward wrapping.
+6. `Мои серверы` section title/underline measured to reference.
+7. Underline thin, exact width, restrained orange.
+8. AUTO row title/support/status aligned.
+9. Primary AUTO title must not truncate unnecessarily.
+10. Server rows: flag, city, country, ping, chevron exact columns.
+11. Ping muted, not automatically green.
+12. Separators consistent.
+13. Row density comfortable and premium.
+14. Debug reference list stays src/debug-only.
+15. Production catalog remains truthful.
+16. Bottom nav active Servers.
+
+PASS feeling: premium fast-scanning list, not generic RecyclerView.
+
+======================================================================
+21. SCREEN 11 — SERVER DETAILS
+======================================================================
+
+V7 problems:
+- sparse/raw preference-list feel;
+- right values weak;
+- hierarchy insufficient.
+
+V8 requirements:
+1. No planet.
+2. Back + HotFox header exact.
+3. Flag/city/country identity block more deliberate.
+4. Clear information groups without huge cards.
+5. Rows: Status / Load / Smart Routing / Shadow / Auto-select share one grid.
+6. Leading icons optically matched.
+7. Right-side values one exact column, readable, not tiny gray dust.
+8. Hairline separators/group spacing according to reference.
+9. Explanatory note proper max width/line height.
+10. Action/select state readable even disabled.
+11. Debug fixture values safe only.
+12. No private URLs/config secrets.
+
+PASS feeling: a premium inspector, not Android Preferences.
+
+======================================================================
+22. SCREEN 12 — SUBSCRIPTION
+======================================================================
+
+V7 problems:
+- generic billing-page feel;
+- weak plan hierarchy;
+- sparse lower half;
+- actions loosely organized.
+
+V8 requirements:
+1. No planet.
+2. Root HotFox/gear header exact.
+3. `Подписка` and Premium/plan identity clearly separated.
+4. Status surface: expiry, devices/servers, limits aligned cleanly.
+5. Restrained surface, not giant card unless reference demands it.
+6. `Управлять подпиской` clear primary.
+7. `Продлить доступ` quieter secondary.
+8. HTTPS-subscription action/link correctly placed.
+9. Legal/helper text quiet but readable.
+10. Rebalance vertical composition without invented content.
+11. Debug reference state src/debug-only.
+12. Production entitlement/payment truth unchanged.
+
+PASS feeling: premium entitlement management, not placeholder billing.
+
+======================================================================
+23. SCREEN 13 — SETTINGS
+======================================================================
+
+V7 problems:
+- still stock Android rhythm;
+- section labels weak;
+- row/icon density lacks branded precision.
+
+V8 requirements:
+1. No planet.
+2. Back + HotFox exact.
+3. `Настройки` title/support copy use less vertical footprint.
+4. Section eyebrows consistent: Основные настройки / Сеть и подключения / Прочее.
+5. Rows for Autopilot, Always-on, Notifications, Diagnostics, Local network, DNS, IPv6, About, Privacy etc. share one geometry.
+6. Smaller optically consistent visible icons.
+7. Chevrons exact trailing column.
+8. Slightly denser row rhythm if reference supports.
+9. Thin separators/subtle grouping, not giant cards.
+10. Do not leave raw unstructured stock list.
+11. No scrollbar in accepted capture.
+12. Bottom nav exact.
+13. Preserve callbacks/navigation.
+
+PASS feeling: unmistakably HotFox settings.
+
+======================================================================
+24. SCREEN 14 — SMART ROUTING — HIGH PRIORITY
+======================================================================
+
+V7 problems:
+- sparse lower half;
+- tiny control cluster floats near top;
+- rows generic;
+- Apply CTA detached.
+
+V8 requirements:
+1. No planet.
+2. Header exact.
+3. Compact title/body intro.
+4. Routing mode clearly primary selection.
+5. Apps & Rules secondary navigation.
+6. Local network switch visually integrated.
+7. Current selected mode is deliberate state, not raw text.
+8. Group with spacing/hairlines rather than giant card.
+9. Switch optical size refined.
+10. `Применить` contextual width/position directly tied to controls.
+11. Use vertical field intentionally, without decorative filler.
+12. Preserve routing-store semantics.
+13. Debug reference state only under src/debug.
+
+PASS feeling: designed routing control center, not three preference rows.
+
+======================================================================
+25. SCREEN 15 — APPS & RULES — TOP PRIORITY
+======================================================================
+
+V7 HAS THE LARGEST MEAN DIFF (~35.41). THIS NEEDS A REAL VISUAL RECONSTRUCTION.
+
+V8 requirements:
+1. No planet.
+2. Back + HotFox exact.
+3. Two-line `Приложения / и правила` title exact.
+4. Segmented control `Только выбранные / Все кроме выбранных`: selected orange must not look like giant CTA, unselected readable, exact height/radius.
+5. Search field: subtle surface, search icon, placeholder, exact height/radius, native EditText behavior.
+6. Summary group: Пользовательские правила count / Выбрано count, icons, chevrons, spacing exact.
+7. App list uses enough debug fixture rows to match reference density.
+8. Debug-only app glyphs must look real and intentional, not blank squares.
+9. App title/subtitle/category/package hierarchy measured.
+10. Exact left icon column and right selection column.
+11. Selected controls restrained orange; unchecked consistent outline.
+12. No unintended scrollbar.
+13. No app rows hidden behind save action.
+14. `Сохранить правила` follows board geometry, but must not visually outweigh entire screen.
+15. Production installed-app list remains real.
+16. Include/exclude/custom rule behavior untouched.
+17. Fixture apps stay src/debug-only.
+18. Search/IME/accessibility preserved.
+19. Do not simplify real functionality just to match screenshot.
+
+PASS feeling: production-grade routing rule editor; no longer the worst mismatch.
+
+======================================================================
+26. SCREEN 16 — AUTOPILOT
+======================================================================
+
+V7 problems:
+- sparse/generic;
+- switch isolated;
+- CTA floats;
+- lower field under-composed.
+
+V8 requirements:
+1. No planet.
+2. Header exact.
+3. Compact title/body.
+4. Master Autopilot row strong hierarchy, switch optically refined.
+5. Group Known/New Wi-Fi, mobile network, pause coherently.
+6. Balance/status/helper copy belongs to rule logic.
+7. Avoid giant empty basement.
+8. `Готово` CTA belongs to decision flow.
+9. Persisted Autopilot behavior untouched.
+10. No fake connectivity state.
+
+PASS feeling: coherent automation rules page, not generic settings.
+
+======================================================================
+27. SCREEN 17 — SHADOW — HIGH PRIORITY
+======================================================================
+
+V7 problems:
+- network lines still radiate randomly;
+- shield composition resembles starburst;
+- body/rows/CTA not fully integrated;
+- lower half sparse.
+
+V8 requirements:
+1. No planet.
+2. No fox.
+3. No orbit.
+4. No curved bands encircling shield.
+5. Build intentional asymmetric network topology: incoming/outgoing segments, purposeful nodes, protection zone around shield, no line stabbing awkwardly through shield, no symmetric sunburst.
+6. Shield stroke thinner/refined; restrained orange edge.
+7. Body copy narrower/smaller with clean line breaks.
+8. Status/Mode rows subtly structured with aligned values.
+9. `Оставить AUTO` compact/contextual.
+10. Use vertical field more intentionally.
+11. Preserve Shadow semantics.
+
+PASS feeling: protected network topology, not cybersecurity clip-art.
+
+======================================================================
+28. SCREEN 18 — ALWAYS-ON VPN
+======================================================================
+
+V7 problems:
+- sparse;
+- hero, rows, CTA, helper feel stranded;
+- truthful values visually too weak.
+
+V8 requirements:
+1. No planet.
+2. No fox.
+3. Back + HotFox exact.
+4. Shield scale/position refined.
+5. Always-on VPN and Block without VPN rows align leading icon/label/truthful value.
+6. Unknown stays truthful when Android cannot report better.
+7. Android Settings CTA contextual, not oversized.
+8. Helper note quiet/readable with proper width.
+9. Exact reference decides bottom-nav presence.
+10. Rebalance vertical field to feel finished.
+11. Never simulate lockdown/always-on state.
+
+PASS feeling: calm, confident system-integration screen.
+
+======================================================================
+29. SCREEN 08 + SCREEN 05 MODAL COMPOSITING RULE
+======================================================================
+
+Do not maintain a separate fake home underneath screen 08.
+Use real screen 05 composition.
+Planet/fox remain correctly layered.
+Scrim reduces luminance without dirtying hue.
+Orange underneath must not become muddy brown.
+Sheet surface separates cleanly without glassmorphism.
+
+======================================================================
+30. V8 PLANET QA CHECKLIST
+======================================================================
+
+For 01/02/05/06/07/09, verify:
+- transparent fox foreground;
+- separate planet layer;
+- filled planet body;
+- one primary rim;
+- no second hard parallel rim;
+- rim endpoints fade;
+- fox overlaps rim naturally;
+- no orbit;
+- no stars;
+- no matte rectangle;
+- no UI baked into art;
+- scale appropriate per screen;
+- vertical center correct;
+- no text/CTA collision.
+
+Record in `PLANET_COMPOSITION_AUDIT_V8.md`.
+
+======================================================================
+31. ART-DIRECTOR SELF REVIEW
+======================================================================
+
+For each screen score 0–5:
+- composition
+- hierarchy
+- typography
+- spacing
+- asset integration
+- controls
+- chrome
+- polish
+
+Write `HOTFOX_ART_DIRECTOR_SCORE_V8.csv`.
+
+PASS requires:
+- every category >=4.0;
+- average >=4.3;
+- actual screenshot exists;
+- side-by-side exists;
+- overlay exists;
+- diff exists;
+- zero P0 visual defect.
+
+If it does not pass, mark NO honestly.
+
+======================================================================
+32. WORK ORDER — DO NOT EDIT ALL 18 BLINDLY
+======================================================================
+
+CYCLE A — HERO FOUNDATION
+planet component + 01 + 02 + 03 micro + 04 micro
+Build -> capture 01–04 -> compare -> fix.
+
+CYCLE B — CONNECTION STATES
+05 + 06 + 07
+Build -> capture 05–07 -> compare -> fix.
+
+CYCLE C — IMPORT/MODAL
+08 + 09
+Build -> capture 08–09 -> compare -> fix.
+
+CYCLE D — ACCOUNT/SERVERS
+10 + 11 + 12
+Build -> capture 10–12 -> compare -> fix.
+
+CYCLE E — SETTINGS/ROUTING/APPS
+13 + 14 + 15
+Build -> capture 13–15 -> compare -> fix.
+
+CYCLE F — ADVANCED
+16 + 17 + 18
+Build -> capture 16–18 -> compare -> fix.
+
+CYCLE G — FULL 18
+Install final debug build; lock ru-RU; capture 18/18; generate all comparisons; generate one contact sheet; run final consistency review.
+
+Do not leave a cycle with an obvious fixable P0/P1 defect.
+
+======================================================================
+33. ENGINEERING GATES
+======================================================================
+
+After meaningful cycles, and at final:
+- :app:assemblePlaystoreDebug
+- :app:testPlaystoreDebugUnitTest
+- static_check_2_2_0.py
+- verification/ui_rebuild/check_no_fixture_leak_v51.py
+
+At final all must PASS.
+Run lint if environment permits and report honestly.
+
+======================================================================
+34. STATIC REGRESSION BANS
+======================================================================
+
+V8 must not introduce:
+- legacy baked `hf_fox_planet`;
+- `hotfox_art_fox_planet_*`;
+- full-screen screenshot production assets;
+- debug fixture classes/data in src/main;
+- fake production server list;
+- fake subscription/entitlement;
+- fake protected state;
+- fake traffic;
+- fake ping;
+- reference boards imported as production UI;
+- fox matte rectangle;
+- double hard planet arcs that read as wire bowl;
+- orbit ring around fox;
+- planet on 03/04/10–18;
+- planet around Shadow shield.
+
+Add targeted static checks if useful.
+
+======================================================================
+35. FINAL REPORT V8
+======================================================================
+
+Create `verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V8.md` with:
+
+A. Environment
+- branch
+- starting head
+- final head
+- AVD/API
+- locale
+- viewport
+
+B. Build/test
+- assemble
+- unit tests
+- static check
+- fixture leak
+- lint
+
+C. Planet implementation
+- resource names
+- separate-layer proof
+- screens used
+- comparison screenshots
+- no-legacy proof
+
+D. 03/04 anchor regression
+- concept unchanged YES/NO
+- visual regressions
+- evidence
+
+E. Screen table 01–18
+- changes
+- remaining deviations
+- capture
+- comparison
+- score
+- PASS/NO
+
+F. Production truth
+- VPN core untouched
+- production fixtures absent
+- CONNECTED gate preserved
+- subscription/payment/server truth preserved
+
+G. Release status
+RELEASE READY = NO unless a completely separate real runtime/device release gate was executed.
+
+======================================================================
+36. HARD STOP RULES
+======================================================================
+
+Do NOT stop because production has no servers, backend subscription is unavailable, protected cannot be real in emulator, splash advances, or installed apps differ. Existing debug-only visual fixtures solve visual-state capture.
+
+Hard blocker only if:
+- source/reference missing/corrupt;
+- build environment genuinely cannot be repaired after documented attempts;
+- requested visual change would weaken production security/truth;
+- artwork cannot preserve fox identity from available source.
+
+If one page is blocked, continue independent pages and document exact blocker.
+
+======================================================================
+37. FINAL DIRECTIVE
+======================================================================
+
+This is NOT a global theme tweak.
+The owner explicitly asked for a COLOSSAL PAGE-BY-PAGE CORRECTION PASS.
+
+For EVERY screen 01–18:
+1. open V7 actual;
+2. open exact approved reference;
+3. open V7 overlay/diff;
+4. read the screen-specific V8 section above;
+5. edit real production layout/resources;
+6. use debug fixtures only for state/data;
+7. build;
+8. capture;
+9. compare;
+10. fix again;
+11. only then move on.
+
+Planet 01/02/05/06/07/09 must look like a real dark background mass with one subtle warm rim. It must NOT look like V7’s double-line semicircular bowl.
+
+03/04: micro-polish only. No conceptual redesign.
+
+10–18: no planet.
+
+Do not merge.
+Do not claim RELEASE READY.
+Do not stop after planning.
+Execute V8 through full 18-screen evidence or a genuine narrowly documented blocker.

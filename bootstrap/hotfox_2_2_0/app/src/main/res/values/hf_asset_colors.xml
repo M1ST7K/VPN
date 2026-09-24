@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hf_asset_background">#0D0C12</color>
+    <color name="hf_asset_cream">#F3EDE9</color>
+    <color name="hf_asset_muted">#A39EAE</color>
+    <color name="hf_asset_orange">#FF803E</color>
+    <color name="hf_asset_green">#60D990</color>
+    <color name="hf_asset_ink">#160E09</color>
+    <color name="hf_asset_disabled_fill">#1A1816</color>
+    <color name="hf_asset_disabled_stroke">#3A342F</color>
+    <color name="hf_asset_disabled_text">#8A8278</color>
+</resources>

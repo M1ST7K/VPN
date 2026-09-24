@@ -1,0 +1,322 @@
+{
+  "version": "1.0",
+  "design": "approved HotFox v2",
+  "coordinateCanvas": [
+    853,
+    1844
+  ],
+  "defaultBackground": "hotfox_hero_scene.png",
+  "foxPlacement": [
+    100,
+    390,
+    600,
+    455
+  ],
+  "resourceCount": 22,
+  "iconCount": 16,
+  "notes": [
+    "Do not overlay the separate fox on hero_scene.",
+    "Only scene and planet_background are opaque.",
+    "PNG fills in design/png-primitives are optional and do not include borders."
+  ],
+  "resources": [
+    {
+      "file": "app/src/main/res/drawable-nodpi/hotfox_brand_mark.png",
+      "width": 256,
+      "height": 288,
+      "mode": "RGBA",
+      "bytes": 6934,
+      "sha256": "784e665715a5303bf9aa54a4d58c2ae9222cd4c0852fbef8905b0f377f35d941",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 41086,
+      "partialAlphaPixels": 1138
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/hotfox_flag_de.png",
+      "width": 192,
+      "height": 144,
+      "mode": "RGBA",
+      "bytes": 1349,
+      "sha256": "a9d96e4608ef8f6e21cea4df7b5bdbf77030fb045fcefae6385ca435dd6dd4bb",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 126,
+      "partialAlphaPixels": 102
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/hotfox_fox.png",
+      "width": 600,
+      "height": 455,
+      "mode": "RGBA",
+      "bytes": 255334,
+      "sha256": "6c26d88a89520ba1a4706ec169c7a0facc0191060d59a4a8eb5d06f8cba4af27",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 111013,
+      "partialAlphaPixels": 106133
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/hotfox_hero_scene.png",
+      "width": 853,
+      "height": 1844,
+      "mode": "RGB",
+      "bytes": 1038902,
+      "sha256": "39668cc1cdad302913173b067bd38a8c262a9907468a9f3438fec055fb343b6d",
+      "alphaExtrema": null
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/hotfox_planet_background.png",
+      "width": 853,
+      "height": 1844,
+      "mode": "RGB",
+      "bytes": 996807,
+      "sha256": "9ac1ee3ecfe52b9222f3592f4f4ab78876b97401af6cebc1ea769e6c2a2883f3",
+      "alphaExtrema": null
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/hotfox_planet_overlay.png",
+      "width": 853,
+      "height": 1844,
+      "mode": "RGBA",
+      "bytes": 1260661,
+      "sha256": "cc1b02fd71bf27d7e4ca47bef32d92e7821579aa9b2d08e85ca1ea8df79abf3e",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 1259729,
+      "partialAlphaPixels": 239562
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_chevron.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 537,
+      "sha256": "b7a21f30d43b7c468cc6dda034841a7a737d37f04e07b1a9dff6d18a2d7d112b",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 14940,
+      "partialAlphaPixels": 366
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_crown.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 2293,
+      "sha256": "e6ef2c764e77c533f3848a7bbb55c7a0a5d6b5ed685e61aab003cb748acb33d8",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 11113,
+      "partialAlphaPixels": 1068
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_dots.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 890,
+      "sha256": "70ef84f48cb239c5fdb6c1d702b3f7bd1dc7e27aecdcb7d71b21d3dd6a788ac2",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 15199,
+      "partialAlphaPixels": 233
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_download.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 814,
+      "sha256": "4da5e96f7107781ef24909a3a693bc7eb0b0928417911f407169c8af959b91a6",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 14106,
+      "partialAlphaPixels": 504
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_globe.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 2813,
+      "sha256": "ac2a51e0b4dfe92d2899213f75306ddd56a184ae83159624de8b66a5bc5f7de7",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 9076,
+      "partialAlphaPixels": 1173
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_home.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 798,
+      "sha256": "62e631ce9d9bc62fde665c314224bf7cf69a5a8dcccd6bc52cd9076e702860d8",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 8424,
+      "partialAlphaPixels": 418
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_lock.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 1435,
+      "sha256": "d7e4cccfe7e8b10cede438b6585d017216ed752a57040767694379f21338b9ca",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 12477,
+      "partialAlphaPixels": 752
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_power.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 2156,
+      "sha256": "005b5d26b923c6e87db3406a5fc609c23a8ee90713a7a70f1011e362c06a5b27",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 13295,
+      "partialAlphaPixels": 709
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_route.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 2682,
+      "sha256": "ba674a60ddbee7041a63ed598f71d2d952de36fac44cff314f68aabe39f3cf6a",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 11978,
+      "partialAlphaPixels": 912
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_servers.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 1433,
+      "sha256": "8cc0616e024c1623ab4636c72ba7639243ecc06ffef2368c71960099034fe94a",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 11172,
+      "partialAlphaPixels": 1048
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_settings.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 3438,
+      "sha256": "fc1e8afc69bd0f9cc3453963d636168a06fde88e0116a762d3ab73be61a45b8e",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 10339,
+      "partialAlphaPixels": 1309
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_shield.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 2119,
+      "sha256": "bf7e9a8bf4ad444619a3617514c816f2028821a1dc25dc068d791e9428c7a78c",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 13056,
+      "partialAlphaPixels": 719
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_shield_check.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 2634,
+      "sha256": "644691872cf2b7ef5a1649b5c846ae262654c14bd4a182ddacbf0f20dc33d139",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 12349,
+      "partialAlphaPixels": 902
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_stop.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 782,
+      "sha256": "d1eb04eba1687d066f4b033c2e4e634231bd31b8fdca970e6c406c2449954098",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 7284,
+      "partialAlphaPixels": 96
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_timer.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 2566,
+      "sha256": "3d6f92166ddcfbbdd61d9bcc17f6581400feb59466fd0a926bdfe0439480a0e4",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 12090,
+      "partialAlphaPixels": 941
+    },
+    {
+      "file": "app/src/main/res/drawable-nodpi/ic_hotfox_upload.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "bytes": 825,
+      "sha256": "941bfcd91fa831ba6d6f4f7adf3238bddeed99032d6d253063b39b098b1701ba",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "transparentPixels": 14106,
+      "partialAlphaPixels": 504
+    }
+  ]
+}

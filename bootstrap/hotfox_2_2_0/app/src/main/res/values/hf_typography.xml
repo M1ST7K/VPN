@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- HotFox typography roles on bundled static Onest (docs/HOTFOX_TYPOGRAPHY_ONEST.md).
+     Each role points at a single static weight file and never sets textStyle, so API 24
+     renders the real 400/500/600/700 outlines instead of a synthesized bold. -->
+<resources>
+    <style name="HotFox.Type" />
+
+    <!-- 700: primary screen/state headlines -->
+    <style name="HotFox.Type.Display">
+        <item name="android:fontFamily">@font/onest_bold</item>
+        <item name="fontFamily">@font/onest_bold</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <!-- 600: card titles, buttons, important action labels -->
+    <style name="HotFox.Type.CardTitle">
+        <item name="android:fontFamily">@font/onest_semibold</item>
+        <item name="fontFamily">@font/onest_semibold</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="HotFox.Type.Button" parent="HotFox.Type.CardTitle" />
+
+    <!-- 500: nav, chips, overlines, small utility labels -->
+    <style name="HotFox.Type.BodyMedium">
+        <item name="android:fontFamily">@font/onest_medium</item>
+        <item name="fontFamily">@font/onest_medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="HotFox.Type.Chip" parent="HotFox.Type.BodyMedium" />
+
+    <style name="HotFox.Type.Overline" parent="HotFox.Type.BodyMedium">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <!-- 400: body, captions, helper copy -->
+    <style name="HotFox.Type.Body">
+        <item name="android:fontFamily">@font/onest_regular</item>
+        <item name="fontFamily">@font/onest_regular</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="HotFox.Type.Caption" parent="HotFox.Type.Body" />
+
+    <!-- Material 3 text appearances used by library widgets on secondary screens. -->
+    <style name="HotFox.TextAppearance.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:fontFamily">@font/onest_bold</item>
+        <item name="fontFamily">@font/onest_bold</item>
+    </style>
+    <style name="HotFox.TextAppearance.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:fontFamily">@font/onest_bold</item>
+        <item name="fontFamily">@font/onest_bold</item>
+    </style>
+    <style name="HotFox.TextAppearance.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:fontFamily">@font/onest_bold</item>
+        <item name="fontFamily">@font/onest_bold</item>
+    </style>
+    <style name="HotFox.TextAppearance.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">@font/onest_bold</item>
+        <item name="fontFamily">@font/onest_bold</item>
+    </style>
+    <style name="HotFox.TextAppearance.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/onest_bold</item>
+        <item name="fontFamily">@font/onest_bold</item>
+    </style>
+    <style name="HotFox.TextAppearance.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/onest_semibold</item>
+        <item name="fontFamily">@font/onest_semibold</item>
+    </style>
+    <style name="HotFox.TextAppearance.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/onest_semibold</item>
+        <item name="fontFamily">@font/onest_semibold</item>
+    </style>
+    <style name="HotFox.TextAppearance.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/onest_semibold</item>
+        <item name="fontFamily">@font/onest_semibold</item>
+    </style>
+    <style name="HotFox.TextAppearance.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">@font/onest_medium</item>
+        <item name="fontFamily">@font/onest_medium</item>
+    </style>
+    <style name="HotFox.TextAppearance.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/onest_regular</item>
+        <item name="fontFamily">@font/onest_regular</item>
+    </style>
+    <style name="HotFox.TextAppearance.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/onest_regular</item>
+        <item name="fontFamily">@font/onest_regular</item>
+    </style>
+    <style name="HotFox.TextAppearance.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/onest_regular</item>
+        <item name="fontFamily">@font/onest_regular</item>
+    </style>
+    <style name="HotFox.TextAppearance.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/onest_semibold</item>
+        <item name="fontFamily">@font/onest_semibold</item>
+    </style>
+    <style name="HotFox.TextAppearance.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/onest_medium</item>
+        <item name="fontFamily">@font/onest_medium</item>
+    </style>
+    <style name="HotFox.TextAppearance.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/onest_medium</item>
+        <item name="fontFamily">@font/onest_medium</item>
+    </style>
+</resources>

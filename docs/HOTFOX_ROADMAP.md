@@ -2,7 +2,7 @@
 
 Status: **CANONICAL**
 
-Current engineering phase: **2.4 — Smart Connection**
+Current engineering phase: **FINAL RELEASE VALIDATION GATE** (3.1 ENGINEERING COMPLETE — runtime and physical release validation deferred)
 
 This document defines the sequential HotFox engineering roadmap from the already completed truthful core and commercial foundation through the mature 3.0 platform.
 
@@ -25,9 +25,12 @@ The engineering order is:
 → `2.6 HotFox Shadow / Stealth & Resilience`
 → `2.7 Operations / Release Infrastructure`
 → `2.8 HotFox Autopilot / Adaptive Protection`
-→ `2.9 Premium Android Experience`
-→ `3.0 Mature HotFox Platform`
+→ `2.9 VPN Core Recovery / Real Connection Fix`
+→ `3.0 Premium Android Experience`
+→ `3.1 Mature HotFox Platform / Pre-release Engineering`
 → `FINAL RELEASE DEVICE GATE`
+
+Owner override: `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc` and `docs/HOTFOX_2_9_VPN_RECOVERY.md` win for numbering from 2.9 onward. Legacy headings «2.9 Premium» / «3.0 Mature» in later sections of this file are the 3.0 / 3.1 scopes.
 
 Do not reorder these phases unless the owner explicitly changes the roadmap.
 
@@ -205,7 +208,7 @@ Allow a user to acquire HotFox-managed access from the application without pasti
 
 # 2.4 — SMART CONNECTION
 
-Status: **IN PROGRESS**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -402,7 +405,7 @@ Physical Android validation is not required for this transition.
 
 # 2.5 — PRIVACY CONTROLS / SMART ROUTING
 
-Status: **PLANNED — starts after 2.4 ENGINEERING COMPLETE**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -570,7 +573,7 @@ No physical Android test is required between 2.5 and 2.6.
 
 # 2.6 — HOTFOX SHADOW / STEALTH & RESILIENCE
 
-Status: **PLANNED**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -830,7 +833,7 @@ No physical Android test is required between 2.6 and 2.7.
 
 # 2.7 — OPERATIONS / RELEASE INFRASTRUCTURE
 
-Status: **PLANNED**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -1010,7 +1013,7 @@ Do not run or request the final physical Android release acceptance yet solely b
 
 # 2.8 — HOTFOX AUTOPILOT / ADAPTIVE PROTECTION
 
-Status: **PLANNED**
+Status: **ENGINEERING COMPLETE — physical release validation deferred**
 
 ## Purpose
 
@@ -1225,9 +1228,19 @@ No physical Android test is required between 2.8 and 2.9.
 
 ---
 
+# 2.9 — VPN CORE RECOVERY / REAL CONNECTION FIX
+
+Status: **ENGINEERING COMPLETE — runtime and physical release validation deferred** (round 17 `APPROVED`, SHA `4524207`)
+
+Canonical specification: `docs/HOTFOX_2_9_VPN_RECOVERY.md` and `.cursor/rules/21-hotfox-roadmap-2.9-vpn-recovery.mdc`.
+
+This phase proves real Internet through TUN → HEV → SOCKS `127.0.0.1:10808` → Xray. The next heading named «2.9 Premium Android Experience» is the shifted **3.0** scope and must not start until this recovery phase is ENGINEERING COMPLETE.
+
+---
+
 # 2.9 — PREMIUM ANDROID EXPERIENCE
 
-Status: **PLANNED**
+Status: **ENGINEERING COMPLETE — runtime and physical release validation deferred** (3.0 Premium Android Experience; former 2.9 Premium heading; round 19 `APPROVED`, SHA `21f3419`)
 
 ## Purpose
 
@@ -1501,7 +1514,7 @@ Do not request a physical Android test merely to enter 3.0.
 
 # 3.0 — MATURE HOTFOX PLATFORM
 
-Status: **PLANNED**
+Status: **ENGINEERING COMPLETE — runtime and physical release validation deferred** (3.1 Mature HotFox Platform / Pre-release Engineering; former 3.0 Mature heading; round 25 `APPROVED`, SHA `7192b04d441d5f2203c0efc47e37bc0f87d9cda4`)
 
 ## Purpose
 
@@ -1748,7 +1761,7 @@ Do NOT claim `RELEASE READY` yet if the final physical Android acceptance suite 
 
 # FINAL RELEASE DEVICE GATE
 
-Status: **ONLY AFTER 3.0 ENGINEERING COMPLETE OR OWNER-APPROVED RELEASE CANDIDATE CUT**
+Status: **OPEN AFTER 3.1 ENGINEERING COMPLETE — runtime and physical execution NOT STARTED**
 
 This is the single canonical stage at which physical validation on real Android hardware is required for `RELEASE READY`.
 

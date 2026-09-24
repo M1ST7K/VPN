@@ -1,0 +1,188 @@
+name: HotFox VPN E2E (secret-driven, not physical)
+
+# Engineering-runtime VPN E2E. This is NOT physical-device acceptance
+# and MUST NOT be treated as a substitute for a real phone.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hotfox-vpn-e2e-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: Secret gate (never logs the URL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run_e2e: ${{ steps.gate.outputs.run_e2e }}
+    steps:
+      - name: Require dedicated test secret without logging it
+        id: gate
+        env:
+          HOTFOX_TEST_SUBSCRIPTION_URL: ${{ secrets.HOTFOX_TEST_SUBSCRIPTION_URL }}
+        run: |
+          set -euo pipefail
+          set +x
+          if [[ -z "${HOTFOX_TEST_SUBSCRIPTION_URL}" ]]; then
+            echo "run_e2e=false" >> "$GITHUB_OUTPUT"
+            echo "NOT EXECUTED: HOTFOX_TEST_SUBSCRIPTION_URL is not set"
+            echo "Physical-device E2E remains NOT EXECUTED."
+            exit 0
+          fi
+          echo "run_e2e=true" >> "$GITHUB_OUTPUT"
+          echo "Secret present (length=${#HOTFOX_TEST_SUBSCRIPTION_URL})."
+          echo "Physical-device E2E remains NOT EXECUTED."
+
+  reconstruct-and-build:
+    name: Reconstruct debug APK for VPN E2E
+    needs: gate
+    if: needs.gate.outputs.run_e2e == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      NDK_VERSION: 29.0.14206865
+      HOTFOX_GIT_SHA: ${{ github.sha }}
+      HOTFOX_CHANNEL: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install native build prerequisites and Android 17 SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list \
+                     /etc/apt/sources.list.d/google-chrome.list.save \
+                     /etc/apt/sources.list.d/google-chrome.sources
+          if [ -f /etc/apt/sources.list ]; then
+            sudo sed -i '/dl\.google\.com\/linux\/chrome/d' /etc/apt/sources.list
+          fi
+          apt_ok=0
+          for attempt in 1 2 3; do
+            if sudo apt-get update && sudo apt-get install -y --no-install-recommends xz-utils rsync binutils; then
+              apt_ok=1
+              break
+            fi
+            echo "apt-get attempt ${attempt} failed; retrying..." >&2
+            sleep $((attempt * 4))
+          done
+          if [ "${apt_ok}" -ne 1 ]; then
+            echo "apt-get failed after 3 attempts" >&2
+            exit 1
+          fi
+          # compileSdk=37: platforms;android-37 → platforms/android-37
+          # Keep build-tools;37.0.0 separate from the platform package.
+          # SDK packages are installed with sdkmanager --channel=3.
+          bash .github/scripts/install_hotfox_android_sdk.sh
+          test -d "${ANDROID_SDK_ROOT}/platforms/android-37"
+
+      - name: Reconstruct HotFox 2.1.0 baseline and apply 2.2.0 overlay
+        run: bash bootstrap/bootstrap_source.sh
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK
+        working-directory: V2rayNG
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon --stacktrace :app:assemblePlaystoreDebug
+
+      - name: Record APK SHA-256
+        run: |
+          set -euo pipefail
+          sha256sum V2rayNG/app/build/outputs/apk/playstore/debug/*.apk | tee apk-sha256.txt
+          test -s apk-sha256.txt
+
+      - name: Upload debug APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-e2e-playstore-debug-apks
+          path: V2rayNG/app/build/outputs/apk/playstore/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload APK SHA-256
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-e2e-apk-sha256
+          path: apk-sha256.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  vpn-e2e:
+    name: Engineering-runtime VPN E2E (not physical-device)
+    needs: reconstruct-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      API_LEVEL: 34
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: hotfox-e2e-playstore-debug-apks
+          path: dist
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools emulator
+      - name: Skip when KVM is unavailable
+        id: kvm
+        run: |
+          if [[ -e /dev/kvm ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "NOT EXECUTED: /dev/kvm missing. Physical-device E2E remains NOT EXECUTED."
+          fi
+      - name: Boot emulator and run VPN E2E
+        if: steps.kvm.outputs.available == 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        env:
+          HOTFOX_TEST_SUBSCRIPTION_URL: ${{ secrets.HOTFOX_TEST_SUBSCRIPTION_URL }}
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # ci_run_vpn_e2e.sh → emulator_vpn_e2e.sh (secret-gated; never logs the URL)
+          script: bash verification/ci_run_vpn_e2e.sh
+      - name: Record KVM skip as NOT EXECUTED
+        if: steps.kvm.outputs.available != 'true'
+        run: |
+          echo "NOT EXECUTED: engineering-runtime VPN E2E needs KVM"
+          echo "Physical-device E2E remains NOT EXECUTED."
+      - name: Upload E2E diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotfox-vpn-e2e-diagnostics-${{ github.run_id }}
+          path: |
+            /tmp/hotfox-e2e-report.txt
+            /tmp/hotfox-e2e-logcat.txt
+            /tmp/hotfox-e2e.png
+            /tmp/hotfox-e2e-ui.xml
+            apk-sha256.txt
+          if-no-files-found: ignore
+          retention-days: 7

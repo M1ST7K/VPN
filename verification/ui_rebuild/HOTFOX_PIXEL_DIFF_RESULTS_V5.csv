@@ -1,0 +1,19 @@
+screen_id,reference,actual,capture_status,compare_status,mean_abs_diff,visual_status,notes
+01,verification/ui_rebuild/reference_v4/01.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+02,verification/ui_rebuild/reference_v4/02.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+03,verification/ui_rebuild/reference_v4/03.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+04,verification/ui_rebuild/reference_v4/04.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+05,verification/ui_rebuild/reference_v4/05.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+06,verification/ui_rebuild/reference_v4/06.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+07,verification/ui_rebuild/reference_v4/07.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+08,verification/ui_rebuild/reference_v4/08.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+09,verification/ui_rebuild/reference_v4/09.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+10,verification/ui_rebuild/reference_v4/10.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+11,verification/ui_rebuild/reference_v4/11.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+12,verification/ui_rebuild/reference_v4/12.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+13,verification/ui_rebuild/reference_v4/13.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+14,verification/ui_rebuild/reference_v4/14.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+15,verification/ui_rebuild/reference_v4/15.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+16,verification/ui_rebuild/reference_v4/16.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+17,verification/ui_rebuild/reference_v4/17.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture
+18,verification/ui_rebuild/reference_v4/18.png,,NOT_CAPTURED,MISSING,,FAIL,missing actual capture

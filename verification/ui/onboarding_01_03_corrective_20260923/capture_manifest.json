@@ -1,0 +1,62 @@
+{
+  "task_id": "ONBOARDING-01-03-CORRECTIVE-20260923",
+  "sha": "9dfff8db6a65dd6469ebd3fcb8b7f3885d37b3fb",
+  "apk": "/workspace/V2rayNG/app/build/outputs/apk/playstore/debug/HotFox_Proxy_2.2.0_x86_64.apk",
+  "apk_sha256": "2e2c82e351651fd323e55effc7890b52cf17b7d267381d680f5fe22225f1a9e0",
+  "density": 420,
+  "locale": "ru-RU",
+  "standard_viewport": "1032x2231",
+  "compact_viewport": "945x2100",
+  "large_viewport": "1082x2402",
+  "fontScale_checked": [
+    "1.0",
+    "1.15"
+  ],
+  "normalization": "LANCZOS resize of iOS-framed crop to Android actual; system bars kept; not EXACT",
+  "screens": [
+    {
+      "screen": "01",
+      "actual": "verification/ui/onboarding_01_03_corrective_20260923/actual/01_standard.png",
+      "actual_sha256": "cc165f90df323e87b810f871735025bba977c0c21b6134c15398f54cc546353b",
+      "viewport": "1032x2231",
+      "changed_pixels": 2301091,
+      "max_channel_delta": 254,
+      "pixel_pass": false
+    },
+    {
+      "screen": "02",
+      "actual": "verification/ui/onboarding_01_03_corrective_20260923/actual/02_standard.png",
+      "actual_sha256": "98099b80bb1f47205f08196576fea0594072d65a55aa7f7023aa243e470b0a01",
+      "viewport": "1032x2231",
+      "changed_pixels": 2302292,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    },
+    {
+      "screen": "03",
+      "actual": "verification/ui/onboarding_01_03_corrective_20260923/actual/03_standard.png",
+      "actual_sha256": "7122fcc60eb2ee604f93da071976a8ac16b9a04c470dfe4739178f3d5d53d82c",
+      "viewport": "1032x2231",
+      "changed_pixels": 2278848,
+      "max_channel_delta": 255,
+      "pixel_pass": false
+    }
+  ],
+  "extra_actuals": [
+    "01_compact.png",
+    "01_standard.png",
+    "02_compact.png",
+    "02_import_tap.png",
+    "02_standard.png",
+    "02_standard_fs115.png",
+    "03_auto_tap.png",
+    "03_compact.png",
+    "03_first_boot.png",
+    "03_inspect.png",
+    "03_large.png",
+    "03_manual_tap.png",
+    "03_standard.png",
+    "03_standard_fs115.png",
+    "05_standard.png"
+  ]
+}
