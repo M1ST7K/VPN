@@ -1,7 +1,9 @@
 ---
 description: Owner-requested 18-screen HotFox reconstruction; original pixels, truthful controls, unchanged VPN semantics, zero-tolerance evidence.
-alwaysApply: true
+alwaysApply: false
 ---
+
+> HISTORICAL / COMPLETED UI RULE. Do not auto-apply during the Final Release Validation Gate. Read only when explicitly referenced for regression context.
 
 # HotFox: current owner UI reconstruction task
 
