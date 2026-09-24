@@ -169,13 +169,31 @@ done
 "$ADB" logcat -d -t 400 >"$LOGCAT" 2>/dev/null || true
 
 python3 - "$REPORT_HOST" <<'PY'
-import pathlib, sys
+import pathlib, re, sys
+
 text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
 print(text)
-if "engineeringRuntimeE2e=PASS" not in text:
+
+def value(key: str):
+    match = re.search(rf"(?m)^{re.escape(key)}=([^\\r\\n]+)$", text)
+    return match.group(1).strip() if match else None
+
+if value("engineeringRuntimeE2e") != "PASS":
     raise SystemExit("engineeringRuntimeE2e did not report PASS")
-if "physicalDeviceE2e=NOT_EXECUTED" not in text:
+if value("physicalDeviceE2e") != "NOT_EXECUTED":
     raise SystemExit("physical-device E2E marker missing")
+if value("ipChangedThroughTun") != "true":
+    raise SystemExit("TUN public-IP change was not proven")
+if value("leftVpnEgressAfterDisconnect") != "true":
+    raise SystemExit("post-disconnect direct egress restoration was not proven")
+
+cycles = int(value("cycles") or "0")
+protected = int(value("protectedCycles") or "0")
+tun_http4 = int(value("tunHttp4Cycles") or "0")
+if cycles < 1 or protected != cycles:
+    raise SystemExit("not every requested cycle reached verified protected state")
+if tun_http4 != cycles:
+    raise SystemExit("not every requested cycle proved IPv4 HTTPS through TUN")
 PY
 
 echo "PASS engineering-runtime VPN E2E (not physical-device)"
