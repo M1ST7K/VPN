@@ -4,7 +4,7 @@ TASK_ID: hotfox-final-release-validation-20260924
 EXECUTOR: Cursor cloud agent
 STATUS: BLOCKED — NOT RELEASE READY
 BRANCH: cursor/hotfox-final-release-validation-20260924
-COMMIT_SHA (app candidate): 2c3df36f7c6d788ff76d4d2dc4ed8ea6981a94c2
+COMMIT_SHA (frozen candidate): 1a15511abff8e5f06bcc1706f77145708216c3e4 — CI run 35991592077 green, universal debug APK SHA-256 ec4b847b51b5d278af13920b7006feabfa0909ef226faa272f399a98397b43b0; app source == 2c3df36; includes strict E2E gate 091dcbd/73e90f9/242c0e2/3c40127 (not reverted). 08b35ff SUPERSEDED.
 
 ## Summary
 Executed every gate the Cursor cloud VM permitted. Found and fixed one real

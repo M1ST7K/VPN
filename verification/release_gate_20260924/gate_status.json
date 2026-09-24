@@ -2,13 +2,17 @@
   "schema_version": 1,
   "gate": "FINAL RELEASE VALIDATION GATE",
   "date": "2026-09-24",
-  "candidate_sha": "2c3df36f7c6d788ff76d4d2dc4ed8ea6981a94c2",
-  "stale_candidates": ["08b35ffd75e36f30ae0ce0bd3c3fadda1ad748bd", "3c4012707c0461131d524816969af2805009a562"],
+  "candidate_sha": "1a15511abff8e5f06bcc1706f77145708216c3e4",
+  "stale_candidates": [
+    "08b35ffd75e36f30ae0ce0bd3c3fadda1ad748bd",
+    "3c4012707c0461131d524816969af2805009a562",
+    "2c3df36f7c6d788ff76d4d2dc4ed8ea6981a94c2 (artifact superseded; same app source)"
+  ],
   "application_id": "com.hotfox.vpn",
   "version_name": "2.2.0",
   "version_code": 22000,
   "channel": "dev",
-  "ci_debug_universal_apk_sha256": "3b4f74c4d69285b2a4f3a8f191031fa07e870c4e4d3e270f2bb09dc3c19f477e",
+  "ci_debug_universal_apk_sha256": "ec4b847b51b5d278af13920b7006feabfa0909ef226faa272f399a98397b43b0",
   "gates": {
     "ci_payload_integrity": "PASS",
     "ci_reconstruction": "PASS",
@@ -62,5 +66,13 @@
     "Cursor cloud VM nested KVM kernel BUG (kvm_spurious_fault); emulator cannot boot",
     "No authorized physical Android device"
   ],
-  "release_ready": false
+  "release_ready": false,
+  "candidate_app_source_sha": "2c3df36f7c6d788ff76d4d2dc4ed8ea6981a94c2",
+  "candidate_ci_run": 35991592077,
+  "strict_e2e_gate_commits_included": [
+    "091dcbd",
+    "73e90f9",
+    "242c0e2",
+    "3c40127"
+  ]
 }

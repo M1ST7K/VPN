@@ -1,6 +1,6 @@
 # FINAL VERDICT — NOT RELEASE READY
 
-Candidate: `2c3df36f7c6d788ff76d4d2dc4ed8ea6981a94c2` (see `CANDIDATE.md`).
+Candidate: `1a15511abff8e5f06bcc1706f77145708216c3e4` (app source == `2c3df36`; CI artifact universal `ec4b847b…43b0`; see `CANDIDATE.md`).
 
 ## FAILED (and fixed, rerun pending)
 
