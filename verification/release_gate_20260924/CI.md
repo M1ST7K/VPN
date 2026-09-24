@@ -1,6 +1,21 @@
 # CI preflight
 
-## Frozen candidate `1a15511abff8e5f06bcc1706f77145708216c3e4` (branch HEAD)
+## Frozen candidate `1d4c3ea8f09fae058a8def9474ad88d1f92e7739` (branch HEAD)
+
+Push run https://github.com/M1ST7K/VPN/actions/runs/35992752740 — **success**
+(payload integrity, reconstruction, overlay verify, static check, debug assemble,
+unit tests incl. strict-gate coverage, lint, unsigned release compile, publish;
+emulator UI smoke skipped/not counted). Includes outer-harness hardening `3c40127`.
+
+| APK | SHA-256 |
+|---|---|
+| universal | `5402e8907e1ad10f396035e6d418eb2de32fb68b873718560fe04895c7bdc395` |
+| x86_64 | `fde931b93c67030c574094a647daf25af8d118cc56befa2a489cd3d3a50727a7` |
+| x86 | `5e2a20f7a5e41a66cb69ed0f02cc78663c8e2f6e75ea1ef5f8fc46f695c26e80` |
+| arm64-v8a | `b62c32b097316b02e40ce6f44f401706b32c55291649267640dda7762e069375` |
+| armeabi-v7a | `5a263e29492fe0798a96b50d5be8c1daf11ab53535b007c54f27d7cee3d646f0` |
+
+## Superseded `1a15511abff8e5f06bcc1706f77145708216c3e4`
 
 Push run https://github.com/M1ST7K/VPN/actions/runs/35991592077 — **success**
 (payload integrity, reconstruction, overlay verify, static check, debug assemble,

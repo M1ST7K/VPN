@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Commit SHA | `1a15511abff8e5f06bcc1706f77145708216c3e4` (branch HEAD at freeze; app source identical to `2c3df36`) |
-| CI run / artifact | [35991592077](https://github.com/M1ST7K/VPN/actions/runs/35991592077) — success; universal debug APK SHA-256 `ec4b847b51b5d278af13920b7006feabfa0909ef226faa272f399a98397b43b0` |
+| Commit SHA | `1d4c3ea8f09fae058a8def9474ad88d1f92e7739` (branch HEAD at freeze; app source identical to `2c3df36`) |
+| CI run / artifact | [35992752740](https://github.com/M1ST7K/VPN/actions/runs/35992752740) — success; universal debug APK SHA-256 `5402e8907e1ad10f396035e6d418eb2de32fb68b873718560fe04895c7bdc395` |
 | Includes | strict E2E gate `091dcbd`, `73e90f9`, `242c0e2`, `3c40127` + geo-asset fix `2c3df36` |
 | Branch | `cursor/hotfox-final-release-validation-20260924` |
 | applicationId | `com.hotfox.vpn` (playstore flavor) |
@@ -21,10 +21,11 @@
 | `08b35ffd75e36f30ae0ce0bd3c3fadda1ad748bd` | gate start | CI green; local build; emulator E2E run 1 **FAIL** (found defect below). Stale for release. |
 | `3c4012707c0461131d524816969af2805009a562` | orchestrator pushed stricter E2E harness (TUN egress + public-IP gate) during validation | superseded before own evidence was collected |
 | `2c3df36f7c6d788ff76d4d2dc4ed8ea6981a94c2` | blocking fix: geo assets installed before every Xray start | CI green (run 35990105659); artifact superseded by HEAD build of the same app source |
-| `1a15511abff8e5f06bcc1706f77145708216c3e4` | HEAD after evidence-only commits; owner: use latest HEAD artifact | **current**; CI green; runtime E2E BLOCKED (dispatch/infra) |
+| `1a15511abff8e5f06bcc1706f77145708216c3e4` | HEAD after evidence-only commits | CI green (run 35991592077); artifact superseded per owner (latest-HEAD rule) |
+| `1d4c3ea8f09fae058a8def9474ad88d1f92e7739` | latest HEAD after owner's `3c40127` notice; owner: freeze next fully green HEAD artifact | **current / frozen**; CI green; runtime E2E BLOCKED (dispatch/infra) |
 
 Later commits that only touch `verification/release_gate_20260924/` or `.ai/` do
-not change the app; the `1a15511` CI artifact stays the frozen candidate unless app
+not change the app; the `1d4c3ea` CI artifact stays the frozen candidate unless app
 source changes.
 
 All earlier runtime evidence is declared **stale** for the current candidate.

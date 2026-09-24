@@ -1,6 +1,6 @@
 # FINAL VERDICT — NOT RELEASE READY
 
-Candidate: `1a15511abff8e5f06bcc1706f77145708216c3e4` (app source == `2c3df36`; CI artifact universal `ec4b847b…43b0`; see `CANDIDATE.md`).
+Candidate: `1d4c3ea8f09fae058a8def9474ad88d1f92e7739` (app source == `2c3df36`; CI run 35992752740; universal debug APK `5402e890…c395`; see `CANDIDATE.md`).
 
 ## FAILED (and fixed, rerun pending)
 

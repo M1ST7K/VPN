@@ -8,7 +8,7 @@
   "base_branch": "main",
   "task_branch": "cursor/hotfox-final-release-validation-20260924",
   "pr_number": 12,
-  "last_verified_sha": "1a15511abff8e5f06bcc1706f77145708216c3e4",
+  "last_verified_sha": "1d4c3ea8f09fae058a8def9474ad88d1f92e7739",
   "production_allowed": false,
   "release_ready": false,
   "blockers": [
