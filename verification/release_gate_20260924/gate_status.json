@@ -24,6 +24,8 @@
     "release_signing_fail_closed": "PASS",
     "signed_rc": "BLOCKED",
     "vpn_e2e_github_workflow": "BLOCKED",
+    "vpn_e2e_github_dispatch_attempt": "NOT PERMITTED (agent token read-only; no write sent)",
+    "vpn_e2e_github_test_secret_presence": "UNKNOWN (403)",
     "emulator_e2e_run1_08b35ff": "FAIL",
     "emulator_e2e_current_candidate": "BLOCKED",
     "socks_only_xray_egress": "NOT EXECUTED",

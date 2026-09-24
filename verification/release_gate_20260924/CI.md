@@ -33,6 +33,11 @@ CI debug APK SHA-256 (artifact `hotfox-playstore-debug-apk-sha256`):
 ## Gate-start baseline `08b35ffd75e36f30ae0ce0bd3c3fadda1ad748bd`
 
 Push run 35981683777 — **success** (same job set; emulator smoke skipped).
+CI universal debug APK SHA-256 `d60ff74b89e2d0f04175132758d824e339612b5dc51d6f9138a6564e373ba052`
+(verified from the run artifact). The local VM build of the same SHA hashes
+differently (`3dd1e308…0f48`) because debug builds are not bit-reproducible across
+environments; the local APK was used only for emulator run 1. This candidate is
+stale: it contains the geo-asset defect fixed in `2c3df36`.
 
 ## Local (this VM) — actually executed
 

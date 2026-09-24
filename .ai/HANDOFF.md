@@ -37,7 +37,7 @@ prerequisites / infrastructure. Evidence: `verification/release_gate_20260924/`.
 
 ## Blockers (exact)
 1. SIGNED_RC — no authorized keystore in cloud VM or Mac env; no CI signing path. Owner must supply existing production keystore securely.
-2. VPN_E2E_GITHUB — `hotfox-vpn-e2e.yml` never dispatched; agent `gh` is read-only; test-secret presence unknown (403). Owner: ensure dedicated `HOTFOX_TEST_SUBSCRIPTION_URL` and dispatch on this branch.
+2. VPN_E2E_GITHUB — explicit dispatch requested by owner (11:10 UTC): agent token permissions all `false`, `actions: write` absent, GitHub access read-only by policy → no dispatch sent. Secret GET → 403, no environments, run history empty → secret presence UNKNOWN (not "absent"). Owner: dispatch `hotfox-vpn-e2e.yml` on this branch head (app source == `2c3df36`). Do not dispatch on `08b35ff`: it would re-hit the geo-asset defect.
 3. EMULATOR_E2E current candidate — cloud VM kernel BUG `kvm_spurious_fault` (arch/x86/kvm/x86.c:702); emulator can no longer boot in this VM.
 4. PHYSICAL R1–R8 — no authorized device; procedure in `PHYSICAL_DEVICE_R1_R8.md`.
 

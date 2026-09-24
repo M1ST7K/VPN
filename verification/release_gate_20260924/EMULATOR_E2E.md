@@ -9,7 +9,25 @@
 | `HOTFOX_TEST_SUBSCRIPTION_URL` secret present | **unknown** — agent token cannot list secrets (HTTP 403) and the workflow never ran |
 | Dispatch by agent | **not possible** — agent `gh` is read-only |
 
-`VPN_E2E_GITHUB = BLOCKED` — owner must add a dedicated test-only
+Re-check 2026-09-24 11:10 UTC after the owner requested an explicit dispatch attempt:
+
+- repo API reports the agent integration token permissions as
+  `admin/maintain/push/triage/pull = false`; `workflow_dispatch` needs
+  `actions: write`, and the agent's GitHub access is read-only by policy, so no
+  dispatch was sent (no write attempted);
+- `GET actions/secrets/HOTFOX_TEST_SUBSCRIPTION_URL` → HTTP 403; org secrets → 403;
+  repository environments: none;
+- `hotfox-vpn-e2e.yml` run history: still empty.
+
+Secret presence is therefore **UNKNOWN**, not absent. Only a dispatch by the owner
+(or an actor with `actions: write`) lets the workflow's own gate decide.
+
+Candidate to dispatch: branch head (app source identical to `2c3df36`; later
+commits touch only `verification/release_gate_20260924/` and `.ai/`). Dispatching
+on `08b35ff` would re-hit the geo-asset defect below, because a fresh emulator
+install has no geo files regardless of subscription.
+
+`VPN_E2E_GITHUB = BLOCKED (dispatch not permitted from agent; secret presence unknown)` — owner must add a dedicated test-only
 `HOTFOX_TEST_SUBSCRIPTION_URL` secret (if absent) and dispatch the workflow on
 `cursor/hotfox-final-release-validation-20260924` at the current candidate SHA.
 
