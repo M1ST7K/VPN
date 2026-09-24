@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hotfox_navy">#1C1731</color>
+    <color name="hotfox_deep_blue">#111A3D</color>
+    <color name="hotfox_purple">#6F4ACB</color>
+    <color name="hotfox_orange">#F47B35</color>
+    <color name="hotfox_cream">#FFF3DB</color>
+    <color name="hotfox_card">#FFFFFF</color>
+    <color name="hotfox_card_soft">#F1EBF8</color>
+    <color name="hotfox_success">#25775D</color>
+    <color name="colorPing">#9BE66F</color>
+    <color name="colorPingRed">#E96B6B</color>
+    <color name="colorConfigType">#f97910</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="color_fab_active">#6F4ACB</color>
+    <color name="color_fab_inactive">#9C9C9C</color>
+    <color name="divider_color_light">#E0E0E0</color>
+    <color name="colorIndicator">@color/md_theme_primary</color>
+
+    <!-- Primary colors - main tone: black -->
+    <color name="md_theme_primary">#6F4ACB</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#EDE5FA</color>
+    <color name="md_theme_onPrimaryContainer">#3C226C</color>
+
+    <!-- Secondary colors - accent color: orange -->
+    <color name="md_theme_secondary">#f97910</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#FFE8D6</color>
+    <color name="md_theme_onSecondaryContainer">#2B1700</color>
+
+    <!-- Tertiary colors - accent color: green -->
+    <color name="md_theme_tertiary">#009966</color>
+    <color name="md_theme_onTertiary">#FFFFFF</color>
+    <color name="md_theme_tertiaryContainer">#A0F2D0</color>
+    <color name="md_theme_onTertiaryContainer">#00201A</color>
+
+    <!-- Error colors -->
+    <color name="md_theme_error">#BA1A1A</color>
+    <color name="md_theme_errorContainer">#FFDAD6</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+    <color name="md_theme_onErrorContainer">#410002</color>
+
+    <!-- Background colors -->
+    <color name="md_theme_background">#F7F4EE</color>
+    <color name="md_theme_onBackground">#1C1731</color>
+
+    <!-- Surface colors -->
+    <color name="md_theme_surface">#FFFFFF</color>
+    <color name="md_theme_onSurface">#1C1731</color>
+    <color name="md_theme_surfaceVariant">#F1EBF8</color>
+    <color name="md_theme_onSurfaceVariant">#7E778C</color>
+    <color name="md_theme_inverseSurface">#313033</color>
+    <color name="md_theme_inverseOnSurface">#F4EFF4</color>
+
+    <!-- Outline colors -->
+    <color name="md_theme_outline">#79747E</color>
+    <color name="md_theme_outlineVariant">#E5DEE9</color>
+
+    <!-- Other colors -->
+    <color name="md_theme_inversePrimary">#C0C0C0</color>
+    <color name="md_theme_shadow">#000000</color>
+    <color name="md_theme_surfaceTint">#000000</color>
+    <color name="md_theme_scrim">#000000</color>
+
+    <color name="hotfox_editorial_bg">#0C0B10</color>
+    <color name="hotfox_editorial_surface">#121017</color>
+    <color name="hotfox_editorial_text">#F1E9E2</color>
+    <color name="hotfox_editorial_text_secondary">#B9B0B2</color>
+    <color name="hotfox_editorial_text_dim">#847D82</color>
+    <color name="hotfox_editorial_line">#302A31</color>
+    <color name="hotfox_success_bright">#9BE66F</color>
+</resources>

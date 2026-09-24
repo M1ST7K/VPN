@@ -1,0 +1,62 @@
+# CURRENT PHASE — HotFox 2.4 «Smart Connection»
+
+Status: **IN PROGRESS** (2.3 engineering gate closed: round 16 `APPROVED`, P0 = 0, P1 = 0, implementation `e6c9e3c`)
+
+This is the only product phase agents should actively execute unless the owner explicitly changes the phase.
+
+Linked detailed phase spec: `docs/phases/2.4-smart-connection.md`
+Previous phase: `docs/phases/2.3-commercial-foundation.md`
+Master roadmap: `docs/HOTFOX_MASTER_ROADMAP.md`
+Review policy: `docs/AI_REVIEW_POLICY.md`
+Phase gate ledger: `docs/PHASE_GATE_STATUS.md`
+
+## Goal
+
+Turn `Авто-выбор сервера` from a lowest-cached-ping selector into a real connection reliability engine: health repository, bounded probes, deterministic scoring, hysteresis, bounded AUTO failover, truthful latency UI.
+
+Do **not** claim HotFox is a production-ready release. Phase 2.2 is **engineering-complete** and **release-deferred**. Phase 2.3 is **engineering-complete**. Physical validation on a real Android device is **NOT EXECUTED** and is a **separate later gate** — it does not block 2.4 engineering.
+
+## Inherited 2.2 release gate (still blocking production)
+
+Physical-device VPN E2E is **NOT EXECUTED**. Before any production release, an exact SHA must still prove:
+
+- external IPv4 before VPN != after successful connect;
+- real browser/app traffic through the tunnel;
+- DNS/IPv6 leak or explicit fail-closed behavior;
+- disconnect restores normal network;
+- rapid reconnect, permission revoke, Wi-Fi/cellular handover.
+
+Emulator UI smoke is not that proof.
+
+## Work allowed now
+
+- `ServerHealthRepository` and freshness/TTL rules.
+- Bounded parallel probes with cancel, timeouts, backoff; no fake ping (`—` when unmeasured).
+- Deterministic AUTO score (latency/jitter/failure/staleness). Not “AI”.
+- Hysteresis so AUTO does not flap on a few milliseconds.
+- Bounded AUTO failover; manual selection never silently switches.
+- Generation-safe handover: stale probes cannot overwrite a newer network generation.
+- Editorial server-list rows; AUTO remains row 0.
+- Unit tests listed in `docs/phases/2.4-smart-connection.md`.
+
+## Not now
+
+- extra ad/tracker product work (phase 2.5);
+- extra Android widgets/automation (phase 2.6);
+- 3.0 architecture cleanup;
+- claiming `автопродление` unless the backend actually owns recurring billing;
+- claiming `RELEASE READY` / production VPN release.
+
+## Checkpoint protocol
+
+Ordinary commits while implementing and while CI is red.
+
+Only when a coherent 2.4 block is complete and applicable automated gates are green, make one final commit whose message contains:
+
+`[hotfox-review]`
+
+Do not put `[hotfox-review]` on every intermediate commit.
+
+## Phase 2.4 exit definition
+
+AUTO should survive a dead server and ordinary network handover without user intervention, without flapping, without overwriting manual mode, and without displaying invented telemetry.

@@ -1,0 +1,271 @@
+---
+description: HotFox mandatory Russian communication policy for Cursor Agent
+alwaysApply: true
+---
+
+# HOTFOX — MANDATORY RUSSIAN COMMUNICATION POLICY
+
+This rule is ALWAYS ACTIVE for the HotFox project.
+
+## 1. Primary language
+
+All conversational communication with the user MUST be written in Russian.
+
+This applies regardless of:
+- the language of the source code;
+- the language of documentation;
+- the language of terminal output;
+- the language of third-party libraries;
+- the language of existing project files;
+- the model currently selected in Cursor.
+
+Do not switch the conversation to English unless the user explicitly asks for English.
+
+## 2. HotFox engineering reports
+
+All HotFox engineering reports MUST be written in Russian.
+
+This specifically includes:
+- implementation summaries;
+- progress reports;
+- completion reports;
+- architecture explanations;
+- debugging explanations;
+- testing results;
+- regression reports;
+- security findings;
+- payment-flow reports;
+- VPN-path reports;
+- backend reports;
+- Android reports;
+- release-readiness reports;
+- engineering-exit reports;
+- review conclusions.
+
+## 3. [hotfox-review]
+
+Every `[hotfox-review]` MUST be written in Russian.
+
+Severity identifiers MUST remain unchanged:
+- P0
+- P1
+- P2
+- P3
+
+Canonical project states may remain in English when appropriate, including:
+- ENGINEERING COMPLETE
+- BLOCKED
+- PASS
+- FAIL
+- READY
+- NOT READY
+
+But the explanation of every finding MUST be in Russian.
+
+Correct example:
+
+P1 — Backend принимает состояние оплаты без достаточной серверной верификации.
+
+Причина: клиентский результат checkout потенциально может повлиять на выдачу entitlement.
+
+Исправление: authoritative source of truth должен оставаться на backend.
+
+Do not produce English-only review findings.
+
+## 4. Stage reporting
+
+All reports for HotFox development stages MUST be written in Russian.
+
+This includes, but is not limited to:
+- 2.3 Commercial Cycle
+- 2.3 Engineering Exit
+- 2.4 Smart Connection
+- future HotFox milestones
+
+Canonical milestone names and technical identifiers may remain in English.
+
+Example:
+
+"Этап 2.3 ENGINEERING COMPLETE. P0: 0. P1: 0. Коммерческий цикл закрыт на уровне engineering gate. Можно открывать 2.4 Smart Connection."
+
+## 5. Progress updates
+
+While performing long-running Agent tasks, progress updates MUST be in Russian.
+
+Examples:
+- "Проверяю backend payment flow и механизм выдачи entitlement."
+- "Нашёл потенциальную проблему с повторной доставкой webhook. Сейчас проверяю идемпотентность."
+- "Основная реализация завершена. Запускаю regression tests."
+
+Do not write progress updates only in English.
+
+## 6. Questions to the user
+
+If user input is required, ask the question in Russian.
+
+Do not ask questions in English simply because the surrounding code or documentation is English.
+
+## 7. Technical identifiers
+
+DO NOT translate technical identifiers when translation could change their meaning.
+
+Keep unchanged where appropriate:
+- class names;
+- function names;
+- method names;
+- variable names;
+- package names;
+- filenames;
+- directory paths;
+- Gradle tasks;
+- shell commands;
+- JSON keys;
+- API fields;
+- HTTP endpoints;
+- Kotlin identifiers;
+- Java identifiers;
+- Git branch names;
+- commit hashes;
+- protocol names;
+- Android APIs;
+- Xray/V2Ray terminology.
+
+Example:
+
+Use: "Метод `verifyPayment()` должен получать authoritative payment status с backend."
+
+Do NOT rename the identifier itself into Russian.
+
+## 8. Code
+
+Source code SHOULD continue using the language and naming conventions already established by the repository.
+
+Do not translate production code identifiers into Russian.
+Do not introduce Russian variable names merely because conversational output is Russian.
+
+Correct:
+
+```kotlin
+val entitlementStatus = repository.getEntitlementStatus()
+```
+
+Incorrect:
+
+```kotlin
+val статусПодписки = repository.getEntitlementStatus()
+```
+
+## 9. Code comments
+
+Follow the existing repository convention for comments.
+
+If the repository predominantly uses English comments, continue using English comments.
+
+The Russian-language requirement applies primarily to communication with the user, not to the internal language of production source code.
+
+## 10. Terminal output
+
+Never modify commands simply to make them Russian.
+
+Commands and raw terminal output may remain unchanged.
+Explain their meaning and results in Russian.
+
+Example:
+
+Raw output: `BUILD SUCCESSFUL`
+
+Explanation: "Сборка завершилась успешно."
+
+## 11. Test reports
+
+Test summaries MUST be explained in Russian.
+
+Example:
+
+"Все payment-flow тесты прошли. Проверены: повторная доставка webhook, duplicate order handling, потерянный checkout response, отмена checkout, восстановление состояния, повторный запуск приложения и manifest sync."
+
+Technical test names themselves may remain in English.
+
+## 12. Failure reporting
+
+When something fails, do not hide or soften the failure.
+
+Explain in Russian:
+1. что именно сломалось;
+2. где это произошло;
+3. насколько это критично;
+4. предполагаемая причина;
+5. что было исправлено;
+6. что остаётся нерешённым.
+
+Do not report success unless it is supported by evidence.
+
+## 13. Truthful reporting
+
+Never claim any of the following unless available evidence actually demonstrates it:
+- feature complete;
+- test passed;
+- payment verified;
+- entitlement granted;
+- VPN traffic verified;
+- milestone complete.
+
+If validation was not performed, explicitly state this in Russian.
+
+Example:
+
+"Реализация завершена на уровне кода и автоматических тестов, но физическая проверка на реальном Android-устройстве не выполнялась."
+
+## 14. HotFox terminology
+
+Preserve established HotFox project terminology, including:
+- truthful VPN path
+- backend-authoritative payment verification
+- entitlement
+- Keystore
+- manifest sync
+- AUTO
+- hosted checkout
+- engineering exit
+- engineering gate
+- physical validation
+- Smart Connection
+
+These terms may remain in English when this improves precision.
+Explain them in Russian when necessary.
+
+## 15. Completion format
+
+At the end of a substantial HotFox implementation task, provide a concise Russian summary containing:
+- что сделано;
+- какие файлы или подсистемы существенно изменены;
+- какие тесты выполнены;
+- результат тестов;
+- найденные P0/P1/P2 при наличии;
+- что ещё не подтверждено;
+- можно ли переходить к следующему этапу.
+
+## 16. Engineering gate language
+
+When evaluating a stage gate, clearly distinguish between:
+- реализовано;
+- автоматически протестировано;
+- проверено integration/E2E;
+- физически проверено на реальном устройстве;
+- не проверено.
+
+Never merge these states into a generic "done".
+
+## 17. Default response rule
+
+DEFAULT RESPONSE LANGUAGE = RUSSIAN.
+
+If there is any ambiguity about which language to use, use Russian.
+
+English is allowed inside Russian responses for technical terminology, identifiers, commands, code, API names and canonical project states.
+
+## 18. Priority
+
+This is a persistent project communication rule.
+
+Follow it throughout every HotFox Agent session unless the user explicitly requests another language for a specific response.
