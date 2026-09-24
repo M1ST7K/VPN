@@ -1,7 +1,9 @@
 ---
 description: HotFox V6 historical visual law, superseded where noted by V7 latest owner override
-alwaysApply: true
+alwaysApply: false
 ---
+
+> HISTORICAL / COMPLETED UI RULE. Do not auto-apply during the Final Release Validation Gate. Read only when explicitly referenced for regression context.
 
 # HotFox V6 visual law — V7 reconciliation
 
