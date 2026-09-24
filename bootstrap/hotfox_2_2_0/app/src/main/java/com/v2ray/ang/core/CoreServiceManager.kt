@@ -333,6 +333,11 @@ object CoreServiceManager {
                 return false
             }
 
+            // Routing rules reference geosite/geoip; Xray rejects the whole config
+            // when the .dat files were never copied (e.g. proxy-only or root start
+            // before MainActivity ran on a fresh install).
+            SettingsManager.initAssets(service, service.assets)
+
             try {
                 if (vpnInterface != null &&
                     !VpnLoopPrevention.requireBindSuccess(
