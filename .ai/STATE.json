@@ -7,7 +7,7 @@
   "primary_executor": "Cursor background agent + authorized Mac validation",
   "base_branch": "main",
   "task_branch": "cursor/hotfox-final-release-validation-20260924",
-  "pr_number": null,
+  "pr_number": 12,
   "last_verified_sha": null,
   "production_allowed": false,
   "blockers": [
