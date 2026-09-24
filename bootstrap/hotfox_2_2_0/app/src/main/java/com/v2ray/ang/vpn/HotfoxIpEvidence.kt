@@ -24,17 +24,42 @@ object HotfoxIpEvidence {
         if (left.isEmpty() || right.isEmpty()) return false
         return left != right
     }
-}
 
-/**
- * 2.9 Test E must pass before TUN/HEV is blamed. SOCKS-only HTTPS FAIL
- * is HF-VPN-014 / do-not-blame-TUN, not tun-not-forwarded.
- */
-object HotfoxEngineeringE2eGate {
-    fun outcome(socksOnlyHttps: Boolean, protectedCycles: Int, requestedCycles: Int): Pair<String, String> {
-        if (!socksOnlyHttps) return "FAIL" to "socks-only-https"
-        if (protectedCycles < requestedCycles.coerceAtLeast(1)) return "FAIL" to "not-protected"
-        return "PASS" to "ok"
+    /**
+     * After disconnect, the direct path must be reachable and must no longer
+     * expose the VPN egress observed through the TUN path. Requiring an exact
+     * before==after match would be brittle on networks with rotating NAT IPs.
+     */
+    fun leftVpnEgress(during: String?, after: String?): Boolean {
+        val vpn = during?.trim().orEmpty()
+        val direct = after?.trim().orEmpty()
+        if (vpn.isEmpty() || direct.isEmpty()) return false
+        return vpn != direct
     }
 }
 
+/**
+ * Release engineering E2E gate.
+ *
+ * A PASS requires evidence from the actual VPN/TUN path, not merely a working
+ * local SOCKS proxy or a CONNECTED state. DNS/IPv6 leak acceptance remains a
+ * separate final-release gate because availability is environment-dependent.
+ */
+object HotfoxEngineeringE2eGate {
+    fun outcome(
+        socksOnlyHttps: Boolean,
+        protectedCycles: Int,
+        requestedCycles: Int,
+        tunHttp4Cycles: Int,
+        ipChangedThroughTun: Boolean,
+        leftVpnEgressAfterDisconnect: Boolean,
+    ): Pair<String, String> {
+        val required = requestedCycles.coerceAtLeast(1)
+        if (!socksOnlyHttps) return "FAIL" to "socks-only-https"
+        if (protectedCycles < required) return "FAIL" to "not-protected"
+        if (tunHttp4Cycles < required) return "FAIL" to "tun-http4"
+        if (!ipChangedThroughTun) return "FAIL" to "tun-public-ip-unchanged"
+        if (!leftVpnEgressAfterDisconnect) return "FAIL" to "disconnect-egress-not-restored"
+        return "PASS" to "ok"
+    }
+}
