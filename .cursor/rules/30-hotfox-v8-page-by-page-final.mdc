@@ -1,7 +1,9 @@
 ---
 description: HotFox V8 page-by-page final art-direction law; atmospheric planet on fox screens, 03/04 anchor lock, 18-screen evidence
-alwaysApply: true
+alwaysApply: false
 ---
+
+> HISTORICAL / COMPLETED UI RULE. Do not auto-apply during the Final Release Validation Gate. Read only when explicitly referenced for regression context.
 
 # HotFox V8 — latest owner visual law
 
