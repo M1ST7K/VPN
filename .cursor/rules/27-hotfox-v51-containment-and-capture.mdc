@@ -1,0 +1,25 @@
+---
+description: HotFox V5.1 fixture containment, emulator recovery, and evidence-first visual QA
+alwaysApply: true
+---
+
+# HotFox V5.1 hard rules
+
+- Current V5 implementation is **UNVERIFIED** because `actual_v5/` is empty and visual PASS is 0/18.
+- Do not continue broad visual restyling without a working renderer/capture environment.
+- Read `verification/ui_rebuild/HOTFOX_V5_1_CORRECTIVE_AUDIT.md` before any UI edit.
+- Fixture-specific data and flags must not live in `src/main`.
+- Production source must not contain `ReferenceServerRow`, `ReferenceAppRow`, `serversFixture`, `subscriptionFixture`, `appsFixture`, `serverDetailsFixture`, `referenceServers`, `referenceApps`, `renderFixture`, or hard-coded screenshot latency/load values.
+- A test that only proves fixture state starts empty is not a leak test.
+- Debug screenshot fixtures belong under `src/debug` and must not write VPN, server, subscription, commerce, per-app, traffic, latency, or readiness stores.
+- Production `CONNECTED/Защищено` remains gated only by real readiness.
+- Preserve good V5 changes unless evidence disproves them: transparent fox candidate, no-orbit direction, V4 evidence, no legacy planet refs.
+- Transparent fox is not accepted until actual screens 01/02/05/07/09 prove the silhouette has no matte, holes, or contour damage.
+- AUTO/Ready no-orbit vectors are not accepted until actual screens 03/04 are captured.
+- Fix the capture environment before further large layout churn.
+- Recreate a fresh API 34 AVD with a new name before declaring the old AVD failure an environment-wide hard blocker.
+- If a clean local AVD remains impossible, use a clean CI/emulator runner for visual QA with a debug-fixture APK and no secrets.
+- Preserve V4 and V5 evidence; write V5.1 evidence to new paths.
+- Missing capture = FAIL, not PASS.
+- Do not merge.
+- RELEASE READY remains a separate physical/runtime gate.

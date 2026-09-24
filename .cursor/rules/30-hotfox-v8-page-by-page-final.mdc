@@ -1,0 +1,34 @@
+---
+description: HotFox V8 page-by-page final art-direction law; atmospheric planet on fox screens, 03/04 anchor lock, 18-screen evidence
+alwaysApply: true
+---
+
+# HotFox V8 — latest owner visual law
+
+This rule is newer than V7 and supersedes V7 wherever V8 is more specific.
+
+- Read `verification/ui_rebuild/HOTFOX_V8_OWNER_ART_DIRECTOR_REVIEW.md` and `design/HOTFOX_CURSOR_V8_EACH_SCREEN_MASTER_PROMPT.txt` before UI edits.
+- V7 is NOT visually accepted: 18/18 captures/comparisons exist, but visual/pixel PASS = 0/18 and art-director PASS = 0/18.
+- The owner wants a planet behind the fox on 01, 02, 05, 06, 07 and 09. Screen 08 inherits the live 05 background.
+- Screens 03 AUTO and 04 Ready are owner-approved directionally: concept freeze, micro-polish only, no planet.
+- No planet on 10–18. Shadow remains shield + intentional routing topology.
+- V8 planet must be a dark FILLED background planetary mass with ONE principal restrained copper/orange rim. The V7 `double parallel semicircle / wire bowl` look is NOT accepted.
+- Planet and fox remain separate layers. Never restore legacy baked `hf_fox_planet` or screenshot-derived `hotfox_art_fox_planet_*`.
+- Fox must naturally occlude the planet rim. Rim endpoints fade. No stars, nebulae, satellites, orbit rings, radar circles, star fields or space-poster styling.
+- Screen 06 planet is static background only; connection progress remains separate.
+- Preserve clean transparent fox: no matte rectangle, broken silhouette, holes or translucent dark-fur interior.
+- Every page 01–18 must be reviewed and corrected individually. Do not hide behind global token changes.
+- Screen 15 is the highest-priority utility mismatch and requires real visual reconstruction without functionality loss.
+- Screens 11, 12, 14, 16, 17 and 18 must not remain visibly under-composed/sparse.
+- Content-over-containers: avoid both heavy card zoo and raw stock-Android list appearance.
+- Use contextual CTA hierarchy. Do not return to one giant orange pill on every page.
+- Green only explicit success/health semantics. Ping stays muted unless exact reference requires otherwise.
+- Preserve V5.1 fixture containment: debug fixture data/render helpers stay under `src/debug`; no fake server/app/subscription/entitlement/traffic/latency/CONNECTED state in `src/main`.
+- Production CONNECTED/Защищено remains gated by real readiness.
+- Do not modify VPN datapath, DNS/IPv6 fail-closed, security, routing semantics, payment/subscription truth or session lifecycle.
+- Approval evidence remains ru-RU, API34, stable 1080x2400 viewport. Preserve V7 evidence and write V8 to new paths.
+- Require 18/18 `actual_v8` plus side-by-side, overlay and diff before claiming visual completion.
+- V8 art-director score stays 0–5; PASS requires every category >=4.0 and average >=4.3 plus complete evidence.
+- Keep build/tests/static/leak gates passing.
+- Do not merge.
+- RELEASE READY remains a separate runtime/physical-device gate.

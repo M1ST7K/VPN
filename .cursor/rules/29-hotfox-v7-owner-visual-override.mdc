@@ -1,0 +1,31 @@
+---
+description: HotFox V7 latest owner visual override — 03/04 anchor lock and planet backdrop on fox hero screens
+alwaysApply: true
+---
+
+# HotFox V7 latest owner visual law
+
+This rule is newer than V4/V5/V6 visual rules and resolves conflicts.
+
+- V6 is NOT visually accepted: 18/18 captures, visual/pixel PASS 0/18, art-director PASS 0/18.
+- Read `verification/ui_rebuild/HOTFOX_V7_ART_DIRECTOR_REVIEW.md` and `design/HOTFOX_CURSOR_V7_FINAL_VISUAL_REFINEMENT_PROMPT.txt` before UI edits.
+- Screens 03 AUTO and 04 Ready are owner-approved directionally. Do not conceptually redesign them; micro-polish only.
+- Latest owner override: a subtle planet backdrop is REQUIRED behind the fox on screens 01, 02, 05, 06, 07 and 09. Screen 08 may show the same composition indirectly in its live 05 background.
+- This V7 permission supersedes older blanket “no planet anywhere” clauses.
+- Do NOT restore legacy `hf_fox_planet` or screenshot-derived `hotfox_art_fox_planet_*` composites. Planet and transparent fox must be separate layers.
+- Planet is restrained background composition only: dark body, subtle warm rim, no stars, no nebulae, no satellite dots, no orbit rings, no radar circles, no solar-system composition.
+- Planet remains forbidden on screens 03, 04 and 10–18. Screen 17 Shadow must stay shield + routing topology, with no planet/orbit.
+- Screen 06 may use planet as static background only; never use it as connection progress or an orbit path.
+- Preserve transparent fox quality: no matte rectangle, holes, broken ear/neck silhouette or translucent dark-fur interior.
+- Preserve V5.1 fixture containment. Debug fixture data/render helpers stay under src/debug; no fake production server/app/subscription/traffic/latency/entitlement/CONNECTED state.
+- Production CONNECTED/Защищено remains gated by real readiness.
+- Approval captures must remain ru-RU and must come from the real app UI renderer with debug state injection only where necessary.
+- Content-over-containers: no heavy Material card zoo and no raw stock Android list look.
+- CTA hierarchy remains contextual; no universal giant orange pill.
+- Orange restrained; green only success semantics.
+- All 18 V7 captures + side-by-side + overlay + diff required before visual completion claim.
+- V7 art-director score uses 0–5 only. PASS requires every category >=4.0 and average >=4.3.
+- Keep build/tests/static/leak checks passing.
+- Do not modify VPN datapath/security/runtime truth.
+- Do not merge automatically.
+- RELEASE READY remains a separate runtime/device gate.

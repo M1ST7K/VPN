@@ -1,0 +1,604 @@
+HOTFOX — FINAL POLISHING PASS 3
+OWNER-APPROVED CONVERGENCE PASS
+DATE: 2026-09-23
+
+======================================================================
+0. SCOPE
+======================================================================
+
+The current UI direction is APPROVED.
+
+Do NOT redesign the product again.
+
+This pass exists to remove the remaining visible quality defects from the current rendered implementation.
+
+Primary target screens:
+- 01 Splash
+- 02 Connect HotFox
+- 03 AUTO
+- 04 HTTPS subscription import
+- 05 Home / Disconnected
+- 06 Home / Connecting
+- 07 Home / Connected
+
+The owner explicitly wants:
+- current fox geometry preserved;
+- current overall layout preserved;
+- no return to V10/V11 overlap behavior;
+- no new visual concept;
+- final premium polish only.
+
+Do NOT touch VPN/core/network/security/entitlement truth.
+
+======================================================================
+1. FREEZE THE FOX GEOMETRY
+======================================================================
+
+This is mandatory.
+
+The fox position/scale on:
+- Splash
+- Connect HotFox
+- Home Disconnected / Connecting / Connected
+
+is now considered structurally correct.
+
+DO NOT:
+- move fox up/down;
+- change fox scale materially;
+- change fox X position;
+- crop fox;
+- replace fox;
+- regenerate fox;
+- introduce state-specific fox transforms.
+
+Allowed:
+- subtle opacity/fade tuning;
+- background atmosphere tuning around fox.
+
+If a visual issue can be solved without moving fox, solve it without moving fox.
+
+======================================================================
+2. P0 — FIX THE CONNECT CTA POWER ICON
+======================================================================
+
+CURRENT VISIBLE DEFECT:
+On Home / Disconnected, the power icon inside the large orange "Подключить" CTA is visibly shifted toward the far left edge while the text remains visually centered.
+
+This is unacceptable.
+
+ROOT IMPLEMENTATION TO INSPECT:
+- activity_main.xml
+- connect_action
+- HotfoxHomeV13.kt
+- local TextView.startIcon helper
+
+Current implementation uses a compound drawable on a wide AppCompatButton.
+
+Do NOT keep a visual result where:
+- power icon sits near the button's left edge;
+- text is independently centered;
+- icon and text do not read as one action label.
+
+FINAL VISUAL TARGET:
+The power icon + "Подключить" text must form ONE optically centered group.
+
+Desired visual relationship:
+
+[ power icon ]  [ Подключить ]
+
+The COMBINED group is centered inside the CTA.
+
+The icon should sit approximately 8–12dp before the text.
+
+No icon floating at the far left.
+
+No fake balancing with a second invisible icon.
+
+No hardcoded raw screen-pixel X coordinate.
+
+Implementation options:
+A) create a dedicated centered CTA content layout/component;
+B) calculate compound content width and center it robustly after measurement;
+C) another responsive implementation that genuinely centers icon + text.
+
+Do NOT solve with a one-device magic offset.
+
+The same system must also behave correctly for:
+- "Отключить"
+- "Отменить"
+- connecting labels if icon is present
+- ERROR -> connect state
+
+Check at:
+- 360×800
+- 393×873
+- 412×915
+
+Acceptance:
+- icon/text group center differs from button center by <= ~2dp visually;
+- spacing between icon/text is stable;
+- no clipping;
+- no state transition reintroduces drift.
+
+======================================================================
+3. P0 — SHADOW CARD TEXT MUST NOT SHOW "ДОП. ЗАЩ..."
+======================================================================
+
+Current rendered Home shows truncated:
+"Доп. защ..."
+
+This looks unfinished.
+
+Fix the row so the secondary caption is deliberate.
+
+Preferred:
+"Доп. защита"
+
+If space is truly insufficient at compact width, use a deliberately shorter product phrase such as:
+"Защита"
+
+DO NOT display an ellipsis for this short fixed caption.
+
+Requirements:
+- title "Shadow" remains one line;
+- caption remains one line;
+- toggle gets reserved width;
+- no collision;
+- no ellipsis on standard 360/393/412 widths.
+
+======================================================================
+4. P0 — SHADOW TOGGLE STATE MUST BE UNAMBIGUOUS
+======================================================================
+
+Current toggle can visually read as ON even when the surrounding UI does not clearly communicate state.
+
+Make semantics obvious.
+
+OFF:
+- thumb on LEFT;
+- neutral/dark track;
+- no orange/green active highlight.
+
+ON:
+- thumb on RIGHT;
+- clearly active HotFox accent or approved active-state color;
+- still restrained.
+
+The visual state MUST reflect real HotfoxShadowStore state.
+
+Do not fake ON/OFF for screenshots.
+
+Do not change underlying Shadow semantics.
+
+Test:
+- initial state;
+- tap OFF -> ON;
+- tap ON -> OFF;
+- recreate activity and verify persisted visual state follows store truth.
+
+======================================================================
+5. P1 — HOME ORANGE ACCENT BUDGET
+======================================================================
+
+Current Home is much better, but too many orange hotspots still compete.
+
+Priority of orange:
+1. Connect CTA
+2. active bottom navigation
+3. small brand accents
+4. selected/premium micro-accent
+
+Reduce secondary orange intensity on:
+- server icon tile;
+- AUTO chip if needed;
+- subscription outline;
+- decorative planet intensity if it competes.
+
+Do NOT remove brand identity.
+
+Do NOT make the page gray.
+
+The goal is hierarchy.
+
+======================================================================
+6. P1 — SUBSCRIPTION CARD
+======================================================================
+
+Current subscription card is too visually important because:
+- orange crown;
+- orange/accent outline;
+- Home already contains giant orange CTA and active nav.
+
+Refine:
+- preserve orange crown/icon;
+- reduce outline intensity substantially;
+- use the same base surface family as other cards;
+- keep discoverability;
+- do not make subscription compete with Connect.
+
+======================================================================
+7. P1 — SERVER CARD
+======================================================================
+
+Keep current structure.
+
+Polish:
+- slightly reduce icon-tile visual weight if necessary;
+- keep AUTO chip quieter;
+- maintain clear title/subtitle;
+- chevron aligned optically;
+- no card should visually compete with CTA.
+
+Do not redesign into another component family.
+
+======================================================================
+8. P1 — HOME CARD FAMILY CONSISTENCY
+======================================================================
+
+Server, Shadow, Smart, Subscription should feel related.
+
+Audit:
+- radius family;
+- surface tone;
+- hairline border;
+- icon optical size;
+- internal padding;
+- title baseline;
+- caption baseline;
+- trailing control/chevron alignment.
+
+Do not make everything identical.
+Do make everything belong to one design system.
+
+No glassmorphism.
+No heavy glow.
+No giant borders.
+
+======================================================================
+9. P1 — HOME STATUS CHIP
+======================================================================
+
+"VPN выключен" should remain useful but quieter.
+
+Refine:
+- border contrast;
+- internal spacing;
+- icon/text balance;
+- opacity.
+
+It must not compete with:
+"Не защищено"
+
+Connected green status remains semantically clear.
+
+======================================================================
+10. P1 — HOME HINT
+======================================================================
+
+Current:
+"Одно касание до защиты"
+
+It visually floats between hero and CTA.
+
+Integrate it more deliberately.
+
+Options:
+- slightly closer to CTA;
+- lower opacity;
+- tighter icon/text spacing.
+
+Do not turn it into another card.
+
+Do not remove unless absolutely necessary.
+
+======================================================================
+11. P1 — BOTTOM NAV POLISH
+======================================================================
+
+Keep current structure.
+
+Refine:
+- inactive icon/text contrast slightly lower;
+- active Home remains obvious;
+- reduce text size by ~1sp only if it improves hierarchy;
+- maintain touch targets;
+- keep opaque background;
+- no hero bleed.
+
+Do not change navigation semantics.
+
+======================================================================
+12. P1 — SPLASH ATMOSPHERE
+======================================================================
+
+Splash is already strong.
+
+DO NOT MOVE THE FOX.
+
+Only polish:
+- reduce muddy brown wash;
+- make warm atmosphere more localized;
+- deepen black falloff;
+- prevent upper-right planet texture from reading as a rectangular crop;
+- preserve brand block and loader.
+
+Do not add UI.
+
+======================================================================
+13. P1 — CONNECT HOTFOX ATMOSPHERE / RHYTHM
+======================================================================
+
+DO NOT MOVE THE FOX.
+
+Polish:
+- reduce muddy brown wash;
+- slightly improve title/body line rhythm;
+- keep title <= 2 lines at standard width;
+- keep body readable;
+- eliminate accidental dead gap without moving fox;
+- preserve CTA actions.
+
+Do not radically resize CTA.
+
+======================================================================
+14. P1 — AUTO NATIVE ART POLISH
+======================================================================
+
+Keep HotfoxAutoOrbitView.
+
+DO NOT return to:
+- hf_auto_orbits bitmap
+- hf_globe_orange bitmap
+as visible production art.
+
+Current native art is crisp but slightly too icon-like.
+
+Refine:
+- outer globe contour strongest;
+- internal meridian/latitude lines 20–30% visually lighter/thinner;
+- reduce internal line clutter;
+- soften halo;
+- outer orbit rings quieter;
+- introduce only very subtle geometry nuance/asymmetry if useful;
+- keep nodes restrained.
+
+Do not make it neon.
+
+Do not move the whole art block unless a measured responsive issue exists.
+
+======================================================================
+15. P0/P1 — HTTPS IMPORT MUST BE UTILITY-FIRST
+======================================================================
+
+This remains the weakest screen in hierarchy.
+
+Primary task:
+paste/import subscription URL.
+
+The FORM must win.
+
+Do NOT remove brand identity.
+
+DO:
+- darken first ~45–50% of background enough that input is primary;
+- reduce planet visual dominance;
+- reduce fox dominance by ~15–20% through scale/opacity only on HTTPS screen;
+- keep fox secondary and atmospheric;
+- improve input surface clarity;
+- keep Paste action obvious;
+- keep security note compact;
+- make Add button slightly calmer than Home Connect CTA.
+
+IMPORTANT:
+The global "freeze fox geometry" rule applies to Splash/Connect/Home.
+HTTPS is the explicit exception: its fox may be reduced because this is a utility form.
+
+Do not let fox attract more attention than the input.
+
+Do not leak real subscription URLs into screenshots/logs.
+
+======================================================================
+16. CONNECTING / CONNECTED REGRESSION GUARD
+======================================================================
+
+Home states are finally stable.
+
+Preserve:
+- one shared Home skeleton;
+- stable hero position;
+- stable card position;
+- stable bottom nav;
+- no overlaps.
+
+Connecting:
+- "Отменить" outline should be restrained;
+- progress must not dominate.
+
+Connected:
+- green remains status-only;
+- metrics readable;
+- card system stable.
+
+======================================================================
+17. DO NOT REINTRODUCE ABSOLUTE OFFSET HACKS
+======================================================================
+
+Do not fix these issues with:
+- random negative margins;
+- raw pixel X/Y;
+- per-device offsets;
+- z-order collision patches;
+- state-specific hero repositioning.
+
+Use measured layout and responsive content.
+
+======================================================================
+18. RESPONSIVE TEST MATRIX
+======================================================================
+
+At minimum:
+- 360×800
+- 393×873
+- 412×915
+
+Font scale:
+- 1.0
+- 1.15
+
+Critical checks:
+- Connect CTA icon + text centering;
+- Shadow caption;
+- Shadow toggle;
+- HTTPS form hierarchy;
+- AUTO art;
+- Home nav.
+
+======================================================================
+19. INTERACTION REGRESSION TESTS
+======================================================================
+
+Verify real behavior remains:
+
+Home:
+- Connect
+- Disconnect
+- Cancel/Connecting
+- server card
+- Shadow toggle
+- Smart
+- Subscription
+- bottom nav
+
+02:
+- existing subscription -> HTTPS import
+- buy access -> purchase flow
+
+03:
+- AUTO
+- manual picker
+
+04:
+- Paste
+- Add
+
+No screenshot-only fake state.
+
+======================================================================
+20. VISUAL EVIDENCE REQUIRED
+======================================================================
+
+Capture fresh real app screenshots:
+
+01 Splash
+02 Connect
+03 AUTO
+04 HTTPS
+05 Home Disconnected
+06 Home Connecting
+07 Home Connected
+
+Also required close validation:
+- 05 Disconnected showing corrected Connect icon
+- compact Home showing full Shadow caption
+- Shadow OFF and ON visual states
+- compact HTTPS
+- compact AUTO
+
+Store under a new evidence directory.
+Do not overwrite previous evidence.
+
+======================================================================
+21. ACCEPTANCE GATE
+======================================================================
+
+FAIL if any of these remain:
+
+- power icon still sits at far left of Connect CTA;
+- icon/text group is not centered;
+- "Доп. защ..." remains;
+- Shadow OFF/ON is visually ambiguous;
+- subscription outline competes with Connect;
+- AUTO globe looks like an oversized generic browser icon;
+- HTTPS fox dominates input;
+- muddy brown wash dominates Splash/Connect/HTTPS;
+- Home cards use visibly unrelated surface treatments;
+- fox geometry changes on Splash/Connect/Home;
+- overlap/clipping returns;
+- compact width breaks labels;
+- state change shifts major Home layout.
+
+======================================================================
+22. BUILD / TEST GATE
+======================================================================
+
+Run:
+- debug assemble;
+- relevant unit tests;
+- existing static check;
+- fixture leak guard.
+
+Run release/lint if feasible.
+
+A skipped GitHub Actions workflow is SKIPPED, not PASS.
+
+======================================================================
+23. EXECUTION LOOP
+======================================================================
+
+Do not stop after code changes.
+
+INSPECT
+-> IMPLEMENT
+-> BUILD
+-> CAPTURE
+-> VISUALLY REVIEW
+-> FIX
+-> RECAPTURE
+-> INTERACTION TEST
+-> RESPONSIVE CHECK
+-> REPORT
+
+Do not ask owner to tune coordinates manually.
+
+======================================================================
+24. FINAL REPORT
+======================================================================
+
+Report:
+- final HEAD;
+- commits;
+- changed files;
+- Connect CTA icon implementation and why it no longer drifts;
+- Shadow caption fix;
+- Shadow toggle truth mapping;
+- Home card polish;
+- Splash/Connect atmosphere polish;
+- AUTO polish;
+- HTTPS hierarchy polish;
+- screenshots paths;
+- viewport/font scale;
+- build/test results;
+- interaction results;
+- GitHub Actions status;
+- remaining honest gaps.
+
+Do not claim RELEASE READY.
+
+======================================================================
+25. FINAL OWNER INTENT
+======================================================================
+
+We are no longer searching for a design.
+
+We are finishing the existing one.
+
+Keep the fox where it is.
+Keep the architecture stable.
+Fix the details that still look unfinished.
+
+Especially:
+CENTER THE POWER ICON + "ПОДКЛЮЧИТЬ" AS ONE GROUP.
+NO MORE ICON AT THE FAR LEFT.
+
+This pass should end with a coherent, premium, stable HotFox UI — not another redesign.

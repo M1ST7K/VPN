@@ -1,0 +1,28 @@
+---
+description: HotFox V12 no-overlap Home architecture
+alwaysApply: true
+---
+
+# HOTFOX V12 — ACTIVE HOME UI OVERRIDE
+
+For all Home-screen UI work, `docs/CURRENT_PHASE.md` and `design/HOTFOX_CURSOR_V12_NO_OVERLAP_LAYOUT_REBUILD.md` override older HotFox Home/hero/layout geometry prompts and rules wherever they conflict.
+
+Mandatory rules:
+
+- Disconnected, Connecting, and Connected are states of ONE shared Home scaffold.
+- Functional UI stays in normal measured layout flow.
+- No state-specific absolute Y positioning.
+- No `offset`, `absoluteOffset`, negative padding, graphics-layer translation, or z-index overlap hacks for Home region placement.
+- Only decorative fox/planet artwork may layer, and only inside a bounded `HeroSlot`.
+- Hero bounds and hero geometry are identical across the three Home states.
+- `StatePanelSlot` has stable external bounds across states.
+- Quick-settings card top position must remain stable across states.
+- Bottom navigation is a separate opaque region with system-navigation inset handling.
+- No progress UI, stats, buttons, cards, helper copy, or nav may overlap another functional region or the visible hero artwork.
+- Long Russian row copy must be constraint-safe; secondary Home text must not wrap into adjacent rows.
+- Do not touch VPN/network/business/security behavior for this UI task.
+- Build + fresh emulator screenshots + visual inspection are required before reporting completion.
+- A successful compile alone is NOT completion.
+- If any screenshot contains an overlap, clipping, bleed into bottom navigation, state-dependent layout jump, or text collision, continue fixing.
+
+Do not resurrect older V8/V9/V10/V11 per-state hero coordinates or screenshot-specific offset patches.

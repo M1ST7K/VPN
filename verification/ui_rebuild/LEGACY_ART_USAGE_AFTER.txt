@@ -1,0 +1,20 @@
+# Legacy art usage AFTER asset-first rebuild
+
+Named screenshot-derived composites (`hotfox_art_fox_planet_*`, `hotfox_art_globe_orbits.png`, `hotfox_art_server_ready.png`, `hotfox_art_shadow_shield.png`, `hotfox_art_always_on_shield.png`):
+
+- files in overlay: 0
+- production layout/code refs: 0
+
+Replacement in production:
+
+- screens 01/02/05/07/09: `hf_fox_planet`
+- screen 06: `hf_fox_bust` + `hf_connection_ring`
+- screen 03: `hf_auto_orbits` + `hf_globe_orange`
+- screen 04: `hf_ready_orbits` + `hf_ready_servers` + `hf_ready_check`
+- screen 17: `hf_shadow_orbits` + `hf_shadow_shield`
+- screen 18: `hf_always_on_shield`
+
+`nav_header.xml` now uses `hf_brand_wordmark` and kit background (drawer remains locked/gone).
+`connect_action` uses `hf_native_primary` / `hf_native_secondary`.
+
+PASS: production refs to named screenshot-derived composites = 0.

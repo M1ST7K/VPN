@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hotfox_home_status_off">VPN выключен</string>
+    <string name="hotfox_home_status_connecting">Подключение</string>
+    <string name="hotfox_home_status_on">VPN активен</string>
+    <string name="hotfox_home_title_disconnected">Не защищено</string>
+    <string name="hotfox_home_title_connecting">Подключаем…</string>
+    <string name="hotfox_home_title_connected">Вы защищены</string>
+    <string name="hotfox_home_subtitle_disconnected">Подключитесь, чтобы защитить трафик</string>
+    <string name="hotfox_home_subtitle_connecting">Создаём защищённое соединение</string>
+    <string name="hotfox_home_subtitle_online">В сети %1$s</string>
+    <string name="hotfox_home_hint_tap">Одно касание до защиты</string>
+    <string name="hotfox_home_cancel">Отменить</string>
+    <string name="hotfox_home_server_section">СЕРВЕР</string>
+    <string name="hotfox_home_auto_title">Автовыбор</string>
+    <string name="hotfox_home_auto_subtitle">Лучший сервер для вас</string>
+    <string name="hotfox_home_auto_badge">AUTO</string>
+    <string name="hotfox_home_shadow">Shadow</string>
+    <string name="hotfox_home_shadow_caption">Доп. защита</string>
+    <string name="hotfox_home_shadow_caption_short">Защита</string>
+    <string name="hotfox_home_smart">Smart</string>
+    <string name="hotfox_home_smart_caption">Весь трафик</string>
+    <string name="hotfox_home_subscription">Подписка</string>
+    <string name="hotfox_home_subscription_caption">Управление доступом</string>
+    <string name="hotfox_home_pro">PRO</string>
+    <string name="hotfox_home_checking">Проверяем соединение</string>
+    <string name="hotfox_home_latency_ms">%1$d мс</string>
+    <string name="hotfox_home_best_server">лучший сервер</string>
+    <string name="hotfox_home_connected_caption">подключено</string>
+</resources>

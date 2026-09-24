@@ -1,0 +1,38 @@
+{
+  "sdk": "24",
+  "results": [
+    {
+      "step": "01_splash",
+      "marker": "HotFox",
+      "rendered": false,
+      "crash": false,
+      "pass": true,
+      "marker_check": "NOT AVAILABLE: uiautomator dump on API 24 -> \"could not get idle state\" (continuous hero animation)",
+      "visual_check": "rendered, verified from api24/01_splash.png"
+    },
+    {
+      "step": "05_home_harness",
+      "marker": "Не защищено",
+      "rendered": false,
+      "crash": false,
+      "pass": true,
+      "marker_check": "NOT AVAILABLE: uiautomator dump on API 24 -> \"could not get idle state\" (continuous hero animation)",
+      "visual_check": "rendered, verified from api24/05_home_harness.png"
+    },
+    {
+      "step": "04_https",
+      "marker": "HTTPS-подписка",
+      "rendered": true,
+      "crash": false,
+      "pass": true
+    },
+    {
+      "step": "05_home_real_main",
+      "marker": "Подключить",
+      "rendered": true,
+      "crash": false,
+      "pass": true
+    }
+  ],
+  "note": "Smoke only: render + no crash with static Onest on minSdk 24. Not VPN E2E."
+}

@@ -1,0 +1,84 @@
+HOTFOX V11 — PLANET IMPLEMENTATION SPECIFICATION
+
+SOURCE ASSETS
+Use these V11 assets as visual truth:
+- design/assets/v11/planet/hotfox_planet_reference_a.webp
+- design/assets/v11/planet/hotfox_planet_reference_b.webp
+- bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_bust_transparent.png (existing clean production fox foreground)
+- bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_planet.png (existing historical combined reference; do not restore as production composite)
+
+The first two are compact isolated V11 planet references for composition/color/texture guidance. The exact full approved screen boards in `design/hotfox_18_final_style_reference/` remain the final visual authority. The existing clean transparent fox resource in `drawable-nodpi/hf_fox_bust_transparent.png` is the production foreground source. The older combined `hf_fox_planet.png` may be inspected only as a historical composition reference and must not be restored as a baked production composite.
+
+GOAL
+Implement a reusable responsive planet backdrop that preserves the approved appearance as closely as technically possible while allowing per-screen crop/scale/offset. Do not recreate the planet as a simplified VectorDrawable arc.
+
+LAYER MODEL
+1. page background;
+2. planet raster/backdrop layer derived from approved V11 references;
+3. optional subtle atmospheric overlay if required by reference;
+4. clean transparent fox foreground;
+5. native UI text and controls.
+
+Never bake text/buttons/status UI into the planet or fox bitmap.
+
+FOX ALPHA SAFETY
+- Inspect alpha bounds and semi-transparent edge pixels of the production fox foreground.
+- Planet must sit entirely behind fox.
+- No bright rim may leak through fox interior.
+- No bright fragments may poke through neck/ear/fur edges because of wrong scale/offset.
+- Test against black and the actual HotFox page background.
+- If needed, reposition planet rim so fox physically occludes the strongest portion.
+- Do not erode fox alpha or hide mistakes with dark matte rectangles.
+
+FIDELITY RULES
+The planet has a large dark spherical mass, mostly black interior, restrained surface texture, warm copper/orange directional rim concentrated on the upper/right edge, weak illumination on the darker side, and smooth atmospheric transition to black.
+
+Do not use:
+- uniform orange outline;
+- two parallel hard arcs;
+- flat gradient circle;
+- stars/nebulae/orbit dots/radar rings;
+- bright sci-fi glow;
+- generic Material/vector semicircle.
+
+RESPONSIVE HERO SYSTEM
+Create explicit composition parameters for at least:
+- compact phone;
+- regular phone;
+- small tablet portrait;
+- large tablet portrait.
+
+Control independently per breakpoint:
+- hero container width/height;
+- fox scale and X/Y offset;
+- planet scale and X/Y offset;
+- crop mode;
+- max width;
+- distance to title/subtitle;
+- distance to CTA/cards/navigation.
+
+Preserve aspect ratio. Never non-uniformly stretch the planet.
+
+PHONE BEHAVIOR
+Use a tighter crop, keep fox dominant, show enough sphere to read as a planet, and prevent CTA/nav collisions.
+
+TABLET BEHAVIOR
+Do not leave a tiny centered hero in a huge void. Increase max hero size intentionally, preserve fox/planet relationship, constrain text reading width, and adapt CTA width/position instead of simply stretching phone UI.
+
+PER-SCREEN CONTRACT
+01 Splash: strongest cinematic crop; fox+planet centered as a brand scene; planet supports, not dominates.
+02 Connect HotFox: same planet family with slightly quieter crop; preserve text and CTA hierarchy.
+05 Disconnected: hero fits between heading and permission/CTA blocks; planet rim never touches CTA.
+06 Connecting: same planet family; progress stage graphic remains separate.
+07 Protected: same planet family; can be slightly calmer/darker for stats, but planet is not a success indicator.
+08 Sheet: use live 05 composition behind the sheet, not a duplicate implementation.
+09 HTTPS subscription: only if fox hero remains; compact, lower-contrast supporting crop.
+
+VISUAL QA
+For every planet screen capture at minimum:
+- 1080x2400 regular phone portrait;
+- one compact phone profile;
+- one small tablet portrait;
+- one large tablet portrait.
+
+Check for alpha leakage, hard crop seams, stretch, visual identity drift, text/CTA collision, giant dead space and excessive hero shrinkage. Preserve V10 evidence and write V11 evidence to new folders.

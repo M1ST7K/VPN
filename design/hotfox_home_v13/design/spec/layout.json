@@ -1,0 +1,33 @@
+{
+  "name": "HotFox approved design v2",
+  "reference": {"widthPx": 853, "heightPx": 1844, "contentTopPx": 80, "contentBottomPx": 1790, "coordinateUnits": "reference pixels"},
+  "scaleRule": "scale = availableWidthDp / 853; convert source lengths to dp with scale; text px to sp with scale; respect OS fontScale",
+  "backgroundRule": "Top-aligned proportional FillWidth. Never Crop or stretch. Unified scene is default; do not duplicate fox.",
+  "palette": {"background": "#0B0B10", "card": "#121319", "text": "#F6F6F8", "secondary": "#ABAABB", "orange": "#FF813B", "orangeGradientStart": "#FF984F", "orangeGradientEnd": "#FF7028", "green": "#39DE83", "hairline": "#292A34"},
+  "layers": [
+    {"id":"hero_scene", "rect":[0,0,853,1844], "file":"hotfox_hero_scene.png", "mode":"default"},
+    {"id":"planet_background", "rect":[0,0,853,1844], "file":"hotfox_planet_background.png", "mode":"separate-layers-only"},
+    {"id":"fox", "rect":[100,390,600,455], "file":"hotfox_fox.png", "mode":"separate-layers-only"}
+  ],
+  "components": [
+    {"id":"header", "rect":[47,96,400,76]},
+    {"id":"pro", "rect":[666,101,147,66], "radius":33},
+    {"id":"status", "rect":[295,188,264,66], "radius":33},
+    {"id":"title", "rect":[30,276,793,65], "fontSize":58, "weight":700},
+    {"id":"subtitle", "rect":[30,348,793,43], "fontSize":29},
+    {"id":"connection_detail", "rect":[70,823,713,77]},
+    {"id":"primary_action", "rect":[44,916,765,114], "radius":57, "fontSize":40},
+    {"id":"server_card", "rect":[34,1056,785,208], "radius":28},
+    {"id":"shadow_card", "rect":[34,1286,383,150], "radius":28},
+    {"id":"smart_card", "rect":[437,1286,382,150], "radius":28},
+    {"id":"subscription_card", "rect":[34,1457,785,150], "radius":28},
+    {"id":"navigation", "rect":[0,1644,853,145]}
+  ],
+  "states": {
+    "disconnected":{"title":"Не защищено","status":"VPN выключен","action":"Подключить","primaryFill":"orange-gradient"},
+    "connecting":{"title":"Подключаем…","status":"Подключение","action":"Отменить","progress":"native indeterminate horizontal segment below fox; no circular hero indicator"},
+    "connected":{"title":"Вы защищены","status":"VPN активен","action":"Отключить","details":"real elapsed time and traffic"}
+  },
+  "nativeComponents": ["text","button labels","card surfaces and borders","progress","toggle","status chips","navigation","real Android system bars"],
+  "forbiddenArtEffects": ["fox orbital rings","fox CircleShape clipping","fox border or shadow","second fox on unified scene","green tint on fox or planet","baked checkerboard"]
+}

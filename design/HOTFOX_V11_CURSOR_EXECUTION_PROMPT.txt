@@ -1,0 +1,84 @@
+HOTFOX V11 — START NOW — PLANET FIDELITY + RESPONSIVE PHONE/TABLET PASS
+
+This is an execution task. Do not stop at a plan. Do not ask for another prompt. Read all V11 files and use the committed V11 assets as source of truth.
+
+REQUIRED INPUT FILES
+- design/HOTFOX_V11_ART_DIRECTION_REVIEW.txt
+- design/HOTFOX_V11_PLANET_IMPLEMENTATION_SPEC.txt
+- design/HOTFOX_V11_CURSOR_EXECUTION_PROMPT.txt
+- verification/ui_rebuild/HOTFOX_V11_ACCEPTANCE_CHECKLIST.md
+- .cursor/rules/31-hotfox-v11-planet-owner-override.mdc
+
+REQUIRED ASSETS
+The compact isolated V11 planet refs below are visual cues; final per-screen fidelity must also be checked against the full approved boards in `design/hotfox_18_final_style_reference/`. Do not upscale them blindly as production artwork.
+- design/assets/v11/planet/hotfox_planet_reference_a.webp
+- design/assets/v11/planet/hotfox_planet_reference_b.webp
+- bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_bust_transparent.png (existing clean production fox foreground)
+- bootstrap/hotfox_2_2_0/app/src/main/res/drawable-nodpi/hf_fox_planet.png (existing historical combined reference; do not restore as production composite)
+- design/assets/v11/planet/MANIFEST.txt
+
+OWNER DIRECTION
+1. The current self-drawn/simplified planet is not accepted where it differs from the approved V11 planet references.
+2. On every fox+planet hero screen, rebuild the planet from the committed V11 references so the visible result matches them as closely as possible.
+3. Do not redraw it as a simple arc/vector dome.
+4. The clean production fox is foreground. No planet leakage through fur/neck/ears/head.
+5. The same design must look intentionally composed on phones AND tablets.
+6. After fixes, provide EVERY screen separately as an individual screenshot, not only a contact sheet.
+7. Also provide a full contact sheet and tablet evidence for hero screens.
+
+PLANET SCREENS
+- 01 Splash
+- 02 Connect HotFox
+- 05 Disconnected
+- 06 Connecting
+- 07 Protected
+- 09 HTTPS subscription if the fox hero is still present
+- 08 inherits live 05 behind the bottom sheet
+
+NO PLANET BY DEFAULT
+- 03 AUTO
+- 04 Ready
+- 10 Servers
+- 11 Server Details
+- 12 Subscription
+- 13 Settings
+- 14 Smart Routing
+- 15 Apps & Rules
+- 16 Autopilot
+- 17 Shadow
+- 18 Always-on VPN
+
+03 AND 04
+Owner likes these directionally. Do not redesign. Micro-polish only.
+
+RESPONSIVE IMPLEMENTATION
+Build explicit hero rules for compact phone, regular phone, small tablet portrait and large tablet portrait. Do not just scale one phone canvas. Constrain text reading width, size hero intentionally, and keep CTA/cards/navigation relationships stable.
+
+TECHNICAL NON-REGRESSION
+Do not modify VPN datapath, VpnService readiness, Xray/HEV/tun2socks, DNS, IPv6 fail-closed, routing semantics, Shadow semantics, Autopilot semantics, subscription/payment truth or production connection-state truth. Debug fixtures stay under src/debug only.
+
+EXECUTION ORDER
+A. Inspect V10 implementation and V11 assets.
+B. Build reusable responsive fox+planet hero layering.
+C. Fix 01, 02, 05, 06, 07, 08, 09.
+D. Verify phone and tablet layouts.
+E. Final polish sweep over 03–18 per V11 review without unnecessary redesign.
+F. Build/test/static/fixture-leak checks.
+G. Capture final V11 evidence.
+
+REQUIRED V11 EVIDENCE
+- verification/ui_rebuild/actual_v11/01.png ... 18.png (phone)
+- each screen exists as its own PNG
+- verification/ui_rebuild/contact_v11.png
+- verification/ui_rebuild/tablet_v11/01.png,02.png,05.png,06.png,07.png,08.png,09.png minimum
+- representative tablet utility captures for 10,14,15,17,18
+- screen-by-screen changelog
+- planet fidelity notes
+- phone/tablet responsive notes
+- build/test/static/fixture-leak results
+
+Do not claim completion if only a contact sheet exists.
+Do not merge.
+Do not claim RELEASE READY from this UI pass.
+
+START NOW and continue until the V11 acceptance checklist is satisfied or there is a narrowly documented genuine blocker.

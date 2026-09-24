@@ -4,8 +4,9 @@ import com.v2ray.ang.handler.MmkvManager
 
 /**
  * First-run flow around real requirements only:
- * welcome → VPN permission → access/subscription → AUTO → first connection.
- * Unrelated permissions are never requested for visual completion.
+ * welcome/access (subscription) → AUTO/manual picker → VPN permission → first connection.
+ * The subscription CTA must not request VPN permission. Unrelated permissions
+ * are never requested for visual completion.
  */
 object HotfoxOnboardingFlow {
     enum class Step {
@@ -34,16 +35,17 @@ object HotfoxOnboardingFlow {
     fun firstStep(): Step = Step.WELCOME
 
     fun afterWelcome(facts: Facts): Step = when {
-        !facts.vpnPermissionGranted -> Step.VPN_PERMISSION
-        !facts.hasAccess -> Step.ACCESS
-        else -> Step.AUTO
+        facts.hasAccess -> Step.AUTO
+        else -> Step.ACCESS
     }
 
-    fun afterVpnResolved(facts: Facts): Step =
-        if (facts.hasAccess) Step.AUTO else Step.ACCESS
+    fun afterAuto(facts: Facts): Step =
+        if (facts.vpnPermissionGranted) Step.FIRST_CONNECTION else Step.VPN_PERMISSION
+
+    fun afterVpnResolved(facts: Facts): Step = Step.FIRST_CONNECTION
 
     fun advance(current: Step, event: Event, facts: Facts): Step = when (current) {
-        Step.WELCOME -> if (event == Event.NEXT || event == Event.VPN_GRANTED) {
+        Step.WELCOME -> if (event == Event.NEXT) {
             afterWelcome(facts)
         } else {
             current
@@ -51,21 +53,17 @@ object HotfoxOnboardingFlow {
         Step.VPN_PERMISSION -> when (event) {
             Event.VPN_GRANTED, Event.NEXT -> afterVpnResolved(facts.copy(vpnPermissionGranted = true))
             Event.VPN_DENIED -> Step.VPN_PERMISSION
-            Event.BACK -> Step.WELCOME
+            Event.BACK -> Step.AUTO
             else -> current
         }
         Step.ACCESS -> when (event) {
             Event.NEXT -> Step.AUTO
-            Event.BACK -> if (facts.vpnPermissionGranted) Step.WELCOME else Step.VPN_PERMISSION
+            Event.BACK -> Step.WELCOME
             else -> current
         }
         Step.AUTO -> when (event) {
-            Event.KEEP_AUTO, Event.MANUAL_SERVERS, Event.NEXT -> Step.FIRST_CONNECTION
-            Event.BACK -> if (facts.hasAccess) {
-                if (facts.vpnPermissionGranted) Step.WELCOME else Step.VPN_PERMISSION
-            } else {
-                Step.ACCESS
-            }
+            Event.KEEP_AUTO, Event.MANUAL_SERVERS, Event.NEXT -> afterAuto(facts)
+            Event.BACK -> if (facts.hasAccess) Step.WELCOME else Step.ACCESS
             else -> current
         }
         Step.FIRST_CONNECTION -> when (event) {

@@ -1,0 +1,1066 @@
+HOTFOX V6 — FINAL VISUAL REBUILD MASTER PROMPT
+18-SCREEN ART-DIRECTION / RU-RU CAPTURE / NO-ORBIT / PREMIUM EDITORIAL PASS
+
+READ THIS ENTIRE FILE BEFORE EDITING.
+DO NOT START BY RANDOMLY TUNING XML.
+DO NOT CLAIM SUCCESS FROM BUILD TESTS ALONE.
+DO NOT MERGE.
+
+======================================================================
+0. CURRENT STATE / STARTING HEAD
+======================================================================
+
+Repository: M1ST7K/VPN
+Branch: cursor/hotfox-ui-pixel-lock-rebuild
+V5.1 reviewed implementation head: 8bdd3d09ca528ff656f9e275e33152bebc5f89c6
+V6 audit commit follows that head.
+
+Mandatory reading before touching UI:
+- verification/ui_rebuild/HOTFOX_V6_ART_DIRECTOR_REVIEW_FAIL.md
+- verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V5_1.md
+- verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V5_1.csv
+- verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V5_1.csv
+- .cursor/rules/27-hotfox-v51-containment-and-capture.mdc
+- .cursor/rules/28-hotfox-v6-final-visual-rebuild.mdc
+- all approved reference images for screens 01–18
+- all current V5.1 actual screenshots 01–18
+- V5.1 side-by-side / overlay / diff evidence
+
+V5.1 status:
+- fixture containment: fixed;
+- clean renderer/capture path: fixed;
+- 18/18 screenshots: yes;
+- 18/18 comparisons: yes;
+- visual/pixel PASS: 0/18;
+- art-director PASS: 0/18;
+- RELEASE READY: NO;
+- physical device VPN E2E: not executed;
+- merge: no.
+
+The goal of V6 is NOT another architecture rewrite.
+The goal is to make the current app finally look like the approved HotFox product.
+
+======================================================================
+1. ABSOLUTE PRODUCT DIRECTION
+======================================================================
+
+HotFox visual identity:
+- very modern 2026 mobile product;
+- premium dark editorial aesthetic;
+- almost-black background with subtle warm violet undertone;
+- warm cream-white typography, never clinical pure white unless exact reference requires it;
+- orange/copper accent used sparingly, precisely and intentionally;
+- soft green only for real success/protected semantics or debug-only success presentation matching the exact reference;
+- strong typographic hierarchy;
+- lots of controlled negative space;
+- content over containers;
+- thin hairline separators;
+- minimal heavy cards;
+- consistent alignment and baseline system;
+- one coherent rounded outline icon family;
+- calm, confident, premium product feel.
+
+Forbidden visual directions:
+- stock Android settings app;
+- generic Material dashboard;
+- card zoo;
+- glassmorphism;
+- neon;
+- cyberpunk;
+- gamer UI;
+- loud glow;
+- giant repeated orange pills everywhere;
+- planet;
+- globe-as-planet;
+- planetary horizon;
+- eclipse;
+- celestial arc;
+- closed orbit;
+- satellite orbit;
+- solar-system composition;
+- radar-ring composition;
+- curves visually encircling a central body;
+- full-screen screenshot bitmap cheating;
+- baked text/buttons/cards/list rows inside raster artwork.
+
+======================================================================
+2. REFERENCE PRIORITY
+======================================================================
+
+Priority order:
+1. exact approved reference for the current screen;
+2. explicit owner overrides in this repo/audit;
+3. clean owner-provided asset intended for that screen;
+4. measured typography/geometry matrix;
+5. prose specification;
+6. current implementation.
+
+The current implementation never wins against the approved board simply because it already exists.
+
+Owner override that supersedes older boards:
+NO planet/orbit/celestial motif anywhere.
+This includes any old reference area that may have contained a planetary arc.
+
+Do not propagate an illustration from one screen to another merely for consistency.
+Fox appears only on screens whose approved composition requires it.
+
+======================================================================
+3. FIRST FIX THE VISUAL QA ENVIRONMENT: RU-RU
+======================================================================
+
+The V5.1 contact sheet is invalid as final design evidence because it mixes English and Russian.
+
+Before any visual scoring:
+- set the screenshot emulator / screenshot process locale to Russian `ru-RU`;
+- verify app resources resolve in Russian;
+- reboot/recreate activity as required so locale is effective;
+- capture a locale proof screenshot or text dump showing Russian copy on 02/03/04/09/11/13/14/16/17/18;
+- write `verification/ui_rebuild/V6_LOCALE_LOCK.md` documenting the exact command/configuration.
+
+IMPORTANT:
+Do NOT hardcode Russian into production source merely to make the screenshot look Russian.
+Use Android resource localization properly.
+Production should retain existing localization behavior.
+For this approved visual comparison, capture environment is ru-RU.
+
+If the exact approved board intentionally contains feature names such as `Shadow`, `Smart Routing`, `Always-on VPN`, preserve those names exactly while the surrounding copy remains Russian.
+
+Mixed RU/EN on a single screen without reference support = FAIL.
+
+======================================================================
+4. QA FIXTURE ARCHITECTURE — KEEP CONTAINMENT
+======================================================================
+
+V5.1 containment is valuable. Preserve it.
+
+Requirements:
+- fixture-specific data/classes remain under `src/debug`;
+- production source must not regain fake servers/apps/subscription/traffic/latency/entitlement state;
+- run `python3 verification/ui_rebuild/check_no_fixture_leak_v51.py` after every relevant cycle;
+- do not weaken the checker.
+
+The debug QA layer MAY:
+- open a production screen;
+- select deterministic presentation state;
+- inject safe in-memory server rows;
+- inject safe in-memory app rows;
+- paint safe entitlement labels;
+- show a protected visual chrome without changing the real VPN state;
+- hold splash for screenshot capture;
+- hide a contradictory production warning only in debug presentation when the selected visual state logically requires it.
+
+The debug QA layer MUST NOT:
+- become a second layout implementation;
+- change production typography, margins, dimensions, card shapes, nav geometry or colors only for screenshots;
+- make a screen look better in debug than production;
+- write MMKV, payment stores, VPN state, Android secure settings or subscription secrets.
+
+Prefer deterministic state/data injection once per screen rather than a perpetual cosmetic repaint loop. If repeated painting remains necessary to survive production refreshes, document why and ensure it only changes fixture data/state labels, never geometry/style.
+
+======================================================================
+5. VISUAL MEASUREMENT BEFORE EDITING
+======================================================================
+
+Create:
+- verification/ui_rebuild/V6_TYPOGRAPHY_MATRIX.md
+- verification/ui_rebuild/V6_GEOMETRY_MATRIX.md
+- verification/ui_rebuild/V6_COLOR_USAGE_MATRIX.md
+- verification/ui_rebuild/V6_ICON_OPTICAL_MATRIX.md
+- verification/ui_rebuild/V6_CTA_MATRIX.md
+
+For every screen 01–18 measure from approved references:
+- viewport size;
+- safe insets;
+- content left/right inset;
+- top header baseline;
+- HotFox wordmark bounds;
+- back/settings action visual size and touch target;
+- title x/y/width/height;
+- title line breaks;
+- body copy x/y/width;
+- artwork box;
+- row group bounds;
+- row height;
+- separators;
+- CTA x/y/w/h/radius;
+- bottom nav bounds;
+- bottom safe area.
+
+Do not solve V6 with one global `margin=20dp` and one global `textSize`.
+Use shared tokens only when measurement shows that screens genuinely share them.
+
+======================================================================
+6. TYPOGRAPHY REBUILD
+======================================================================
+
+The current UI is too default/Roboto-utility in feeling.
+Without introducing unlicensed fonts, build a more deliberate editorial hierarchy using available family/weights/letter spacing/line height.
+
+Define at minimum:
+- BrandWordmark
+- DisplayHero
+- RootTitle
+- SubpageTitle
+- BodyLead
+- BodySupport
+- SectionEyebrow
+- RowTitle
+- RowCaption
+- RuntimeValue
+- ButtonPrimary
+- ButtonSecondary
+- NavLabel
+- LegalCaption
+
+Rules:
+- title weight should feel premium, not bluntly bold;
+- body copy should have enough line height;
+- section labels must not be microscopic;
+- runtime values should align consistently;
+- muted text remains readable;
+- Russian line breaks must be manually checked;
+- avoid accidental ellipsis on primary labels;
+- primary labels must not wrap because layout width was misallocated;
+- respect font scale 1.0 capture baseline but keep accessibility-safe implementation.
+
+======================================================================
+7. COLOR / ACCENT SYSTEM
+======================================================================
+
+Audit all orange usage.
+
+Orange should NOT simultaneously dominate:
+- wordmark;
+- full-width button;
+- tab underline;
+- icon;
+- dot;
+- active nav;
+- decorative illustration
+on the same screen unless the exact reference proves it.
+
+Create a priority hierarchy:
+- brand orange;
+- primary action orange;
+- selected state orange;
+- decorative orange.
+Only the necessary roles are active per screen.
+
+Green:
+- reserved for success/protection/healthy state only where exact reference requires it;
+- do not automatically color all pings green;
+- debug fixture colors must match reference, not generic network conventions.
+
+Background:
+- use the exact warm near-black target;
+- no visible matte rectangles around artwork;
+- card/surface contrast extremely restrained.
+
+======================================================================
+8. CTA SYSTEM
+======================================================================
+
+Stop using one giant pill everywhere.
+
+Create context-specific variants:
+- OnboardingPrimary
+- HomeConnectPrimary
+- HomeDisconnectSecondaryOrDangerQuiet if reference requires
+- SubpagePrimaryCompact
+- SecondaryQuiet
+- TextAction
+- DisabledAction
+- ProgressAction
+
+Requirements:
+- minimum semantic touch target 48dp;
+- visible control can be smaller if hit target wrapper is larger;
+- exact radius from reference;
+- arrow/icon optical size measured;
+- button text baseline optically centered;
+- disabled contrast readable;
+- subpage buttons should not have the same visual dominance as onboarding/home unless exact board says so.
+
+======================================================================
+9. HEADER / NAV / ICON SYSTEM
+======================================================================
+
+Header variants:
+A. root: HotFox + optional settings action
+B. subpage: back + HotFox
+C. splash: no standard header
+D. reference-specific exception
+
+Measure each.
+
+Touch target != visible glyph size.
+A 48dp tappable gear should normally contain a ~20–24dp visible glyph.
+
+Bottom navigation:
+- exact presence per screen;
+- improve inactive contrast;
+- consistent icon stroke impression;
+- labels readable;
+- active orange not competing with CTA;
+- exact active destination/label from screen reference;
+- no content collision;
+- no random nav on a screen whose reference has none.
+
+Icon optical audit:
+- gear
+- home
+- servers stack
+- crown/subscription
+- settings
+- back
+- crown row
+- shield
+- lock
+- network triangle
+- globe/network
+- info
+- DNS
+- IPv6
+- chevrons
+- arrow
+- app controls
+
+Same nominal dp is not the goal; same perceived visual weight is.
+
+======================================================================
+10. SCREEN 01 — SPLASH
+======================================================================
+
+Current defects:
+- fox too small/high;
+- massive unstructured middle gap;
+- wordmark/loading separate from hero;
+- tagline too tiny;
+- progress track generic.
+
+Required:
+- measure exact approved fox scale and position;
+- preserve transparent fox with no matte;
+- no planet/arc;
+- build one coherent vertical brand composition;
+- wordmark/subline/loading aligned to one grid;
+- loading track hairline/subtle;
+- production splash timing remains real; debug may hold.
+
+Capture checkpoint: 01.
+Do not continue if fox has matte/holes or composition is obviously off.
+
+======================================================================
+11. SCREEN 02 — ONBOARDING CONNECT
+======================================================================
+
+Current defects:
+- wrong locale in V5.1 evidence;
+- small weak copy;
+- floating fox;
+- huge dead zone;
+- generic orange pill;
+- weak secondary action.
+
+Required:
+- ru-RU visual evidence;
+- exact approved heading and supporting copy;
+- exact line break;
+- fox size/position measured;
+- CTA width/height/radius refined;
+- secondary action spacing intentional;
+- no planet/background art.
+
+======================================================================
+12. SCREEN 03 — AUTO
+======================================================================
+
+Current V5.1 topology is directionally correct but visually too primitive.
+
+Forbidden:
+- globe as planet;
+- closed rings;
+- satellites;
+- symmetric solar-system layout;
+- radar circles.
+
+Required visual:
+- smart network/routing intelligence;
+- asymmetric nodes;
+- a clear source/hub/destination logic;
+- multiple candidate paths but only one selected route emphasized;
+- precise line weights;
+- minimal decorative nodes;
+- no crossing mess;
+- no central celestial body.
+
+Recompose title/body/art/CTA so the lower half is intentional, not empty.
+
+======================================================================
+13. SCREEN 04 — READY
+======================================================================
+
+Current server/check visual is too small and generic.
+
+Required:
+- completion/readiness symbol remains non-celestial;
+- no concentric rings;
+- stronger visual scale;
+- refined server/check geometry;
+- copy and permission note align to same content column;
+- CTA sits at a deliberate endpoint;
+- ru-RU capture.
+
+======================================================================
+14. SCREEN 05 — DISCONNECTED HOME
+======================================================================
+
+This is the flagship screen. Treat it as a product hero, not a settings dashboard.
+
+Required hierarchy:
+1. HotFox/header
+2. protection status headline
+3. support line
+4. fox art
+5. small contextual permission/status note
+6. connect action
+7. essential controls
+8. quiet explanatory note
+9. nav
+
+Current problems to fix:
+- too much vertical dead gap around permission note;
+- CTA too large;
+- card border too visible;
+- rows have equal visual weight;
+- Smart subtitle too dense;
+- note weak;
+- nav generic.
+
+Specific direction:
+- fox remains transparent and slightly more integrated;
+- card should feel like a grouped editorial control surface, not a MaterialCard;
+- separator opacity extremely restrained;
+- row values aligned;
+- chevrons quiet;
+- captions have adequate line height;
+- do not cram Smart description into unreadable tiny text;
+- settings gear optically balanced.
+
+======================================================================
+15. SCREEN 06 — CONNECTING
+======================================================================
+
+P0: remove the current orbit-like progress around the fox.
+
+Even if it is technically a progress ring, the current composition reads as a fox surrounded by a celestial orbital arc with dots. Owner ban applies visually, not by filename.
+
+Use one of these non-celestial patterns:
+- segmented horizontal/diagonal route progress;
+- asymmetric node path where stages light up sequentially;
+- restrained partial status rail;
+- simple native progress indicator placed separately from fox.
+
+Do NOT enclose the fox in a ring.
+Do NOT place satellite dots on a circular path.
+
+Connecting screen must focus on the process:
+- status headline;
+- fox or connection visual;
+- stages;
+- progress/cancel action;
+- de-emphasized secondary controls.
+
+Stage states:
+- active;
+- completed;
+- pending.
+Use restrained color/opacity, not rainbow status indicators.
+
+======================================================================
+16. SCREEN 07 — PROTECTED
+======================================================================
+
+P0 contradiction to remove:
+The V5.1 debug screenshot shows `Защищено` while still showing `Нет разрешения VPN`.
+
+For debug visual fixture only:
+- when presenting protected chrome, hide the permission warning or replace it with the exact protected-state supporting line from the reference;
+- DO NOT actually grant or spoof VPN permission;
+- DO NOT set production CONNECTED.
+
+Production protected state still only appears after real readiness.
+
+Design:
+- success state should feel calmer than disconnected;
+- green limited to status/meaningful success accents;
+- metrics readable;
+- fox not tiny;
+- route/security indicators legible;
+- lower grouped controls lighter than V5.1.
+
+======================================================================
+17. SCREEN 08 — ADD CONNECTION SHEET
+======================================================================
+
+Current sheet is still too Material/default.
+
+Required:
+- exact reference height;
+- smaller title;
+- smaller visible icons;
+- 48dp touch targets retained;
+- row height measured, target likely ~56–64dp unless reference differs;
+- subtle handle;
+- quieter close icon;
+- thin separators or deliberate whitespace;
+- refined corner radius;
+- scrim light enough that live home context remains visible;
+- no scroll unless reference requires.
+
+Validate:
+- tap rows;
+- back closes;
+- swipe/drag behavior remains correct;
+- focus/accessibility preserved.
+
+======================================================================
+18. SCREEN 09 — HTTPS SUBSCRIPTION
+======================================================================
+
+High-priority screen because current diff is very poor.
+
+Required:
+- ru-RU capture;
+- form is the visual focus;
+- exact heading/body copy;
+- input field height/radius/stroke measured;
+- paste affordance subtle and aligned;
+- focus/error/disabled states functional;
+- Add/Import action contextual, not giant template pill;
+- fox only if exact approved board contains it;
+- if fox remains, integrate it intentionally and do not let it float alone in an empty lower field;
+- never use real subscription URL/tokens in screenshot fixture.
+
+======================================================================
+19. SCREEN 10 — SERVERS
+======================================================================
+
+Current V5.1 is closer than most screens. Refine, do not destroy.
+
+Required:
+- ru-RU capture;
+- exact filter/tab spacing;
+- exact selected-state line width/position;
+- recommended/AUTO row hierarchy;
+- server rows measured;
+- flags same visual size;
+- names/countries/pings aligned;
+- chevrons optically balanced;
+- no accidental truncation;
+- avoid multiple simultaneous orange accents;
+- ping color follows exact board and owner green policy;
+- debug fixture remains debug-only;
+- production server list remains real.
+
+Do not turn this into a card list.
+
+======================================================================
+20. SCREEN 11 — SERVER DETAILS
+======================================================================
+
+Required:
+- ru-RU capture;
+- exact header/back geometry;
+- name/country/flag hierarchy;
+- status/load/routing/shadow/auto rows aligned to a stable value column;
+- muted values remain readable;
+- separators subtle;
+- disabled/selected CTA clearly intentional;
+- empty lower space reduced or matched to board;
+- nav presence exactly per reference;
+- debug data only under debug.
+
+======================================================================
+21. SCREEN 12 — SUBSCRIPTION
+======================================================================
+
+Current fixture proves containment but design remains generic.
+
+Required:
+- exact reference entitlement state;
+- premium/status headline hierarchy;
+- expiry/remain/devices/server count arranged with stronger rhythm;
+- masked URL readable but quiet;
+- CTA less massive;
+- secondary action clearly secondary;
+- legal/support text readable;
+- remove unstructured lower dead zone if board does not contain it;
+- production entitlement/payment truth untouched.
+
+======================================================================
+22. SCREEN 13 — SETTINGS
+======================================================================
+
+Current V5.1 feels like a stock Android settings list.
+
+Required:
+- ru-RU capture;
+- title/helper/section labels at reference scale;
+- rows compact but not microscopic;
+- visible icons around 20–22dp where optically appropriate;
+- 48dp touch target;
+- subtle grouping with hairlines/spacing;
+- no giant Material cards;
+- no completely raw floating list either;
+- consistent chevron position;
+- no scrollbar;
+- bottom nav exact reference state.
+
+Section rhythm must be obvious even without heavy containers.
+
+======================================================================
+23. SCREEN 14 — SMART ROUTING
+======================================================================
+
+One of the largest V5.1 mismatches.
+
+Required:
+- ru-RU capture;
+- selected routing mode gets a clear, premium treatment;
+- Apps & Rules and LAN are clearly subordinate controls;
+- switch visible size refined;
+- explanatory body copy readable;
+- no tiny cluster floating at top of a huge page;
+- action becomes `SubpagePrimaryCompact` unless reference requires full width;
+- no generic settings-list feeling;
+- preserve all routing semantics and restart behavior.
+
+======================================================================
+24. SCREEN 15 — APPS & RULES
+======================================================================
+
+P0 visual defects:
+- unintended visible vertical scrollbar;
+- blank/dark placeholder fixture app icons;
+- crude selection squares;
+- poor alignment and density.
+
+Required:
+- hide vertical scrollbar unless exact board explicitly shows one;
+- debug fixture must provide deterministic safe visual app icons/glyphs so rows look complete;
+- these fixture icons live only in debug resources/source;
+- production still uses actual installed app icons;
+- app row icon/name/package/check state aligned;
+- selected state elegant and accessible;
+- search field custom HotFox treatment, not stock gray capsule;
+- segment control refined;
+- custom rules summary aligned to same grid;
+- list bottom padding accounts for save action;
+- no clipped final rows;
+- sticky save action only if board supports it;
+- ru-RU UI around app names.
+
+======================================================================
+25. SCREEN 16 — AUTOPILOT
+======================================================================
+
+Current screen is too sparse/generic.
+
+Required:
+- ru-RU capture;
+- exact explanatory copy;
+- switch optically smaller;
+- rules grouped intentionally;
+- Wi-Fi / mobile / pause rows have clear hierarchy;
+- status/captive portal line readable;
+- compact subpage CTA;
+- lower negative space balanced.
+
+Do not invent networks or security claims in production.
+
+======================================================================
+26. SCREEN 17 — SHADOW
+======================================================================
+
+P0: remove orbital reading completely.
+
+Current V5.1 still places a shield in the center while curved bands and nodes sweep around it. This is still visually celestial/orbital despite not being a closed ellipse.
+
+New Shadow topology must use:
+- asymmetrical branching network paths;
+- angular or gently bent directional segments;
+- nodes that feed toward/away from the shield from sides/top/bottom;
+- no encircling path;
+- no symmetrical arcs around shield;
+- no halo;
+- no planetary composition.
+
+Shield:
+- thinner/elegant stroke;
+- less glow;
+- no cyberpunk feel.
+
+Content:
+- ru-RU capture;
+- body copy shorter/narrower line measure;
+- Status/Mode rows structured;
+- compact CTA;
+- remove dead lower half by rebalancing composition, not by adding random decoration.
+
+======================================================================
+27. SCREEN 18 — ALWAYS-ON VPN
+======================================================================
+
+Required:
+- ru-RU capture;
+- exact approved visual state;
+- shield scale and position measured;
+- rows aligned;
+- values readable;
+- if exact board shows unknown state, keep it; if board shows deterministic state, debug may paint safe labels without changing Android secure settings;
+- CTA compact/quieter;
+- explanatory note readable;
+- nav exact per reference;
+- reduce stranded/dead-space feeling.
+
+Production Always-on/Kill Switch status remains real.
+
+======================================================================
+28. RESPONSIVENESS / INSETS / ACCESSIBILITY
+======================================================================
+
+After visual lock at canonical emulator size:
+- test API24-compatible layout behavior where feasible;
+- test 360dp-class width and canonical 1080x2400 capture;
+- no text clipping;
+- no content under status/nav bars;
+- no content behind bottom nav;
+- touch targets >=48dp;
+- important controls have content descriptions;
+- font scale 1.15 smoke check should not destroy critical actions;
+- do not compromise canonical visual lock with arbitrary responsive hacks; use constraints/weights carefully.
+
+======================================================================
+29. MOTION
+======================================================================
+
+Motion should be subtle and premium.
+
+Allowed:
+- fox micro-float if already approved and very subtle;
+- connect state crossfade;
+- selected route line activation;
+- small CTA feedback;
+- sheet motion via native bottom sheet;
+- progress stage transitions.
+
+Forbidden:
+- pulsing neon halos;
+- orbiting dots;
+- planets;
+- exaggerated overshoot;
+- gamer/glow effects.
+
+Screenshot fixtures must settle motion before capture or use deterministic end frame.
+
+======================================================================
+30. CAPTURE PIPELINE V6
+======================================================================
+
+Preserve V5.1 evidence.
+Create new directories only:
+- verification/ui_rebuild/actual_v6/
+- verification/ui_rebuild/compare_v6/side_by_side/
+- verification/ui_rebuild/compare_v6/overlay/
+- verification/ui_rebuild/compare_v6/diff/
+
+Create:
+- verification/ui_rebuild/HOTFOX_PIXEL_DIFF_RESULTS_V6.csv
+- verification/ui_rebuild/HOTFOX_ART_DIRECTOR_SCORE_V6.csv
+- verification/ui_rebuild/HOTFOX_VISUAL_REFINEMENT_FINAL_V6.md
+
+Canonical capture environment must document:
+- AVD name;
+- API;
+- resolution;
+- density;
+- font scale;
+- locale ru-RU;
+- navigation mode;
+- dark theme state;
+- exact APK commit;
+- screenshot command.
+
+Before full run, smoke capture:
+01, 02, 03, 04, 05, 06, 07, 09, 10, 13, 15, 17.
+
+Why these:
+- fox;
+- locale;
+- no-orbit illustrations;
+- connection states;
+- form;
+- populated list;
+- settings typography;
+- apps fixture;
+- Shadow topology.
+
+Only continue to full 18 after smoke review does not reveal a systemic regression.
+
+======================================================================
+31. COMPARISON RULES
+======================================================================
+
+Generate for every 01–18:
+- actual;
+- reference;
+- side-by-side;
+- 50% overlay;
+- absolute diff.
+
+Document owner-override regions where old reference contains forbidden celestial motifs.
+Do not force pixel matching to a banned planet/orbit region.
+Outside owner-overridden regions, geometry should converge strongly.
+
+SystemUI/time differences may be excluded only if predeclared and consistently masked from the app-controlled viewport metric. Do not use masks to hide app mismatches.
+
+No automatic scaling/alignment trick that conceals layout errors.
+
+======================================================================
+32. ART-DIRECTOR SCORE — FIXED SCALE
+======================================================================
+
+Use exactly 0–5, one decimal allowed.
+No other scale.
+
+Columns:
+- screen_id
+- composition
+- hierarchy
+- typography
+- spacing
+- asset_integration
+- controls
+- chrome
+- polish
+- average
+- pass
+- evidence_notes
+
+Pass rule:
+- screenshot exists;
+- comparison exists;
+- zero P0 defects;
+- every category >=4.0;
+- average >=4.3.
+
+Do NOT give 4/5 because build passes.
+Score only what is visible.
+
+The owner remains final visual approver. Cursor self-score is a QA aid, not owner acceptance.
+
+======================================================================
+33. P0 AUTOMATED CHECKS
+======================================================================
+
+Keep and extend static checks so production fails if:
+- fixture-specific fake data returns to src/main;
+- `hf_fox_planet` referenced;
+- `hf_shadow_orbits` referenced;
+- old orbit/radar assets referenced;
+- new drawable names include or visually reproduce orbit motifs around fox/shield;
+- full-screen reference image is used as production UI;
+- screenshot fixture image is imported into production resources.
+
+Add a simple source scan for debug-only known fixture strings if useful, but do not create brittle false positives on legitimate translations.
+
+Run:
+- `python3 verification/ui_rebuild/check_no_fixture_leak_v51.py`
+- `python3 verification/static_check_2_2_0.py`
+
+======================================================================
+34. ENGINEERING GATES
+======================================================================
+
+After each major cycle:
+- reconstruct if required;
+- `:app:assemblePlaystoreDebug`;
+- `:app:testPlaystoreDebugUnitTest`;
+- static checks;
+- locale smoke;
+- screenshot smoke.
+
+Do not modify VPN datapath/security semantics:
+- Android VpnService/TUN;
+- HEV/tun2socks;
+- local SOCKS;
+- Xray outbound;
+- DNS fail-closed;
+- IPv6 protection/fail-closed;
+- Shadow policy semantics;
+- routing semantics;
+- Autopilot semantics;
+- entitlement/payment truth;
+- session generation/race guards;
+- CONNECTED readiness gate.
+
+UI work must not downgrade those.
+
+======================================================================
+35. IMPLEMENTATION CYCLES
+======================================================================
+
+Cycle 1 — environment + type + shared chrome
+- ru-RU capture lock;
+- typography matrix;
+- geometry matrix;
+- header/nav/icon optical system;
+- CTA variants.
+Build/test/capture smoke 02/05/13.
+
+Cycle 2 — brand/onboarding
+- 01/02/03/04.
+Capture/compare/fix before continuing.
+
+Cycle 3 — home states
+- 05/06/07.
+P0 checks: no orbit ring, no protected/permission contradiction.
+Capture/compare/fix.
+
+Cycle 4 — import/sheet
+- 08/09.
+Capture/compare/fix.
+
+Cycle 5 — servers/subscription
+- 10/11/12.
+Capture/compare/fix.
+
+Cycle 6 — settings/routing/apps
+- 13/14/15.
+P0: no scrollbar, complete debug app icons.
+Capture/compare/fix.
+
+Cycle 7 — autopilot/shadow/always-on
+- 16/17/18.
+P0: Shadow no orbital curves.
+Capture/compare/fix.
+
+Cycle 8 — full-system polish
+- all 18;
+- typography baselines;
+- whitespace;
+- CTA consistency;
+- nav/icon optical checks;
+- full comparison.
+
+Do not perform all 18 edits blindly before the first screenshot.
+
+======================================================================
+36. COMMIT STRATEGY
+======================================================================
+
+Use auditable commits, for example:
+1. `qa(v6): lock ru-RU visual capture and measurement matrices`
+2. `ui(v6): refine typography chrome icons and contextual CTAs`
+3. `ui(v6): rebuild onboarding AUTO and Ready compositions`
+4. `ui(v6): refine disconnected connecting and protected home states`
+5. `ui(v6): refine add-connection and HTTPS import`
+6. `ui(v6): refine servers details and subscription`
+7. `ui(v6): refine settings routing and apps rules`
+8. `ui(v6): rebuild Autopilot Shadow and Always-on composition`
+9. `qa(v6): add 18-screen Russian captures comparisons and score`
+
+Do not merge.
+
+======================================================================
+37. FINAL REPORT REQUIREMENTS
+======================================================================
+
+`HOTFOX_VISUAL_REFINEMENT_FINAL_V6.md` must include:
+- branch/head;
+- build/test/static statuses;
+- ru-RU capture proof;
+- fixture containment proof;
+- screen-by-screen change summary;
+- 18/18 capture status;
+- 18/18 comparison status;
+- art-director scores 0–5;
+- mean diff table;
+- owner override regions;
+- unresolved visual gaps;
+- runtime VPN E2E status;
+- physical device status;
+- RELEASE READY status;
+- merge status.
+
+Must explicitly answer:
+- Is 06 free of orbit/celestial reading?
+- Is 07 free of protected/permission contradiction?
+- Is 15 free of placeholder icons and scrollbar?
+- Is 17 free of orbital/celestial curves?
+- Is every screenshot ru-RU except exact intentional product terms?
+
+======================================================================
+38. STOP CONDITIONS
+======================================================================
+
+Do NOT stop because:
+- a screen uses debug fixture data;
+- production has no imported servers;
+- payment backend is unavailable;
+- protected state is not real in emulator;
+- installed app set differs;
+- splash advances.
+
+The debug harness exists for those presentation states.
+
+Hard-stop only if:
+- approved reference source is missing/corrupt;
+- build environment becomes genuinely unusable after documented recovery attempts;
+- required change would weaken production security truth;
+- required artwork cannot be recreated without changing fox identity and no valid clean source exists.
+
+Even then, continue independent screens and document the blocker narrowly.
+
+======================================================================
+39. DO NOT DO THESE THINGS
+======================================================================
+
+Do not:
+- make new planets;
+- make partial planets;
+- make arcs around the fox;
+- make curved bands around the shield;
+- call them “network paths” while they still look like orbits;
+- add big glowing circles;
+- add glass panels;
+- use reference screenshots as UI;
+- use fake runtime data in release;
+- hardcode Russian into production solely for screenshots;
+- use debug-only styling to hide production layout defects;
+- mark visual PASS because tests are green;
+- invent a 0–10 score when the rubric says 0–5;
+- merge automatically;
+- claim RELEASE READY.
+
+======================================================================
+40. START NOW
+======================================================================
+
+1. Confirm branch and current head.
+2. Read the V6 fail review and V6 rule.
+3. Lock capture environment to ru-RU and prove it.
+4. Re-run fixture leak checker before UI work.
+5. Build measurement matrices.
+6. Fix shared typography/chrome/CTA systems.
+7. Execute cycles 1–8 with real screenshots after every cycle.
+8. Never edit blindly for a long stretch without capture evidence.
+9. Produce the complete 18-screen V6 contact sheet.
+10. Compare all 18.
+11. Score all 18 on the fixed 0–5 rubric.
+12. Leave branch unmerged.
+13. Leave RELEASE READY = NO until separate runtime release gates are executed.
+
+The target is not “technically valid dark UI”.
+The target is an authored, premium, coherent HotFox product that visibly matches the approved references and owner overrides.

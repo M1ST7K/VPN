@@ -1,0 +1,69 @@
+FAIL: debug/reference fixture logic or fixture literals leaked into src/main
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/PerAppProxyActivity.kt:52: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.appsFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/PerAppProxyActivity.kt:52: appsFixture: if (HotfoxUiVisualOverride.appsFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/PerAppProxyActivity.kt:133: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.appsFixture && HotfoxUiVisualOverride.referenceApps.isNotEmpty()) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/PerAppProxyActivity.kt:133: appsFixture: if (HotfoxUiVisualOverride.appsFixture && HotfoxUiVisualOverride.referenceApps.isNotEmpty()) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/PerAppProxyActivity.kt:133: referenceApps: if (HotfoxUiVisualOverride.appsFixture && HotfoxUiVisualOverride.referenceApps.isNotEmpty()) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/PerAppProxyActivity.kt:135: HotfoxUiVisualOverride: val apps = HotfoxUiVisualOverride.referenceApps.map { row ->
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/PerAppProxyActivity.kt:135: referenceApps: val apps = HotfoxUiVisualOverride.referenceApps.map { row ->
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/GroupServerFragment.kt:82: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/GroupServerFragment.kt:82: serversFixture: if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:47: HotfoxUiVisualOverride: val count = if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:47: serversFixture: val count = if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:48: HotfoxUiVisualOverride: HotfoxUiVisualOverride.referenceServers.size
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:48: referenceServers: HotfoxUiVisualOverride.referenceServers.size
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:63: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:63: serversFixture: if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:174: HotfoxUiVisualOverride: val rows = HotfoxUiVisualOverride.referenceServers
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:174: referenceServers: val rows = HotfoxUiVisualOverride.referenceServers
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:218: HotfoxUiVisualOverride: val count = if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:218: serversFixture: val count = if (HotfoxUiVisualOverride.serversFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:219: HotfoxUiVisualOverride: HotfoxUiVisualOverride.referenceServers.size
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainRecyclerAdapter.kt:219: referenceServers: HotfoxUiVisualOverride.referenceServers.size
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxOnboardingActivity.kt:43: HotfoxUiVisualOverride: val fixtureStep = HotfoxUiVisualOverride.onboardingStep
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:30: HotfoxUiVisualOverride: val fixture = HotfoxUiVisualOverride.serverDetailsFixture
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:30: serverDetailsFixture: val fixture = HotfoxUiVisualOverride.serverDetailsFixture
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:69: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.serverDetailsFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:69: serverDetailsFixture: if (HotfoxUiVisualOverride.serverDetailsFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:70: renderFixture(: renderFixture()
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:120: renderFixture(: private fun renderFixture() {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:125: "18 ms": binding.tvRowStatus.text = "18 ms"
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxServerDetailsActivity.kt:126: "12%": binding.tvRowLoad.text = "12%"
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:243: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.scenarioId == null) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:400: applySubscriptionVisualFixture: private fun applySubscriptionVisualFixture() {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:404: "31.12.2026": binding.tvSubscriptionExpire.text = "31.12.2026"
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:1277: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.showAddSheet && supportFragmentManager.findFragmentByTag("add") == null) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:1287: HotfoxUiVisualOverride: val chrome = HotfoxUiVisualOverride.connectionChrome ?: return
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:1289: HotfoxUiVisualOverride: HotfoxUiVisualOverride.CHROME_CONNECTING -> ConnectionVisualState.CONNECTING
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:1290: HotfoxUiVisualOverride: HotfoxUiVisualOverride.CHROME_CONNECTED -> ConnectionVisualState.CONNECTED
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:1541: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.subscriptionFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:1541: subscriptionFixture: if (HotfoxUiVisualOverride.subscriptionFixture) {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/MainActivity.kt:1542: applySubscriptionVisualFixture: applySubscriptionVisualFixture()
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:12: HotfoxUiVisualOverride: object HotfoxUiVisualOverride {
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:13: ReferenceServerRow: data class ReferenceServerRow(
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:20: ReferenceAppRow: data class ReferenceAppRow(
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:47: serverDetailsFixture: var serverDetailsFixture: Boolean = false
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:51: appsFixture: var appsFixture: Boolean = false
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:55: serversFixture: var serversFixture: Boolean = false
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:59: subscriptionFixture: var subscriptionFixture: Boolean = false
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:63: ReferenceServerRow: var referenceServers: List<ReferenceServerRow> = emptyList()
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:63: referenceServers: var referenceServers: List<ReferenceServerRow> = emptyList()
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:67: ReferenceAppRow: var referenceApps: List<ReferenceAppRow> = emptyList()
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:67: referenceApps: var referenceApps: List<ReferenceAppRow> = emptyList()
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:76: serverDetailsFixture: serverDetailsFixture: Boolean = false,
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:77: appsFixture: appsFixture: Boolean = false,
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:78: serversFixture: serversFixture: Boolean = false,
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:79: subscriptionFixture: subscriptionFixture: Boolean = false,
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:80: ReferenceServerRow: referenceServers: List<ReferenceServerRow> = emptyList(),
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:80: referenceServers: referenceServers: List<ReferenceServerRow> = emptyList(),
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:81: ReferenceAppRow: referenceApps: List<ReferenceAppRow> = emptyList(),
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:81: referenceApps: referenceApps: List<ReferenceAppRow> = emptyList(),
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:88: serverDetailsFixture: this.serverDetailsFixture = serverDetailsFixture
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:89: appsFixture: this.appsFixture = appsFixture
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:90: serversFixture: this.serversFixture = serversFixture
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:91: subscriptionFixture: this.subscriptionFixture = subscriptionFixture
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:92: referenceServers: this.referenceServers = referenceServers
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxUiVisualOverride.kt:93: referenceApps: this.referenceApps = referenceApps
+bootstrap/hotfox_2_2_0/app/src/main/java/com/v2ray/ang/ui/HotfoxSplashActivity.kt:15: HotfoxUiVisualOverride: if (HotfoxUiVisualOverride.holdSplash) {
+
+Move fixture-specific state/data/rendering to src/debug. Production may expose only generic presentation seams with no fake data or screenshot-specific names.

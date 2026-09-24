@@ -1,0 +1,80 @@
+[
+  {
+    "step": "02_import",
+    "pass": true,
+    "tapped": "У меня уже есть подписка",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.HotfoxHttpsImportActivity"
+  },
+  {
+    "step": "02_buy_access",
+    "pass": true,
+    "tapped": "Купить доступ",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.RenewalActivity"
+  },
+  {
+    "step": "03_auto",
+    "pass": true,
+    "tapped": "Использовать AUTO",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.HotfoxOnboardingActivity"
+  },
+  {
+    "step": "03_manual",
+    "pass": true,
+    "tapped": "Выбрать вручную",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.MainActivity"
+  },
+  {
+    "step": "04_add_invalid",
+    "pass": true,
+    "tapped": "Добавить",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.HotfoxHttpsImportActivity"
+  },
+  {
+    "step": "home_connect",
+    "pass": true,
+    "tapped": "connect_action",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.MainActivity"
+  },
+  {
+    "step": "home_server_card",
+    "pass": true,
+    "tapped": "selected_server_card",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.MainActivity"
+  },
+  {
+    "step": "home_shadow_row",
+    "pass": true,
+    "tapped": "Shadow",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.HotfoxShadowActivity"
+  },
+  {
+    "step": "home_smart",
+    "pass": true,
+    "tapped": "smart_routing_card",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.HotfoxRoutingPrivacyActivity"
+  },
+  {
+    "step": "home_subscription",
+    "pass": true,
+    "tapped": "Управление доступом",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.MainActivity"
+  },
+  {
+    "step": "nav_servers",
+    "pass": true,
+    "tapped": "Серверы",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.MainActivity"
+  },
+  {
+    "step": "nav_subscription",
+    "pass": true,
+    "tapped": "Подписка",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.MainActivity"
+  },
+  {
+    "step": "nav_settings",
+    "pass": true,
+    "tapped": "Настройки",
+    "resumed_activity": "com.hotfox.vpn/com.v2ray.ang.ui.HotfoxSettingsActivity"
+  }
+]
