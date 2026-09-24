@@ -1,39 +1,48 @@
 # Active task
 
-STATUS: NO_ACTIVE_TASK
-TASK_ID: none
+STATUS: ACTIVE
+TASK_ID: hotfox-final-release-validation-20260924
 OWNER: Maxim
 ORCHESTRATOR: ChatGPT
-PRIMARY_EXECUTOR: none
+PRIMARY_EXECUTOR: Cursor background agent + authorized Mac validation
 BASE_BRANCH: main
-TASK_BRANCH: none
-TARGET_END_STATE: none
+TASK_BRANCH: cursor/hotfox-final-release-validation-20260924
+TARGET_END_STATE: Factual final release verdict from the canonical validation gate
 
 ## Objective
-No active task. ChatGPT replaces this section when the owner assigns work.
+Execute `docs/HOTFOX_FINAL_RELEASE_VALIDATION_EXECUTION_20260924.md` against one exact release-candidate SHA/artifact.
 
 ## Scope
-- none
+- repo/CI preflight and candidate freeze;
+- release signing availability/provenance check without exposing secrets;
+- existing secret-driven emulator/runtime VPN E2E;
+- local Mac emulator setup/validation where feasible;
+- physical R1–R8 when an authorized Android device is actually available;
+- fix/rebuild/rerun for blocking defects;
+- evidence ledger and final verdict.
 
 ## Non-goals
-- none
+- no UI redesign;
+- no new product features;
+- no fake VPN/payment/protection evidence;
+- no new production signing identity without explicit owner authorization.
 
 ## Acceptance criteria
-- none
+- exact candidate SHA/artifact recorded;
+- every gate labeled PASS/FAIL/BLOCKED/NOT EXECUTED;
+- all available runtime/emulator validation executed;
+- physical R1–R8 executed if a device is available;
+- no secret exposure;
+- RELEASE READY only if required signed-RC/runtime/physical evidence passes.
 
 ## Required verification
-- Follow all repository-specific mandatory gates.
-- Never claim checks that were not actually run.
+Follow `docs/phases/final-release-validation-gate.md` and `docs/HOTFOX_FINAL_RELEASE_VALIDATION_EXECUTION_20260924.md`.
 
 ## Evidence required
-- Branch and commit SHA.
-- Material files changed.
-- Commands/checks actually run with results.
-- Relevant screenshots/logs/preview URLs when applicable.
-- Known risks and blockers.
+`verification/release_gate_20260924/`
 
 ## Production permission
 PRODUCTION_ALLOWED: false
 
 ## Executor instructions
-Read repository-specific rules first, then `.ai/ORCHESTRATION.md`, this file, and finally update `.ai/HANDOFF.md` at handoff.
+Read repository rules and canonical gate first. Execute everything available now. Missing external prerequisites are blockers, not reasons to stop independent work.
