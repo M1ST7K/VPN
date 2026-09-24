@@ -1,7 +1,9 @@
 ---
 description: HotFox V5.1 fixture containment, emulator recovery, and evidence-first visual QA
-alwaysApply: true
+alwaysApply: false
 ---
+
+> HISTORICAL / COMPLETED UI RULE. Do not auto-apply during the Final Release Validation Gate. Read only when explicitly referenced for regression context.
 
 # HotFox V5.1 hard rules
 
