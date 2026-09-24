@@ -1,7 +1,9 @@
 ---
 description: Latest owner-approved V13 Home screenshots and PNG integration
-alwaysApply: true
+alwaysApply: false
 ---
+
+> HISTORICAL / COMPLETED UI RULE. Do not auto-apply during the Final Release Validation Gate. Read only when explicitly referenced for regression context.
 
 # HotFox V13: latest Home visual source
 
